@@ -63,16 +63,14 @@ jar {
 	}
 }
 
-// configure the maven publication
+tasks.publish.dependsOn build
 publishing {
 	publications {
 		mavenJava(MavenPublication) {
-			// add all the jars that should be included when publishing to maven
+			artifactId project.archivesBaseName
+
 			artifact(remapJar) {
 				builtBy remapJar
-			}
-			artifact(sourcesJar) {
-				builtBy remapSourcesJar
 			}
 		}
 	}
@@ -83,5 +81,16 @@ publishing {
 		// Notice: This block does NOT have the same function as the block in the top level.
 		// The repositories here will be used for publishing your artifact, not for
 		// retrieving dependencies.
+		maven {
+			allowInsecureProtocol = true
+			url = selfHostedMavenUrl
+			credentials {
+				username = selfHostedMavenUser
+				password = selfHostedMavenPass
+			}
+			authentication {
+				basic(BasicAuthentication)
+			}
+		}
 	}
 }
