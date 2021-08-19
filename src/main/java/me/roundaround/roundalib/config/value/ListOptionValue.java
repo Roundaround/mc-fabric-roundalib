@@ -1,9 +1,9 @@
 package me.roundaround.roundalib.config.value;
 
-public interface ListOptionValue {
+public interface ListOptionValue<T extends ListOptionValue> {
     String getId();
     String getDisplayString();
-    ListOptionValue getFromId(String id);
-    ListOptionValue getNext();
-    ListOptionValue getPrev();
+    T getFromId(String id);
+    T getNext();
+    T getPrev();
 }

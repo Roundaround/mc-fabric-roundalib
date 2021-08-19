@@ -4,13 +4,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import me.roundaround.roundalib.config.value.ListOptionValue;
 
-public class OptionListConfigOption extends ConfigOption<ListOptionValue> {
-    public OptionListConfigOption(String id, ListOptionValue defaultValue) {
+public class OptionListConfigOption<T extends ListOptionValue<T>> extends ConfigOption<T> {
+    public OptionListConfigOption(String id, T defaultValue) {
         super(id, defaultValue);
     }
 
     @Override
-    public ListOptionValue deserializeFromJson(JsonElement data) {
+    public T deserializeFromJson(JsonElement data) {
         return this.getValue().getFromId(data.getAsString());
     }
 
