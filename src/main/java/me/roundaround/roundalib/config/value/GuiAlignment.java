@@ -1,25 +1,26 @@
 package me.roundaround.roundalib.config.value;
 
+import me.roundaround.roundalib.util.GuiUtil;
 import net.minecraft.client.resource.language.I18n;
 
 import java.util.Arrays;
 
 public enum GuiAlignment implements ListOptionValue {
-    TOP_LEFT ("top", "left"),
-    TOP_CENTER ("top", "center"),
-    TOP_RIGHT ("top", "right"),
-    MIDDLE_LEFT ("middle", "left"),
-    MIDDLE_CENTER ("middle", "center"),
-    MIDDLE_RIGHT ("middle", "right"),
-    BOTTOM_LEFT ("bottom", "left"),
-    BOTTOM_CENTER ("bottom", "center"),
-    BOTTOM_RIGHT ("bottom", "right");
+    TOP_LEFT (AlignmentY.TOP, AlignmentX.LEFT),
+    TOP_CENTER (AlignmentY.TOP, AlignmentX.CENTER),
+    TOP_RIGHT (AlignmentY.TOP, AlignmentX.RIGHT),
+    MIDDLE_LEFT (AlignmentY.MIDDLE, AlignmentX.LEFT),
+    MIDDLE_CENTER (AlignmentY.MIDDLE, AlignmentX.CENTER),
+    MIDDLE_RIGHT (AlignmentY.MIDDLE, AlignmentX.RIGHT),
+    BOTTOM_LEFT (AlignmentY.BOTTOM, AlignmentX.LEFT),
+    BOTTOM_CENTER (AlignmentY.BOTTOM, AlignmentX.CENTER),
+    BOTTOM_RIGHT (AlignmentY.BOTTOM, AlignmentX.RIGHT);
 
-    private final String alignmentX;
-    private final String alignmentY;
+    private final AlignmentX alignmentX;
+    private final AlignmentY alignmentY;
     private final String id;
 
-    GuiAlignment(String alignmentX, String alignmentY) {
+    GuiAlignment(AlignmentY alignmentY, AlignmentX alignmentX) {
         this.alignmentX = alignmentX;
         this.alignmentY = alignmentY;
         this.id = alignmentX + "_" + alignmentY;
@@ -50,12 +51,20 @@ public enum GuiAlignment implements ListOptionValue {
         return values()[this.ordinal() + values().length - 1 % values().length];
     }
 
-    public String getAlignmentX() {
-        return alignmentX;
+    public AlignmentX getAlignmentX() {
+        return this.alignmentX;
     }
 
-    public String getAlignmentY() {
-        return alignmentY;
+    public AlignmentY getAlignmentY() {
+        return this.alignmentY;
+    }
+
+    public int getPosX() {
+        return getPosX(this);
+    }
+
+    public int getPosY() {
+        return getPosY(this);
     }
 
     public static GuiAlignment getDefault() {
@@ -67,5 +76,63 @@ public enum GuiAlignment implements ListOptionValue {
                 .filter(guiAlignment -> guiAlignment.id.equals(id))
                 .findFirst()
                 .orElse(getDefault());
+    }
+
+    public static int getPosX(GuiAlignment guiAlignment) {
+        return guiAlignment.alignmentX.getPos();
+    }
+
+    public static int getPosY(GuiAlignment guiAlignment) {
+        return guiAlignment.alignmentY.getPos();
+    }
+
+    public enum AlignmentX {
+        LEFT("left"),
+        CENTER("center"),
+        RIGHT("right");
+
+        private final String value;
+
+        AlignmentX(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return this.value;
+        }
+
+        public int getPos() {
+            return switch (value) {
+                case "center" -> GuiUtil.getScaledWindowWidth() / 2;
+                case "right" -> GuiUtil.getScaledWindowWidth();
+                default -> 0;
+            };
+        }
+    }
+
+    public enum AlignmentY {
+        TOP("top"),
+        MIDDLE("middle"),
+        BOTTOM("bottom");
+
+        private final String value;
+
+        AlignmentY(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return this.value;
+        }
+
+        public int getPos() {
+            return switch (value) {
+                case "middle" -> GuiUtil.getScaledWindowHeight() / 2;
+                case "bottom" -> GuiUtil.getScaledWindowHeight();
+                default -> 0;
+            };
+        }
     }
 }
