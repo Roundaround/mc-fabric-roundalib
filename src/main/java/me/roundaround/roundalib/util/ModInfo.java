@@ -3,11 +3,11 @@ package me.roundaround.roundalib.util;
 public class ModInfo {
     private final String modId;
     private final String modVersion;
-    private final String configVersion;
+    private final int configVersion;
     private final String modNameI18nKey;
     private final String configScreenTitleI18nKey;
 
-    public ModInfo(String modId, String modVersion, String configVersion, String modNameI18nKey, String configScreenTitleI18nKey) {
+    public ModInfo(String modId, String modVersion, int configVersion, String modNameI18nKey, String configScreenTitleI18nKey) {
         this.modId = modId;
         this.modVersion = modVersion;
         this.configVersion = configVersion;
@@ -23,7 +23,7 @@ public class ModInfo {
         return modVersion;
     }
 
-    public String getConfigVersion() {
+    public int getConfigVersion() {
         return configVersion;
     }
 

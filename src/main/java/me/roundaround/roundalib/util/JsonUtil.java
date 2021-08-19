@@ -72,4 +72,15 @@ public class JsonUtil {
 
         return defaultValue;
     }
+
+    public static int getIntOrDefault(JsonObject obj, String name, int defaultValue) {
+        if (obj.has(name) && obj.get(name).isJsonPrimitive()) {
+            try {
+                return obj.get(name).getAsInt();
+            } catch (Exception ignore) {
+            }
+        }
+
+        return defaultValue;
+    }
 }

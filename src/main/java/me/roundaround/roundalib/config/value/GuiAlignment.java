@@ -1,8 +1,10 @@
 package me.roundaround.roundalib.config.value;
 
+import net.minecraft.client.resource.language.I18n;
+
 import java.util.Arrays;
 
-public enum GuiPosition implements ListOptionValue {
+public enum GuiAlignment implements ListOptionValue {
     TOP_LEFT ("top", "left"),
     TOP_CENTER ("top", "center"),
     TOP_RIGHT ("top", "right"),
@@ -17,10 +19,10 @@ public enum GuiPosition implements ListOptionValue {
     private final String alignmentY;
     private final String id;
 
-    GuiPosition(String alignmentX, String alignmentY) {
+    GuiAlignment(String alignmentX, String alignmentY) {
         this.alignmentX = alignmentX;
         this.alignmentY = alignmentY;
-        this.id = "me.roundaround.roundalib.config.gui_position." + alignmentX + "_" + alignmentY;
+        this.id = alignmentX + "_" + alignmentY;
     }
 
     @Override
@@ -29,22 +31,22 @@ public enum GuiPosition implements ListOptionValue {
     }
 
     @Override
-    public GuiPosition getFromId(String id) {
+    public GuiAlignment getFromId(String id) {
         return fromId(id);
     }
 
     @Override
     public String getDisplayString() {
-        return net.minecraft.client.resource.language.I18n.translate(this.id);
+        return I18n.translate("me.roundaround.roundalib.config.gui_alignment." + this.id);
     }
     
     @Override
-    public GuiPosition getNext() {
+    public GuiAlignment getNext() {
         return values()[this.ordinal() + 1 % values().length];
     }
 
     @Override
-    public GuiPosition getPrev() {
+    public GuiAlignment getPrev() {
         return values()[this.ordinal() + values().length - 1 % values().length];
     }
 
@@ -56,13 +58,13 @@ public enum GuiPosition implements ListOptionValue {
         return alignmentY;
     }
 
-    public static GuiPosition getDefault() {
+    public static GuiAlignment getDefault() {
         return TOP_LEFT;
     }
 
-    public static GuiPosition fromId(String id) {
-        return Arrays.stream(GuiPosition.values())
-                .filter(guiPosition -> guiPosition.id.equals(id))
+    public static GuiAlignment fromId(String id) {
+        return Arrays.stream(GuiAlignment.values())
+                .filter(guiAlignment -> guiAlignment.id.equals(id))
                 .findFirst()
                 .orElse(getDefault());
     }

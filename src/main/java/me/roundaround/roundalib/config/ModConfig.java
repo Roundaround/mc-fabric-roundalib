@@ -10,27 +10,25 @@ import me.roundaround.roundalib.util.ModInfo;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.File;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class ModConfig {
+public abstract class ModConfig {
     private final ModInfo modInfo;
     private final HashMap<String, ConfigOption<?>> configOptions = new HashMap<>();
 
-    public ModConfig(ModInfo modInfo) {
+    private int previousConfigVersion;
+
+    protected ModConfig(ModInfo modInfo) {
         this.modInfo = modInfo;
-    }
 
-    public void registerConfigOption(ConfigOption<?> configOption) {
-        this.configOptions.put(configOption.getId(), configOption);
-    }
-
-    public void registerConfigOptions(ConfigOption<?>... configOptions) {
-        this.configOptions.putAll(Arrays.stream(configOptions)
+        this.configOptions.putAll(this.getConfigOptions().stream()
                 .collect(Collectors.toMap(ConfigOption::getId, Function.identity())));
     }
+
+    protected abstract Collection<ConfigOption<?>> getConfigOptions();
 
     public void loadFromFile() {
         JsonElement element = JsonUtil.parseJsonFile(this.getConfigFile());
@@ -38,7 +36,7 @@ public class ModConfig {
         if (element != null && element.isJsonObject()) {
             JsonObject root = element.getAsJsonObject();
 
-            String configVersion = JsonUtil.getStringOrDefault(root, "config_version", "0.0.1");
+            previousConfigVersion = JsonUtil.getIntOrDefault(root, "config_version", 1);
             // TODO: Upgrade versions as necessary.
 
             this.configOptions.values().forEach(configOption -> configOption.readFromJsonRoot(root));
@@ -48,6 +46,12 @@ public class ModConfig {
     }
 
     public boolean saveToFile() {
+        if (previousConfigVersion == this.modInfo.getConfigVersion() &&
+                this.configOptions.values().stream().noneMatch(ConfigOption::isDirty)) {
+            RoundaLibMod.LOGGER.info("Skipping saving config to file because nothing has changed.");
+            return true;
+        }
+
         JsonObject root = new JsonObject();
         root.add("config_version", new JsonPrimitive(this.modInfo.getConfigVersion()));
 

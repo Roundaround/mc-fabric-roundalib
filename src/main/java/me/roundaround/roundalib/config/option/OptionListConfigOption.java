@@ -16,6 +16,6 @@ public class OptionListConfigOption extends ConfigOption<ListOptionValue> {
 
     @Override
     public JsonElement serializeToJson() {
-        return new JsonPrimitive(this.getId());
+        return new JsonPrimitive(this.getValue().getId());
     }
 }

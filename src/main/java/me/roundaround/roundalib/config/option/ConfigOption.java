@@ -13,6 +13,7 @@ public abstract class ConfigOption<T> {
     public ConfigOption(String id, T defaultValue) {
         this.id = id;
         this.defaultValue = defaultValue;
+        this.value = defaultValue;
     }
 
     public String getId() {
@@ -45,6 +46,7 @@ public abstract class ConfigOption<T> {
 
     public void readFromJsonRoot(JsonObject root) {
         this.setValue(this.deserializeFromJson(root.get(this.id)));
+        this.lastSavedValue = this.value;
     }
 
     public void writeToJsonRoot(JsonObject root) {
