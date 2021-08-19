@@ -6,6 +6,7 @@ import com.google.gson.JsonPrimitive;
 import me.roundaround.roundalib.RoundaLibMod;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.util.JsonUtil;
+import me.roundaround.roundalib.util.ModInfo;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.File;
@@ -15,13 +16,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ModConfig {
-    private final String modId;
-    private final String version;
+    private final ModInfo modInfo;
     private final HashMap<String, ConfigOption<?>> configOptions = new HashMap<>();
 
-    public ModConfig(String modId, String version) {
-        this.modId = modId;
-        this.version = version;
+    public ModConfig(ModInfo modInfo) {
+        this.modInfo = modInfo;
     }
 
     public void registerConfigOption(ConfigOption<?> configOption) {
@@ -50,15 +49,11 @@ public class ModConfig {
 
     public boolean saveToFile() {
         JsonObject root = new JsonObject();
-        root.add("config_version", new JsonPrimitive(this.version));
+        root.add("config_version", new JsonPrimitive(this.modInfo.getConfigVersion()));
 
         this.configOptions.values().forEach((configOption -> configOption.writeToJsonRoot(root)));
 
         return JsonUtil.writeJsonToFile(root, this.getConfigFile());
-    }
-
-    public String getConfigVersion() {
-        return this.version;
     }
 
     public File getConfigDirectory() {
@@ -72,10 +67,14 @@ public class ModConfig {
     }
 
     public String getConfigFileName() {
-        return modId + ".json";
+        return this.modInfo.getModId() + ".json";
     }
 
     public File getConfigFile() {
         return new File(this.getConfigDirectory(), this.getConfigFileName());
+    }
+
+    public ModInfo getModInfo() {
+        return this.modInfo;
     }
 }
