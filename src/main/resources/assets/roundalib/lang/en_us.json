@@ -1,0 +1,11 @@
+{
+  "me.roundaround.roundalib.config.gui_alignment.top_left": "Top left",
+  "me.roundaround.roundalib.config.gui_alignment.top_center": "Top center",
+  "me.roundaround.roundalib.config.gui_alignment.top_right": "Top right",
+  "me.roundaround.roundalib.config.gui_alignment.middle_left": "Middle left",
+  "me.roundaround.roundalib.config.gui_alignment.middle_center": "Middle center",
+  "me.roundaround.roundalib.config.gui_alignment.middle_right": "Middle right",
+  "me.roundaround.roundalib.config.gui_alignment.bottom_left": "Bottom left",
+  "me.roundaround.roundalib.config.gui_alignment.bottom_center": "Bottom center",
+  "me.roundaround.roundalib.config.gui_alignment.bottom_right": "Bottom right"
+}

@@ -1,3 +1,1 @@
-- Add utility method to GuiAlignment to fetch the corresponding coordinates
 - Build out config screen system
-- Add i18n files
