@@ -11,11 +11,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
 public class ConfigScreen extends Screen {
-    private static final int BACKGROUND_COLOR = 0xB0000000;
     private static final int TITLE_COLOR = 0xFFFFFFFF;
     private static final int PADDING_X = 10;
     private static final int OFFSET_Y = 40;
-    private static final int TITLE_POS_Y = 17;
+    private static final int TITLE_POS_Y = 5;
 
     @Nullable
     private final Screen parent;
@@ -97,11 +96,10 @@ public class ConfigScreen extends Screen {
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(matrixStack);
         this.renderTitle(matrixStack);
-    }
 
-    @Override
-    public void renderBackground(MatrixStack matrixStack) {
-        fill(matrixStack, 0, 0, this.width, this.height, BACKGROUND_COLOR);
+        if (listWidget != null) {
+            listWidget.render(matrixStack, mouseX, mouseY, partialTicks);
+        }
     }
 
     public void renderTitle(MatrixStack matrixStack) {
