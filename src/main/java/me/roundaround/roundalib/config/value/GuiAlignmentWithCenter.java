@@ -38,7 +38,7 @@ public enum GuiAlignmentWithCenter implements ListOptionValue<GuiAlignmentWithCe
 
     @Override
     public String getDisplayString() {
-        return I18n.translate("me.roundaround.roundalib.config.gui_alignment." + this.id);
+        return I18n.translate("config.gui_alignment." + this.id);
     }
     
     @Override

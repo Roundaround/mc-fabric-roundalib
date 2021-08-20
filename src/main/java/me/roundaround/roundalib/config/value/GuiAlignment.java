@@ -33,7 +33,7 @@ public enum GuiAlignment implements ListOptionValue<GuiAlignment> {
 
     @Override
     public String getDisplayString() {
-        return I18n.translate("me.roundaround.roundalib.config.gui_alignment." + this.id);
+        return I18n.translate("config.gui_alignment." + this.id);
     }
     
     @Override
