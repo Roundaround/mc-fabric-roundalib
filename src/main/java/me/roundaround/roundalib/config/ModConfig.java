@@ -1,5 +1,6 @@
 package me.roundaround.roundalib.config;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -10,7 +11,6 @@ import me.roundaround.roundalib.util.ModInfo;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -28,7 +28,7 @@ public abstract class ModConfig {
                 .collect(Collectors.toMap(ConfigOption::getId, Function.identity())));
     }
 
-    protected abstract Collection<ConfigOption<?>> getConfigOptions();
+    public abstract ImmutableList<ConfigOption<?>> getConfigOptions();
 
     public void loadFromFile() {
         JsonElement element = JsonUtil.parseJsonFile(this.getConfigFile());

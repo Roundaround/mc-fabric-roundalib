@@ -4,8 +4,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 public class IntConfigOption extends ConfigOption<Integer> {
-    public IntConfigOption(String id, Integer defaultValue) {
-        super(id, defaultValue);
+    public IntConfigOption(String id, String labelI18nKey, Integer defaultValue) {
+        super(id, labelI18nKey, defaultValue);
     }
 
     @Override

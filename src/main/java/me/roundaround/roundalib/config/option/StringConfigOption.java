@@ -4,8 +4,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 public class StringConfigOption extends ConfigOption<String> {
-    public StringConfigOption(String id, String defaultValue) {
-        super(id, defaultValue);
+    public StringConfigOption(String id, String labelI18nKey, String defaultValue) {
+        super(id, labelI18nKey, defaultValue);
     }
 
     @Override

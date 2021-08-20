@@ -5,8 +5,8 @@ import com.google.gson.JsonPrimitive;
 import me.roundaround.roundalib.config.value.ListOptionValue;
 
 public class OptionListConfigOption<T extends ListOptionValue<T>> extends ConfigOption<T> {
-    public OptionListConfigOption(String id, T defaultValue) {
-        super(id, defaultValue);
+    public OptionListConfigOption(String id, String labelI18nKey, T defaultValue) {
+        super(id, labelI18nKey, defaultValue);
     }
 
     @Override

@@ -2,22 +2,30 @@ package me.roundaround.roundalib.config.option;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 
 public abstract class ConfigOption<T> {
     private final String id;
+    private final String labelI18nKey;
     private final T defaultValue;
 
     private T value;
     private T lastSavedValue;
 
-    public ConfigOption(String id, T defaultValue) {
+    public ConfigOption(String id, String labelI18nKey, T defaultValue) {
         this.id = id;
+        this.labelI18nKey = labelI18nKey;
         this.defaultValue = defaultValue;
         this.value = defaultValue;
     }
 
     public String getId() {
         return this.id;
+    }
+
+    public Text getLabel() {
+        return new TranslatableText(this.labelI18nKey);
     }
 
     public T getValue() {
