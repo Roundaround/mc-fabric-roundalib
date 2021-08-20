@@ -18,10 +18,7 @@ public class ConfigScreen extends Screen {
 
     @Override
     public void removed() {
-        if (this.client == null) {
-            return;
-        }
-        this.client.options.write();
+        this.modConfig.saveToFile();
     }
 
     @Override
