@@ -30,6 +30,11 @@ public abstract class ModConfig {
 
     public abstract ImmutableList<ConfigOption<?>> getConfigOptions();
 
+    public void init() {
+        this.loadFromFile();
+        this.saveToFile();
+    }
+
     public void loadFromFile() {
         JsonElement element = JsonUtil.parseJsonFile(this.getConfigFile());
 
