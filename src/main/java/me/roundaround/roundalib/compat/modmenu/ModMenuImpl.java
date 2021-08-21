@@ -8,7 +8,7 @@ import me.roundaround.roundalib.config.gui.ConfigScreen;
 public class ModMenuImpl implements ModMenuApi {
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
-        return null;
+        return (screen) -> null;
 //        return (screen) -> new ConfigScreen(screen, RoundaLibMod.CONFIG);
     }
 }
