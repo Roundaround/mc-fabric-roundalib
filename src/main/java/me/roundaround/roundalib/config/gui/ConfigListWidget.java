@@ -19,34 +19,32 @@ import java.util.stream.IntStream;
 
 @Environment(EnvType.CLIENT)
 public class ConfigListWidget extends DrawableHelper implements Drawable, Element {
-    private static final int SCROLLBAR_WIDTH = 14;
+    private static final int SCROLLBAR_WIDTH = 8;
     private static final int ELEMENT_HEIGHT = 14;
     private static final int PADDING_X = 3;
     private static final int PADDING_Y = 4;
 
     private final ConfigScreen parent;
     private final List<ConfigOptionWidget> configOptionWidgets = new ArrayList<>();
-    private final int posX;
-    private final int posY;
-    private final int elementStartX;
-    private final int elementStartY;
     private int width;
     private int height;
-    private int elementWidth;
-    private int elementHeight;
     private int top;
     private int bottom;
     private int left;
     private int right;
+    private final int elementStartX;
+    private final int elementStartY;
+    private int elementWidth;
+    private int elementHeight;
     private boolean scrolling;
     private double scrollAmount;
 
-    public ConfigListWidget(ConfigScreen parent, int posX, int posY, int width, int height) {
+    public ConfigListWidget(ConfigScreen parent, int left, int top, int width, int height) {
         this.parent = parent;
-        this.posX = posX;
-        this.posY = posY;
-        this.elementStartX = this.posX + PADDING_X;
-        this.elementStartY = this.posY + PADDING_Y;
+        this.left = left;
+        this.top = top;
+        this.elementStartX = this.left + PADDING_X;
+        this.elementStartY = this.top + PADDING_Y;
         this.setSize(width, height);
     }
 
@@ -61,12 +59,10 @@ public class ConfigListWidget extends DrawableHelper implements Drawable, Elemen
     public void setSize(int width, int height) {
         this.width = width;
         this.height = height;
-        this.elementWidth = width - SCROLLBAR_WIDTH;
+        this.elementWidth = width - (2 * PADDING_X) - SCROLLBAR_WIDTH;
         this.elementHeight = ELEMENT_HEIGHT;
-        this.top = this.posY;
-        this.bottom = this.posY + this.height;
-        this.left = this.posX;
-        this.right = this.posX + this.width;
+        this.bottom = this.top + this.height;
+        this.right = this.left + this.width;
     }
 
     @Override
@@ -103,14 +99,14 @@ public class ConfigListWidget extends DrawableHelper implements Drawable, Elemen
 
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
         if (button == 0 && this.scrolling) {
-            if (mouseY < (double)this.top) {
+            if (mouseY < (double) this.top) {
                 this.setScrollAmount(0.0D);
-            } else if (mouseY > (double)this.bottom) {
+            } else if (mouseY > (double) this.bottom) {
                 this.setScrollAmount(this.getMaxScroll());
             } else {
                 double percent = Math.max(1, this.getMaxScroll());
                 int bottom = this.height;
-                int top = MathHelper.clamp(((int)((float)bottom * bottom / this.getMaxPosition())), 32, bottom - 8);
+                int top = MathHelper.clamp(((int) ((float) bottom * bottom / this.getMaxPosition())), 32, bottom - 8);
                 double scaled = Math.max(1, percent / (bottom - top));
                 this.setScrollAmount(this.getScrollAmount() + deltaY * scaled);
             }
@@ -132,6 +128,9 @@ public class ConfigListWidget extends DrawableHelper implements Drawable, Elemen
 
     public void setScrollAmount(double amount) {
         this.scrollAmount = MathHelper.clamp(amount, 0, this.getMaxScroll());
+
+        IntStream.range(0, configOptionWidgets.size())
+                .forEach(idx -> this.configOptionWidgets.get(idx).setTop(this.getElementTop(idx)));
     }
 
     public int getMaxScroll() {
@@ -143,7 +142,7 @@ public class ConfigListWidget extends DrawableHelper implements Drawable, Elemen
     }
 
     protected void updateScrollingState(double mouseX, double mouseY, int button) {
-        this.scrolling = button == 0 && mouseX >= this.width - 6 && mouseX < this.width;
+        this.scrolling = button == 0 && mouseX >= this.right - SCROLLBAR_WIDTH && mouseX < this.right;
     }
 
     private ConfigOptionWidget getElementAtPosition(double mouseX, double mouseY) {
@@ -192,14 +191,14 @@ public class ConfigListWidget extends DrawableHelper implements Drawable, Elemen
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
         bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-        bufferBuilder.vertex(this.left, this.top + 4, 0).color(0, 0, 0, 0).next();
-        bufferBuilder.vertex(this.right, this.top + 4, 0).color(0, 0, 0, 0).next();
+        bufferBuilder.vertex(this.left, this.top + PADDING_Y, 0).color(0, 0, 0, 0).next();
+        bufferBuilder.vertex(this.right, this.top + PADDING_Y, 0).color(0, 0, 0, 0).next();
         bufferBuilder.vertex(this.right, this.top, 0).color(0, 0, 0, 255).next();
         bufferBuilder.vertex(this.left, this.top, 0).color(0, 0, 0, 255).next();
         bufferBuilder.vertex(this.left, this.bottom, 0).color(0, 0, 0, 255).next();
         bufferBuilder.vertex(this.right, this.bottom, 0).color(0, 0, 0, 255).next();
-        bufferBuilder.vertex(this.right, this.bottom - 4, 0).color(0, 0, 0, 0).next();
-        bufferBuilder.vertex(this.left, this.bottom - 4, 0).color(0, 0, 0, 0).next();
+        bufferBuilder.vertex(this.right, this.bottom - PADDING_Y, 0).color(0, 0, 0, 0).next();
+        bufferBuilder.vertex(this.left, this.bottom - PADDING_Y, 0).color(0, 0, 0, 0).next();
         tessellator.draw();
 
         RenderSystem.enableTexture();
@@ -216,7 +215,7 @@ public class ConfigListWidget extends DrawableHelper implements Drawable, Elemen
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
         int scrollbarRight = this.right;
-        int scrollbarLeft = scrollbarRight - 6;
+        int scrollbarLeft = scrollbarRight - SCROLLBAR_WIDTH;
 
         int handleHeight = (int) ((float) this.height * this.height / this.getMaxPosition());
         handleHeight = MathHelper.clamp(handleHeight, 32, this.height - 8);
@@ -253,6 +252,6 @@ public class ConfigListWidget extends DrawableHelper implements Drawable, Elemen
     }
 
     private int getElementTop(int idx) {
-        return elementStartY - (int)this.getScrollAmount() + idx * elementHeight;
+        return elementStartY - (int) this.getScrollAmount() + idx * elementHeight;
     }
 }

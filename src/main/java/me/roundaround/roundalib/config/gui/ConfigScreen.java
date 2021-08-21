@@ -15,10 +15,14 @@ import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
 public class ConfigScreen extends Screen {
-    private static final int TITLE_COLOR = 0xFFFFFFFF;
     private static final int HEADER_HEIGHT = 36;
     private static final int FOOTER_HEIGHT = 36;
+    private static final int LIST_MIN_WIDTH = 400;
+    private static final int TITLE_COLOR = 0xFFFFFFFF;
     private static final int TITLE_POS_Y = 17;
+    private static final int DONE_BUTTON_WIDTH = 200;
+    private static final int DONE_BUTTON_HEIGHT = 20;
+    private static final int DONE_BUTTON_POS_Y = 27;
 
     @Nullable
     private final Screen parent;
@@ -37,10 +41,15 @@ public class ConfigScreen extends Screen {
     protected void init() {
         super.init();
 
-        this.listWidget = new ConfigListWidget(this, 0, HEADER_HEIGHT, this.width, this.height - HEADER_HEIGHT - FOOTER_HEIGHT);
+        int listWidth = (int) Math.max(LIST_MIN_WIDTH, this.width / 1.5f);
+        int listLeft = (int) ((this.width / 2f) - (listWidth / 2f));
+        int listHeight = this.height - HEADER_HEIGHT - FOOTER_HEIGHT;
+        this.listWidget = new ConfigListWidget(this, listLeft, HEADER_HEIGHT, listWidth, listHeight);
         this.listWidget.init();
 
-        this.doneButton = new ButtonWidget(this.width / 2 - 100, this.height - 27, 200, 20, ScreenTexts.DONE, (button) -> {
+        int doneButtonLeft = (int) (this.width / 2f - DONE_BUTTON_WIDTH / 2f);
+        int doneButtonTop = this.height - DONE_BUTTON_POS_Y;
+        this.doneButton = new ButtonWidget(doneButtonLeft, doneButtonTop, DONE_BUTTON_WIDTH, DONE_BUTTON_HEIGHT, ScreenTexts.DONE, (button) -> {
             if (this.client == null) {
                 return;
             }
@@ -95,20 +104,12 @@ public class ConfigScreen extends Screen {
             return true;
         }
 
-        if (doneButton.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)) {
-            return true;
-        }
-
         return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
         if (listWidget.mouseScrolled(mouseX, mouseY, amount)) {
-            return true;
-        }
-
-        if (doneButton.mouseScrolled(mouseX, mouseY, amount)) {
             return true;
         }
 
@@ -144,6 +145,8 @@ public class ConfigScreen extends Screen {
 
     @Override
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+        this.renderBackgroundInRegion(0, this.height, 0, this.width);
+
         listWidget.render(matrixStack, mouseX, mouseY, partialTicks);
 
         this.renderHeader(matrixStack, mouseX, mouseY, partialTicks);
@@ -151,16 +154,16 @@ public class ConfigScreen extends Screen {
     }
 
     public void renderHeader(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        this.renderHeaderBackgroundInRegion(0, HEADER_HEIGHT, 0, this.width);
+        this.renderBackgroundInRegion(0, HEADER_HEIGHT, 0, this.width);
         drawCenteredText(matrixStack, this.textRenderer, this.title, this.width / 2, TITLE_POS_Y, TITLE_COLOR);
     }
 
     public void renderFooter(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        this.renderHeaderBackgroundInRegion(this.height - FOOTER_HEIGHT, this.height, 0, this.width);
+        this.renderBackgroundInRegion(this.height - FOOTER_HEIGHT, this.height, 0, this.width);
         doneButton.render(matrixStack, mouseX, mouseY, partialTicks);
     }
-    
-    public void renderHeaderBackgroundInRegion(int top, int bottom, int left, int right) {
+
+    public void renderBackgroundInRegion(int top, int bottom, int left, int right) {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferBuilder = tessellator.getBuffer();
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
