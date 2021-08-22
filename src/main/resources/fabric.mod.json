@@ -25,6 +25,7 @@
   "mixins": [
     "roundalib.mixins.json"
   ],
+  "accessWidener": "roundalib.accesswidener",
   "depends": {
     "fabricloader": ">=0.11.3",
     "fabric": "*",

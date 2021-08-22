@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '0.8-SNAPSHOT'
+	id 'fabric-loom' version '0.9-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -25,6 +25,10 @@ dependencies {
 
 	// ModMenu integration
 	modCompileOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
+}
+
+loom {
+	accessWidenerPath = file("src/main/resources/roundalib.accesswidener")
 }
 
 processResources {
