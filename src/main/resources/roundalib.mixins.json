@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "me.roundaround.roundalib.mixin",
+  "compatibilityLevel": "JAVA_16",
+  "mixins": [
+    "RecipesProviderMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
