@@ -14,6 +14,6 @@ public final class RoundaLibMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
-//        CONFIG.init();
+        CONFIG.init();
     }
 }

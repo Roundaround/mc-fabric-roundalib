@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '0.9.40'
+	id 'fabric-loom' version '0.9-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -25,6 +25,7 @@ dependencies {
 
 	// ModMenu integration
 	modCompileOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
+	modRuntime "com.terraformersmc:modmenu:${project.mod_menu_version}"
 }
 
 loom {
@@ -49,6 +50,13 @@ tasks.withType(JavaCompile).configureEach {
 	// Minecraft 1.17 (21w19a) upwards uses Java 16.
 	it.options.release = 16
 }
+
+// TODO: Enable once we've hit stable.
+//configurations.all {
+//	resolutionStrategy {
+//		failOnNonReproducibleResolution()
+//	}
+//}
 
 java {
 	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
