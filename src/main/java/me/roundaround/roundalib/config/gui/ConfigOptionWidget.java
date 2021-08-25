@@ -12,6 +12,7 @@ import net.minecraft.client.util.math.MatrixStack;
 
 @Environment(EnvType.CLIENT)
 public class ConfigOptionWidget extends DrawableHelper implements Drawable, Element {
+    public static final int HEIGHT = 14;
     private static final int LABEL_COLOR = 0xFFFFFFFF;
     private static final int PADDING_LEFT = 4;
 
@@ -24,13 +25,13 @@ public class ConfigOptionWidget extends DrawableHelper implements Drawable, Elem
     private int left;
     private int right;
 
-    public ConfigOptionWidget(ConfigListWidget parent, ConfigOption<?> configOption, int left, int top, int width, int height) {
+    public ConfigOptionWidget(ConfigListWidget parent, ConfigOption<?> configOption, int left, int top, int width) {
         this.parent = parent;
         this.configOption = configOption;
         this.left = left;
         this.top = top;
         this.width = width;
-        this.height = height;
+        this.height = HEIGHT;
         this.right = this.left + this.width;
         this.bottom = this.top + this.height;
     }

@@ -1,0 +1,129 @@
+package me.roundaround.roundalib.config.gui;
+
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.Drawable;
+import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.Element;
+import net.minecraft.client.render.*;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.MathHelper;
+
+public class Scrollbar extends DrawableHelper implements Drawable, Element {
+    private final Scrollable parent;
+    private final double scrollSpeed;
+
+    private int width;
+    private int height;
+    private int top;
+    private int bottom;
+    private int left;
+    private int right;
+    private boolean scrolling;
+    private double scrollAmount;
+    private int maxPosition;
+
+    public Scrollbar(Scrollable parent, double scrollSpeed) {
+        this.parent = parent;
+        this.scrollSpeed = scrollSpeed;
+    }
+
+    public void setBoundingBox(int top, int bottom, int left, int right) {
+        this.width = right - left;
+        this.height = bottom - top;
+        this.top = top;
+        this.bottom = bottom;
+        this.left = left;
+        this.right = right;
+    }
+
+    @Override
+    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        int maxScroll = this.getMaxScroll();
+        if (maxScroll <= 0) {
+            return;
+        }
+
+        RenderSystem.disableTexture();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+
+        int handleHeight = (int) ((float) this.height * this.height / this.maxPosition);
+        handleHeight = MathHelper.clamp(handleHeight, 32, this.height - 8);
+
+        int handleTop = (int) this.scrollAmount * (this.height - handleHeight) / maxScroll + this.top;
+        if (handleTop < this.top) {
+            handleTop = this.top;
+        }
+
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferBuilder = tessellator.getBuffer();
+
+        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+        bufferBuilder.vertex(this.left, this.bottom, 0).color(0, 0, 0, 255).next();
+        bufferBuilder.vertex(this.right, this.bottom, 0).color(0, 0, 0, 255).next();
+        bufferBuilder.vertex(this.right, this.top, 0).color(0, 0, 0, 255).next();
+        bufferBuilder.vertex(this.left, this.top, 0).color(0, 0, 0, 255).next();
+        bufferBuilder.vertex(this.left, handleTop + handleHeight, 0).color(128, 128, 128, 255).next();
+        bufferBuilder.vertex(this.right, handleTop + handleHeight, 0).color(128, 128, 128, 255).next();
+        bufferBuilder.vertex(this.right, handleTop, 0).color(128, 128, 128, 255).next();
+        bufferBuilder.vertex(this.left, handleTop, 0).color(128, 128, 128, 255).next();
+        bufferBuilder.vertex(this.left, handleTop + handleHeight - 1, 0).color(192, 192, 192, 255).next();
+        bufferBuilder.vertex(this.right - 1, handleTop + handleHeight - 1, 0).color(192, 192, 192, 255).next();
+        bufferBuilder.vertex(this.right - 1, handleTop, 0).color(192, 192, 192, 255).next();
+        bufferBuilder.vertex(this.left, handleTop, 0).color(192, 192, 192, 255).next();
+        tessellator.draw();
+
+        RenderSystem.enableTexture();
+    }
+
+    @Override
+    public boolean isMouseOver(double mouseX, double mouseY) {
+        return mouseX >= this.left && mouseX <= this.right &&
+                mouseY >= this.top && mouseY <= this.bottom;
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        this.scrolling = button == 0 && this.isMouseOver(mouseX, mouseY);
+        return this.scrolling;
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+        if (button == 0 && this.scrolling) {
+            if (mouseY < (double) this.top) {
+                this.setScrollAmount(0.0D);
+            } else if (mouseY > (double) this.bottom) {
+                this.setScrollAmount(this.getMaxScroll());
+            } else {
+                double percent = Math.max(1, this.getMaxScroll());
+                int bottom = this.height;
+                int top = MathHelper.clamp(((int) ((float) bottom * bottom / this.maxPosition)), 32, bottom - 8);
+                double scaled = Math.max(1, percent / (bottom - top));
+                this.setScrollAmount(this.scrollAmount + deltaY * scaled);
+            }
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+        this.setScrollAmount(this.scrollAmount - amount * this.scrollSpeed);
+        return true;
+    }
+
+    public void setMaxPosition(int maxPosition) {
+        this.maxPosition = maxPosition;
+    }
+
+    private int getMaxScroll() {
+        return Math.max(0, this.maxPosition - (this.height - 4));
+    }
+
+    private void setScrollAmount(double amount) {
+        this.scrollAmount = MathHelper.clamp(amount, 0, this.getMaxScroll());
+        this.parent.setScrollAmount(this.scrollAmount);
+    }
+}
