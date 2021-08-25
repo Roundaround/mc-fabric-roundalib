@@ -4,7 +4,8 @@
   "package": "me.roundaround.roundalib.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
-    "RecipesProviderMixin"
+    "BlockFamiliesAccessor",
+    "ServerMainMixin"
   ],
   "injectors": {
     "defaultRequire": 1

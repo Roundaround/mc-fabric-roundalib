@@ -1,9 +1,14 @@
 accessWidener   v1  named
 
+accessible field net/minecraft/data/server/RecipesProvider root Lnet/minecraft/data/DataGenerator;
+accessible method net/minecraft/data/server/RecipesProvider saveRecipe (Lnet/minecraft/data/DataCache;Lcom/google/gson/JsonObject;Ljava/nio/file/Path;)V
+accessible method net/minecraft/data/server/RecipesProvider saveRecipeAdvancement (Lnet/minecraft/data/DataCache;Lcom/google/gson/JsonObject;Ljava/nio/file/Path;)V
 accessible method net/minecraft/data/server/RecipesProvider offerSingleOutputShapelessRecipe (Ljava/util/function/Consumer;Lnet/minecraft/item/ItemConvertible;Lnet/minecraft/item/ItemConvertible;Ljava/lang/String;)V
 accessible method net/minecraft/data/server/RecipesProvider offerShapelessRecipe (Ljava/util/function/Consumer;Lnet/minecraft/item/ItemConvertible;Lnet/minecraft/item/ItemConvertible;Ljava/lang/String;I)V
 accessible method net/minecraft/data/server/RecipesProvider offerSmelting (Ljava/util/function/Consumer;Ljava/util/List;Lnet/minecraft/item/ItemConvertible;FILjava/lang/String;)V
 accessible method net/minecraft/data/server/RecipesProvider offerBlasting (Ljava/util/function/Consumer;Ljava/util/List;Lnet/minecraft/item/ItemConvertible;FILjava/lang/String;)V
+accessible method net/minecraft/data/server/RecipesProvider offerChiseledBlockRecipe (Ljava/util/function/Consumer;Lnet/minecraft/item/ItemConvertible;Lnet/minecraft/item/ItemConvertible;)V
+accessible method net/minecraft/data/server/RecipesProvider createChiseledBlockRecipe (Lnet/minecraft/item/ItemConvertible;Lnet/minecraft/recipe/Ingredient;)Lnet/minecraft/data/server/recipe/ShapedRecipeJsonFactory;
 accessible method net/minecraft/data/server/RecipesProvider offerRecipe (Ljava/util/function/Consumer;Lnet/minecraft/item/ItemConvertible;Lnet/minecraft/item/ItemConvertible;)V
 accessible method net/minecraft/data/server/RecipesProvider offerRecipe (Ljava/util/function/Consumer;Lnet/minecraft/item/ItemConvertible;Lnet/minecraft/item/ItemConvertible;I)V
 accessible method net/minecraft/data/server/RecipesProvider conditionsFromItem (Lnet/minecraft/predicate/NumberRange$IntRange;Lnet/minecraft/item/ItemConvertible;)Lnet/minecraft/advancement/criterion/InventoryChangedCriterion$Conditions;
@@ -12,3 +17,6 @@ accessible method net/minecraft/data/server/RecipesProvider conditionsFromTag (L
 accessible method net/minecraft/data/server/RecipesProvider conditionsFromItemPredicates ([Lnet/minecraft/predicate/item/ItemPredicate;)Lnet/minecraft/advancement/criterion/InventoryChangedCriterion$Conditions;
 accessible method net/minecraft/data/server/RecipesProvider hasItem (Lnet/minecraft/item/ItemConvertible;)Ljava/lang/String;
 accessible method net/minecraft/data/server/RecipesProvider getItemPath (Lnet/minecraft/item/ItemConvertible;)Ljava/lang/String;
+accessible method net/minecraft/data/server/RecipesProvider convertBetween (Lnet/minecraft/item/ItemConvertible;Lnet/minecraft/item/ItemConvertible;)Ljava/lang/String;
+
+accessible field net/minecraft/data/family/BlockFamilies BASE_BLOCKS_TO_FAMILIES Ljava/util/Map;
