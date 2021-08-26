@@ -11,21 +11,20 @@ import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.MathHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
 @Environment(EnvType.CLIENT)
-public class ConfigListWidget extends DrawableHelper implements Drawable, Element, Scrollable {
+public class ConfigList extends DrawableHelper implements Drawable, Element, Scrollable {
     private static final int SCROLLBAR_WIDTH = 8;
     private static final int PADDING_X = 3;
     private static final int PADDING_Y = 4;
 
     private final ConfigScreen parent;
     private final Scrollbar scrollbar;
-    private final List<ConfigOptionWidget> configOptionWidgets = new ArrayList<>();
+    private final List<OptionRow> optionRows = new ArrayList<>();
     private int width;
     private int height;
     private int top;
@@ -38,9 +37,9 @@ public class ConfigListWidget extends DrawableHelper implements Drawable, Elemen
     private int elementHeight;
     private double scrollAmount;
 
-    public ConfigListWidget(ConfigScreen parent, int left, int top, int width, int height) {
+    public ConfigList(ConfigScreen parent, int left, int top, int width, int height) {
         this.parent = parent;
-        this.scrollbar = new Scrollbar(this, ConfigOptionWidget.HEIGHT / 2d);
+        this.scrollbar = new Scrollbar(this, OptionRow.HEIGHT / 2d);
 
         this.left = left;
         this.top = top;
@@ -50,20 +49,20 @@ public class ConfigListWidget extends DrawableHelper implements Drawable, Elemen
     }
 
     public void init() {
-        configOptionWidgets.clear();
+        optionRows.clear();
 
         ImmutableList<ConfigOption<?>> configOptions = this.parent.getModConfig().getConfigOptions();
-        IntStream.range(0, configOptions.size()).forEach(idx -> configOptionWidgets.add(new ConfigOptionWidget(this, configOptions.get(idx), elementStartX,
+        IntStream.range(0, configOptions.size()).forEach(idx -> optionRows.add(new OptionRow(this, configOptions.get(idx), elementStartX,
                 this.getElementTop(idx), elementWidth)));
 
-        this.scrollbar.setMaxPosition(this.configOptionWidgets.size() * this.elementHeight);
+        this.scrollbar.setMaxPosition(this.optionRows.size() * this.elementHeight);
     }
 
     public void setSize(int width, int height) {
         this.width = width;
         this.height = height;
         this.elementWidth = width - (2 * PADDING_X) - SCROLLBAR_WIDTH;
-        this.elementHeight = ConfigOptionWidget.HEIGHT;
+        this.elementHeight = OptionRow.HEIGHT;
         this.bottom = this.top + this.height;
         this.right = this.left + this.width;
 
@@ -86,7 +85,7 @@ public class ConfigListWidget extends DrawableHelper implements Drawable, Elemen
             return true;
         }
 
-        ConfigOptionWidget element = this.getElementAtPosition(mouseX, mouseY);
+        OptionRow element = this.getElementAtPosition(mouseX, mouseY);
         if (element != null) {
             if (element.mouseClicked(mouseX, mouseY, button)) {
 //                    this.setFocused(element);
@@ -120,15 +119,15 @@ public class ConfigListWidget extends DrawableHelper implements Drawable, Elemen
     public void setScrollAmount(double amount) {
         this.scrollAmount = amount;
 
-        IntStream.range(0, configOptionWidgets.size())
-                .forEach(idx -> this.configOptionWidgets.get(idx).setTop(this.getElementTop(idx)));
+        IntStream.range(0, optionRows.size())
+                .forEach(idx -> this.optionRows.get(idx).setTop(this.getElementTop(idx)));
     }
 
-    private ConfigOptionWidget getElementAtPosition(double mouseX, double mouseY) {
-        for (int i = 0; i < this.configOptionWidgets.size(); i++) {
-            ConfigOptionWidget configOptionWidget = this.configOptionWidgets.get(i);
-            if (configOptionWidget.isMouseOver(mouseX, mouseY)) {
-                return configOptionWidget;
+    private OptionRow getElementAtPosition(double mouseX, double mouseY) {
+        for (int i = 0; i < this.optionRows.size(); i++) {
+            OptionRow optionRow = this.optionRows.get(i);
+            if (optionRow.isMouseOver(mouseX, mouseY)) {
+                return optionRow;
             }
         }
         return null;
@@ -192,9 +191,9 @@ public class ConfigListWidget extends DrawableHelper implements Drawable, Elemen
     }
 
     protected void renderConfigOptionEntries(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        configOptionWidgets.forEach(configOptionWidget -> {
-            if (configOptionWidget.getBottom() >= this.top && configOptionWidget.getTop() <= this.bottom) {
-                configOptionWidget.render(matrixStack, mouseX, mouseY, partialTicks);
+        optionRows.forEach(optionRow -> {
+            if (optionRow.getBottom() >= this.top && optionRow.getTop() <= this.bottom) {
+                optionRow.render(matrixStack, mouseX, mouseY, partialTicks);
             }
         });
     }

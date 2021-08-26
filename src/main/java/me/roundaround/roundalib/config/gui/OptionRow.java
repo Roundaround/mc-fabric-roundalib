@@ -11,12 +11,12 @@ import net.minecraft.client.gui.Element;
 import net.minecraft.client.util.math.MatrixStack;
 
 @Environment(EnvType.CLIENT)
-public class ConfigOptionWidget extends DrawableHelper implements Drawable, Element {
+public class OptionRow extends DrawableHelper implements Drawable, Element {
     public static final int HEIGHT = 14;
     private static final int LABEL_COLOR = 0xFFFFFFFF;
     private static final int PADDING_LEFT = 4;
 
-    private final ConfigListWidget parent;
+    private final ConfigList parent;
     private final ConfigOption<?> configOption;
     private final int width;
     private final int height;
@@ -25,7 +25,7 @@ public class ConfigOptionWidget extends DrawableHelper implements Drawable, Elem
     private int left;
     private int right;
 
-    public ConfigOptionWidget(ConfigListWidget parent, ConfigOption<?> configOption, int left, int top, int width) {
+    public OptionRow(ConfigList parent, ConfigOption<?> configOption, int left, int top, int width) {
         this.parent = parent;
         this.configOption = configOption;
         this.left = left;
