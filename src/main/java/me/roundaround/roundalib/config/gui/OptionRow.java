@@ -31,7 +31,7 @@ public class OptionRow extends DrawableHelper implements Drawable, Element {
     public OptionRow(ConfigList parent, ConfigOption<?> configOption, int left, int top, int width) {
         this.parent = parent;
         this.configOption = configOption;
-        this.control = configOption.createControl();
+        this.control = configOption.createControl(this);
         this.left = left;
         this.top = top;
         this.width = width;
