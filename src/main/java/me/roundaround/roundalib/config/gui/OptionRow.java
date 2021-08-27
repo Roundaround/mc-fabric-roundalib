@@ -83,8 +83,6 @@ public class OptionRow extends Widget<ConfigList> {
 
     protected void renderBackground(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         if (index % 2 == 0) {
-//            fill(matrixStack, this.left - 1, this.top - 1, this.right + 2, this.bottom + 2, ROW_SHADE);
-
             RenderSystem.disableTexture();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
@@ -138,12 +136,6 @@ public class OptionRow extends Widget<ConfigList> {
     }
 
     protected void renderDecorations(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-//        if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
-//            drawHorizontalLine(matrixStack, this.left - 1, this.right + 1, this.top - 1, HIGHLIGHT_COLOR);
-//            drawHorizontalLine(matrixStack, this.left - 1, this.right + 1, this.bottom + 1, HIGHLIGHT_COLOR);
-//            drawVerticalLine(matrixStack, this.left - 1, this.top - 1, this.bottom + 1, HIGHLIGHT_COLOR);
-//            drawVerticalLine(matrixStack, this.right + 1, this.top - 1, this.bottom + 1, HIGHLIGHT_COLOR);
-//        }
     }
 
     public ConfigOption<?> getConfigOption() {
