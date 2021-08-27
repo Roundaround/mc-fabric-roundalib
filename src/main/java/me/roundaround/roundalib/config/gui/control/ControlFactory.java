@@ -5,5 +5,6 @@ import me.roundaround.roundalib.config.option.ConfigOption;
 
 @FunctionalInterface
 public interface ControlFactory<T> {
-    Control<T> apply(OptionRow parent, ConfigOption<T> configOption, int top, int left, int height, int width);
+  Control<T> apply(
+      OptionRow parent, ConfigOption<T> configOption, int top, int left, int height, int width);
 }

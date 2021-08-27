@@ -9,78 +9,81 @@ import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 public class JsonUtil {
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+  private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    @Nullable
-    public static JsonElement parseJsonFile(File file) {
-        if (file != null && file.exists() && file.isFile() && file.canRead()) {
-            String fileName = file.getAbsolutePath();
+  @Nullable
+  public static JsonElement parseJsonFile(File file) {
+    if (file != null && file.exists() && file.isFile() && file.canRead()) {
+      String fileName = file.getAbsolutePath();
 
-            try {
-                JsonParser parser = new JsonParser();
-                InputStreamReader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
+      try {
+        JsonParser parser = new JsonParser();
+        InputStreamReader reader =
+            new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
 
-                JsonElement element = parser.parse(reader);
-                reader.close();
+        JsonElement element = parser.parse(reader);
+        reader.close();
 
-                return element;
-            } catch (Exception e) {
-                RoundaLibMod.LOGGER.error("Failed to parse the JSON file '{}'", fileName, e);
-            }
-        }
-
-        return null;
+        return element;
+      } catch (Exception e) {
+        RoundaLibMod.LOGGER.error("Failed to parse the JSON file '{}'", fileName, e);
+      }
     }
 
-    public static boolean writeJsonToFile(JsonElement root, File file) {
-        OutputStreamWriter writer = null;
-        File tempFile = new File(file.getParentFile(), UUID.randomUUID() + ".json.tmp");
+    return null;
+  }
 
-        try {
-            writer = new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.UTF_8);
-            writer.write(GSON.toJson(root));
-            writer.close();
+  public static boolean writeJsonToFile(JsonElement root, File file) {
+    OutputStreamWriter writer = null;
+    File tempFile = new File(file.getParentFile(), UUID.randomUUID() + ".json.tmp");
 
-            if (file.exists() && file.isFile() && !file.delete()) {
-                RoundaLibMod.LOGGER.error("Failed to overwrite existing JSON file '{}'", file.getAbsolutePath());
-            }
+    try {
+      writer = new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.UTF_8);
+      writer.write(GSON.toJson(root));
+      writer.close();
 
-            return tempFile.renameTo(file);
-        } catch (Exception e) {
-            RoundaLibMod.LOGGER.error("Failed to save the JSON file '{}'", file.getAbsolutePath(), e);
-        } finally {
-            try {
-                if (writer != null) {
-                    writer.close();
-                }
-            } catch (IOException e) {
-                RoundaLibMod.LOGGER.warn("Failed to close JSON file stream", e);
-            }
+      if (file.exists() && file.isFile() && !file.delete()) {
+        RoundaLibMod.LOGGER.error(
+            "Failed to overwrite existing JSON file '{}'", file.getAbsolutePath());
+      }
+
+      return tempFile.renameTo(file);
+    } catch (Exception e) {
+      RoundaLibMod.LOGGER.error("Failed to save the JSON file '{}'", file.getAbsolutePath(), e);
+    } finally {
+      try {
+        if (writer != null) {
+          writer.close();
         }
-
-        return false;
+      } catch (IOException e) {
+        RoundaLibMod.LOGGER.warn("Failed to close JSON file stream", e);
+      }
     }
 
-    @Nullable
-    public static String getStringOrDefault(JsonObject obj, String name, @Nullable String defaultValue) {
-        if (obj.has(name) && obj.get(name).isJsonPrimitive()) {
-            try {
-                return obj.get(name).getAsString();
-            } catch (Exception ignore) {
-            }
-        }
+    return false;
+  }
 
-        return defaultValue;
+  @Nullable
+  public static String getStringOrDefault(
+      JsonObject obj, String name, @Nullable String defaultValue) {
+    if (obj.has(name) && obj.get(name).isJsonPrimitive()) {
+      try {
+        return obj.get(name).getAsString();
+      } catch (Exception ignore) {
+      }
     }
 
-    public static int getIntOrDefault(JsonObject obj, String name, int defaultValue) {
-        if (obj.has(name) && obj.get(name).isJsonPrimitive()) {
-            try {
-                return obj.get(name).getAsInt();
-            } catch (Exception ignore) {
-            }
-        }
+    return defaultValue;
+  }
 
-        return defaultValue;
+  public static int getIntOrDefault(JsonObject obj, String name, int defaultValue) {
+    if (obj.has(name) && obj.get(name).isJsonPrimitive()) {
+      try {
+        return obj.get(name).getAsInt();
+      } catch (Exception ignore) {
+      }
     }
+
+    return defaultValue;
+  }
 }

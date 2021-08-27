@@ -7,13 +7,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public final class RoundaLibMod implements ModInitializer {
-    public static final String MOD_ID = "roundalib";
-    public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
-    public static final ModInfo MOD_INFO = new ModInfo(MOD_ID, "0.0.2", 1);
-    public static final RoundaLibConfig CONFIG = new RoundaLibConfig();
+  public static final String MOD_ID = "roundalib";
+  public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
+  public static final ModInfo MOD_INFO = new ModInfo(MOD_ID, "0.0.2", 1);
+  public static final RoundaLibConfig CONFIG = new RoundaLibConfig();
 
-    @Override
-    public void onInitialize() {
-        CONFIG.init();
-    }
+  @Override
+  public void onInitialize() {
+    CONFIG.init();
+  }
 }
