@@ -113,7 +113,7 @@ public class ConfigList extends Widget<ConfigScreen> implements Scrollable {
 
     @Override
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground();
+        this.renderBackground(matrixStack);
         this.renderConfigOptionEntries(matrixStack, mouseX, mouseY, partialTicks);
 
         this.scrollbar.render(matrixStack, mouseX, mouseY, partialTicks);
@@ -127,7 +127,7 @@ public class ConfigList extends Widget<ConfigScreen> implements Scrollable {
                 .collect(Collectors.toList());
     }
 
-    protected void renderBackground() {
+    protected void renderBackground(MatrixStack matrixStack) {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferBuilder = tessellator.getBuffer();
 

@@ -1,14 +1,17 @@
 package me.roundaround.roundalib.config.gui;
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.config.gui.control.Control;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.Matrix4f;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,11 +19,12 @@ import java.util.stream.Collectors;
 @Environment(EnvType.CLIENT)
 public class OptionRow extends Widget<ConfigList> {
     public static final int HEIGHT = 20;
-    protected static final int ROW_SHADE = 0x81000000;
     protected static final int LABEL_COLOR = 0xFFFFFFFF;
     protected static final int HIGHLIGHT_COLOR = 0x50FFFFFF;
     protected static final int PADDING = 4;
     protected static final int CONTROL_WIDTH = 80;
+    protected static final int ROW_SHADE_STRENGTH = 85;
+    protected static final int ROW_SHADE_FADE_WIDTH = 8;
 
     protected final int index;
     protected final ConfigOption<?> configOption;
@@ -79,7 +83,36 @@ public class OptionRow extends Widget<ConfigList> {
 
     protected void renderBackground(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         if (index % 2 == 0) {
-            fill(matrixStack, this.left - 1, this.top - 1, this.right + 2, this.bottom + 2, ROW_SHADE);
+//            fill(matrixStack, this.left - 1, this.top - 1, this.right + 2, this.bottom + 2, ROW_SHADE);
+
+            RenderSystem.disableTexture();
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            RenderSystem.setShader(GameRenderer::getPositionColorShader);
+
+            Tessellator tessellator = Tessellator.getInstance();
+            BufferBuilder bufferBuilder = tessellator.getBuffer();
+            Matrix4f matrix4f = matrixStack.peek().getModel();
+
+            bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+            bufferBuilder.vertex(matrix4f, this.left - 1 + ROW_SHADE_FADE_WIDTH, this.top - 1, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+            bufferBuilder.vertex(matrix4f, this.left - 1, this.top - 1, 0).color(0, 0, 0, 0).next();
+            bufferBuilder.vertex(matrix4f, this.left - 1, this.bottom + 2, 0).color(0, 0, 0, 0).next();
+            bufferBuilder.vertex(matrix4f, this.left - 1 + ROW_SHADE_FADE_WIDTH, this.bottom + 2, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+
+            bufferBuilder.vertex(matrix4f, this.right + 2 - ROW_SHADE_FADE_WIDTH, this.top - 1, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+            bufferBuilder.vertex(matrix4f, this.left - 1 + ROW_SHADE_FADE_WIDTH, this.top - 1, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+            bufferBuilder.vertex(matrix4f, this.left - 1 + ROW_SHADE_FADE_WIDTH, this.bottom + 2, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+            bufferBuilder.vertex(matrix4f, this.right + 2 - ROW_SHADE_FADE_WIDTH, this.bottom + 2, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+
+            bufferBuilder.vertex(matrix4f, this.right + 2, this.top - 1, 0).color(0, 0, 0, 0).next();
+            bufferBuilder.vertex(matrix4f, this.right + 2 - ROW_SHADE_FADE_WIDTH, this.top - 1, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+            bufferBuilder.vertex(matrix4f, this.right + 2 - ROW_SHADE_FADE_WIDTH, this.bottom + 2, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+            bufferBuilder.vertex(matrix4f, this.right + 2, this.bottom + 2, 0).color(0, 0, 0, 0).next();
+            tessellator.draw();
+
+            RenderSystem.enableTexture();
+            RenderSystem.disableBlend();
         }
 
         if (this.isMouseOver(mouseX, mouseY)) {
