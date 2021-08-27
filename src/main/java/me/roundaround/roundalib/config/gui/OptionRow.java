@@ -8,6 +8,10 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.Text;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
 public class OptionRow extends Widget<ConfigList> {
@@ -45,10 +49,11 @@ public class OptionRow extends Widget<ConfigList> {
     }
 
     @Override
-    public void renderOverlay(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
-        this.subWidgets.forEach((Widget<?> subWidget) -> {
-            subWidget.renderOverlay(matrixStack, mouseX, mouseY, delta);
-        });
+    public List<Text> getTooltip(int mouseX, int mouseY, float delta) {
+        return this.subWidgets.stream()
+                .map(subWidget -> subWidget.getTooltip(mouseX, mouseY, delta))
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 
     @Override

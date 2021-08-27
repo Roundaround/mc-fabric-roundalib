@@ -9,9 +9,11 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Environment(EnvType.CLIENT)
@@ -115,8 +117,11 @@ public class ConfigList extends Widget<ConfigScreen> implements Scrollable {
     }
 
     @Override
-    public void renderOverlay(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
-        this.renderConfigOptionEntryOverlays(matrixStack, mouseX, mouseY, delta);
+    public List<Text> getTooltip(int mouseX, int mouseY, float delta) {
+        return this.optionRows.stream()
+                .map(optionRow -> optionRow.getTooltip(mouseX, mouseY, delta))
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 
     protected void renderBackground() {
@@ -172,14 +177,6 @@ public class ConfigList extends Widget<ConfigScreen> implements Scrollable {
         optionRows.forEach(optionRow -> {
             if (optionRow.getBottom() >= this.top && optionRow.getTop() <= this.bottom) {
                 optionRow.render(matrixStack, mouseX, mouseY, partialTicks);
-            }
-        });
-    }
-
-    protected void renderConfigOptionEntryOverlays(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        optionRows.forEach(optionRow -> {
-            if (optionRow.getBottom() >= this.top && optionRow.getTop() <= this.bottom) {
-                optionRow.renderOverlay(matrixStack, mouseX, mouseY, partialTicks);
             }
         });
     }
