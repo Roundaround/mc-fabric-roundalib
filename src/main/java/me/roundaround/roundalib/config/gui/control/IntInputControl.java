@@ -5,8 +5,8 @@ import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.util.math.MatrixStack;
 
 public class IntInputControl extends Control<Integer> {
-    public IntInputControl(OptionRow parent, ConfigOption<Integer> configOption) {
-        super(parent, configOption);
+    public IntInputControl(OptionRow parent, ConfigOption<Integer> configOption, int top, int left, int height, int width) {
+        super(parent, configOption, top, left, height, width);
     }
 
     @Override

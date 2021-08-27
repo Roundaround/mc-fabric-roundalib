@@ -76,12 +76,12 @@ public abstract class ConfigOption<T> {
         this.markValueAsSaved();
     }
 
-    public final Control<T> createControl(OptionRow parent) {
+    public final Control<T> createControl(OptionRow parent, int top, int left, int height, int width) {
         if (this.control != null) {
             return control;
         }
 
-        this.control = this.controlFactory.apply(parent, this);
+        this.control = this.controlFactory.apply(parent, this, top, left, height, width);
         return this.control;
     }
 

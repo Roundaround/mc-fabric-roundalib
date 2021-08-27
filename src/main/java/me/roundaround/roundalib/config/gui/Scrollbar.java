@@ -1,39 +1,20 @@
 package me.roundaround.roundalib.config.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.Element;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.MathHelper;
 
-public class Scrollbar extends DrawableHelper implements Drawable, Element {
-    private final Scrollable parent;
+public class Scrollbar extends Widget<Scrollable> {
     private final double scrollSpeed;
 
-    private int width;
-    private int height;
-    private int top;
-    private int bottom;
-    private int left;
-    private int right;
     private boolean scrolling;
     private double scrollAmount;
     private int maxPosition;
 
-    public Scrollbar(Scrollable parent, double scrollSpeed) {
-        this.parent = parent;
+    public Scrollbar(Scrollable parent, double scrollSpeed, int top, int left, int height, int width) {
+        super(parent, top, left, height, width);
         this.scrollSpeed = scrollSpeed;
-    }
-
-    public void setBoundingBox(int top, int bottom, int left, int right) {
-        this.width = right - left;
-        this.height = bottom - top;
-        this.top = top;
-        this.bottom = bottom;
-        this.left = left;
-        this.right = right;
     }
 
     @Override
@@ -58,27 +39,28 @@ public class Scrollbar extends DrawableHelper implements Drawable, Element {
         BufferBuilder bufferBuilder = tessellator.getBuffer();
 
         bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+
+        // Whole (container) bar
         bufferBuilder.vertex(this.left, this.bottom, 0).color(0, 0, 0, 255).next();
         bufferBuilder.vertex(this.right, this.bottom, 0).color(0, 0, 0, 255).next();
         bufferBuilder.vertex(this.right, this.top, 0).color(0, 0, 0, 255).next();
         bufferBuilder.vertex(this.left, this.top, 0).color(0, 0, 0, 255).next();
+
+        // Handle shadow
         bufferBuilder.vertex(this.left, handleTop + handleHeight, 0).color(128, 128, 128, 255).next();
         bufferBuilder.vertex(this.right, handleTop + handleHeight, 0).color(128, 128, 128, 255).next();
         bufferBuilder.vertex(this.right, handleTop, 0).color(128, 128, 128, 255).next();
         bufferBuilder.vertex(this.left, handleTop, 0).color(128, 128, 128, 255).next();
+
+        // Handle main face
         bufferBuilder.vertex(this.left, handleTop + handleHeight - 1, 0).color(192, 192, 192, 255).next();
         bufferBuilder.vertex(this.right - 1, handleTop + handleHeight - 1, 0).color(192, 192, 192, 255).next();
         bufferBuilder.vertex(this.right - 1, handleTop, 0).color(192, 192, 192, 255).next();
         bufferBuilder.vertex(this.left, handleTop, 0).color(192, 192, 192, 255).next();
+
         tessellator.draw();
 
         RenderSystem.enableTexture();
-    }
-
-    @Override
-    public boolean isMouseOver(double mouseX, double mouseY) {
-        return mouseX >= this.left && mouseX <= this.right &&
-                mouseY >= this.top && mouseY <= this.bottom;
     }
 
     @Override
@@ -109,7 +91,7 @@ public class Scrollbar extends DrawableHelper implements Drawable, Element {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+    public boolean onMouseScrolled(double mouseX, double mouseY, double amount) {
         this.setScrollAmount(this.scrollAmount - amount * this.scrollSpeed);
         return true;
     }

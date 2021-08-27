@@ -1,56 +1,30 @@
 package me.roundaround.roundalib.config.gui;
 
-import me.roundaround.roundalib.config.gui.ConfigList;
 import me.roundaround.roundalib.config.gui.control.Control;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.Element;
 import net.minecraft.client.util.math.MatrixStack;
 
 @Environment(EnvType.CLIENT)
-public class OptionRow extends DrawableHelper implements Drawable, Element {
-    public static final int HEIGHT = 14;
+public class OptionRow extends Widget<ConfigList> {
+    public static final int HEIGHT = 20;
     protected static final int LABEL_COLOR = 0xFFFFFFFF;
-    protected static final int PADDING_LEFT = 4;
+    protected static final int HIGHLIGHT_COLOR = 0x50FFFFFF;
+    protected static final int PADDING = 4;
+    protected static final int CONTROL_WIDTH = 80;
 
-    protected final ConfigList parent;
     protected final ConfigOption<?> configOption;
     protected final Control<?> control;
-    protected final int width;
-    protected final int height;
-    protected int top;
-    protected int bottom;
-    protected int left;
-    protected int right;
 
-    public OptionRow(ConfigList parent, ConfigOption<?> configOption, int left, int top, int width) {
-        this.parent = parent;
+    public OptionRow(ConfigList parent, ConfigOption<?> configOption, int top, int left, int width) {
+        super(parent, top, left, HEIGHT, width);
+
         this.configOption = configOption;
-        this.control = configOption.createControl(this);
-        this.left = left;
-        this.top = top;
-        this.width = width;
-        this.height = HEIGHT;
-        this.right = this.left + this.width;
-        this.bottom = this.top + this.height;
-    }
-
-    public void setTop(int top) {
-        this.top = top;
-        this.bottom = this.top + this.height;
-    }
-
-    public int getTop() {
-        return this.top;
-    }
-
-    public int getBottom() {
-        return this.bottom;
+        this.control = configOption.createControl(this, this.top, this.right - CONTROL_WIDTH - PADDING, this.height, CONTROL_WIDTH);
     }
 
     @Override
@@ -62,9 +36,15 @@ public class OptionRow extends DrawableHelper implements Drawable, Element {
     }
 
     @Override
-    public boolean isMouseOver(double mouseX, double mouseY) {
-        return mouseX >= this.left && mouseX <= this.right &&
-                mouseY >= this.top && mouseY <= this.bottom;
+    public void moveTop(int top) {
+        super.moveTop(top);
+
+        this.control.moveTop(top);
+    }
+
+    @Override
+    public boolean onMouseClicked(double mouseX, double mouseY, int button) {
+        return this.control.mouseClicked(mouseX, mouseY, button);
     }
 
     protected void renderBackground(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
@@ -72,14 +52,20 @@ public class OptionRow extends DrawableHelper implements Drawable, Element {
 
     protected void renderLabel(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-        int textY = (int) (this.top + (this.height / 2f) - (textRenderer.fontHeight / 2f));
-        drawTextWithShadow(matrixStack, textRenderer, this.configOption.getLabel(),
-                this.left + PADDING_LEFT, textY, LABEL_COLOR);
+        drawTextWithShadow(matrixStack, textRenderer, this.configOption.getLabel(), this.left + PADDING, this.top + (this.height - 8) / 2, LABEL_COLOR);
     }
 
     protected void renderControl(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+        this.control.render(matrixStack, mouseX, mouseY, partialTicks);
     }
 
+
     protected void renderDecorations(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+        if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+            drawHorizontalLine(matrixStack, this.left - 1, this.right + 1, this.top - 1, HIGHLIGHT_COLOR);
+            drawHorizontalLine(matrixStack, this.left - 1, this.right + 1, this.bottom + 1, HIGHLIGHT_COLOR);
+            drawVerticalLine(matrixStack, this.left - 1, this.top - 1, this.bottom + 1, HIGHLIGHT_COLOR);
+            drawVerticalLine(matrixStack, this.right + 1, this.top - 1, this.bottom + 1, HIGHLIGHT_COLOR);
+        }
     }
 }

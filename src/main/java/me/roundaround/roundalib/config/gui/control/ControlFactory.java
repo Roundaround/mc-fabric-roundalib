@@ -3,8 +3,7 @@ package me.roundaround.roundalib.config.gui.control;
 import me.roundaround.roundalib.config.gui.OptionRow;
 import me.roundaround.roundalib.config.option.ConfigOption;
 
-import java.util.function.BiFunction;
-
 @FunctionalInterface
-public interface ControlFactory<T> extends BiFunction<OptionRow, ConfigOption<T>, Control<T>> {
+public interface ControlFactory<T> {
+    Control<T> apply(OptionRow parent, ConfigOption<T> configOption, int top, int left, int height, int width);
 }

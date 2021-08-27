@@ -44,7 +44,7 @@ public class ConfigScreen extends Screen {
         int listWidth = (int) Math.max(LIST_MIN_WIDTH, this.width / 1.5f);
         int listLeft = (int) ((this.width / 2f) - (listWidth / 2f));
         int listHeight = this.height - HEADER_HEIGHT - FOOTER_HEIGHT;
-        this.listWidget = new ConfigList(this, listLeft, HEADER_HEIGHT, listWidth, listHeight);
+        this.listWidget = new ConfigList(this, HEADER_HEIGHT, listLeft, listHeight, listWidth);
         this.listWidget.init();
 
         int doneButtonLeft = (int) (this.width / 2f - DONE_BUTTON_WIDTH / 2f);

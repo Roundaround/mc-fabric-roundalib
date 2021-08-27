@@ -6,9 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.Element;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 
@@ -17,86 +15,60 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 @Environment(EnvType.CLIENT)
-public class ConfigList extends DrawableHelper implements Drawable, Element, Scrollable {
-    private static final int SCROLLBAR_WIDTH = 8;
-    private static final int PADDING_X = 3;
+public class ConfigList extends Widget<ConfigScreen> implements Scrollable {
+    private static final int SCROLLBAR_WIDTH = 6;
+    private static final int PADDING_X = 4;
     private static final int PADDING_Y = 4;
+    private static final int ROW_PADDING = 2;
 
     private final ConfigScreen parent;
     private final Scrollbar scrollbar;
     private final List<OptionRow> optionRows = new ArrayList<>();
-    private int width;
-    private int height;
-    private int top;
-    private int bottom;
-    private int left;
-    private int right;
     private final int elementStartX;
     private final int elementStartY;
-    private int elementWidth;
-    private int elementHeight;
-    private double scrollAmount;
+    private final int elementWidth;
+    private final int elementHeight;
+    private double scrollAmount = 0;
 
-    public ConfigList(ConfigScreen parent, int left, int top, int width, int height) {
+    public ConfigList(ConfigScreen parent, int top, int left, int height, int width) {
+        super(parent, top, left, height, width);
         this.parent = parent;
-        this.scrollbar = new Scrollbar(this, OptionRow.HEIGHT / 2d);
 
-        this.left = left;
-        this.top = top;
         this.elementStartX = this.left + PADDING_X;
         this.elementStartY = this.top + PADDING_Y;
-        this.setSize(width, height);
+
+        this.elementWidth = this.width - (2 * PADDING_X) - SCROLLBAR_WIDTH;
+        this.elementHeight = OptionRow.HEIGHT;
+
+        this.scrollbar = new Scrollbar(this, (this.elementHeight + ROW_PADDING) / 2d, this.top, this.right - SCROLLBAR_WIDTH + 1, this.height, SCROLLBAR_WIDTH);
     }
 
     public void init() {
         optionRows.clear();
 
         ImmutableList<ConfigOption<?>> configOptions = this.parent.getModConfig().getConfigOptions();
-        IntStream.range(0, configOptions.size()).forEach(idx -> optionRows.add(new OptionRow(this, configOptions.get(idx), elementStartX,
-                this.getElementTop(idx), elementWidth)));
+        IntStream.range(0, configOptions.size()).forEach(idx ->
+                optionRows.add(new OptionRow(this, configOptions.get(idx), this.getElementTop(idx), elementStartX, elementWidth)));
 
-        this.scrollbar.setMaxPosition(this.optionRows.size() * this.elementHeight);
-    }
-
-    public void setSize(int width, int height) {
-        this.width = width;
-        this.height = height;
-        this.elementWidth = width - (2 * PADDING_X) - SCROLLBAR_WIDTH;
-        this.elementHeight = OptionRow.HEIGHT;
-        this.bottom = this.top + this.height;
-        this.right = this.left + this.width;
-
-        this.scrollbar.setBoundingBox(this.top, this.bottom, this.right - SCROLLBAR_WIDTH, this.right);
+        this.scrollbar.setMaxPosition(this.optionRows.size() * (this.elementHeight + ROW_PADDING) + PADDING_Y - ROW_PADDING + 1);
     }
 
     @Override
-    public boolean isMouseOver(double mouseX, double mouseY) {
-        return mouseX >= this.left && mouseX <= this.right &&
-                mouseY >= this.top && mouseY <= this.bottom;
-    }
-
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (!this.isMouseOver(mouseX, mouseY)) {
-            return false;
-        }
-
+    public boolean onMouseClicked(double mouseX, double mouseY, int button) {
         if (this.scrollbar.mouseClicked(mouseX, mouseY, button)) {
             return true;
         }
 
         OptionRow element = this.getElementAtPosition(mouseX, mouseY);
         if (element != null) {
-            if (element.mouseClicked(mouseX, mouseY, button)) {
-//                    this.setFocused(element);
-                return true;
-            }
+            return element.mouseClicked(mouseX, mouseY, button);
         }
 
         return false;
     }
 
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    @Override
+    public boolean onMouseReleased(double mouseX, double mouseY, int button) {
 //        if (this.getFocused() != null) {
 //            this.getFocused().mouseReleased(mouseX, mouseY, button);
 //        }
@@ -104,28 +76,29 @@ public class ConfigList extends DrawableHelper implements Drawable, Element, Scr
         return false;
     }
 
+    @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
         if (this.scrollbar.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)) {
             return true;
         }
 
-        return false;
+        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
     }
 
-    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-        return this.scrollbar.mouseScrolled(mouseX, mouseY, amount);
+    @Override
+    public boolean onMouseScrolled(double mouseX, double mouseY, double amount) {
+        return this.scrollbar.onMouseScrolled(mouseX, mouseY, amount);
     }
 
     public void setScrollAmount(double amount) {
         this.scrollAmount = amount;
 
         IntStream.range(0, optionRows.size())
-                .forEach(idx -> this.optionRows.get(idx).setTop(this.getElementTop(idx)));
+                .forEach(idx -> this.optionRows.get(idx).moveTop(this.getElementTop(idx)));
     }
 
     private OptionRow getElementAtPosition(double mouseX, double mouseY) {
-        for (int i = 0; i < this.optionRows.size(); i++) {
-            OptionRow optionRow = this.optionRows.get(i);
+        for (OptionRow optionRow : this.optionRows) {
             if (optionRow.isMouseOver(mouseX, mouseY)) {
                 return optionRow;
             }
@@ -199,6 +172,6 @@ public class ConfigList extends DrawableHelper implements Drawable, Element, Scr
     }
 
     private int getElementTop(int idx) {
-        return elementStartY - (int) this.scrollAmount + idx * elementHeight;
+        return elementStartY - (int) this.scrollAmount + idx * (elementHeight + ROW_PADDING);
     }
 }
