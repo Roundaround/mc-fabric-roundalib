@@ -42,7 +42,9 @@ public class ConfigList extends Widget<ConfigScreen> implements Scrollable {
         this.elementWidth = this.width - (2 * PADDING_X) - SCROLLBAR_WIDTH;
         this.elementHeight = OptionRow.HEIGHT;
 
-        this.scrollbar = new Scrollbar(this, (this.elementHeight + ROW_PADDING) / 2d, this.top, this.right - SCROLLBAR_WIDTH + 1, this.height, SCROLLBAR_WIDTH);
+        this.scrollbar = new Scrollbar(this,
+                (this.elementHeight + ROW_PADDING) / 2d, this.top,
+                this.right - SCROLLBAR_WIDTH + 1, this.height, SCROLLBAR_WIDTH);
     }
 
     public void init() {
@@ -50,9 +52,10 @@ public class ConfigList extends Widget<ConfigScreen> implements Scrollable {
 
         ImmutableList<ConfigOption<?>> configOptions = this.parent.getModConfig().getConfigOptions();
         IntStream.range(0, configOptions.size()).forEach(idx ->
-                optionRows.add(new OptionRow(this, configOptions.get(idx), this.getElementTop(idx), elementStartX, elementWidth)));
+                optionRows.add(new OptionRow(this, idx, configOptions.get(idx), this.getElementTop(idx), elementStartX, elementWidth)));
 
-        this.scrollbar.setMaxPosition(this.optionRows.size() * (this.elementHeight + ROW_PADDING) + PADDING_Y - ROW_PADDING + 1);
+        this.scrollbar.setMaxPosition(
+                this.optionRows.size() * (this.elementHeight + ROW_PADDING) + PADDING_Y - ROW_PADDING + 1);
     }
 
     @Override
