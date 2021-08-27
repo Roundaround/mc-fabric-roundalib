@@ -114,6 +114,11 @@ public class ConfigList extends Widget<ConfigScreen> implements Scrollable {
         this.scrollbar.render(matrixStack, mouseX, mouseY, partialTicks);
     }
 
+    @Override
+    public void renderOverlay(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
+        this.renderConfigOptionEntryOverlays(matrixStack, mouseX, mouseY, delta);
+    }
+
     protected void renderBackground() {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferBuilder = tessellator.getBuffer();
@@ -167,6 +172,14 @@ public class ConfigList extends Widget<ConfigScreen> implements Scrollable {
         optionRows.forEach(optionRow -> {
             if (optionRow.getBottom() >= this.top && optionRow.getTop() <= this.bottom) {
                 optionRow.render(matrixStack, mouseX, mouseY, partialTicks);
+            }
+        });
+    }
+
+    protected void renderConfigOptionEntryOverlays(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+        optionRows.forEach(optionRow -> {
+            if (optionRow.getBottom() >= this.top && optionRow.getTop() <= this.bottom) {
+                optionRow.renderOverlay(matrixStack, mouseX, mouseY, partialTicks);
             }
         });
     }

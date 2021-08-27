@@ -151,6 +151,8 @@ public class ConfigScreen extends Screen {
 
         this.renderHeader(matrixStack, mouseX, mouseY, partialTicks);
         this.renderFooter(matrixStack, mouseX, mouseY, partialTicks);
+
+        listWidget.renderOverlay(matrixStack, mouseX, mouseY, partialTicks);
     }
 
     public void renderHeader(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {

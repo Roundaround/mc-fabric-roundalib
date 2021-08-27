@@ -1,5 +1,6 @@
 package me.roundaround.roundalib.config.gui;
 
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
@@ -9,6 +10,8 @@ import net.minecraft.client.sound.SoundManager;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
+
+import java.util.ArrayList;
 
 public class ResetButton extends Widget<OptionRow> {
     public static final int HEIGHT = 12;
@@ -32,6 +35,15 @@ public class ResetButton extends Widget<OptionRow> {
         int v = HEIGHT;
 
         drawTexture(matrixStack, this.left, this.top, u, v, WIDTH, HEIGHT);
+    }
+
+    @Override
+    public void renderOverlay(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
+        if (!this.isMouseOver(mouseX, mouseY) || this.isDisabled()) {
+            return;
+        }
+
+        drawHoverText(mouseX, mouseY, Lists.newArrayList("Reset to default"), matrixStack);
     }
 
     @Override

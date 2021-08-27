@@ -5,7 +5,6 @@ import me.roundaround.roundalib.config.gui.control.Control;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -22,7 +21,7 @@ public class OptionRow extends Widget<ConfigList> {
     protected final Control<?> control;
     protected final ResetButton resetButton;
 
-    private final ImmutableList<Widget<?>> clickableSubWidgets;
+    private final ImmutableList<Widget<?>> subWidgets;
 
     public OptionRow(ConfigList parent, ConfigOption<?> configOption, int top, int left, int width) {
         super(parent, top, left, HEIGHT, width);
@@ -33,7 +32,7 @@ public class OptionRow extends Widget<ConfigList> {
         this.resetButton = new ResetButton(this,
                 this.top + (HEIGHT - ResetButton.HEIGHT) / 2, this.right - PADDING - ResetButton.WIDTH);
 
-        this.clickableSubWidgets = ImmutableList.of(this.control, this.resetButton);
+        this.subWidgets = ImmutableList.of(this.control, this.resetButton);
     }
 
     @Override
@@ -46,6 +45,13 @@ public class OptionRow extends Widget<ConfigList> {
     }
 
     @Override
+    public void renderOverlay(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
+        this.subWidgets.forEach((Widget<?> subWidget) -> {
+            subWidget.renderOverlay(matrixStack, mouseX, mouseY, delta);
+        });
+    }
+
+    @Override
     public void moveTop(int top) {
         super.moveTop(top);
 
@@ -55,8 +61,8 @@ public class OptionRow extends Widget<ConfigList> {
 
     @Override
     public boolean onMouseClicked(double mouseX, double mouseY, int button) {
-        for (Widget<?> clickableSubWidget : clickableSubWidgets) {
-            if (clickableSubWidget.mouseClicked(mouseX, mouseY, button)) {
+        for (Widget<?> subWidget : subWidgets) {
+            if (subWidget.mouseClicked(mouseX, mouseY, button)) {
                 return true;
             }
         }
