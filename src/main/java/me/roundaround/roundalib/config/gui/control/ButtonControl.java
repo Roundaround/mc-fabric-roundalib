@@ -57,7 +57,7 @@ public abstract class ButtonControl<T> extends Control<T> {
         int textureV = 46 + imageOffset * 20;
 
         // Top left
-        this.drawTexture(matrixStack,
+        drawTexture(matrixStack,
                 this.left,
                 this.top,
                 0,
@@ -66,7 +66,7 @@ public abstract class ButtonControl<T> extends Control<T> {
                 this.height / 2);
 
         // Top right
-        this.drawTexture(matrixStack,
+        drawTexture(matrixStack,
                 this.left + this.width / 2,
                 this.top,
                 BUTTON_TEXTURE_WIDTH - this.width / 2,
@@ -75,7 +75,7 @@ public abstract class ButtonControl<T> extends Control<T> {
                 this.height / 2);
 
         // Bottom left
-        this.drawTexture(matrixStack,
+        drawTexture(matrixStack,
                 this.left,
                 this.top + this.height / 2,
                 0,
@@ -84,7 +84,7 @@ public abstract class ButtonControl<T> extends Control<T> {
                 this.height / 2);
 
         // Bottom right
-        this.drawTexture(matrixStack,
+        drawTexture(matrixStack,
                 this.left + this.width / 2,
                 this.top + this.height / 2,
                 BUTTON_TEXTURE_WIDTH - this.width / 2,
