@@ -23,7 +23,7 @@ public enum GuiAlignmentWithCenter implements ListOptionValue<GuiAlignmentWithCe
     GuiAlignmentWithCenter(AlignmentY alignmentY, AlignmentX alignmentX) {
         this.alignmentX = alignmentX;
         this.alignmentY = alignmentY;
-        this.id = alignmentX + "_" + alignmentY;
+        this.id = alignmentY + "_" + alignmentX;
     }
 
     @Override

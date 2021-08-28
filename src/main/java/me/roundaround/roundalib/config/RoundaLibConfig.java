@@ -4,8 +4,12 @@ import com.google.common.collect.ImmutableList;
 import me.roundaround.roundalib.RoundaLibMod;
 import me.roundaround.roundalib.config.option.BooleanConfigOption;
 import me.roundaround.roundalib.config.option.ConfigOption;
+import me.roundaround.roundalib.config.option.OptionListConfigOption;
+import me.roundaround.roundalib.config.value.GuiAlignment;
 
 public class RoundaLibConfig extends ModConfig {
+  public static final OptionListConfigOption<GuiAlignment> GUI_ALIGNMENT =
+      new OptionListConfigOption<>("guiAlignment", "config.gui_alignment", GuiAlignment.TOP_LEFT);
   public static final BooleanConfigOption TEST_CONFIG_1 =
       new BooleanConfigOption("testConfig1", "config.test_1", true);
   public static final BooleanConfigOption TEST_CONFIG_2 =
@@ -169,6 +173,7 @@ public class RoundaLibConfig extends ModConfig {
 
   private static final ImmutableList<ConfigOption<?>> ALL_CONFIG_OPTIONS =
       ImmutableList.of(
+          GUI_ALIGNMENT,
           TEST_CONFIG_1,
           TEST_CONFIG_2,
           TEST_CONFIG_3,

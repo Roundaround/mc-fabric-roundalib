@@ -8,11 +8,16 @@ import me.roundaround.roundalib.config.gui.control.ControlFactory;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.function.BiConsumer;
+
 public abstract class ConfigOption<T> {
   private final String id;
   private final String labelI18nKey;
   private final T defaultValue;
   private final ControlFactory<T> controlFactory;
+  private final Queue<BiConsumer<T, T>> valueChangeListeners = new LinkedList<>();
 
   private T value;
   private T lastSavedValue;
@@ -48,7 +53,9 @@ public abstract class ConfigOption<T> {
   }
 
   public void setValue(T value) {
+    T prev = this.value;
     this.value = value;
+    this.valueChangeListeners.forEach((listener) -> listener.accept(prev, this.value));
   }
 
   public void resetToDefault() {
@@ -85,6 +92,10 @@ public abstract class ConfigOption<T> {
 
     this.control = this.controlFactory.apply(parent, this, top, left, height, width);
     return this.control;
+  }
+
+  public final void subscribeToValueChanges(BiConsumer<T, T> listener) {
+    this.valueChangeListeners.add(listener);
   }
 
   public abstract T deserializeFromJson(JsonElement data);

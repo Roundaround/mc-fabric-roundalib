@@ -18,7 +18,7 @@ public enum GuiAlignment implements ListOptionValue<GuiAlignment> {
   GuiAlignment(AlignmentY alignmentY, AlignmentX alignmentX) {
     this.alignmentX = alignmentX;
     this.alignmentY = alignmentY;
-    this.id = alignmentX + "_" + alignmentY;
+    this.id = alignmentY + "_" + alignmentX;
   }
 
   @Override
@@ -38,12 +38,12 @@ public enum GuiAlignment implements ListOptionValue<GuiAlignment> {
 
   @Override
   public GuiAlignment getNext() {
-    return values()[this.ordinal() + 1 % values().length];
+    return values()[(this.ordinal() + 1) % values().length];
   }
 
   @Override
   public GuiAlignment getPrev() {
-    return values()[this.ordinal() + values().length - 1 % values().length];
+    return values()[(this.ordinal() + values().length - 1) % values().length];
   }
 
   public AlignmentX getAlignmentX() {
