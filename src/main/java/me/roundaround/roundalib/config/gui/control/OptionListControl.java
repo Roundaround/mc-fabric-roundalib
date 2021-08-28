@@ -1,6 +1,5 @@
 package me.roundaround.roundalib.config.gui.control;
 
-import me.roundaround.roundalib.RoundaLibMod;
 import me.roundaround.roundalib.config.gui.OptionRow;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.value.ListOptionValue;
@@ -14,13 +13,11 @@ public class OptionListControl<T extends ListOptionValue<T>> extends ButtonContr
       OptionRow parent, ConfigOption<T> configOption, int top, int left, int height, int width) {
     super(parent, configOption, top, left, height, width);
     this.configOption.subscribeToValueChanges(this::onConfigValueChange);
+    this.cachedText = new TranslatableText(this.configOption.getValue().getI18nKey());
   }
 
   @Override
   protected Text getCurrentText() {
-    if (this.cachedText == null) {
-      this.cachedText = new TranslatableText(this.configOption.getValue().getI18nKey());
-    }
     return this.cachedText;
   }
 

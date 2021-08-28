@@ -9,5 +9,7 @@
   "config.gui_alignment.middle_right": "Middle right",
   "config.gui_alignment.bottom_left": "Bottom left",
   "config.gui_alignment.bottom_center": "Bottom center",
-  "config.gui_alignment.bottom_right": "Bottom right"
+  "config.gui_alignment.bottom_right": "Bottom right",
+  "config.toggle.enabled": "Enabled",
+  "config.toggle.disabled": "Disabled"
 }
