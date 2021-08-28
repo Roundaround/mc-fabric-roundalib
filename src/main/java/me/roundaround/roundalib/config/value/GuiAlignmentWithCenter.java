@@ -32,13 +32,13 @@ public enum GuiAlignmentWithCenter implements ListOptionValue<GuiAlignmentWithCe
     }
 
     @Override
-    public GuiAlignmentWithCenter getFromId(String id) {
-        return fromId(id);
+    public String getI18nKey() {
+        return "config.gui_alignment." + this.id;
     }
 
     @Override
-    public String getDisplayString() {
-        return I18n.translate("config.gui_alignment." + this.id);
+    public GuiAlignmentWithCenter getFromId(String id) {
+        return fromId(id);
     }
     
     @Override

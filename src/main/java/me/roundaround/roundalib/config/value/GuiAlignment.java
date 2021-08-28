@@ -27,13 +27,13 @@ public enum GuiAlignment implements ListOptionValue<GuiAlignment> {
   }
 
   @Override
-  public GuiAlignment getFromId(String id) {
-    return fromId(id);
+  public String getI18nKey() {
+    return "config.gui_alignment." + this.id;
   }
 
   @Override
-  public String getDisplayString() {
-    return I18n.translate("config.gui_alignment." + this.id);
+  public GuiAlignment getFromId(String id) {
+    return fromId(id);
   }
 
   @Override
