@@ -75,7 +75,8 @@ tasks.publish.dependsOn build
 publishing {
 	publications {
 		mavenJava(MavenPublication) {
-			artifactId project.archivesBaseName
+			artifactId project.archives_base_name
+			version = project.mod_version + "+" + project.minecraft_version
 
 			artifact(remapJar) {
 				builtBy remapJar
