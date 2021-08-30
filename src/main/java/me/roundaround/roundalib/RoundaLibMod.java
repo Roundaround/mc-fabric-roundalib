@@ -10,10 +10,10 @@ public final class RoundaLibMod implements ModInitializer {
   public static final String MOD_ID = "roundalib";
   public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
   public static final ModInfo MOD_INFO = new ModInfo(MOD_ID, "0.0.3", 1);
-//  public static final RoundaLibConfig CONFIG = new RoundaLibConfig();
+  public static final RoundaLibConfig CONFIG = new RoundaLibConfig();
 
   @Override
   public void onInitialize() {
-//    CONFIG.init();
+    CONFIG.init();
   }
 }
