@@ -5,8 +5,8 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import me.roundaround.roundalib.RoundaLibMod;
 import me.roundaround.roundalib.data.DataGenModInitializer;
+import me.roundaround.roundalib.data.ModDataGenerator;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.data.DataGenerator;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -15,7 +15,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 
 @Mixin(net.minecraft.server.Main.class)
 public abstract class ServerMainMixin {
@@ -46,30 +45,26 @@ public abstract class ServerMainMixin {
     if (optionSet.has(datagenOption)) {
       RoundaLibMod.LOGGER.info("Running data generator in place of the Minecraft server!");
 
-      try {
-        Path path = Paths.get(datagenOption.value(optionSet));
-        DataGenerator dataGenerator = new DataGenerator(path, new ArrayList<>());
+      Path path = Paths.get(datagenOption.value(optionSet));
 
-        FabricLoader.getInstance()
-            .getEntrypointContainers("datagen", DataGenModInitializer.class)
-            .forEach(
-                container -> {
-                  String modId = container.getProvider().getMetadata().getId();
-                  try {
-                    DataGenModInitializer entrypoint = container.getEntrypoint();
-                    entrypoint.onInitializeDataGen(dataGenerator);
-                  } catch (Exception e) {
-                    RoundaLibMod.LOGGER.error(
-                        "Mod {} has provided an invalid implementation of ModDataGenInitializer",
-                        modId,
-                        e);
-                  }
-                });
+      FabricLoader.getInstance()
+          .getEntrypointContainers("datagen", DataGenModInitializer.class)
+          .forEach(
+              container -> {
+                String modId = container.getProvider().getMetadata().getId();
+                ModDataGenerator dataGenerator = new ModDataGenerator(path, modId);
 
-        dataGenerator.run();
-      } catch (Exception e) {
-        RoundaLibMod.LOGGER.fatal("Failed to run data generator.", e);
-      }
+                try {
+                  DataGenModInitializer entrypoint = container.getEntrypoint();
+                  entrypoint.onInitializeDataGen(dataGenerator);
+                  dataGenerator.run();
+                } catch (Exception e) {
+                  RoundaLibMod.LOGGER.error(
+                      "Failed to run data generator for {}.",
+                      modId,
+                      e);
+                }
+              });
 
       callbackInfo.cancel();
     }
