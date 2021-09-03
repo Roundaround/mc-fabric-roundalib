@@ -36,6 +36,11 @@ public abstract class ModRecipesProvider extends ModDataProvider {
   }
 
   @Override
+  protected final String getDataOutputDirectoryName() {
+    return "recipes";
+  }
+
+  @Override
   public void run(DataCache cache) {
     Path rootPath = this.root.getOutput();
     Set<Identifier> set = Sets.newHashSet();
