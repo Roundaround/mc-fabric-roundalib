@@ -3,6 +3,7 @@ package me.roundaround.roundalib.data.server;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonObject;
 import me.roundaround.roundalib.data.ModDataGenerator;
+import me.roundaround.roundalib.data.ModDataProvider;
 import net.minecraft.advancement.criterion.InventoryChangedCriterion;
 import net.minecraft.data.DataCache;
 import net.minecraft.data.server.RecipesProvider;

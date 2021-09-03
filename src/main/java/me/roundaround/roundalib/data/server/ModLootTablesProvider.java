@@ -3,6 +3,8 @@ package me.roundaround.roundalib.data.server;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonObject;
 import me.roundaround.roundalib.data.ModDataGenerator;
+import me.roundaround.roundalib.data.ModDataProvider;
+import me.roundaround.roundalib.data.server.json.LootTableJsonProvider;
 import net.minecraft.block.Block;
 import net.minecraft.data.DataCache;
 import net.minecraft.data.server.BlockLootTableGenerator;
@@ -89,7 +91,7 @@ public abstract class ModLootTablesProvider extends ModDataProvider {
   }
 
   protected void offerSlabsBlockLootTable(
-      Consumer<LootTableJsonProvider> exporter, Identifier identifier, Block block) {
-    this.offerBlockLootTable(exporter, identifier, block, BlockLootTableGenerator::slabDrops);
+          Consumer<LootTableJsonProvider> exporter, Block block) {
+    this.offerBlockLootTable(exporter, block, BlockLootTableGenerator::slabDrops);
   }
 }

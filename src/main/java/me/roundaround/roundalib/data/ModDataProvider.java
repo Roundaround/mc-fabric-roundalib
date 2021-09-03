@@ -1,9 +1,8 @@
-package me.roundaround.roundalib.data.server;
+package me.roundaround.roundalib.data;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import me.roundaround.roundalib.data.ModDataGenerator;
 import net.minecraft.data.DataCache;
 import net.minecraft.data.DataProvider;
 import net.minecraft.util.Identifier;

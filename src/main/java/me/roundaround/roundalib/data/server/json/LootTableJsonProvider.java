@@ -1,4 +1,4 @@
-package me.roundaround.roundalib.data.server;
+package me.roundaround.roundalib.data.server.json;
 
 import com.google.gson.JsonObject;
 import net.minecraft.loot.LootManager;
