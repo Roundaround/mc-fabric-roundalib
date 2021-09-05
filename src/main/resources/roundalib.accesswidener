@@ -29,3 +29,5 @@ accessible method net/minecraft/data/server/BlockLootTableGenerator dropsWithSil
 accessible method net/minecraft/data/server/BlockLootTableGenerator dropsWithShears (Lnet/minecraft/block/Block;Lnet/minecraft/loot/entry/LootPoolEntry$Builder;)Lnet/minecraft/loot/LootTable$Builder;
 accessible method net/minecraft/data/server/BlockLootTableGenerator dropsWithSilkTouchOrShears (Lnet/minecraft/block/Block;Lnet/minecraft/loot/entry/LootPoolEntry$Builder;)Lnet/minecraft/loot/LootTable$Builder;
 accessible method net/minecraft/data/server/BlockLootTableGenerator slabDrops (Lnet/minecraft/block/Block;)Lnet/minecraft/loot/LootTable$Builder;
+
+accessible class net/minecraft/data/server/AbstractTagProvider$ObjectBuilder
