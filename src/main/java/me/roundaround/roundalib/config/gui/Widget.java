@@ -3,6 +3,7 @@ package me.roundaround.roundalib.config.gui;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.Selectable;
 import net.minecraft.text.Text;
 
 import java.util.List;
@@ -56,6 +57,10 @@ public abstract class Widget<T> extends DrawableHelper implements Drawable, Elem
     return this.isMouseOver(mouseX, mouseY) && this.onMouseScrolled(mouseX, mouseY, amount);
   }
 
+  public <S extends Element & Selectable> List<S> getSelectableElements() {
+    return List.of();
+  }
+
   public List<Text> getTooltip(int mouseX, int mouseY, float delta) {
     return List.of();
   }
@@ -104,5 +109,8 @@ public abstract class Widget<T> extends DrawableHelper implements Drawable, Elem
   public void moveTop(int top) {
     this.top = top;
     this.bottom = this.top + this.height - 1;
+  }
+
+  public void tick() {
   }
 }

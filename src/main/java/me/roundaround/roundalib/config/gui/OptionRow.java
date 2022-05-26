@@ -8,6 +8,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
@@ -39,18 +41,16 @@ public class OptionRow extends Widget<ConfigList> {
 
     this.index = index;
     this.configOption = configOption;
-    this.control =
-        configOption.createControl(
-            this,
-            this.top,
-            this.right - CONTROL_WIDTH - ResetButton.WIDTH - (PADDING * 2),
-            this.height,
-            CONTROL_WIDTH);
-    this.resetButton =
-        new ResetButton(
-            this,
-            this.top + (HEIGHT - ResetButton.HEIGHT) / 2,
-            this.right - PADDING - ResetButton.WIDTH);
+    this.control = configOption.createControl(
+        this,
+        this.top,
+        this.right - CONTROL_WIDTH - ResetButton.WIDTH - (PADDING * 2),
+        this.height,
+        CONTROL_WIDTH);
+    this.resetButton = new ResetButton(
+        this,
+        this.top + (HEIGHT - ResetButton.HEIGHT) / 2,
+        this.right - PADDING - ResetButton.WIDTH);
 
     this.subWidgets = ImmutableList.of(this.control, this.resetButton);
   }
@@ -62,6 +62,11 @@ public class OptionRow extends Widget<ConfigList> {
     this.renderControl(matrixStack, mouseX, mouseY, partialTicks);
     this.renderResetButton(matrixStack, mouseX, mouseY, partialTicks);
     this.renderDecorations(matrixStack, mouseX, mouseY, partialTicks);
+  }
+
+  @Override
+  public void tick() {
+    subWidgets.forEach((widget) -> widget.tick());
   }
 
   @Override
@@ -87,6 +92,62 @@ public class OptionRow extends Widget<ConfigList> {
         return true;
       }
     }
+    return false;
+  }
+
+  @Override
+  public boolean onMouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+    for (Widget<?> subWidget : subWidgets) {
+      if (subWidget.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public boolean onMouseReleased(double mouseX, double mouseY, int button) {
+    for (Widget<?> subWidget : subWidgets) {
+      if (subWidget.mouseReleased(mouseX, mouseY, button)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public boolean charTyped(char chr, int modifiers) {
+    for (Widget<?> subWidget : subWidgets) {
+      if (subWidget.charTyped(chr, modifiers)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    for (Widget<?> subWidget : subWidgets) {
+      if (subWidget.keyPressed(keyCode, scanCode, modifiers)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+    for (Widget<?> subWidget : subWidgets) {
+      if (subWidget.keyReleased(keyCode, scanCode, modifiers)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public boolean changeFocus(boolean focus) {
+    subWidgets.forEach((subWidget) -> subWidget.changeFocus(focus));
     return false;
   }
 
@@ -178,7 +239,8 @@ public class OptionRow extends Widget<ConfigList> {
   }
 
   protected void renderDecorations(
-      MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {}
+      MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+  }
 
   public ConfigOption<?> getConfigOption() {
     return configOption;
@@ -186,5 +248,9 @@ public class OptionRow extends Widget<ConfigList> {
 
   public Control<?> getControl() {
     return control;
+  }
+
+  public <S extends Element & Selectable> List<S> getSelectableElements() {
+    return control.getSelectableElements();
   }
 }

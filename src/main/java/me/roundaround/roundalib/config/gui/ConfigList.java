@@ -42,14 +42,13 @@ public class ConfigList extends Widget<ConfigScreen> implements Scrollable {
     this.elementWidth = this.width - (2 * PADDING_X) - SCROLLBAR_WIDTH;
     this.elementHeight = OptionRow.HEIGHT;
 
-    this.scrollbar =
-        new Scrollbar(
-            this,
-            (this.elementHeight + ROW_PADDING) / 2d,
-            this.top,
-            this.right - SCROLLBAR_WIDTH + 1,
-            this.height,
-            SCROLLBAR_WIDTH);
+    this.scrollbar = new Scrollbar(
+        this,
+        (this.elementHeight + ROW_PADDING) / 2d,
+        this.top,
+        this.right - SCROLLBAR_WIDTH + 1,
+        this.height,
+        SCROLLBAR_WIDTH);
   }
 
   public void init() {
@@ -58,18 +57,21 @@ public class ConfigList extends Widget<ConfigScreen> implements Scrollable {
     ImmutableList<ConfigOption<?>> configOptions = this.parent.getModConfig().getConfigOptions();
     IntStream.range(0, configOptions.size())
         .forEach(
-            idx ->
-                optionRows.add(
-                    new OptionRow(
-                        this,
-                        idx,
-                        configOptions.get(idx),
-                        this.getElementTop(idx),
-                        elementStartX,
-                        elementWidth)));
+            idx -> optionRows.add(
+                new OptionRow(
+                    this,
+                    idx,
+                    configOptions.get(idx),
+                    this.getElementTop(idx),
+                    elementStartX,
+                    elementWidth)));
 
     this.scrollbar.setMaxPosition(
         this.optionRows.size() * (this.elementHeight + ROW_PADDING) + PADDING_Y - ROW_PADDING + 1);
+
+    optionRows.forEach((optionRow) -> {
+      optionRow.getSelectableElements().forEach((element) -> parent.addSelectableChild(element));
+    });
   }
 
   @Override
@@ -78,19 +80,20 @@ public class ConfigList extends Widget<ConfigScreen> implements Scrollable {
       return true;
     }
 
-    OptionRow element = this.getElementAtPosition(mouseX, mouseY);
-    if (element != null) {
-      return element.mouseClicked(mouseX, mouseY, button);
-    }
+    // OptionRow element = this.getElementAtPosition(mouseX, mouseY);
+    // if (element != null) {
+    //   return element.mouseClicked(mouseX, mouseY, button);
+    // }
 
     return false;
   }
 
   @Override
   public boolean onMouseReleased(double mouseX, double mouseY, int button) {
-    //        if (this.getFocused() != null) {
-    //            this.getFocused().mouseReleased(mouseX, mouseY, button);
-    //        }
+    OptionRow element = this.getElementAtPosition(mouseX, mouseY);
+    if (element != null) {
+      return element.mouseReleased(mouseX, mouseY, button);
+    }
 
     return false;
   }
@@ -100,6 +103,11 @@ public class ConfigList extends Widget<ConfigScreen> implements Scrollable {
       double mouseX, double mouseY, int button, double deltaX, double deltaY) {
     if (this.scrollbar.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)) {
       return true;
+    }
+
+    OptionRow element = this.getElementAtPosition(mouseX - deltaX, mouseY - deltaY);
+    if (element != null) {
+      return element.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
     }
 
     return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
@@ -211,5 +219,31 @@ public class ConfigList extends Widget<ConfigScreen> implements Scrollable {
 
   private int getElementTop(int idx) {
     return elementStartY - (int) this.scrollAmount + idx * (elementHeight + ROW_PADDING);
+  }
+
+  @Override
+  public void tick() {
+    optionRows.forEach(OptionRow::tick);
+  }
+
+  @Override
+  public boolean charTyped(char chr, int modifiers) {
+    for (Widget<?> optionRow : optionRows) {
+      if (optionRow.charTyped(chr, modifiers)) {
+        return true;
+      }
+    }
+    return false;
+    
+  }
+
+  @Override
+  public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    for (Widget<?> optionRow : optionRows) {
+      if (optionRow.keyPressed(keyCode, scanCode, modifiers)) {
+        return true;
+      }
+    }
+    return false;
   }
 }
