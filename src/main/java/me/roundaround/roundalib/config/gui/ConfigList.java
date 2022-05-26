@@ -53,6 +53,7 @@ public class ConfigList extends AbstractWidget<ConfigScreen> implements Scrollab
         SCROLLBAR_WIDTH);
   }
 
+  @Override
   public void init() {
     optionRows.clear();
 
