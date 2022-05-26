@@ -5,6 +5,8 @@ import me.roundaround.roundalib.config.ModConfig;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -63,6 +65,11 @@ public class ConfigScreen extends Screen {
               this.modConfig.saveToFile();
               this.client.setScreen(this.parent);
             });
+  }
+
+  @Override
+  public <T extends Element & Selectable> T addSelectableChild(T child) {
+    return super.addSelectableChild(child);
   }
 
   @Override
@@ -148,6 +155,11 @@ public class ConfigScreen extends Screen {
     }
 
     super.resize(client, width, height);
+  }
+
+  @Override
+  public void tick() {
+    listWidget.tick();
   }
 
   @Override

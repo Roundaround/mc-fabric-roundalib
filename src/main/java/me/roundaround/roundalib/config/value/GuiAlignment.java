@@ -1,7 +1,6 @@
 package me.roundaround.roundalib.config.value;
 
 import me.roundaround.roundalib.util.GuiUtil;
-import net.minecraft.client.resource.language.I18n;
 
 import java.util.Arrays;
 
