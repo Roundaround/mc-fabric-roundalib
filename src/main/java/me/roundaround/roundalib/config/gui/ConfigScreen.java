@@ -65,6 +65,8 @@ public class ConfigScreen extends Screen {
               this.modConfig.saveToFile();
               this.client.setScreen(this.parent);
             });
+
+    this.addSelectableChild(this.doneButton);
   }
 
   @Override

@@ -15,6 +15,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Matrix4f;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -251,6 +252,8 @@ public class OptionRow extends Widget<ConfigList> {
   }
 
   public <S extends Element & Selectable> List<S> getSelectableElements() {
-    return control.getSelectableElements();
+    List<S> elements = new ArrayList<>(control.getSelectableElements());
+    elements.add((S) resetButton);
+    return elements;
   }
 }

@@ -4,6 +4,7 @@ import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 
 import java.util.List;
@@ -16,6 +17,7 @@ public abstract class Widget<T> extends DrawableHelper implements Drawable, Elem
   protected int bottom;
   protected int left;
   protected int right;
+	protected boolean hovered;
 
   protected Widget(T parent, int top, int left, int height, int width) {
     this.parent = parent;
@@ -25,6 +27,11 @@ public abstract class Widget<T> extends DrawableHelper implements Drawable, Elem
     this.right = left + width - 1;
     this.height = height;
     this.width = width;
+  }
+
+  @Override
+  public void render(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
+    hovered = isMouseOver(mouseX, mouseY);
   }
 
   @Override
