@@ -8,7 +8,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
@@ -25,7 +24,8 @@ public class ConfigList extends AbstractWidget<ConfigScreen> implements Scrollab
   private static final int PADDING_Y = 4;
   private static final int ROW_PADDING = 2;
 
-  private final ConfigScreen parent;
+  public final ConfigScreen parent;
+
   private final Scrollbar scrollbar;
   private final List<OptionRow> optionRows = new ArrayList<>();
   private final int elementStartX;
@@ -73,7 +73,7 @@ public class ConfigList extends AbstractWidget<ConfigScreen> implements Scrollab
   }
 
   @Override
-  public boolean onMouseClicked(double mouseX, double mouseY, int button) {
+  public boolean mouseClicked(double mouseX, double mouseY, int button) {
     if (scrollbar.mouseClicked(mouseX, mouseY, button)) {
       return true;
     }
@@ -200,32 +200,10 @@ public class ConfigList extends AbstractWidget<ConfigScreen> implements Scrollab
   }
 
   @Override
-  public boolean charTyped(char chr, int modifiers) {
-    for (AbstractWidget<?> optionRow : optionRows) {
-      if (optionRow.charTyped(chr, modifiers)) {
-        return true;
-      }
-    }
-    return false;
-
-  }
-
-  @Override
-  public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-    for (AbstractWidget<?> optionRow : optionRows) {
-      if (optionRow.keyPressed(keyCode, scanCode, modifiers)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  @Override
-  public <S extends Element & Selectable> List<S> getSelectableElements() {
+  public List<SelectableElement> getSelectableElements() {
     return optionRows.stream()
         .map(OptionRow::getSelectableElements)
         .flatMap(List::stream)
-        .map((elem) -> (S) elem)
         .collect(Collectors.toList());
   }
 

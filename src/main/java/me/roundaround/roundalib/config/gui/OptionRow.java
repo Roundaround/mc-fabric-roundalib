@@ -7,8 +7,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
@@ -245,9 +243,9 @@ public class OptionRow extends AbstractWidget<ConfigList> {
     return configOption;
   }
 
-  public <S extends Element & Selectable> List<S> getSelectableElements() {
-    List<S> elements = new ArrayList<>(control.getSelectableElements());
-    elements.add((S) resetButton);
+  public List<SelectableElement> getSelectableElements() {
+    List<SelectableElement> elements = new ArrayList<>(control.getSelectableElements());
+    elements.add(resetButton);
     return elements;
   }
 }

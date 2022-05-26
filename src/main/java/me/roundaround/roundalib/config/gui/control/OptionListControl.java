@@ -25,10 +25,10 @@ public class OptionListControl<T extends ListOptionValue<T>> extends ButtonContr
   }
 
   @Override
-  protected boolean handleValidClick(double mouseX, double mouseY, int button) {
+  protected void onPress(int button) {
     T currentValue = configOption.getValue();
     configOption.setValue(button == 0 ? currentValue.getNext() : currentValue.getPrev());
-    return true;
+    super.onPress(button);
   }
 
   private void onConfigValueChange(T prev, T curr) {

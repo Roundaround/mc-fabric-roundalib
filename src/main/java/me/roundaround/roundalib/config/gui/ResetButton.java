@@ -2,6 +2,9 @@ package me.roundaround.roundalib.config.gui;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+
+import org.lwjgl.glfw.GLFW;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.render.GameRenderer;
@@ -19,6 +22,8 @@ public class ResetButton extends AbstractClickableWidget<OptionRow> {
   public static final int HEIGHT = 12;
   public static final int WIDTH = 12;
   protected static final Identifier TEXTURE = new Identifier("roundalib", "textures/gui.png");
+
+  private boolean shouldKickFocus = false;
 
   protected ResetButton(OptionRow parent, int top, int left) {
     super(parent, top, left, HEIGHT, WIDTH);
@@ -43,6 +48,14 @@ public class ResetButton extends AbstractClickableWidget<OptionRow> {
   }
 
   @Override
+  public void tick() {
+    if (shouldKickFocus) {
+      parent.parent.parent.changeFocus(false);
+      shouldKickFocus = false;
+    }
+  }
+
+  @Override
   public List<Text> getTooltip(int mouseX, int mouseY, float delta) {
     if (isDisabled() || !hovered) {
       return List.of();
@@ -57,9 +70,21 @@ public class ResetButton extends AbstractClickableWidget<OptionRow> {
       return false;
     }
 
-    parent.getConfigOption().resetToDefault();
-    SoundManager soundManager = MinecraftClient.getInstance().getSoundManager();
-    soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1));
+    onPress();
+    return true;
+  }
+
+  @Override
+  public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    if (isDisabled()) {
+      return false;
+    }
+
+    if (keyCode != GLFW.GLFW_KEY_ENTER && keyCode != GLFW.GLFW_KEY_SPACE && keyCode != GLFW.GLFW_KEY_KP_ENTER) {
+      return false;
+    }
+
+    onPress();
     return true;
   }
 
@@ -90,5 +115,17 @@ public class ResetButton extends AbstractClickableWidget<OptionRow> {
   @Override
   public void appendNarrations(NarrationMessageBuilder builder) {
     // TODO Auto-generated method stub
+  }
+
+  private void onPress() {
+    parent.getConfigOption().resetToDefault();
+    SoundManager soundManager = MinecraftClient.getInstance().getSoundManager();
+    soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1));
+
+    if (focused) {
+      shouldKickFocus = true;
+      focused = false;
+      onFocusedChanged(focused);
+    }
   }
 }

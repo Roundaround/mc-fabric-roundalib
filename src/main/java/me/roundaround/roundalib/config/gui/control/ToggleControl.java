@@ -28,9 +28,9 @@ public class ToggleControl extends ButtonControl<Boolean> {
   }
 
   @Override
-  protected boolean handleValidClick(double mouseX, double mouseY, int button) {
+  protected void onPress(int button) {
     configOption.setValue(!configOption.getValue());
-    return true;
+    super.onPress(button);
   }
 
   private void onConfigValueChange(boolean prev, boolean curr) {

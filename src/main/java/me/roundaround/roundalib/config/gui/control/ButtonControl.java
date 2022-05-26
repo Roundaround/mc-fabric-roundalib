@@ -3,9 +3,12 @@ package me.roundaround.roundalib.config.gui.control;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import org.lwjgl.glfw.GLFW;
+
 import me.roundaround.roundalib.config.gui.OptionRow;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.sound.PositionedSoundInstance;
@@ -28,7 +31,10 @@ public abstract class ButtonControl<T> extends AbstractClickableControlWidget<T>
 
   protected abstract Text getCurrentText();
 
-  protected abstract boolean handleValidClick(double mouseX, double mouseY, int button);
+  protected void onPress(int button) {
+    SoundManager soundManager = MinecraftClient.getInstance().getSoundManager();
+    soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1));
+  }
 
   @Override
   public boolean onMouseClicked(double mouseX, double mouseY, int button) {
@@ -36,14 +42,22 @@ public abstract class ButtonControl<T> extends AbstractClickableControlWidget<T>
       return false;
     }
 
-    boolean handled = handleValidClick(mouseX, mouseY, button);
+    onPress(button);
+    return true;
+  }
 
-    if (handled) {
-      SoundManager soundManager = MinecraftClient.getInstance().getSoundManager();
-      soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1));
+  @Override
+  public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    if (!isActive) {
+      return false;
     }
 
-    return handled;
+    if (keyCode != GLFW.GLFW_KEY_ENTER && keyCode != GLFW.GLFW_KEY_SPACE && keyCode != GLFW.GLFW_KEY_KP_ENTER) {
+      return false;
+    }
+
+    onPress(Screen.hasShiftDown() ? 1 : 0);
+    return true;
   }
 
   @Override

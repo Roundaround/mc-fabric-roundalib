@@ -3,15 +3,14 @@ package me.roundaround.roundalib.config.gui.control;
 import java.util.List;
 
 import me.roundaround.roundalib.config.gui.OptionRow;
+import me.roundaround.roundalib.config.gui.SelectableElement;
+import me.roundaround.roundalib.config.gui.compat.SelectableElementTextFieldWidget;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.Selectable;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 
 public class TextInputControl extends AbstractControlWidget<String> {
-  private TextFieldWidget textBox;
+  private SelectableElementTextFieldWidget textBox;
 
   public TextInputControl(
       OptionRow parent,
@@ -24,7 +23,8 @@ public class TextInputControl extends AbstractControlWidget<String> {
 
   @Override
   public void init() {
-    textBox = new TextFieldWidget(MinecraftClient.getInstance().textRenderer, left + 1, top + 1, width - 2, height - 2,
+    textBox = new SelectableElementTextFieldWidget(MinecraftClient.getInstance().textRenderer, left + 1, top + 1,
+        width - 2, height - 2,
         new LiteralText("Foo"));
     textBox.setMaxLength(50);
     textBox.setChangedListener(this::onTextFieldValueChange);
@@ -34,8 +34,8 @@ public class TextInputControl extends AbstractControlWidget<String> {
   }
 
   @Override
-  public <S extends Element & Selectable> List<S> getSelectableElements() {
-    return List.of((S) textBox);
+  public List<SelectableElement> getSelectableElements() {
+    return List.of(textBox);
   }
 
   @Override

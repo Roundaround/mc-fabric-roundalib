@@ -94,15 +94,6 @@ public class ConfigScreen extends Screen {
   }
 
   @Override
-  public boolean mouseReleased(double mouseX, double mouseY, int button) {
-    if (listWidget.mouseReleased(mouseX, mouseY, button)) {
-      return true;
-    }
-
-    return super.mouseReleased(mouseX, mouseY, button);
-  }
-
-  @Override
   public boolean mouseDragged(
       double mouseX, double mouseY, int button, double deltaX, double deltaY) {
     if (listWidget.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)) {
@@ -119,24 +110,6 @@ public class ConfigScreen extends Screen {
     }
 
     return super.mouseScrolled(mouseX, mouseY, amount);
-  }
-
-  @Override
-  public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-    if (listWidget.keyPressed(keyCode, scanCode, modifiers)) {
-      return true;
-    }
-
-    return super.keyPressed(keyCode, scanCode, modifiers);
-  }
-
-  @Override
-  public boolean charTyped(char chr, int modifiers) {
-    if (listWidget.charTyped(chr, modifiers)) {
-      return true;
-    }
-
-    return super.charTyped(chr, modifiers);
   }
 
   @Override

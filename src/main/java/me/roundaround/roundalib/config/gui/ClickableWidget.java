@@ -1,7 +1,10 @@
 package me.roundaround.roundalib.config.gui;
 
-import net.minecraft.client.gui.Selectable;
+import java.util.List;
 
-public interface ClickableWidget extends Widget, Selectable {
-
+public interface ClickableWidget extends Widget, SelectableElement {
+  @Override
+  public default List<SelectableElement> getSelectableElements() {
+    return List.of(this);
+  }
 }

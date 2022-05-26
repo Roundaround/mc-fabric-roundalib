@@ -4,7 +4,6 @@ import java.util.List;
 
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.Selectable;
 import net.minecraft.text.Text;
 
 public interface Widget extends Drawable, Element {
@@ -14,7 +13,7 @@ public interface Widget extends Drawable, Element {
   public default void tick() {
   }
 
-  public default <S extends Element & Selectable> List<S> getSelectableElements() {
+  public default List<SelectableElement> getSelectableElements() {
     return List.of();
   }
 
