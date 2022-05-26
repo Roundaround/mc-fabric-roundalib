@@ -19,6 +19,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public abstract class ButtonControl<T> extends AbstractClickableControlWidget<T> {
+  private static final MinecraftClient MINECRAFT = MinecraftClient.getInstance();
   protected static final Identifier BUTTON_TEXTURES = new Identifier("minecraft", "textures/gui/widgets.png");
   protected static final int BUTTON_TEXTURE_WIDTH = 200;
   protected static final int BUTTON_TEXTURE_HEIGHT = 20;
@@ -32,7 +33,7 @@ public abstract class ButtonControl<T> extends AbstractClickableControlWidget<T>
   protected abstract Text getCurrentText();
 
   protected void onPress(int button) {
-    SoundManager soundManager = MinecraftClient.getInstance().getSoundManager();
+    SoundManager soundManager = MINECRAFT.getSoundManager();
     soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1));
   }
 
@@ -108,7 +109,7 @@ public abstract class ButtonControl<T> extends AbstractClickableControlWidget<T>
 
     int colorInt = isActive ? 0xFFFFFF : 0xA0A0A0;
     int color = colorInt | 255 << 24;
-    TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+    TextRenderer textRenderer = MINECRAFT.textRenderer;
     drawCenteredText(
         matrixStack,
         textRenderer,
