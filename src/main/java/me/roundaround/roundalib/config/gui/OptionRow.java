@@ -2,7 +2,6 @@ package me.roundaround.roundalib.config.gui;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
-import me.roundaround.roundalib.config.gui.control.Control;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -20,7 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
-public class OptionRow extends Widget<ConfigList> {
+public class OptionRow extends AbstractWidget<ConfigList> {
   public static final int HEIGHT = 20;
   protected static final int LABEL_COLOR = 0xFFFFFFFF;
   protected static final int HIGHLIGHT_COLOR = 0x50FFFFFF;
@@ -31,13 +30,12 @@ public class OptionRow extends Widget<ConfigList> {
 
   protected final int index;
   protected final ConfigOption<?> configOption;
-  protected final Control<?> control;
+  protected final Widget control;
   protected final ResetButton resetButton;
 
-  private final ImmutableList<Widget<?>> subWidgets;
+  private final ImmutableList<Widget> subWidgets;
 
-  public OptionRow(
-      ConfigList parent, int index, ConfigOption<?> configOption, int top, int left, int width) {
+  public OptionRow(ConfigList parent, int index, ConfigOption<?> configOption, int top, int left, int width) {
     super(parent, top, left, HEIGHT, width);
 
     this.index = index;
@@ -88,7 +86,7 @@ public class OptionRow extends Widget<ConfigList> {
 
   @Override
   public boolean onMouseClicked(double mouseX, double mouseY, int button) {
-    for (Widget<?> subWidget : subWidgets) {
+    for (Widget subWidget : subWidgets) {
       if (subWidget.mouseClicked(mouseX, mouseY, button)) {
         return true;
       }
@@ -98,7 +96,7 @@ public class OptionRow extends Widget<ConfigList> {
 
   @Override
   public boolean onMouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-    for (Widget<?> subWidget : subWidgets) {
+    for (Widget subWidget : subWidgets) {
       if (subWidget.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)) {
         return true;
       }
@@ -108,7 +106,7 @@ public class OptionRow extends Widget<ConfigList> {
 
   @Override
   public boolean onMouseReleased(double mouseX, double mouseY, int button) {
-    for (Widget<?> subWidget : subWidgets) {
+    for (Widget subWidget : subWidgets) {
       if (subWidget.mouseReleased(mouseX, mouseY, button)) {
         return true;
       }
@@ -118,7 +116,7 @@ public class OptionRow extends Widget<ConfigList> {
 
   @Override
   public boolean charTyped(char chr, int modifiers) {
-    for (Widget<?> subWidget : subWidgets) {
+    for (Widget subWidget : subWidgets) {
       if (subWidget.charTyped(chr, modifiers)) {
         return true;
       }
@@ -128,7 +126,7 @@ public class OptionRow extends Widget<ConfigList> {
 
   @Override
   public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-    for (Widget<?> subWidget : subWidgets) {
+    for (Widget subWidget : subWidgets) {
       if (subWidget.keyPressed(keyCode, scanCode, modifiers)) {
         return true;
       }
@@ -138,7 +136,7 @@ public class OptionRow extends Widget<ConfigList> {
 
   @Override
   public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
-    for (Widget<?> subWidget : subWidgets) {
+    for (Widget subWidget : subWidgets) {
       if (subWidget.keyReleased(keyCode, scanCode, modifiers)) {
         return true;
       }
@@ -245,10 +243,6 @@ public class OptionRow extends Widget<ConfigList> {
 
   public ConfigOption<?> getConfigOption() {
     return configOption;
-  }
-
-  public Control<?> getControl() {
-    return control;
   }
 
   public <S extends Element & Selectable> List<S> getSelectableElements() {

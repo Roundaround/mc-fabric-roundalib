@@ -15,7 +15,7 @@ import net.minecraft.util.Identifier;
 
 import java.util.List;
 
-public class ResetButton extends ClickableWidget<OptionRow> {
+public class ResetButton extends AbstractClickableWidget<OptionRow> {
   public static final int HEIGHT = 12;
   public static final int WIDTH = 12;
   protected static final Identifier TEXTURE = new Identifier("roundalib", "textures/gui.png");
@@ -90,6 +90,5 @@ public class ResetButton extends ClickableWidget<OptionRow> {
   @Override
   public void appendNarrations(NarrationMessageBuilder builder) {
     // TODO Auto-generated method stub
-
   }
 }

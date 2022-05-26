@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Environment(EnvType.CLIENT)
-public class ConfigList extends Widget<ConfigScreen> implements Scrollable {
+public class ConfigList extends AbstractWidget<ConfigScreen> implements Scrollable {
   private static final int SCROLLBAR_WIDTH = 6;
   private static final int PADDING_X = 4;
   private static final int PADDING_Y = 4;
@@ -201,7 +201,7 @@ public class ConfigList extends Widget<ConfigScreen> implements Scrollable {
 
   @Override
   public boolean charTyped(char chr, int modifiers) {
-    for (Widget<?> optionRow : optionRows) {
+    for (AbstractWidget<?> optionRow : optionRows) {
       if (optionRow.charTyped(chr, modifiers)) {
         return true;
       }
@@ -212,7 +212,7 @@ public class ConfigList extends Widget<ConfigScreen> implements Scrollable {
 
   @Override
   public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-    for (Widget<?> optionRow : optionRows) {
+    for (AbstractWidget<?> optionRow : optionRows) {
       if (optionRow.keyPressed(keyCode, scanCode, modifiers)) {
         return true;
       }

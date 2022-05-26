@@ -3,8 +3,7 @@ package me.roundaround.roundalib.config.option;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import me.roundaround.roundalib.config.gui.OptionRow;
-import me.roundaround.roundalib.config.gui.control.Control;
-import me.roundaround.roundalib.config.gui.control.ControlFactory;
+import me.roundaround.roundalib.config.gui.control.ControlWidget;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
@@ -21,7 +20,6 @@ public abstract class ConfigOption<T> {
 
   private T value;
   private T lastSavedValue;
-  private Control<T> control = null;
 
   public ConfigOption(String id, String labelI18nKey, T defaultValue) {
     this.id = id;
@@ -31,8 +29,7 @@ public abstract class ConfigOption<T> {
     this.controlFactory = this.getDefaultControlFactory();
   }
 
-  public ConfigOption(
-      String id, String labelI18nKey, T defaultValue, ControlFactory<T> controlFactory) {
+  public ConfigOption(String id, String labelI18nKey, T defaultValue, ControlFactory<T> controlFactory) {
     this.id = id;
     this.labelI18nKey = labelI18nKey;
     this.defaultValue = defaultValue;
@@ -84,14 +81,12 @@ public abstract class ConfigOption<T> {
     this.markValueAsSaved();
   }
 
-  public final Control<T> createControl(
-      OptionRow parent, int top, int left, int height, int width) {
-    if (this.control != null) {
-      return control;
-    }
+  public final ControlWidget<T> createControl(OptionRow parent, int top, int left, int height, int width) {
+    ControlWidget<T> control = this.controlFactory.apply(parent, top, left, height, width);
+    control.setConfigOption(this);
+    control.init();
 
-    this.control = this.controlFactory.apply(parent, this, top, left, height, width);
-    return this.control;
+    return control;
   }
 
   public final void subscribeToValueChanges(BiConsumer<T, T> listener) {

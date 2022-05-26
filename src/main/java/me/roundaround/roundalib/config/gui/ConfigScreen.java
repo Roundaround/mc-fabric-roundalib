@@ -90,20 +90,12 @@ public class ConfigScreen extends Screen {
       return true;
     }
 
-    if (doneButton.mouseClicked(mouseX, mouseY, button)) {
-      return true;
-    }
-
     return super.mouseClicked(mouseX, mouseY, button);
   }
 
   @Override
   public boolean mouseReleased(double mouseX, double mouseY, int button) {
     if (listWidget.mouseReleased(mouseX, mouseY, button)) {
-      return true;
-    }
-
-    if (doneButton.mouseReleased(mouseX, mouseY, button)) {
       return true;
     }
 

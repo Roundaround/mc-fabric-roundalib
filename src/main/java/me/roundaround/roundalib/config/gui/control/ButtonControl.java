@@ -2,10 +2,11 @@ package me.roundaround.roundalib.config.gui.control;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+
 import me.roundaround.roundalib.config.gui.OptionRow;
-import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.sound.SoundManager;
@@ -14,17 +15,15 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-public abstract class ButtonControl<T> extends Control<T> {
-  protected static final Identifier BUTTON_TEXTURES =
-      new Identifier("minecraft", "textures/gui/widgets.png");
+public abstract class ButtonControl<T> extends AbstractClickableControlWidget<T> {
+  protected static final Identifier BUTTON_TEXTURES = new Identifier("minecraft", "textures/gui/widgets.png");
   protected static final int BUTTON_TEXTURE_WIDTH = 200;
   protected static final int BUTTON_TEXTURE_HEIGHT = 20;
 
   private boolean isActive = true;
 
-  protected ButtonControl(
-      OptionRow parent, ConfigOption<T> configOption, int top, int left, int height, int width) {
-    super(parent, configOption, top, left, height, width);
+  protected ButtonControl(OptionRow parent, int top, int left, int height, int width) {
+    super(parent, top, left, height, width);
   }
 
   protected abstract Text getCurrentText();
@@ -33,7 +32,7 @@ public abstract class ButtonControl<T> extends Control<T> {
 
   @Override
   public boolean onMouseClicked(double mouseX, double mouseY, int button) {
-    if (!this.isActive) {
+    if (!isActive) {
       return false;
     }
 
@@ -57,61 +56,66 @@ public abstract class ButtonControl<T> extends Control<T> {
     RenderSystem.setShader(GameRenderer::getPositionTexShader);
     RenderSystem.applyModelViewMatrix();
 
-    int imageOffset = this.getImageOffset(this.isMouseOver(mouseX, mouseY));
+    int imageOffset = getImageOffset();
     int textureV = 46 + imageOffset * 20;
 
     // Top left
-    drawTexture(matrixStack, this.left, this.top, 0, textureV, this.width / 2, this.height / 2);
+    drawTexture(matrixStack, left, top, 0, textureV, width / 2, height / 2);
 
     // Top right
     drawTexture(
         matrixStack,
-        this.left + this.width / 2,
-        this.top,
-        BUTTON_TEXTURE_WIDTH - this.width / 2,
+        left + width / 2,
+        top,
+        BUTTON_TEXTURE_WIDTH - width / 2,
         textureV,
-        this.width / 2,
-        this.height / 2);
+        width / 2,
+        height / 2);
 
     // Bottom left
     drawTexture(
         matrixStack,
-        this.left,
-        this.top + this.height / 2,
+        left,
+        top + height / 2,
         0,
-        textureV + BUTTON_TEXTURE_HEIGHT - this.height / 2,
-        this.width / 2,
-        this.height / 2);
+        textureV + BUTTON_TEXTURE_HEIGHT - height / 2,
+        width / 2,
+        height / 2);
 
     // Bottom right
     drawTexture(
         matrixStack,
-        this.left + this.width / 2,
-        this.top + this.height / 2,
-        BUTTON_TEXTURE_WIDTH - this.width / 2,
-        textureV + BUTTON_TEXTURE_HEIGHT - this.height / 2,
-        this.width / 2,
-        this.height / 2);
+        left + width / 2,
+        top + height / 2,
+        BUTTON_TEXTURE_WIDTH - width / 2,
+        textureV + BUTTON_TEXTURE_HEIGHT - height / 2,
+        width / 2,
+        height / 2);
 
-    int colorInt = this.isActive ? 0xFFFFFF : 0xA0A0A0;
+    int colorInt = isActive ? 0xFFFFFF : 0xA0A0A0;
     int color = colorInt | 255 << 24;
     TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
     drawCenteredText(
         matrixStack,
         textRenderer,
-        this.getCurrentText(),
-        this.left + this.width / 2,
-        this.top + (this.height - 8) / 2,
+        getCurrentText(),
+        left + width / 2,
+        top + (height - 8) / 2,
         color);
   }
 
-  protected int getImageOffset(boolean hovered) {
-    if (!this.isActive) {
+  protected int getImageOffset() {
+    if (!isActive) {
       return 0;
-    } else if (hovered) {
+    } else if (isHoveredOrFocused()) {
       return 2;
     }
 
     return 1;
+  }
+
+  @Override
+  public void appendNarrations(NarrationMessageBuilder builder) {
+    // TODO Auto-generated method stub
   }
 }

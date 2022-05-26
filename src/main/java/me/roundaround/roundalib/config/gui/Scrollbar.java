@@ -5,7 +5,7 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.MathHelper;
 
-public class Scrollbar extends Widget<Scrollable> {
+public class Scrollbar extends AbstractWidget<Scrollable> {
   private final double scrollSpeed;
 
   private boolean scrolling;
