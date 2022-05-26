@@ -81,4 +81,10 @@ public class TextInputControl extends Control<String> {
       textBox.setText(curr);
     }
   }
+
+  @Override
+  public void moveTop(int top) {
+    super.moveTop(top);
+    textBox.y = top + 1;
+  }
 }
