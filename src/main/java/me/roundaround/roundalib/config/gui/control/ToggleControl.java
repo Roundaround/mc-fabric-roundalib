@@ -1,10 +1,11 @@
 package me.roundaround.roundalib.config.gui.control;
 
 import me.roundaround.roundalib.config.gui.OptionRow;
+import me.roundaround.roundalib.config.option.BooleanConfigOption;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
-public class ToggleControl extends ButtonControl<Boolean> {
+public class ToggleControl extends ButtonControl<Boolean, BooleanConfigOption> {
   private Text cachedText;
 
   public ToggleControl(

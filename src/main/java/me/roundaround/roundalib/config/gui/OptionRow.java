@@ -41,7 +41,7 @@ public class OptionRow extends AbstractWidget<ConfigList> {
 
     this.index = index;
     this.configOption = configOption;
-    this.control = configOption.createControl(
+    this.control = configOption.createAndInitializeControl(
         this,
         this.top,
         this.right - CONTROL_WIDTH - ResetButton.WIDTH - (PADDING * 2),

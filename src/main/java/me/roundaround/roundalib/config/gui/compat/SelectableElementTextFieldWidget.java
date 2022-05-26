@@ -14,4 +14,16 @@ public class SelectableElementTextFieldWidget extends TextFieldWidget implements
   public SelectableElementTextFieldWidget(TextRenderer textRenderer, int x, int y, int width, int height, Text text) {
     super(textRenderer, x, y, width, height, text);
   }
+
+  @Override
+	public boolean charTyped(char chr, int modifiers) {
+    if (!isCharAllowed(chr)) {
+      return false;
+    }
+    return super.charTyped(chr, modifiers);
+  }
+
+  protected boolean isCharAllowed(char chr) {
+    return true;
+  }
 }

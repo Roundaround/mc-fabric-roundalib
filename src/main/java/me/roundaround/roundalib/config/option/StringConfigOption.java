@@ -21,7 +21,7 @@ public class StringConfigOption extends ConfigOption<String> {
   }
 
   @Override
-  public ControlFactory<String> getDefaultControlFactory() {
+  public ControlFactory<String> getControlFactory() {
     return TextInputControl::new;
   }
 }

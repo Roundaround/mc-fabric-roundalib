@@ -5,10 +5,11 @@ import java.util.List;
 import me.roundaround.roundalib.config.gui.OptionRow;
 import me.roundaround.roundalib.config.gui.SelectableElement;
 import me.roundaround.roundalib.config.gui.compat.SelectableElementTextFieldWidget;
+import me.roundaround.roundalib.config.option.StringConfigOption;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 
-public class TextInputControl extends AbstractControlWidget<String> {
+public class TextInputControl extends AbstractControlWidget<String, StringConfigOption> {
   private SelectableElementTextFieldWidget textBox;
 
   public TextInputControl(

@@ -21,7 +21,7 @@ public class BooleanConfigOption extends ConfigOption<Boolean> {
   }
 
   @Override
-  public ControlFactory<Boolean> getDefaultControlFactory() {
+  public ControlFactory<Boolean> getControlFactory() {
     return ToggleControl::new;
   }
 }

@@ -8,7 +8,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import me.roundaround.roundalib.config.gui.OptionRow;
-import me.roundaround.roundalib.config.gui.control.ControlWidget;
+import me.roundaround.roundalib.config.gui.Widget;
+import me.roundaround.roundalib.config.gui.control.Control;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
@@ -16,7 +17,6 @@ public abstract class ConfigOption<T> {
   private final String id;
   private final String labelI18nKey;
   private final T defaultValue;
-  private final ControlFactory<T> controlFactory;
   private final Queue<BiConsumer<T, T>> valueChangeListeners = new LinkedList<>();
 
   private T value;
@@ -27,15 +27,6 @@ public abstract class ConfigOption<T> {
     this.labelI18nKey = labelI18nKey;
     this.defaultValue = defaultValue;
     this.value = defaultValue;
-    this.controlFactory = this.getDefaultControlFactory();
-  }
-
-  public ConfigOption(String id, String labelI18nKey, T defaultValue, ControlFactory<T> controlFactory) {
-    this.id = id;
-    this.labelI18nKey = labelI18nKey;
-    this.defaultValue = defaultValue;
-    this.value = defaultValue;
-    this.controlFactory = controlFactory;
   }
 
   public String getId() {
@@ -82,8 +73,8 @@ public abstract class ConfigOption<T> {
     this.markValueAsSaved();
   }
 
-  public final ControlWidget<T> createControl(OptionRow parent, int top, int left, int height, int width) {
-    ControlWidget<T> control = this.controlFactory.apply(parent, top, left, height, width);
+  public final U createAndInitializeControl(OptionRow parent, int top, int left, int height, int width) {
+    U control = createControl(parent, top, left, height, width);
     control.setConfigOption(this);
     control.init();
 
@@ -94,9 +85,9 @@ public abstract class ConfigOption<T> {
     this.valueChangeListeners.add(listener);
   }
 
+  protected abstract U createControl(OptionRow parent, int top, int left, int height, int width);
+
   public abstract T deserializeFromJson(JsonElement data);
 
   public abstract JsonElement serializeToJson();
-
-  public abstract ControlFactory<T> getDefaultControlFactory();
 }

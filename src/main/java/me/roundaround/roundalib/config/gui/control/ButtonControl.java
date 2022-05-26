@@ -6,6 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import org.lwjgl.glfw.GLFW;
 
 import me.roundaround.roundalib.config.gui.OptionRow;
+import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.render.GameRenderer;
@@ -16,7 +17,7 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-public abstract class ButtonControl<T> extends AbstractClickableControlWidget<T> {
+public abstract class ButtonControl<T, U extends ConfigOption<T>> extends AbstractClickableControlWidget<T, U> {
   protected static final Identifier BUTTON_TEXTURES = new Identifier("minecraft", "textures/gui/widgets.png");
   protected static final int BUTTON_TEXTURE_WIDTH = 200;
   protected static final int BUTTON_TEXTURE_HEIGHT = 20;

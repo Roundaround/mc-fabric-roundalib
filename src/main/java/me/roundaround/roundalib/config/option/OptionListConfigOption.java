@@ -22,7 +22,7 @@ public class OptionListConfigOption<T extends ListOptionValue<T>> extends Config
   }
 
   @Override
-  public ControlFactory<T> getDefaultControlFactory() {
+  public ControlFactory<T> getControlFactory() {
     return OptionListControl::new;
   }
 }
