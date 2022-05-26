@@ -25,7 +25,6 @@ public class OptionRow extends AbstractWidget<ConfigList> {
   protected static final int CONTROL_WIDTH = 80;
   protected static final int ROW_SHADE_STRENGTH = 85;
   protected static final int ROW_SHADE_FADE_WIDTH = 8;
-  private static final MinecraftClient MINECRAFT = MinecraftClient.getInstance();
 
   protected final int index;
   protected final ConfigOption<?> configOption;
@@ -216,10 +215,9 @@ public class OptionRow extends AbstractWidget<ConfigList> {
   }
 
   protected void renderLabel(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-    TextRenderer textRenderer = MINECRAFT.textRenderer;
     drawTextWithShadow(
         matrixStack,
-        textRenderer,
+        TEXT_RENDERER,
         this.configOption.getLabel(),
         this.left + PADDING,
         this.top + (this.height - 8) / 2,

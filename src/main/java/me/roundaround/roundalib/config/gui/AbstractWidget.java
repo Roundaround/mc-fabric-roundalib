@@ -1,9 +1,14 @@
 package me.roundaround.roundalib.config.gui;
 
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.util.math.MatrixStack;
 
 public abstract class AbstractWidget<T> extends DrawableHelper implements Widget {
+  protected static final MinecraftClient MINECRAFT = MinecraftClient.getInstance();
+  protected static final TextRenderer TEXT_RENDERER = MINECRAFT.textRenderer;
+
   protected T parent;
   protected int width;
   protected int height;

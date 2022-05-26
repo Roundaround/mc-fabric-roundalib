@@ -6,7 +6,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import org.lwjgl.glfw.GLFW;
 
 import me.roundaround.roundalib.config.gui.OptionRow;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
@@ -19,7 +18,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public abstract class ButtonControl<T> extends AbstractClickableControlWidget<T> {
-  private static final MinecraftClient MINECRAFT = MinecraftClient.getInstance();
   protected static final Identifier BUTTON_TEXTURES = new Identifier("minecraft", "textures/gui/widgets.png");
   protected static final int BUTTON_TEXTURE_WIDTH = 200;
   protected static final int BUTTON_TEXTURE_HEIGHT = 20;
@@ -109,10 +107,9 @@ public abstract class ButtonControl<T> extends AbstractClickableControlWidget<T>
 
     int colorInt = isActive ? 0xFFFFFF : 0xA0A0A0;
     int color = colorInt | 255 << 24;
-    TextRenderer textRenderer = MINECRAFT.textRenderer;
     drawCenteredText(
         matrixStack,
-        textRenderer,
+        TEXT_RENDERER,
         getCurrentText(),
         left + width / 2,
         top + (height - 8) / 2,

@@ -5,12 +5,10 @@ import java.util.List;
 import me.roundaround.roundalib.config.gui.OptionRow;
 import me.roundaround.roundalib.config.gui.SelectableElement;
 import me.roundaround.roundalib.config.gui.compat.SelectableElementTextFieldWidget;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 
 public class TextInputControl extends AbstractControlWidget<String> {
-  private static final MinecraftClient MINECRAFT = MinecraftClient.getInstance();
   private SelectableElementTextFieldWidget textBox;
 
   public TextInputControl(
@@ -24,7 +22,7 @@ public class TextInputControl extends AbstractControlWidget<String> {
 
   @Override
   public void init() {
-    textBox = new SelectableElementTextFieldWidget(MINECRAFT.textRenderer, left + 1, top + 1,
+    textBox = new SelectableElementTextFieldWidget(TEXT_RENDERER, left + 1, top + 1,
         width - 2, height - 2,
         new LiteralText("Foo"));
     textBox.setMaxLength(50);
