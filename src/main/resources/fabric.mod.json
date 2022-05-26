@@ -17,6 +17,9 @@
   "entrypoints": {
     "*": [
       "me.roundaround.roundalib.RoundaLibMod"
+    ],
+    "modmenu": [
+      "me.roundaround.roundalib.compat.modmenu.ModMenuImpl"
     ]
   },
   "depends": {
