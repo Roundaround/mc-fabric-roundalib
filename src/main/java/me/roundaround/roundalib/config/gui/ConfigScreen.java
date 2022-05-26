@@ -40,8 +40,7 @@ public class ConfigScreen extends Screen {
 
   @Override
   protected void init() {
-    super.init();
-    clearChildren();
+    this.client.keyboard.setRepeatEvents(true);
 
     int listWidth = (int) Math.max(LIST_MIN_WIDTH, width / 1.5f);
     int listLeft = (int) ((width / 2f) - (listWidth / 2f));
