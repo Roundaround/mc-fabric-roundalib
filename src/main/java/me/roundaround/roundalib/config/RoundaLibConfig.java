@@ -14,8 +14,6 @@ public class RoundaLibConfig extends ModConfig {
       "config.gui_alignment", GuiAlignment.TOP_LEFT);
   public static final IntConfigOption SOME_INTEGER = new IntConfigOption("someInteger", "config.some_integer", 5);
   public static final StringConfigOption MY_NAME = new StringConfigOption("myName", "config.my_name", "Roundalib");
-  public static final StringConfigOption RANDOM_STRING = new StringConfigOption("randomString", "config.randon_string",
-      "fhjdsaghls");
   public static final BooleanConfigOption TEST_CONFIG_1 = new BooleanConfigOption("testConfig1", "config.test_1", true);
   public static final BooleanConfigOption TEST_CONFIG_2 = new BooleanConfigOption("testConfig2", "config.test_2", true);
   public static final BooleanConfigOption TEST_CONFIG_3 = new BooleanConfigOption("testConfig3", "config.test_3", true);
@@ -25,12 +23,22 @@ public class RoundaLibConfig extends ModConfig {
   public static final BooleanConfigOption TEST_CONFIG_7 = new BooleanConfigOption("testConfig7", "config.test_7", true);
   public static final BooleanConfigOption TEST_CONFIG_8 = new BooleanConfigOption("testConfig8", "config.test_8", true);
   public static final BooleanConfigOption TEST_CONFIG_9 = new BooleanConfigOption("testConfig9", "config.test_9", true);
+  public static final BooleanConfigOption TEST_CONFIG_A = new BooleanConfigOption("testConfigA", "config.test_a", true);
+  public static final BooleanConfigOption TEST_CONFIG_B = new BooleanConfigOption("testConfigB", "config.test_b", true);
+  public static final BooleanConfigOption TEST_CONFIG_C = new BooleanConfigOption("testConfigC", "config.test_c", true);
+  public static final BooleanConfigOption TEST_CONFIG_D = new BooleanConfigOption("testConfigD", "config.test_d", true);
+  public static final BooleanConfigOption TEST_CONFIG_E = new BooleanConfigOption("testConfigE", "config.test_e", true);
+  public static final BooleanConfigOption TEST_CONFIG_F = new BooleanConfigOption("testConfigF", "config.test_f", true);
+  public static final BooleanConfigOption TEST_CONFIG_G = new BooleanConfigOption("testConfigG", "config.test_g", true);
+  public static final BooleanConfigOption TEST_CONFIG_H = new BooleanConfigOption("testConfigH", "config.test_h", true);
+  public static final BooleanConfigOption TEST_CONFIG_I = new BooleanConfigOption("testConfigI", "config.test_i", true);
+  public static final StringConfigOption RANDOM_STRING = new StringConfigOption("randomString", "config.randon_string",
+      "fhjdsaghls");
 
   private static final ImmutableList<ConfigOption<?>> ALL_CONFIG_OPTIONS = ImmutableList.of(
       GUI_ALIGNMENT,
       SOME_INTEGER,
       MY_NAME,
-      RANDOM_STRING,
       TEST_CONFIG_1,
       TEST_CONFIG_2,
       TEST_CONFIG_3,
@@ -39,7 +47,17 @@ public class RoundaLibConfig extends ModConfig {
       TEST_CONFIG_6,
       TEST_CONFIG_7,
       TEST_CONFIG_8,
-      TEST_CONFIG_9);
+      TEST_CONFIG_9,
+      TEST_CONFIG_A,
+      TEST_CONFIG_B,
+      TEST_CONFIG_C,
+      TEST_CONFIG_D,
+      TEST_CONFIG_E,
+      TEST_CONFIG_F,
+      TEST_CONFIG_G,
+      TEST_CONFIG_H,
+      TEST_CONFIG_I,
+      RANDOM_STRING);
 
   public RoundaLibConfig() {
     super(RoundaLibMod.MOD_INFO);

@@ -109,6 +109,10 @@ public class Scrollbar extends Widget<Scrollable> {
     this.maxPosition = maxPosition;
   }
 
+  public void scroll(double amount) {
+    setScrollAmount(scrollAmount + amount);
+  }
+
   private int getMaxScroll() {
     return Math.max(0, this.maxPosition - (this.height - 4));
   }

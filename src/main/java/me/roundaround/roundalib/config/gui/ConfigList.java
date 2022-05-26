@@ -7,6 +7,8 @@ import me.roundaround.roundalib.config.option.ConfigOption;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
@@ -36,25 +38,25 @@ public class ConfigList extends Widget<ConfigScreen> implements Scrollable {
     super(parent, top, left, height, width);
     this.parent = parent;
 
-    this.elementStartX = this.left + PADDING_X;
-    this.elementStartY = this.top + PADDING_Y;
+    elementStartX = left + PADDING_X;
+    elementStartY = top + PADDING_Y;
 
-    this.elementWidth = this.width - (2 * PADDING_X) - SCROLLBAR_WIDTH;
-    this.elementHeight = OptionRow.HEIGHT;
+    elementWidth = width - (2 * PADDING_X) - SCROLLBAR_WIDTH;
+    elementHeight = OptionRow.HEIGHT;
 
-    this.scrollbar = new Scrollbar(
+    scrollbar = new Scrollbar(
         this,
-        (this.elementHeight + ROW_PADDING) / 2d,
-        this.top,
-        this.right - SCROLLBAR_WIDTH + 1,
-        this.height,
+        (elementHeight + ROW_PADDING) / 2d,
+        top,
+        right - SCROLLBAR_WIDTH + 1,
+        height,
         SCROLLBAR_WIDTH);
   }
 
   public void init() {
     optionRows.clear();
 
-    ImmutableList<ConfigOption<?>> configOptions = this.parent.getModConfig().getConfigOptions();
+    ImmutableList<ConfigOption<?>> configOptions = parent.getModConfig().getConfigOptions();
     IntStream.range(0, configOptions.size())
         .forEach(
             idx -> optionRows.add(
@@ -62,37 +64,18 @@ public class ConfigList extends Widget<ConfigScreen> implements Scrollable {
                     this,
                     idx,
                     configOptions.get(idx),
-                    this.getElementTop(idx),
+                    getElementTop(idx),
                     elementStartX,
                     elementWidth)));
 
-    this.scrollbar.setMaxPosition(
-        this.optionRows.size() * (this.elementHeight + ROW_PADDING) + PADDING_Y - ROW_PADDING + 1);
-
-    optionRows.forEach((optionRow) -> {
-      optionRow.getSelectableElements().forEach((element) -> parent.addSelectableChild(element));
-    });
+    scrollbar.setMaxPosition(
+        optionRows.size() * (elementHeight + ROW_PADDING) + PADDING_Y - ROW_PADDING + 1);
   }
 
   @Override
   public boolean onMouseClicked(double mouseX, double mouseY, int button) {
-    if (this.scrollbar.mouseClicked(mouseX, mouseY, button)) {
+    if (scrollbar.mouseClicked(mouseX, mouseY, button)) {
       return true;
-    }
-
-    // OptionRow element = this.getElementAtPosition(mouseX, mouseY);
-    // if (element != null) {
-    //   return element.mouseClicked(mouseX, mouseY, button);
-    // }
-
-    return false;
-  }
-
-  @Override
-  public boolean onMouseReleased(double mouseX, double mouseY, int button) {
-    OptionRow element = this.getElementAtPosition(mouseX, mouseY);
-    if (element != null) {
-      return element.mouseReleased(mouseX, mouseY, button);
     }
 
     return false;
@@ -101,13 +84,8 @@ public class ConfigList extends Widget<ConfigScreen> implements Scrollable {
   @Override
   public boolean mouseDragged(
       double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-    if (this.scrollbar.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)) {
+    if (scrollbar.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)) {
       return true;
-    }
-
-    OptionRow element = this.getElementAtPosition(mouseX - deltaX, mouseY - deltaY);
-    if (element != null) {
-      return element.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
     }
 
     return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
@@ -115,36 +93,31 @@ public class ConfigList extends Widget<ConfigScreen> implements Scrollable {
 
   @Override
   public boolean onMouseScrolled(double mouseX, double mouseY, double amount) {
-    return this.scrollbar.onMouseScrolled(mouseX, mouseY, amount);
+    return scrollbar.onMouseScrolled(mouseX, mouseY, amount);
+  }
+
+  public void scroll(double amount) {
+    scrollbar.scroll(amount);
   }
 
   public void setScrollAmount(double amount) {
-    this.scrollAmount = amount;
+    scrollAmount = amount;
 
     IntStream.range(0, optionRows.size())
-        .forEach(idx -> this.optionRows.get(idx).moveTop(this.getElementTop(idx)));
-  }
-
-  private OptionRow getElementAtPosition(double mouseX, double mouseY) {
-    for (OptionRow optionRow : this.optionRows) {
-      if (optionRow.isMouseOver(mouseX, mouseY)) {
-        return optionRow;
-      }
-    }
-    return null;
+        .forEach(idx -> optionRows.get(idx).moveTop(getElementTop(idx)));
   }
 
   @Override
   public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-    this.renderBackground(matrixStack);
-    this.renderConfigOptionEntries(matrixStack, mouseX, mouseY, partialTicks);
+    renderBackground(matrixStack);
+    renderConfigOptionEntries(matrixStack, mouseX, mouseY, partialTicks);
 
-    this.scrollbar.render(matrixStack, mouseX, mouseY, partialTicks);
+    scrollbar.render(matrixStack, mouseX, mouseY, partialTicks);
   }
 
   @Override
   public List<Text> getTooltip(int mouseX, int mouseY, float delta) {
-    return this.optionRows.stream()
+    return optionRows.stream()
         .map(optionRow -> optionRow.getTooltip(mouseX, mouseY, delta))
         .flatMap(List::stream)
         .collect(Collectors.toList());
@@ -160,23 +133,23 @@ public class ConfigList extends Widget<ConfigScreen> implements Scrollable {
 
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
     bufferBuilder
-        .vertex(this.left, this.bottom, 0)
-        .texture(this.left / 32f, (float) (this.bottom + (int) this.scrollAmount) / 32f)
+        .vertex(left, bottom, 0)
+        .texture(left / 32f, (float) (bottom + (int) scrollAmount) / 32f)
         .color(32, 32, 32, 255)
         .next();
     bufferBuilder
-        .vertex(this.right, this.bottom, 0)
-        .texture(this.right / 32f, (float) (this.bottom + (int) this.scrollAmount) / 32f)
+        .vertex(right, bottom, 0)
+        .texture(right / 32f, (float) (bottom + (int) scrollAmount) / 32f)
         .color(32, 32, 32, 255)
         .next();
     bufferBuilder
-        .vertex(this.right, this.top, 0)
-        .texture(this.right / 32f, (float) (this.top + (int) this.scrollAmount) / 32f)
+        .vertex(right, top, 0)
+        .texture(right / 32f, (float) (top + (int) scrollAmount) / 32f)
         .color(32, 32, 32, 255)
         .next();
     bufferBuilder
-        .vertex(this.left, this.top, 0)
-        .texture(this.left / 32f, (float) (this.top + (int) this.scrollAmount) / 32f)
+        .vertex(left, top, 0)
+        .texture(left / 32f, (float) (top + (int) scrollAmount) / 32f)
         .color(32, 32, 32, 255)
         .next();
     tessellator.draw();
@@ -193,14 +166,14 @@ public class ConfigList extends Widget<ConfigScreen> implements Scrollable {
     RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-    bufferBuilder.vertex(this.left, this.top + PADDING_Y, 0).color(0, 0, 0, 0).next();
-    bufferBuilder.vertex(this.right, this.top + PADDING_Y, 0).color(0, 0, 0, 0).next();
-    bufferBuilder.vertex(this.right, this.top, 0).color(0, 0, 0, 255).next();
-    bufferBuilder.vertex(this.left, this.top, 0).color(0, 0, 0, 255).next();
-    bufferBuilder.vertex(this.left, this.bottom, 0).color(0, 0, 0, 255).next();
-    bufferBuilder.vertex(this.right, this.bottom, 0).color(0, 0, 0, 255).next();
-    bufferBuilder.vertex(this.right, this.bottom - PADDING_Y, 0).color(0, 0, 0, 0).next();
-    bufferBuilder.vertex(this.left, this.bottom - PADDING_Y, 0).color(0, 0, 0, 0).next();
+    bufferBuilder.vertex(left, top + PADDING_Y, 0).color(0, 0, 0, 0).next();
+    bufferBuilder.vertex(right, top + PADDING_Y, 0).color(0, 0, 0, 0).next();
+    bufferBuilder.vertex(right, top, 0).color(0, 0, 0, 255).next();
+    bufferBuilder.vertex(left, top, 0).color(0, 0, 0, 255).next();
+    bufferBuilder.vertex(left, bottom, 0).color(0, 0, 0, 255).next();
+    bufferBuilder.vertex(right, bottom, 0).color(0, 0, 0, 255).next();
+    bufferBuilder.vertex(right, bottom - PADDING_Y, 0).color(0, 0, 0, 0).next();
+    bufferBuilder.vertex(left, bottom - PADDING_Y, 0).color(0, 0, 0, 0).next();
     tessellator.draw();
 
     RenderSystem.enableTexture();
@@ -211,14 +184,14 @@ public class ConfigList extends Widget<ConfigScreen> implements Scrollable {
       MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
     optionRows.forEach(
         optionRow -> {
-          if (optionRow.getBottom() >= this.top && optionRow.getTop() <= this.bottom) {
+          if (optionRow.getBottom() >= top && optionRow.getTop() <= bottom) {
             optionRow.render(matrixStack, mouseX, mouseY, partialTicks);
           }
         });
   }
 
   private int getElementTop(int idx) {
-    return elementStartY - (int) this.scrollAmount + idx * (elementHeight + ROW_PADDING);
+    return elementStartY - (int) scrollAmount + idx * (elementHeight + ROW_PADDING);
   }
 
   @Override
@@ -234,7 +207,7 @@ public class ConfigList extends Widget<ConfigScreen> implements Scrollable {
       }
     }
     return false;
-    
+
   }
 
   @Override
@@ -245,5 +218,33 @@ public class ConfigList extends Widget<ConfigScreen> implements Scrollable {
       }
     }
     return false;
+  }
+
+  @Override
+  public <S extends Element & Selectable> List<S> getSelectableElements() {
+    return optionRows.stream()
+        .map(OptionRow::getSelectableElements)
+        .flatMap(List::stream)
+        .map((elem) -> (S) elem)
+        .collect(Collectors.toList());
+  }
+
+  public void onSetFocused(Element focused) {
+    optionRows.stream()
+        .filter((optionRow) -> optionRow.getSelectableElements().indexOf(focused) > -1)
+        .forEach(this::ensureVisible);
+  }
+
+  public void ensureVisible(OptionRow optionRow) {
+    int rowTop = optionRow.getTop() - PADDING_Y - 1;
+    if (rowTop < top) {
+      scroll(rowTop - top);
+      return;
+    }
+
+    int rowBottom = optionRow.getBottom() + PADDING_Y + 1;
+    if (rowBottom > bottom) {
+      scroll(rowBottom - bottom);
+    }
   }
 }
