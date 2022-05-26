@@ -1,5 +1,7 @@
 package me.roundaround.roundalib.config.gui;
 
+import java.util.List;
+
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -15,8 +17,6 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-
-import java.util.List;
 
 public class ResetButton extends AbstractClickableWidget<OptionRow> {
   public static final int HEIGHT = 12;

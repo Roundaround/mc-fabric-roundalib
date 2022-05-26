@@ -1,15 +1,16 @@
 package me.roundaround.roundalib.config.option;
 
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.function.BiConsumer;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
 import me.roundaround.roundalib.config.gui.OptionRow;
 import me.roundaround.roundalib.config.gui.control.ControlWidget;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
-
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.function.BiConsumer;
 
 public abstract class ConfigOption<T> {
   private final String id;

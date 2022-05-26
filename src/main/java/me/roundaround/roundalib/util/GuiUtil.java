@@ -1,8 +1,9 @@
 package me.roundaround.roundalib.util;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
-import org.jetbrains.annotations.Nullable;
 
 public class GuiUtil {
   private static final MinecraftClient MINECRAFT = MinecraftClient.getInstance();

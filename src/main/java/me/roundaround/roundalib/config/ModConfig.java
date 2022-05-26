@@ -1,19 +1,20 @@
 package me.roundaround.roundalib.config;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+
 import me.roundaround.roundalib.RoundaLibMod;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.util.JsonUtil;
 import me.roundaround.roundalib.util.ModInfo;
 import net.fabricmc.loader.api.FabricLoader;
-
-import java.io.File;
-import java.util.HashMap;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public abstract class ModConfig {
   private final ModInfo modInfo;

@@ -1,7 +1,12 @@
 package me.roundaround.roundalib.config.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.render.*;
+
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.MathHelper;
 
@@ -87,8 +92,7 @@ public class Scrollbar extends AbstractWidget<Scrollable> {
       } else {
         double percent = Math.max(1, this.getMaxScroll());
         int bottom = this.height;
-        int top =
-            MathHelper.clamp(((int) ((float) bottom * bottom / this.maxPosition)), 32, bottom - 8);
+        int top = MathHelper.clamp(((int) ((float) bottom * bottom / this.maxPosition)), 32, bottom - 8);
         double scaled = Math.max(1, percent / (bottom - top));
         this.setScrollAmount(this.scrollAmount + deltaY * scaled);
       }

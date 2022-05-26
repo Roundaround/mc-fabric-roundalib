@@ -4,5 +4,6 @@ import me.roundaround.roundalib.config.option.ConfigOption;
 
 public interface Control<T> {
   void setConfigOption(ConfigOption<T> configOption);
+
   ConfigOption<T> getConfigOption();
 }

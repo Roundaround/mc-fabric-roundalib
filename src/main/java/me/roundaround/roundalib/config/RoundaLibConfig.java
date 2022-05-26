@@ -1,6 +1,7 @@
 package me.roundaround.roundalib.config;
 
 import com.google.common.collect.ImmutableList;
+
 import me.roundaround.roundalib.RoundaLibMod;
 import me.roundaround.roundalib.config.option.BooleanConfigOption;
 import me.roundaround.roundalib.config.option.ConfigOption;

@@ -1,12 +1,23 @@
 package me.roundaround.roundalib.util;
 
-import com.google.gson.*;
-import me.roundaround.roundalib.RoundaLibMod;
-import org.jetbrains.annotations.Nullable;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import org.jetbrains.annotations.Nullable;
+
+import me.roundaround.roundalib.RoundaLibMod;
 
 public class JsonUtil {
   private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -18,8 +29,7 @@ public class JsonUtil {
 
       try {
         JsonParser parser = new JsonParser();
-        InputStreamReader reader =
-            new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
+        InputStreamReader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
 
         JsonElement element = parser.parse(reader);
         reader.close();
