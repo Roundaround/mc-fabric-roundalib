@@ -6,8 +6,8 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
 public class ToggleControl extends ButtonControl<BooleanConfigOption> {
-  private final String enabledI18nKey;
-  private final String disabledI18nKey;
+  private final Text enabledLabel;
+  private final Text disabledLabel;
 
   private Text cachedText;
 
@@ -17,15 +17,21 @@ public class ToggleControl extends ButtonControl<BooleanConfigOption> {
 
   public ToggleControl(BooleanConfigOption configOption, OptionRow parent, int top, int left, int height, int width,
       String enabledI18nKey, String disabledI18nKey) {
+    this(configOption, parent, top, left, height, width, new TranslatableText(enabledI18nKey),
+        new TranslatableText(disabledI18nKey));
+  }
+
+  public ToggleControl(BooleanConfigOption configOption, OptionRow parent, int top, int left, int height, int width,
+      Text enabledLabel, Text disabledLabel) {
     super(configOption, parent, top, left, height, width);
-    this.enabledI18nKey = enabledI18nKey;
-    this.disabledI18nKey = disabledI18nKey;
+    this.enabledLabel = enabledLabel;
+    this.disabledLabel = disabledLabel;
   }
 
   @Override
   public void init() {
     configOption.subscribeToValueChanges(this::onConfigValueChange);
-    cachedText = new TranslatableText(configOption.getValue() ? enabledI18nKey : disabledI18nKey);
+    cachedText = configOption.getValue() ? enabledLabel : disabledLabel;
   }
 
   @Override
@@ -40,6 +46,6 @@ public class ToggleControl extends ButtonControl<BooleanConfigOption> {
   }
 
   private void onConfigValueChange(boolean prev, boolean curr) {
-    cachedText = new TranslatableText(curr ? enabledI18nKey : disabledI18nKey);
+    cachedText = curr ? enabledLabel : disabledLabel;
   }
 }
