@@ -7,7 +7,6 @@ import me.roundaround.roundalib.config.gui.SelectableElement;
 import me.roundaround.roundalib.config.gui.widget.TextFieldWidget;
 import me.roundaround.roundalib.config.option.StringConfigOption;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
 
 public class TextInputControl extends AbstractControlWidget<StringConfigOption> {
   private TextFieldWidget textBox;
@@ -26,7 +25,7 @@ public class TextInputControl extends AbstractControlWidget<StringConfigOption> 
   public void init() {
     textBox = new TextFieldWidget(TEXT_RENDERER, left + 1, top + 1,
         width - 2, height - 2,
-        new LiteralText("Foo"));
+        configOption.getLabel());
     textBox.setMaxLength(50);
     textBox.setChangedListener(this::onTextFieldValueChange);
     textBox.setText(configOption.getValue());

@@ -8,7 +8,6 @@ import me.roundaround.roundalib.config.gui.widget.IntStepButtonWidget;
 import me.roundaround.roundalib.config.gui.widget.TextFieldWidget;
 import me.roundaround.roundalib.config.option.IntConfigOption;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
 
 public class IntInputControl extends AbstractControlWidget<IntConfigOption> {
   private TextFieldWidget textBox;
@@ -29,7 +28,7 @@ public class IntInputControl extends AbstractControlWidget<IntConfigOption> {
   public void init() {
     textBox = new TextFieldWidget(TEXT_RENDERER, left + 1, top + 1,
         width - 2 - (configOption.showStepButtons() ? 10 : 0), height - 2,
-        new LiteralText("Foo")) {
+        configOption.getLabel()) {
       @Override
       protected boolean isCharAllowed(char chr) {
         return Character.isDigit(chr) || Character.valueOf('-').equals(chr);

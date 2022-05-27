@@ -16,14 +16,15 @@ import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.sound.SoundManager;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
 public class ResetButtonWidget extends AbstractClickableWidget<OptionRow> {
   public static final int HEIGHT = 12;
   public static final int WIDTH = 12;
   protected static final Identifier TEXTURE = new Identifier("roundalib", "textures/gui.png");
+  protected static final TranslatableText TOOLTIP = new TranslatableText("config.reset.tooltip");
 
   public ResetButtonWidget(OptionRow parent, int top, int left) {
     super(parent, top, left, HEIGHT, WIDTH);
@@ -60,7 +61,7 @@ public class ResetButtonWidget extends AbstractClickableWidget<OptionRow> {
       return List.of();
     }
 
-    return List.of(new LiteralText("Reset to default"));
+    return List.of(TOOLTIP);
   }
 
   @Override

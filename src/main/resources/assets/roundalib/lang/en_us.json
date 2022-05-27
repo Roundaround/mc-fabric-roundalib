@@ -1,6 +1,5 @@
 {
-  "menuname": "RoundaLib",
-  "config.title": "RoundaLib Config",
+  "config.reset.tooltip": "Reset to default",
   "config.gui_alignment.top_left": "Top left",
   "config.gui_alignment.top_center": "Top center",
   "config.gui_alignment.top_right": "Top right",
