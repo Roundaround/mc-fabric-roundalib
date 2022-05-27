@@ -27,7 +27,7 @@ public class OptionRow extends AbstractWidget<ConfigList> {
   protected static final int LABEL_COLOR = 0xFFFFFFFF;
   protected static final int HIGHLIGHT_COLOR = 0x50FFFFFF;
   protected static final int PADDING = 4;
-  protected static final int CONTROL_WIDTH = 80;
+  protected static final int CONTROL_MIN_WIDTH = 100;
   protected static final int ROW_SHADE_STRENGTH = 85;
   protected static final int ROW_SHADE_FADE_WIDTH = 10;
   protected static final int ROW_SHADE_FADE_OVERFLOW = 10;
@@ -42,14 +42,16 @@ public class OptionRow extends AbstractWidget<ConfigList> {
   public OptionRow(ConfigList parent, int index, ConfigOption<?, ?> configOption, int top, int left, int width) {
     super(parent, top, left, HEIGHT, width);
 
+    int controlWidth = Math.max(CONTROL_MIN_WIDTH, Math.round(width * 0.3f));
+
     this.index = index;
     this.configOption = configOption;
     this.control = configOption.createAndInitializeControl(
         this,
         this.top,
-        this.right - CONTROL_WIDTH - ResetButtonWidget.WIDTH - (PADDING * 2),
+        this.right - controlWidth - ResetButtonWidget.WIDTH - (PADDING * 2),
         this.height,
-        CONTROL_WIDTH);
+        controlWidth);
     this.resetButton = new ResetButtonWidget(
         this,
         this.top + (HEIGHT - ResetButtonWidget.HEIGHT) / 2,

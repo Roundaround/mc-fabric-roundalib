@@ -30,7 +30,7 @@ public class RoundaLibConfig extends ModConfig {
   public static final StringConfigOption PLAIN_STRING = new StringConfigOption("plainString", "config.plain_string",
       "Roundalib");
   public static final StringConfigOption RESTRICTED_LENGTH = new StringConfigOption("restrictedLength",
-      "config.restricted_length", "At least 3 chars",
+      "config.restricted_length", "3 to 6",
       StringConfigOption.Options.builder().setMinLength(3).setMaxLength(6).build());
   public static final StringConfigOption REGEX = new StringConfigOption("regex",
       "config.regex", "alpha_numeric",
