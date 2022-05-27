@@ -35,7 +35,8 @@ public abstract class AbstractWidget<T> extends DrawableHelper implements Widget
 
   @Override
   public boolean isMouseOver(double mouseX, double mouseY) {
-    return mouseX >= this.left
+    return (!(parent instanceof Widget) || ((Widget) parent).isMouseOver(mouseX, mouseY))
+        && mouseX >= this.left
         && mouseX <= this.right
         && mouseY >= this.top
         && mouseY <= this.bottom;

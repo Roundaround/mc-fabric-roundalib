@@ -27,7 +27,8 @@ public class OptionRow extends AbstractWidget<ConfigList> {
   protected static final int PADDING = 4;
   protected static final int CONTROL_WIDTH = 80;
   protected static final int ROW_SHADE_STRENGTH = 85;
-  protected static final int ROW_SHADE_FADE_WIDTH = 8;
+  protected static final int ROW_SHADE_FADE_WIDTH = 10;
+  protected static final int ROW_SHADE_FADE_OVERFLOW = 10;
 
   protected final int index;
   protected final ConfigOption<?, ?> configOption;
@@ -163,52 +164,55 @@ public class OptionRow extends AbstractWidget<ConfigList> {
       BufferBuilder bufferBuilder = tessellator.getBuffer();
       Matrix4f matrix4f = matrixStack.peek().getModel();
 
+      int bgLeft = this.left - ROW_SHADE_FADE_OVERFLOW;
+      int bgRight = this.right + ROW_SHADE_FADE_OVERFLOW;
+
       bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
       bufferBuilder
-          .vertex(matrix4f, this.left - 1 + ROW_SHADE_FADE_WIDTH, this.top - 1, 0)
+          .vertex(matrix4f, bgLeft - 1 + ROW_SHADE_FADE_WIDTH, this.top - 1, 0)
           .color(0, 0, 0, ROW_SHADE_STRENGTH)
           .next();
-      bufferBuilder.vertex(matrix4f, this.left - 1, this.top - 1, 0).color(0, 0, 0, 0).next();
-      bufferBuilder.vertex(matrix4f, this.left - 1, this.bottom + 2, 0).color(0, 0, 0, 0).next();
+      bufferBuilder.vertex(matrix4f, bgLeft - 1, this.top - 1, 0).color(0, 0, 0, 0).next();
+      bufferBuilder.vertex(matrix4f, bgLeft - 1, this.bottom + 2, 0).color(0, 0, 0, 0).next();
       bufferBuilder
-          .vertex(matrix4f, this.left - 1 + ROW_SHADE_FADE_WIDTH, this.bottom + 2, 0)
+          .vertex(matrix4f, bgLeft - 1 + ROW_SHADE_FADE_WIDTH, this.bottom + 2, 0)
           .color(0, 0, 0, ROW_SHADE_STRENGTH)
           .next();
 
       bufferBuilder
-          .vertex(matrix4f, this.right + 2 - ROW_SHADE_FADE_WIDTH, this.top - 1, 0)
+          .vertex(matrix4f, bgRight + 2 - ROW_SHADE_FADE_WIDTH, this.top - 1, 0)
           .color(0, 0, 0, ROW_SHADE_STRENGTH)
           .next();
       bufferBuilder
-          .vertex(matrix4f, this.left - 1 + ROW_SHADE_FADE_WIDTH, this.top - 1, 0)
+          .vertex(matrix4f, bgLeft - 1 + ROW_SHADE_FADE_WIDTH, this.top - 1, 0)
           .color(0, 0, 0, ROW_SHADE_STRENGTH)
           .next();
       bufferBuilder
-          .vertex(matrix4f, this.left - 1 + ROW_SHADE_FADE_WIDTH, this.bottom + 2, 0)
+          .vertex(matrix4f, bgLeft - 1 + ROW_SHADE_FADE_WIDTH, this.bottom + 2, 0)
           .color(0, 0, 0, ROW_SHADE_STRENGTH)
           .next();
       bufferBuilder
-          .vertex(matrix4f, this.right + 2 - ROW_SHADE_FADE_WIDTH, this.bottom + 2, 0)
+          .vertex(matrix4f, bgRight + 2 - ROW_SHADE_FADE_WIDTH, this.bottom + 2, 0)
           .color(0, 0, 0, ROW_SHADE_STRENGTH)
           .next();
 
-      bufferBuilder.vertex(matrix4f, this.right + 2, this.top - 1, 0).color(0, 0, 0, 0).next();
+      bufferBuilder.vertex(matrix4f, bgRight + 2, this.top - 1, 0).color(0, 0, 0, 0).next();
       bufferBuilder
-          .vertex(matrix4f, this.right + 2 - ROW_SHADE_FADE_WIDTH, this.top - 1, 0)
+          .vertex(matrix4f, bgRight + 2 - ROW_SHADE_FADE_WIDTH, this.top - 1, 0)
           .color(0, 0, 0, ROW_SHADE_STRENGTH)
           .next();
       bufferBuilder
-          .vertex(matrix4f, this.right + 2 - ROW_SHADE_FADE_WIDTH, this.bottom + 2, 0)
+          .vertex(matrix4f, bgRight + 2 - ROW_SHADE_FADE_WIDTH, this.bottom + 2, 0)
           .color(0, 0, 0, ROW_SHADE_STRENGTH)
           .next();
-      bufferBuilder.vertex(matrix4f, this.right + 2, this.bottom + 2, 0).color(0, 0, 0, 0).next();
+      bufferBuilder.vertex(matrix4f, bgRight + 2, this.bottom + 2, 0).color(0, 0, 0, 0).next();
       tessellator.draw();
 
       RenderSystem.enableTexture();
       RenderSystem.disableBlend();
     }
 
-    if (this.isMouseOver(mouseX, mouseY)) {
+    if (this.isMouseOver(mouseX, mouseY) && parent.isMouseOver(mouseX, mouseY)) {
       drawHorizontalLine(matrixStack, this.left - 1, this.right + 1, this.top - 1, HIGHLIGHT_COLOR);
       drawHorizontalLine(
           matrixStack, this.left - 1, this.right + 1, this.bottom + 1, HIGHLIGHT_COLOR);

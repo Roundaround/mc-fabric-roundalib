@@ -36,7 +36,7 @@ public class Scrollbar extends AbstractWidget<Scrollable> {
     int handleHeight = (int) ((float) this.height * this.height / this.maxPosition);
     handleHeight = MathHelper.clamp(handleHeight, 32, this.height - 8);
 
-    int handleTop = (int) this.scrollAmount * (this.height - handleHeight) / maxScroll + this.top;
+    int handleTop = (int) Math.round(this.scrollAmount) * (this.height - handleHeight) / maxScroll + this.top;
     if (handleTop < this.top) {
       handleTop = this.top;
     }
@@ -46,25 +46,19 @@ public class Scrollbar extends AbstractWidget<Scrollable> {
 
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
 
-    // Whole (container) bar
-    bufferBuilder.vertex(this.left, this.bottom, 0).color(0, 0, 0, 255).next();
-    bufferBuilder.vertex(this.right, this.bottom, 0).color(0, 0, 0, 255).next();
-    bufferBuilder.vertex(this.right, this.top, 0).color(0, 0, 0, 255).next();
-    bufferBuilder.vertex(this.left, this.top, 0).color(0, 0, 0, 255).next();
-
-    // Handle shadow
-    bufferBuilder.vertex(this.left, handleTop + handleHeight, 0).color(128, 128, 128, 255).next();
-    bufferBuilder.vertex(this.right, handleTop + handleHeight, 0).color(128, 128, 128, 255).next();
+    // Shadow
+    bufferBuilder.vertex(this.left, handleTop + handleHeight - 1, 0).color(128, 128, 128, 255).next();
+    bufferBuilder.vertex(this.right, handleTop + handleHeight - 1, 0).color(128, 128, 128, 255).next();
     bufferBuilder.vertex(this.right, handleTop, 0).color(128, 128, 128, 255).next();
     bufferBuilder.vertex(this.left, handleTop, 0).color(128, 128, 128, 255).next();
 
-    // Handle main face
+    // Main face
     bufferBuilder
-        .vertex(this.left, handleTop + handleHeight - 1, 0)
+        .vertex(this.left, handleTop + handleHeight - 2, 0)
         .color(192, 192, 192, 255)
         .next();
     bufferBuilder
-        .vertex(this.right - 1, handleTop + handleHeight - 1, 0)
+        .vertex(this.right - 1, handleTop + handleHeight - 2, 0)
         .color(192, 192, 192, 255)
         .next();
     bufferBuilder.vertex(this.right - 1, handleTop, 0).color(192, 192, 192, 255).next();

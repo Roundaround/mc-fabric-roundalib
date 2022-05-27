@@ -139,23 +139,23 @@ public class ConfigList extends AbstractWidget<ConfigScreen> implements Scrollab
 
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
     bufferBuilder
-        .vertex(left, bottom, 0)
-        .texture(left / 32f, (float) (bottom + (int) scrollAmount) / 32f)
+        .vertex(0, bottom, 0)
+        .texture(0, (float) (bottom + Math.round(scrollAmount)) / 32f)
         .color(32, 32, 32, 255)
         .next();
     bufferBuilder
-        .vertex(right, bottom, 0)
-        .texture(right / 32f, (float) (bottom + (int) scrollAmount) / 32f)
+        .vertex(parent.width, bottom, 0)
+        .texture(parent.width / 32f, (float) (bottom + Math.round(scrollAmount)) / 32f)
         .color(32, 32, 32, 255)
         .next();
     bufferBuilder
-        .vertex(right, top, 0)
-        .texture(right / 32f, (float) (top + (int) scrollAmount) / 32f)
+        .vertex(parent.width, top, 0)
+        .texture(parent.width / 32f, (float) (top + Math.round(scrollAmount)) / 32f)
         .color(32, 32, 32, 255)
         .next();
     bufferBuilder
-        .vertex(left, top, 0)
-        .texture(left / 32f, (float) (top + (int) scrollAmount) / 32f)
+        .vertex(0, top, 0)
+        .texture(0, (float) (top + Math.round(scrollAmount)) / 32f)
         .color(32, 32, 32, 255)
         .next();
     tessellator.draw();
@@ -172,14 +172,14 @@ public class ConfigList extends AbstractWidget<ConfigScreen> implements Scrollab
     RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-    bufferBuilder.vertex(left, top + PADDING_Y, 0).color(0, 0, 0, 0).next();
-    bufferBuilder.vertex(right, top + PADDING_Y, 0).color(0, 0, 0, 0).next();
-    bufferBuilder.vertex(right, top, 0).color(0, 0, 0, 255).next();
-    bufferBuilder.vertex(left, top, 0).color(0, 0, 0, 255).next();
-    bufferBuilder.vertex(left, bottom, 0).color(0, 0, 0, 255).next();
-    bufferBuilder.vertex(right, bottom, 0).color(0, 0, 0, 255).next();
-    bufferBuilder.vertex(right, bottom - PADDING_Y, 0).color(0, 0, 0, 0).next();
-    bufferBuilder.vertex(left, bottom - PADDING_Y, 0).color(0, 0, 0, 0).next();
+    bufferBuilder.vertex(0, top + PADDING_Y, 0).color(0, 0, 0, 0).next();
+    bufferBuilder.vertex(parent.width, top + PADDING_Y, 0).color(0, 0, 0, 0).next();
+    bufferBuilder.vertex(parent.width, top, 0).color(0, 0, 0, 255).next();
+    bufferBuilder.vertex(0, top, 0).color(0, 0, 0, 255).next();
+    bufferBuilder.vertex(0, bottom, 0).color(0, 0, 0, 255).next();
+    bufferBuilder.vertex(parent.width, bottom, 0).color(0, 0, 0, 255).next();
+    bufferBuilder.vertex(parent.width, bottom - PADDING_Y, 0).color(0, 0, 0, 0).next();
+    bufferBuilder.vertex(0, bottom - PADDING_Y, 0).color(0, 0, 0, 0).next();
     tessellator.draw();
 
     RenderSystem.enableTexture();
@@ -197,7 +197,7 @@ public class ConfigList extends AbstractWidget<ConfigScreen> implements Scrollab
   }
 
   private int getElementTop(int idx) {
-    return elementStartY - (int) scrollAmount + idx * (elementHeight + ROW_PADDING);
+    return elementStartY - (int) Math.round(scrollAmount) + idx * (elementHeight + ROW_PADDING);
   }
 
   @Override

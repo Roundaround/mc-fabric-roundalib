@@ -178,8 +178,11 @@ public class ConfigScreen extends Screen {
 
     listWidget.render(matrixStack, mouseX, mouseY, partialTicks);
 
+    matrixStack.push();
+    matrixStack.translate(0, 0, 1);
     renderHeader(matrixStack, mouseX, mouseY, partialTicks);
     renderFooter(matrixStack, mouseX, mouseY, partialTicks);
+    matrixStack.pop();
 
     renderTooltip(
         matrixStack, listWidget.getTooltip(mouseX, mouseY, partialTicks), mouseX, mouseY);
@@ -192,7 +195,7 @@ public class ConfigScreen extends Screen {
   }
 
   public void renderFooter(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-    renderBackgroundInRegion(height - FOOTER_HEIGHT, height, 0, width);
+    renderBackgroundInRegion(height - FOOTER_HEIGHT - 1, height, 0, width);
     doneButton.render(matrixStack, mouseX, mouseY, partialTicks);
   }
 
@@ -207,7 +210,7 @@ public class ConfigScreen extends Screen {
     float height = (top - bottom) / 32f;
 
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-    bufferBuilder.vertex(0, bottom, 0).texture(0, height).color(64, 64, 64, 255).next();
+    bufferBuilder.vertex(left, bottom, 0).texture(0, height).color(64, 64, 64, 255).next();
     bufferBuilder.vertex(right, bottom, 0).texture(width, height).color(64, 64, 64, 255).next();
     bufferBuilder.vertex(right, top, 0).texture(width, 0).color(64, 64, 64, 255).next();
     bufferBuilder.vertex(left, top, 0).texture(0, 0).color(64, 64, 64, 255).next();
