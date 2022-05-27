@@ -42,7 +42,7 @@ public class ResetButtonWidget extends AbstractClickableWidget<OptionRow> {
     RenderSystem.setShader(GameRenderer::getPositionTexShader);
     RenderSystem.applyModelViewMatrix();
 
-    int u = getImageOffset(isHoveredOrFocused()) * WIDTH;
+    int u = getImageOffset() * WIDTH;
     int v = HEIGHT;
 
     drawTexture(matrixStack, left, top, u, v, WIDTH, HEIGHT);
@@ -97,13 +97,13 @@ public class ResetButtonWidget extends AbstractClickableWidget<OptionRow> {
   }
 
   protected boolean isDisabled() {
-    return !parent.getConfigOption().isModified();
+    return !getParent().getConfigOption().isModified() && getParent().isValid();
   }
 
-  protected int getImageOffset(boolean hovered) {
+  protected int getImageOffset() {
     if (isDisabled()) {
       return 0;
-    } else if (hovered) {
+    } else if (isHoveredOrFocused()) {
       return 2;
     }
 
@@ -116,7 +116,7 @@ public class ResetButtonWidget extends AbstractClickableWidget<OptionRow> {
   }
 
   private void onPress() {
-    parent.getConfigOption().resetToDefault();
+    getParent().getConfigOption().resetToDefault();
     SoundManager soundManager = MinecraftClient.getInstance().getSoundManager();
     soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1));
   }

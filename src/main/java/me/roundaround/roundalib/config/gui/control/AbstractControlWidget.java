@@ -9,6 +9,7 @@ import me.roundaround.roundalib.config.option.ConfigOption;
 public abstract class AbstractControlWidget<O extends ConfigOption<?, ?>> extends AbstractWidget<OptionRow>
     implements Control<O> {
   protected O configOption;
+  protected boolean valid = true;
 
   protected AbstractControlWidget(O configOption, OptionRow parent, int top, int left, int height, int width) {
     super(parent, top, left, height, width);
@@ -18,6 +19,23 @@ public abstract class AbstractControlWidget<O extends ConfigOption<?, ?>> extend
   @Override
   public O getConfigOption() {
     return configOption;
+  }
+
+  @Override
+  public void markValid() {
+    valid = true;
+    getConfigScreen().markValid(getOptionRow());
+  }
+
+  @Override
+  public void markInvalid() {
+    valid = false;
+    getConfigScreen().markInvalid(getOptionRow());
+  }
+
+  @Override
+  public boolean isValid() {
+    return valid;
   }
 
   public OptionRow getOptionRow() {

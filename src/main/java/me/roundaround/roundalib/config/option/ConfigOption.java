@@ -8,11 +8,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import me.roundaround.roundalib.config.gui.OptionRow;
+import me.roundaround.roundalib.config.gui.control.Control;
 import me.roundaround.roundalib.config.gui.widget.Widget;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
-public abstract class ConfigOption<D, C extends Widget> {
+public abstract class ConfigOption<D, C extends Widget & Control<?>> {
   private final String id;
   private final String labelI18nKey;
   private final D defaultValue;

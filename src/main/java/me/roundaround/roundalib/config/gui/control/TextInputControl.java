@@ -88,19 +88,21 @@ public class TextInputControl extends AbstractControlWidget<StringConfigOption> 
   }
 
   private void onConfigValueChange(String prev, String curr) {
-    if (curr != prev && !curr.equals(textBox.getText())) {
+    if (!curr.equals(textBox.getText())) {
       textBox.setText(curr);
     }
   }
 
-  private void markInvalid() {
+  @Override
+  public void markInvalid() {
     textBox.setEditableColor(16711680);
-    getConfigScreen().markInvalid(getOptionRow());
+    super.markInvalid();
   }
 
-  private void markValid() {
+  @Override
+  public void markValid() {
     textBox.setEditableColor(14737632);
-    getConfigScreen().markValid(getOptionRow());
+    super.markValid();
   }
 
   @Override

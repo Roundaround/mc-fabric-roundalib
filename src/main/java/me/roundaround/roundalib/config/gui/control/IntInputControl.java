@@ -128,19 +128,21 @@ public class IntInputControl extends AbstractControlWidget<IntConfigOption> {
   }
 
   private void onConfigValueChange(Integer prev, Integer curr) {
-    if (!curr.equals(prev) && !curr.toString().equals(textBox.getText())) {
+    if (!curr.toString().equals(textBox.getText())) {
       textBox.setText(curr.toString());
     }
   }
 
-  private void markInvalid() {
+  @Override
+  public void markInvalid() {
     textBox.setEditableColor(16711680);
-    getConfigScreen().markInvalid(getOptionRow());
+    super.markInvalid();
   }
 
-  private void markValid() {
+  @Override
+  public void markValid() {
     textBox.setEditableColor(14737632);
-    getConfigScreen().markValid(getOptionRow());
+    super.markValid();
   }
 
   @Override

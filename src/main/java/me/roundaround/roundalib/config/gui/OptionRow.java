@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import me.roundaround.roundalib.config.gui.control.Control;
 import me.roundaround.roundalib.config.gui.widget.ResetButtonWidget;
 import me.roundaround.roundalib.config.gui.widget.Widget;
 import me.roundaround.roundalib.config.option.ConfigOption;
@@ -46,27 +47,27 @@ public class OptionRow extends AbstractWidget<ConfigList> {
 
     this.index = index;
     this.configOption = configOption;
-    this.control = configOption.createAndInitializeControl(
+    control = configOption.createAndInitializeControl(
         this,
-        this.top,
-        this.right - controlWidth - ResetButtonWidget.WIDTH - (PADDING * 2),
-        this.height,
+        top,
+        right - controlWidth - ResetButtonWidget.WIDTH - (PADDING * 2),
+        height,
         controlWidth);
-    this.resetButton = new ResetButtonWidget(
+    resetButton = new ResetButtonWidget(
         this,
-        this.top + (HEIGHT - ResetButtonWidget.HEIGHT) / 2,
-        this.right - PADDING - ResetButtonWidget.WIDTH);
+        top + (HEIGHT - ResetButtonWidget.HEIGHT) / 2,
+        right - PADDING - ResetButtonWidget.WIDTH);
 
-    this.subWidgets = ImmutableList.of(this.control, this.resetButton);
+    subWidgets = ImmutableList.of(control, resetButton);
   }
 
   @Override
   public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-    this.renderBackground(matrixStack, mouseX, mouseY, partialTicks);
-    this.renderLabel(matrixStack, mouseX, mouseY, partialTicks);
-    this.renderControl(matrixStack, mouseX, mouseY, partialTicks);
-    this.renderResetButton(matrixStack, mouseX, mouseY, partialTicks);
-    this.renderDecorations(matrixStack, mouseX, mouseY, partialTicks);
+    renderBackground(matrixStack, mouseX, mouseY, partialTicks);
+    renderLabel(matrixStack, mouseX, mouseY, partialTicks);
+    renderControl(matrixStack, mouseX, mouseY, partialTicks);
+    renderResetButton(matrixStack, mouseX, mouseY, partialTicks);
+    renderDecorations(matrixStack, mouseX, mouseY, partialTicks);
   }
 
   @Override
@@ -76,7 +77,7 @@ public class OptionRow extends AbstractWidget<ConfigList> {
 
   @Override
   public List<Text> getTooltip(int mouseX, int mouseY, float delta) {
-    return this.subWidgets.stream()
+    return subWidgets.stream()
         .map(subWidget -> subWidget.getTooltip(mouseX, mouseY, delta))
         .flatMap(List::stream)
         .collect(Collectors.toList());
@@ -86,8 +87,8 @@ public class OptionRow extends AbstractWidget<ConfigList> {
   public void moveTop(int top) {
     super.moveTop(top);
 
-    this.control.moveTop(top);
-    this.resetButton.moveTop(top + (HEIGHT - ResetButtonWidget.HEIGHT) / 2);
+    control.moveTop(top);
+    resetButton.moveTop(top + (HEIGHT - ResetButtonWidget.HEIGHT) / 2);
   }
 
   protected void renderBackground(
@@ -102,60 +103,60 @@ public class OptionRow extends AbstractWidget<ConfigList> {
       BufferBuilder bufferBuilder = tessellator.getBuffer();
       Matrix4f matrix4f = matrixStack.peek().getModel();
 
-      int bgLeft = this.left - ROW_SHADE_FADE_OVERFLOW;
-      int bgRight = this.right + ROW_SHADE_FADE_OVERFLOW;
+      int bgLeft = left - ROW_SHADE_FADE_OVERFLOW;
+      int bgRight = right + ROW_SHADE_FADE_OVERFLOW;
 
       bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
       bufferBuilder
-          .vertex(matrix4f, bgLeft - 1 + ROW_SHADE_FADE_WIDTH, this.top - 1, 0)
+          .vertex(matrix4f, bgLeft - 1 + ROW_SHADE_FADE_WIDTH, top - 1, 0)
           .color(0, 0, 0, ROW_SHADE_STRENGTH)
           .next();
-      bufferBuilder.vertex(matrix4f, bgLeft - 1, this.top - 1, 0).color(0, 0, 0, 0).next();
-      bufferBuilder.vertex(matrix4f, bgLeft - 1, this.bottom + 2, 0).color(0, 0, 0, 0).next();
+      bufferBuilder.vertex(matrix4f, bgLeft - 1, top - 1, 0).color(0, 0, 0, 0).next();
+      bufferBuilder.vertex(matrix4f, bgLeft - 1, bottom + 2, 0).color(0, 0, 0, 0).next();
       bufferBuilder
-          .vertex(matrix4f, bgLeft - 1 + ROW_SHADE_FADE_WIDTH, this.bottom + 2, 0)
+          .vertex(matrix4f, bgLeft - 1 + ROW_SHADE_FADE_WIDTH, bottom + 2, 0)
           .color(0, 0, 0, ROW_SHADE_STRENGTH)
           .next();
 
       bufferBuilder
-          .vertex(matrix4f, bgRight + 2 - ROW_SHADE_FADE_WIDTH, this.top - 1, 0)
+          .vertex(matrix4f, bgRight + 2 - ROW_SHADE_FADE_WIDTH, top - 1, 0)
           .color(0, 0, 0, ROW_SHADE_STRENGTH)
           .next();
       bufferBuilder
-          .vertex(matrix4f, bgLeft - 1 + ROW_SHADE_FADE_WIDTH, this.top - 1, 0)
+          .vertex(matrix4f, bgLeft - 1 + ROW_SHADE_FADE_WIDTH, top - 1, 0)
           .color(0, 0, 0, ROW_SHADE_STRENGTH)
           .next();
       bufferBuilder
-          .vertex(matrix4f, bgLeft - 1 + ROW_SHADE_FADE_WIDTH, this.bottom + 2, 0)
+          .vertex(matrix4f, bgLeft - 1 + ROW_SHADE_FADE_WIDTH, bottom + 2, 0)
           .color(0, 0, 0, ROW_SHADE_STRENGTH)
           .next();
       bufferBuilder
-          .vertex(matrix4f, bgRight + 2 - ROW_SHADE_FADE_WIDTH, this.bottom + 2, 0)
+          .vertex(matrix4f, bgRight + 2 - ROW_SHADE_FADE_WIDTH, bottom + 2, 0)
           .color(0, 0, 0, ROW_SHADE_STRENGTH)
           .next();
 
-      bufferBuilder.vertex(matrix4f, bgRight + 2, this.top - 1, 0).color(0, 0, 0, 0).next();
+      bufferBuilder.vertex(matrix4f, bgRight + 2, top - 1, 0).color(0, 0, 0, 0).next();
       bufferBuilder
-          .vertex(matrix4f, bgRight + 2 - ROW_SHADE_FADE_WIDTH, this.top - 1, 0)
+          .vertex(matrix4f, bgRight + 2 - ROW_SHADE_FADE_WIDTH, top - 1, 0)
           .color(0, 0, 0, ROW_SHADE_STRENGTH)
           .next();
       bufferBuilder
-          .vertex(matrix4f, bgRight + 2 - ROW_SHADE_FADE_WIDTH, this.bottom + 2, 0)
+          .vertex(matrix4f, bgRight + 2 - ROW_SHADE_FADE_WIDTH, bottom + 2, 0)
           .color(0, 0, 0, ROW_SHADE_STRENGTH)
           .next();
-      bufferBuilder.vertex(matrix4f, bgRight + 2, this.bottom + 2, 0).color(0, 0, 0, 0).next();
+      bufferBuilder.vertex(matrix4f, bgRight + 2, bottom + 2, 0).color(0, 0, 0, 0).next();
       tessellator.draw();
 
       RenderSystem.enableTexture();
       RenderSystem.disableBlend();
     }
 
-    if (this.isMouseOver(mouseX, mouseY) && parent.isMouseOver(mouseX, mouseY)) {
-      drawHorizontalLine(matrixStack, this.left - 1, this.right + 1, this.top - 1, HIGHLIGHT_COLOR);
+    if (isMouseOver(mouseX, mouseY) && parent.isMouseOver(mouseX, mouseY)) {
+      drawHorizontalLine(matrixStack, left - 1, right + 1, top - 1, HIGHLIGHT_COLOR);
       drawHorizontalLine(
-          matrixStack, this.left - 1, this.right + 1, this.bottom + 1, HIGHLIGHT_COLOR);
-      drawVerticalLine(matrixStack, this.left - 1, this.top - 1, this.bottom + 1, HIGHLIGHT_COLOR);
-      drawVerticalLine(matrixStack, this.right + 1, this.top - 1, this.bottom + 1, HIGHLIGHT_COLOR);
+          matrixStack, left - 1, right + 1, bottom + 1, HIGHLIGHT_COLOR);
+      drawVerticalLine(matrixStack, left - 1, top - 1, bottom + 1, HIGHLIGHT_COLOR);
+      drawVerticalLine(matrixStack, right + 1, top - 1, bottom + 1, HIGHLIGHT_COLOR);
     }
   }
 
@@ -163,20 +164,20 @@ public class OptionRow extends AbstractWidget<ConfigList> {
     drawTextWithShadow(
         matrixStack,
         TEXT_RENDERER,
-        this.configOption.getLabel(),
-        this.left + PADDING,
-        this.top + (this.height - 8) / 2,
+        configOption.getLabel(),
+        left + PADDING,
+        top + (height - 8) / 2,
         LABEL_COLOR);
   }
 
   protected void renderControl(
       MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-    this.control.render(matrixStack, mouseX, mouseY, partialTicks);
+    control.render(matrixStack, mouseX, mouseY, partialTicks);
   }
 
   protected void renderResetButton(
       MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-    this.resetButton.render(matrixStack, mouseX, mouseY, partialTicks);
+    resetButton.render(matrixStack, mouseX, mouseY, partialTicks);
   }
 
   protected void renderDecorations(
@@ -206,5 +207,14 @@ public class OptionRow extends AbstractWidget<ConfigList> {
 
   public ConfigScreen getConfigScreen() {
     return getConfigList().getConfigScreen();
+  }
+
+  public boolean isValid() {
+    if (!(control instanceof Control<?>)) {
+      // Should never hit here. Should be of type `Widget & Control<?>` but
+      // can't figure out how to declare a union type field.
+      return true;
+    }
+    return ((Control<?>) control).isValid();
   }
 }
