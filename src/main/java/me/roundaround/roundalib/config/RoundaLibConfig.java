@@ -14,6 +14,14 @@ public class RoundaLibConfig extends ModConfig {
   public static final OptionListConfigOption<GuiAlignment> GUI_ALIGNMENT = new OptionListConfigOption<>("guiAlignment",
       "config.gui_alignment", GuiAlignment.TOP_LEFT);
   public static final IntConfigOption SOME_INTEGER = new IntConfigOption("someInteger", "config.some_integer", 5);
+  public static final IntConfigOption STEP_BY_TWO = new IntConfigOption("stepByTwo", "config.step_by_two", 10,
+      IntConfigOption.Options.builder().setStep(2).build());
+  public static final IntConfigOption WITHIN_ONE_HUNDRED = new IntConfigOption("withinOneHundred",
+      "config.within_one_hundred", 10,
+      IntConfigOption.Options.builder().setMinValue(-100).setMaxValue(100).build());
+  public static final IntConfigOption WITHIN_ONE_HUNDRED_BIG_STEP = new IntConfigOption("withinOneHundredBigStep",
+      "config.within_one_hundred_big_step", 10,
+      IntConfigOption.Options.builder().setMinValue(-100).setMaxValue(100).setStep(33).build());
   public static final StringConfigOption MY_NAME = new StringConfigOption("myName", "config.my_name", "Roundalib");
   public static final BooleanConfigOption TEST_CONFIG_1 = new BooleanConfigOption("testConfig1", "config.test_1", true);
   public static final BooleanConfigOption TEST_CONFIG_2 = new BooleanConfigOption("testConfig2", "config.test_2", true);
@@ -39,6 +47,9 @@ public class RoundaLibConfig extends ModConfig {
   private static final ImmutableList<ConfigOption<?, ?>> ALL_CONFIG_OPTIONS = ImmutableList.of(
       GUI_ALIGNMENT,
       SOME_INTEGER,
+      STEP_BY_TWO,
+      WITHIN_ONE_HUNDRED,
+      WITHIN_ONE_HUNDRED_BIG_STEP,
       MY_NAME,
       TEST_CONFIG_1,
       TEST_CONFIG_2,
