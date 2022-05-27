@@ -231,4 +231,23 @@ public class ConfigList extends AbstractWidget<ConfigScreen> implements Scrollab
       scroll(rowBottom - bottom);
     }
   }
+
+  public boolean moveFocus(int amount) {
+    if (optionRows.isEmpty()) {
+      return false;
+    }
+
+    Element currentFocus = parent.getFocused();
+    int desiredIndex = optionRows.stream()
+        .filter((optionRow) -> optionRow.getSelectableElements().contains(currentFocus)).findFirst()
+        .orElse(optionRows.get(optionRows.size() - 1)).index + amount;
+    desiredIndex = Math.min(Math.max(0, desiredIndex), optionRows.size() - 1);
+
+    // TODO: Make this determined by the control (i.e. getPrimarySelectableElement)
+    Element desiredFocus = optionRows.get(desiredIndex).control.getSelectableElements().get(0);
+    currentFocus.changeFocus(false);
+    desiredFocus.changeFocus(true);
+    parent.setFocused(desiredFocus);
+    return true;
+  }
 }

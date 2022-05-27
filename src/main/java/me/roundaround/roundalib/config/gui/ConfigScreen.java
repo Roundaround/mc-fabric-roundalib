@@ -3,6 +3,7 @@ package me.roundaround.roundalib.config.gui;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 
 import me.roundaround.roundalib.config.ModConfig;
 import net.fabricmc.api.EnvType;
@@ -115,6 +116,40 @@ public class ConfigScreen extends Screen {
     }
 
     return super.mouseScrolled(mouseX, mouseY, amount);
+  }
+
+  @Override
+  public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    // TODO: Also allow left & right to navigate inside the option row (i.e. for
+    // going between the primary control and the reset)
+    switch (keyCode) {
+      case GLFW.GLFW_KEY_UP:
+        if (listWidget.moveFocus(-1)) {
+          return true;
+        }
+      case GLFW.GLFW_KEY_DOWN:
+        if (listWidget.moveFocus(1)) {
+          return true;
+        }
+      case GLFW.GLFW_KEY_PAGE_UP:
+        if (listWidget.moveFocus(-4)) {
+          return true;
+        }
+      case GLFW.GLFW_KEY_PAGE_DOWN:
+        if (listWidget.moveFocus(4)) {
+          return true;
+        }
+      case GLFW.GLFW_KEY_HOME:
+        if (listWidget.moveFocus(Integer.MIN_VALUE)) {
+          return true;
+        }
+      case GLFW.GLFW_KEY_END:
+        if (listWidget.moveFocus(Integer.MAX_VALUE)) {
+          return true;
+        }
+    }
+
+    return super.keyPressed(keyCode, scanCode, modifiers);
   }
 
   @Override
