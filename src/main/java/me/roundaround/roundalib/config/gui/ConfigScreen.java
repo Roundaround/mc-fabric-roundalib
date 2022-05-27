@@ -120,8 +120,6 @@ public class ConfigScreen extends Screen {
 
   @Override
   public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-    // TODO: Also allow left & right to navigate inside the option row (i.e. for
-    // going between the primary control and the reset)
     switch (keyCode) {
       case GLFW.GLFW_KEY_UP:
         if (listWidget.moveFocus(-1)) {
@@ -145,6 +143,14 @@ public class ConfigScreen extends Screen {
         }
       case GLFW.GLFW_KEY_END:
         if (listWidget.moveFocus(Integer.MAX_VALUE)) {
+          return true;
+        }
+      case GLFW.GLFW_KEY_LEFT:
+        if (changeFocus(false)) {
+          return true;
+        }
+      case GLFW.GLFW_KEY_RIGHT:
+        if (changeFocus(true)) {
           return true;
         }
     }
