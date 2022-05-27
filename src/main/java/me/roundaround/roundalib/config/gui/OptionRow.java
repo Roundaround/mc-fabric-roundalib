@@ -195,6 +195,14 @@ public class OptionRow extends AbstractWidget<ConfigList> {
     if (control.getPrimarySelectableElement().isEmpty()) {
       return false;
     }
-    return getParent().getParent().setFocused(control.getPrimarySelectableElement().get());
+    return getConfigScreen().setFocused(control.getPrimarySelectableElement().get());
+  }
+
+  public ConfigList getConfigList() {
+    return getParent();
+  }
+
+  public ConfigScreen getConfigScreen() {
+    return getConfigList().getConfigScreen();
   }
 }

@@ -1,6 +1,8 @@
 package me.roundaround.roundalib.config.gui.control;
 
 import me.roundaround.roundalib.config.gui.AbstractWidget;
+import me.roundaround.roundalib.config.gui.ConfigList;
+import me.roundaround.roundalib.config.gui.ConfigScreen;
 import me.roundaround.roundalib.config.gui.OptionRow;
 import me.roundaround.roundalib.config.option.ConfigOption;
 
@@ -16,5 +18,17 @@ public abstract class AbstractControlWidget<O extends ConfigOption<?, ?>> extend
   @Override
   public O getConfigOption() {
     return configOption;
+  }
+
+  public OptionRow getOptionRow() {
+    return getParent();
+  }
+
+  public ConfigList getConfigList() {
+    return getOptionRow().getConfigList();
+  }
+
+  public ConfigScreen getConfigScreen() {
+    return getConfigList().getConfigScreen();
   }
 }

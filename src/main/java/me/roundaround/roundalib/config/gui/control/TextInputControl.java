@@ -1,7 +1,6 @@
 package me.roundaround.roundalib.config.gui.control;
 
 import java.util.List;
-import java.util.Optional;
 
 import me.roundaround.roundalib.config.gui.OptionRow;
 import me.roundaround.roundalib.config.gui.SelectableElement;
@@ -33,7 +32,7 @@ public class TextInputControl extends AbstractControlWidget<StringConfigOption> 
     textBox.setText(configOption.getValue());
     textBox.setFocusChangedListener((textBoxFocused) -> {
       if (textBoxFocused) {
-        getParent().getParent().getParent().setFocused(textBox);
+        getConfigScreen().declareFocused(textBox);
       }
     });
 
@@ -85,7 +84,7 @@ public class TextInputControl extends AbstractControlWidget<StringConfigOption> 
   }
 
   private void onConfigValueChange(String prev, String curr) {
-    if (curr != prev) {
+    if (curr != prev && !curr.equals(textBox.getText())) {
       textBox.setText(curr);
     }
   }

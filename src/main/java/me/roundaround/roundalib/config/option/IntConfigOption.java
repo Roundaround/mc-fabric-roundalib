@@ -83,6 +83,12 @@ public class IntConfigOption extends ConfigOption<Integer, IntInputControl> {
     return true;
   }
 
+  public boolean validateInput(int newValue) {
+    return options.validators.stream().allMatch((validator) -> {
+      return validator.apply(getValue(), newValue);
+    });
+  }
+
   public static class Options {
     private Optional<Integer> minValue = Optional.empty();
     private Optional<Integer> maxValue = Optional.empty();
@@ -97,14 +103,12 @@ public class IntConfigOption extends ConfigOption<Integer, IntInputControl> {
       maxValue = builder.maxValue;
       step = builder.step;
 
-      // TODO: Utilize validators to mark input as red and prevent saving to
-      // underlying config option
       List<Validator> allValidators = new ArrayList<>();
       if (minValue.isPresent()) {
         allValidators.add((int prev, int curr) -> curr >= minValue.get());
       }
       if (maxValue.isPresent()) {
-        allValidators.add((int prev, int curr) -> curr >= maxValue.get());
+        allValidators.add((int prev, int curr) -> curr <= maxValue.get());
       }
       if (!builder.customValidators.isEmpty()) {
         allValidators.addAll(builder.customValidators);

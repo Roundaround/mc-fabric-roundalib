@@ -6,6 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import org.lwjgl.glfw.GLFW;
 
 import me.roundaround.roundalib.config.gui.AbstractClickableWidget;
+import me.roundaround.roundalib.config.gui.OptionRow;
 import me.roundaround.roundalib.config.gui.control.IntInputControl;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
@@ -32,7 +33,7 @@ public class IntStepButtonWidget extends AbstractClickableWidget<IntInputControl
   @Override
   public void tick() {
     if (isDisabled() && isFocused()) {
-      getParent().getParent().focusPrimaryElement();
+      getOptionRow().focusPrimaryElement();
     }
   }
 
@@ -115,6 +116,9 @@ public class IntStepButtonWidget extends AbstractClickableWidget<IntInputControl
     SoundManager soundManager = MinecraftClient.getInstance().getSoundManager();
     soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1));
 
+  }
 
+  public OptionRow getOptionRow() {
+    return getParent().getOptionRow();
   }
 }

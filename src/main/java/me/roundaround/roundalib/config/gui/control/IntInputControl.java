@@ -1,7 +1,6 @@
 package me.roundaround.roundalib.config.gui.control;
 
 import java.util.List;
-import java.util.Optional;
 
 import me.roundaround.roundalib.config.gui.OptionRow;
 import me.roundaround.roundalib.config.gui.SelectableElement;
@@ -39,6 +38,11 @@ public class IntInputControl extends AbstractControlWidget<IntConfigOption> {
     textBox.setMaxLength(12);
     textBox.setChangedListener(this::onTextFieldValueChange);
     textBox.setText(configOption.getValue().toString());
+    textBox.setFocusChangedListener((textBoxFocused) -> {
+      if (textBoxFocused) {
+        getConfigScreen().declareFocused(textBox);
+      }
+    });
 
     if (configOption.showStepButtons()) {
       incrementButton = new IntStepButtonWidget(this, true, top, right - IntStepButtonWidget.WIDTH + 1);
@@ -111,18 +115,33 @@ public class IntInputControl extends AbstractControlWidget<IntConfigOption> {
   }
 
   private void onTextFieldValueChange(String value) {
-    int parsed = 0;
     try {
-      parsed = Integer.parseInt(value);
+      int parsed = Integer.parseInt(value);
+      if (configOption.validateInput(parsed)) {
+        configOption.setValue(parsed);
+        markValid();
+      } else {
+        markInvalid();
+      }
     } catch (Exception e) {
+      markInvalid();
     }
-    configOption.setValue(parsed);
   }
 
   private void onConfigValueChange(Integer prev, Integer curr) {
-    if (!curr.equals(prev)) {
+    if (!curr.equals(prev) && !curr.toString().equals(textBox.getText())) {
       textBox.setText(curr.toString());
     }
+  }
+
+  private void markInvalid() {
+    textBox.setEditableColor(16711680);
+    getConfigScreen().markInvalid(getOptionRow());
+  }
+
+  private void markValid() {
+    textBox.setEditableColor(14737632);
+    getConfigScreen().markValid(getOptionRow());
   }
 
   @Override

@@ -1,8 +1,10 @@
 package me.roundaround.roundalib.config.gui;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -40,6 +42,7 @@ public class ConfigScreen extends Screen {
   private final Screen parent;
   private final ModConfig modConfig;
   private final List<SelectableElement> selectableElements = new ArrayList<>();
+  private final Set<OptionRow> invalidRows = new HashSet<>(); 
 
   private ConfigList listWidget;
   private ButtonWidget doneButton;
@@ -53,7 +56,7 @@ public class ConfigScreen extends Screen {
 
   @Override
   protected void init() {
-    this.client.keyboard.setRepeatEvents(true);
+    client.keyboard.setRepeatEvents(true);
 
     int listWidth = (int) Math.max(LIST_MIN_WIDTH, width / 1.5f);
     int listLeft = (int) ((width / 2f) - (listWidth / 2f));
@@ -84,6 +87,7 @@ public class ConfigScreen extends Screen {
 
   @Override
   public void removed() {
+    client.keyboard.setRepeatEvents(false);
     modConfig.saveToFile();
   }
 
@@ -127,42 +131,26 @@ public class ConfigScreen extends Screen {
 
   @Override
   public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-    switch (keyCode) {
-      case GLFW.GLFW_KEY_UP:
-        if (listWidget.moveFocus(-1)) {
-          return true;
-        }
-      case GLFW.GLFW_KEY_DOWN:
-        if (listWidget.moveFocus(1)) {
-          return true;
-        }
-      case GLFW.GLFW_KEY_PAGE_UP:
-        if (listWidget.moveFocus(-4)) {
-          return true;
-        }
-      case GLFW.GLFW_KEY_PAGE_DOWN:
-        if (listWidget.moveFocus(4)) {
-          return true;
-        }
-      case GLFW.GLFW_KEY_HOME:
-        if (listWidget.moveFocus(Integer.MIN_VALUE)) {
-          return true;
-        }
-      case GLFW.GLFW_KEY_END:
-        if (listWidget.moveFocus(Integer.MAX_VALUE)) {
-          return true;
-        }
-      case GLFW.GLFW_KEY_LEFT:
-        if (changeFocus(false)) {
-          return true;
-        }
-      case GLFW.GLFW_KEY_RIGHT:
-        if (changeFocus(true)) {
-          return true;
-        }
+    if (super.keyPressed(keyCode, scanCode, modifiers)) {
+      return true;
     }
 
-    return super.keyPressed(keyCode, scanCode, modifiers);
+    switch (keyCode) {
+      case GLFW.GLFW_KEY_UP:
+        return listWidget.moveFocus(-1);
+      case GLFW.GLFW_KEY_DOWN:
+        return listWidget.moveFocus(1);
+      case GLFW.GLFW_KEY_PAGE_UP:
+        return listWidget.moveFocus(-4);
+      case GLFW.GLFW_KEY_PAGE_DOWN:
+        return listWidget.moveFocus(4);
+      case GLFW.GLFW_KEY_HOME:
+        return listWidget.moveFocus(Integer.MIN_VALUE);
+      case GLFW.GLFW_KEY_END:
+        return listWidget.moveFocus(Integer.MAX_VALUE);
+    }
+
+    return false;
   }
 
   @Override
@@ -272,5 +260,30 @@ public class ConfigScreen extends Screen {
       listWidget.onSetFocused(newFocused);
     }
     return result;
+  }
+
+  public void declareFocused(SelectableElement newFocused) {
+    if (focused.isPresent() && !this.focused.get().equals(newFocused)) {
+      focused.get().setIsFocused(false);
+    }
+    focused = Optional.of(newFocused);
+    listWidget.onSetFocused(newFocused);
+  }
+
+  public void markInvalid(OptionRow optionRow) {
+    invalidRows.add(optionRow);
+    updateDoneButton();
+  }
+
+  public void markValid(OptionRow optionRow) {
+    invalidRows.remove(optionRow);
+    updateDoneButton();
+  }
+
+  private void updateDoneButton() {
+    if (doneButton == null) {
+      return;
+    }
+    doneButton.active = invalidRows.isEmpty();
   }
 }
