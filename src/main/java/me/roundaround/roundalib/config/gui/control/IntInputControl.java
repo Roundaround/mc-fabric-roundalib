@@ -9,17 +9,17 @@ import me.roundaround.roundalib.config.option.IntConfigOption;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 
-public class IntInputControl extends AbstractControlWidget<Integer, IntConfigOption> {
+public class IntInputControl extends AbstractControlWidget<IntConfigOption> {
   private SelectableElementTextFieldWidget textBox;
 
   public IntInputControl(
-      OptionRow parent,
       IntConfigOption configOption,
+      OptionRow parent,
       int top,
       int left,
       int height,
       int width) {
-    super(parent, configOption, top, left, height, width);
+    super(configOption, parent, top, left, height, width);
   }
 
   @Override

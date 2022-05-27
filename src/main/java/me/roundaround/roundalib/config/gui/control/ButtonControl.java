@@ -17,15 +17,15 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-public abstract class ButtonControl<T, U extends ConfigOption<T>> extends AbstractClickableControlWidget<T, U> {
+public abstract class ButtonControl<O extends ConfigOption<?, ?>> extends AbstractClickableControlWidget<O> {
   protected static final Identifier BUTTON_TEXTURES = new Identifier("minecraft", "textures/gui/widgets.png");
   protected static final int BUTTON_TEXTURE_WIDTH = 200;
   protected static final int BUTTON_TEXTURE_HEIGHT = 20;
 
   private boolean isActive = true;
 
-  protected ButtonControl(OptionRow parent, int top, int left, int height, int width) {
-    super(parent, top, left, height, width);
+  protected ButtonControl(O configOption, OptionRow parent, int top, int left, int height, int width) {
+    super(configOption, parent, top, left, height, width);
   }
 
   protected abstract Text getCurrentText();

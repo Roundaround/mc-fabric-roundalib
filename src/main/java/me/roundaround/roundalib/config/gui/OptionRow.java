@@ -30,13 +30,13 @@ public class OptionRow extends AbstractWidget<ConfigList> {
   protected static final int ROW_SHADE_FADE_WIDTH = 8;
 
   protected final int index;
-  protected final ConfigOption<?> configOption;
+  protected final ConfigOption<?, ?> configOption;
   protected final Widget control;
   protected final ResetButton resetButton;
 
   private final ImmutableList<Widget> subWidgets;
 
-  public OptionRow(ConfigList parent, int index, ConfigOption<?> configOption, int top, int left, int width) {
+  public OptionRow(ConfigList parent, int index, ConfigOption<?, ?> configOption, int top, int left, int width) {
     super(parent, top, left, HEIGHT, width);
 
     this.index = index;
@@ -241,7 +241,7 @@ public class OptionRow extends AbstractWidget<ConfigList> {
       MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
   }
 
-  public ConfigOption<?> getConfigOption() {
+  public ConfigOption<?, ?> getConfigOption() {
     return configOption;
   }
 

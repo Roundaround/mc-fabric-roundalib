@@ -9,20 +9,19 @@ import com.google.gson.JsonObject;
 
 import me.roundaround.roundalib.config.gui.OptionRow;
 import me.roundaround.roundalib.config.gui.Widget;
-import me.roundaround.roundalib.config.gui.control.Control;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
-public abstract class ConfigOption<T> {
+public abstract class ConfigOption<D, C extends Widget> {
   private final String id;
   private final String labelI18nKey;
-  private final T defaultValue;
-  private final Queue<BiConsumer<T, T>> valueChangeListeners = new LinkedList<>();
+  private final D defaultValue;
+  private final Queue<BiConsumer<D, D>> valueChangeListeners = new LinkedList<>();
 
-  private T value;
-  private T lastSavedValue;
+  private D value;
+  private D lastSavedValue;
 
-  public ConfigOption(String id, String labelI18nKey, T defaultValue) {
+  public ConfigOption(String id, String labelI18nKey, D defaultValue) {
     this.id = id;
     this.labelI18nKey = labelI18nKey;
     this.defaultValue = defaultValue;
@@ -37,12 +36,12 @@ public abstract class ConfigOption<T> {
     return new TranslatableText(this.labelI18nKey);
   }
 
-  public T getValue() {
+  public D getValue() {
     return this.value;
   }
 
-  public void setValue(T value) {
-    T prev = this.value;
+  public void setValue(D value) {
+    D prev = this.value;
     this.value = value;
     this.valueChangeListeners.forEach((listener) -> listener.accept(prev, this.value));
   }
@@ -73,21 +72,20 @@ public abstract class ConfigOption<T> {
     this.markValueAsSaved();
   }
 
-  public final U createAndInitializeControl(OptionRow parent, int top, int left, int height, int width) {
-    U control = createControl(parent, top, left, height, width);
-    control.setConfigOption(this);
+  public final C createAndInitializeControl(OptionRow parent, int top, int left, int height, int width) {
+    C control = createControl(parent, top, left, height, width);
     control.init();
 
     return control;
   }
 
-  public final void subscribeToValueChanges(BiConsumer<T, T> listener) {
+  public final void subscribeToValueChanges(BiConsumer<D, D> listener) {
     this.valueChangeListeners.add(listener);
   }
 
-  protected abstract U createControl(OptionRow parent, int top, int left, int height, int width);
+  protected abstract C createControl(OptionRow parent, int top, int left, int height, int width);
 
-  public abstract T deserializeFromJson(JsonElement data);
+  public abstract D deserializeFromJson(JsonElement data);
 
   public abstract JsonElement serializeToJson();
 }

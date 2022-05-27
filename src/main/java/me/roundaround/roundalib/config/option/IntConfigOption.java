@@ -9,7 +9,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 import me.roundaround.roundalib.config.gui.OptionRow;
-import me.roundaround.roundalib.config.gui.control.Control;
 import me.roundaround.roundalib.config.gui.control.IntInputControl;
 
 public class IntConfigOption extends ConfigOption<Integer, IntInputControl> {
@@ -29,7 +28,7 @@ public class IntConfigOption extends ConfigOption<Integer, IntInputControl> {
 
   @Override
   public IntInputControl createControl(OptionRow parent, int top, int left, int height, int width) {
-    return new IntInputControl(parent, top, left, height, width);
+    return new IntInputControl(this, parent, top, left, height, width);
   }
 
   public static class Options {

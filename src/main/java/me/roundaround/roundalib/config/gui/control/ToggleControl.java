@@ -5,16 +5,17 @@ import me.roundaround.roundalib.config.option.BooleanConfigOption;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
-public class ToggleControl extends ButtonControl<Boolean, BooleanConfigOption> {
+public class ToggleControl extends ButtonControl<BooleanConfigOption> {
   private Text cachedText;
 
   public ToggleControl(
+      BooleanConfigOption configOption,
       OptionRow parent,
       int top,
       int left,
       int height,
       int width) {
-    super(parent, top, left, height, width);
+    super(configOption, parent, top, left, height, width);
   }
 
   @Override

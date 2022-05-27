@@ -36,7 +36,7 @@ public class RoundaLibConfig extends ModConfig {
   public static final StringConfigOption RANDOM_STRING = new StringConfigOption("randomString", "config.randon_string",
       "fhjdsaghls");
 
-  private static final ImmutableList<ConfigOption<?>> ALL_CONFIG_OPTIONS = ImmutableList.of(
+  private static final ImmutableList<ConfigOption<?, ?>> ALL_CONFIG_OPTIONS = ImmutableList.of(
       GUI_ALIGNMENT,
       SOME_INTEGER,
       MY_NAME,
@@ -65,7 +65,7 @@ public class RoundaLibConfig extends ModConfig {
   }
 
   @Override
-  public ImmutableList<ConfigOption<?>> getConfigOptions() {
+  public ImmutableList<ConfigOption<?, ?>> getConfigOptions() {
     return ALL_CONFIG_OPTIONS;
   }
 }

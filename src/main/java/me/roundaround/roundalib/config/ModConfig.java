@@ -18,7 +18,7 @@ import net.fabricmc.loader.api.FabricLoader;
 
 public abstract class ModConfig {
   private final ModInfo modInfo;
-  private final HashMap<String, ConfigOption<?>> configOptions = new HashMap<>();
+  private final HashMap<String, ConfigOption<?, ?>> configOptions = new HashMap<>();
 
   private int previousConfigVersion;
 
@@ -30,7 +30,7 @@ public abstract class ModConfig {
             .collect(Collectors.toMap(ConfigOption::getId, Function.identity())));
   }
 
-  public abstract ImmutableList<ConfigOption<?>> getConfigOptions();
+  public abstract ImmutableList<ConfigOption<?, ?>> getConfigOptions();
 
   public void init() {
     this.loadFromFile();

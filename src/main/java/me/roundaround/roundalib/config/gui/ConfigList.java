@@ -62,7 +62,7 @@ public class ConfigList extends AbstractWidget<ConfigScreen> implements Scrollab
   public void init() {
     optionRows.clear();
 
-    ImmutableList<ConfigOption<?>> configOptions = parent.getModConfig().getConfigOptions();
+    ImmutableList<ConfigOption<?, ?>> configOptions = parent.getModConfig().getConfigOptions();
     IntStream.range(0, configOptions.size())
         .forEach(
             idx -> optionRows.add(

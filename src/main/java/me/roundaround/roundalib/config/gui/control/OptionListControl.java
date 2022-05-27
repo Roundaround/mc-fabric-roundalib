@@ -6,12 +6,11 @@ import me.roundaround.roundalib.config.value.ListOptionValue;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
-public class OptionListControl<T extends ListOptionValue<T>> extends ButtonControl<T, OptionListConfigOption<T>> {
+public class OptionListControl<T extends ListOptionValue<T>> extends ButtonControl<OptionListConfigOption<T>> {
   private Text cachedText;
 
-  public OptionListControl(
-      OptionRow parent, int top, int left, int height, int width) {
-    super(parent, top, left, height, width);
+  public OptionListControl(OptionListConfigOption<T> configOption, OptionRow parent, int top, int left, int height, int width) {
+    super(configOption, parent, top, left, height, width);
   }
 
   @Override
