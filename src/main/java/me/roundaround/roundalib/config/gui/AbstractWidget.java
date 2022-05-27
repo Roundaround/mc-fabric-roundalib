@@ -1,5 +1,6 @@
 package me.roundaround.roundalib.config.gui;
 
+import me.roundaround.roundalib.config.gui.widget.Widget;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
@@ -62,6 +63,10 @@ public abstract class AbstractWidget<T> extends DrawableHelper implements Widget
   @Override
   public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
     return this.isMouseOver(mouseX, mouseY) && this.onMouseScrolled(mouseX, mouseY, amount);
+  }
+
+  public T getParent() {
+    return parent;
   }
 
   public int getWidth() {

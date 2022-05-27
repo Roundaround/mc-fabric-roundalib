@@ -1,7 +1,9 @@
-package me.roundaround.roundalib.config.gui;
+package me.roundaround.roundalib.config.gui.widget;
 
 import java.util.List;
+import java.util.Optional;
 
+import me.roundaround.roundalib.config.gui.SelectableElement;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
 import net.minecraft.text.Text;
@@ -15,6 +17,10 @@ public interface Widget extends Drawable, Element {
 
   public default List<SelectableElement> getSelectableElements() {
     return List.of();
+  }
+
+  public default Optional<SelectableElement> getPrimarySelectableElement() {
+    return getSelectableElements().stream().findFirst();
   }
 
   public default List<Text> getTooltip(int mouseX, int mouseY, float delta) {

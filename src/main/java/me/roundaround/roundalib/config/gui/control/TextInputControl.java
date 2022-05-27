@@ -1,16 +1,17 @@
 package me.roundaround.roundalib.config.gui.control;
 
 import java.util.List;
+import java.util.Optional;
 
 import me.roundaround.roundalib.config.gui.OptionRow;
 import me.roundaround.roundalib.config.gui.SelectableElement;
-import me.roundaround.roundalib.config.gui.compat.SelectableElementTextFieldWidget;
+import me.roundaround.roundalib.config.gui.widget.TextFieldWidget;
 import me.roundaround.roundalib.config.option.StringConfigOption;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 
 public class TextInputControl extends AbstractControlWidget<StringConfigOption> {
-  private SelectableElementTextFieldWidget textBox;
+  private TextFieldWidget textBox;
 
   public TextInputControl(
       StringConfigOption configOption,
@@ -24,12 +25,17 @@ public class TextInputControl extends AbstractControlWidget<StringConfigOption> 
 
   @Override
   public void init() {
-    textBox = new SelectableElementTextFieldWidget(TEXT_RENDERER, left + 1, top + 1,
+    textBox = new TextFieldWidget(TEXT_RENDERER, left + 1, top + 1,
         width - 2, height - 2,
         new LiteralText("Foo"));
     textBox.setMaxLength(50);
     textBox.setChangedListener(this::onTextFieldValueChange);
     textBox.setText(configOption.getValue());
+    textBox.setFocusChangedListener((textBoxFocused) -> {
+      if (textBoxFocused) {
+        getParent().getParent().getParent().setFocused(textBox);
+      }
+    });
 
     configOption.subscribeToValueChanges(this::onConfigValueChange);
   }

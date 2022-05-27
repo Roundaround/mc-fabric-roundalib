@@ -8,7 +8,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import me.roundaround.roundalib.config.gui.OptionRow;
-import me.roundaround.roundalib.config.gui.Widget;
+import me.roundaround.roundalib.config.gui.widget.Widget;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 

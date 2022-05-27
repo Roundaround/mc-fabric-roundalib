@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import me.roundaround.roundalib.config.gui.widget.ResetButtonWidget;
+import me.roundaround.roundalib.config.gui.widget.Widget;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -33,7 +35,7 @@ public class OptionRow extends AbstractWidget<ConfigList> {
   protected final int index;
   protected final ConfigOption<?, ?> configOption;
   protected final Widget control;
-  protected final ResetButton resetButton;
+  protected final ResetButtonWidget resetButton;
 
   private final ImmutableList<Widget> subWidgets;
 
@@ -45,13 +47,13 @@ public class OptionRow extends AbstractWidget<ConfigList> {
     this.control = configOption.createAndInitializeControl(
         this,
         this.top,
-        this.right - CONTROL_WIDTH - ResetButton.WIDTH - (PADDING * 2),
+        this.right - CONTROL_WIDTH - ResetButtonWidget.WIDTH - (PADDING * 2),
         this.height,
         CONTROL_WIDTH);
-    this.resetButton = new ResetButton(
+    this.resetButton = new ResetButtonWidget(
         this,
-        this.top + (HEIGHT - ResetButton.HEIGHT) / 2,
-        this.right - PADDING - ResetButton.WIDTH);
+        this.top + (HEIGHT - ResetButtonWidget.HEIGHT) / 2,
+        this.right - PADDING - ResetButtonWidget.WIDTH);
 
     this.subWidgets = ImmutableList.of(this.control, this.resetButton);
   }
@@ -83,73 +85,7 @@ public class OptionRow extends AbstractWidget<ConfigList> {
     super.moveTop(top);
 
     this.control.moveTop(top);
-    this.resetButton.moveTop(top + (HEIGHT - ResetButton.HEIGHT) / 2);
-  }
-
-  @Override
-  public boolean onMouseClicked(double mouseX, double mouseY, int button) {
-    for (Widget subWidget : subWidgets) {
-      if (subWidget.mouseClicked(mouseX, mouseY, button)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  @Override
-  public boolean onMouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-    for (Widget subWidget : subWidgets) {
-      if (subWidget.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  @Override
-  public boolean onMouseReleased(double mouseX, double mouseY, int button) {
-    for (Widget subWidget : subWidgets) {
-      if (subWidget.mouseReleased(mouseX, mouseY, button)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  @Override
-  public boolean charTyped(char chr, int modifiers) {
-    for (Widget subWidget : subWidgets) {
-      if (subWidget.charTyped(chr, modifiers)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  @Override
-  public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-    for (Widget subWidget : subWidgets) {
-      if (subWidget.keyPressed(keyCode, scanCode, modifiers)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  @Override
-  public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
-    for (Widget subWidget : subWidgets) {
-      if (subWidget.keyReleased(keyCode, scanCode, modifiers)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  @Override
-  public boolean changeFocus(boolean focus) {
-    subWidgets.forEach((subWidget) -> subWidget.changeFocus(focus));
-    return false;
+    this.resetButton.moveTop(top + (HEIGHT - ResetButtonWidget.HEIGHT) / 2);
   }
 
   protected void renderBackground(
@@ -253,5 +189,12 @@ public class OptionRow extends AbstractWidget<ConfigList> {
     List<SelectableElement> elements = new ArrayList<>(control.getSelectableElements());
     elements.add(resetButton);
     return elements;
+  }
+
+  public boolean focusPrimaryElement() {
+    if (control.getPrimarySelectableElement().isEmpty()) {
+      return false;
+    }
+    return getParent().getParent().setFocused(control.getPrimarySelectableElement().get());
   }
 }

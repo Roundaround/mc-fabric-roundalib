@@ -1,18 +1,22 @@
 package me.roundaround.roundalib.config.gui;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import me.roundaround.roundalib.config.ModConfig;
+import me.roundaround.roundalib.config.gui.widget.ButtonWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ScreenTexts;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.Tessellator;
@@ -35,9 +39,11 @@ public class ConfigScreen extends Screen {
   @Nullable
   private final Screen parent;
   private final ModConfig modConfig;
+  private final List<SelectableElement> selectableElements = new ArrayList<>();
 
   private ConfigList listWidget;
   private ButtonWidget doneButton;
+  private Optional<SelectableElement> focused = Optional.empty();
 
   public ConfigScreen(@Nullable Screen parent, ModConfig modConfig) {
     super(new TranslatableText(modConfig.getModInfo().getConfigScreenTitleI18nKey()));
@@ -58,10 +64,10 @@ public class ConfigScreen extends Screen {
     int doneButtonLeft = (int) (width / 2f - DONE_BUTTON_WIDTH / 2f);
     int doneButtonTop = height - DONE_BUTTON_POS_Y;
     doneButton = new ButtonWidget(
-        doneButtonLeft,
         doneButtonTop,
-        DONE_BUTTON_WIDTH,
+        doneButtonLeft,
         DONE_BUTTON_HEIGHT,
+        DONE_BUTTON_WIDTH,
         ScreenTexts.DONE,
         (button) -> {
           if (client == null) {
@@ -72,9 +78,8 @@ public class ConfigScreen extends Screen {
           client.setScreen(parent);
         });
 
-    listWidget.getSelectableElements().forEach(this::addSelectableChild);
-    addSelectableChild(doneButton);
-    setInitialFocus(children().get(0));
+    selectableElements.addAll(listWidget.getSelectableElements());
+    selectableElements.add(doneButton);
   }
 
   @Override
@@ -95,18 +100,19 @@ public class ConfigScreen extends Screen {
     if (listWidget.mouseClicked(mouseX, mouseY, button)) {
       return true;
     }
-
-    return super.mouseClicked(mouseX, mouseY, button);
+    return selectableElements.stream().anyMatch((element) -> {
+      return element.mouseClicked(mouseX, mouseY, button);
+    }) || super.mouseClicked(mouseX, mouseY, button);
   }
 
   @Override
-  public boolean mouseDragged(
-      double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+  public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
     if (listWidget.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)) {
       return true;
     }
-
-    return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+    return selectableElements.stream().anyMatch((element) -> {
+      return element.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+    }) || super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
   }
 
   @Override
@@ -114,8 +120,9 @@ public class ConfigScreen extends Screen {
     if (listWidget.mouseScrolled(mouseX, mouseY, amount)) {
       return true;
     }
-
-    return super.mouseScrolled(mouseX, mouseY, amount);
+    return selectableElements.stream().anyMatch((element) -> {
+      return element.mouseScrolled(mouseX, mouseY, amount);
+    }) || super.mouseScrolled(mouseX, mouseY, amount);
   }
 
   @Override
@@ -222,10 +229,48 @@ public class ConfigScreen extends Screen {
   }
 
   @Override
-  public void setFocused(Element focused) {
-    super.setFocused(focused);
-    if (listWidget != null) {
-      listWidget.onSetFocused(focused);
+  protected void clearChildren() {
+    selectableElements.clear();
+  }
+
+  @Override
+  public boolean changeFocus(boolean lookForwards) {
+    if (selectableElements.isEmpty()) {
+      return false;
     }
+
+    int index = focused.isPresent() ? selectableElements.indexOf(focused.get()) : -1;
+    int step = lookForwards ? 1 : -1;
+    if (!lookForwards && index == -1) {
+      index = 0;
+    }
+
+    index = (index + selectableElements.size() + step) % selectableElements.size();
+
+    int originalIndex = index;
+    while (!setFocused(selectableElements.get(index))) {
+      index = (index + selectableElements.size() + step) % selectableElements.size();
+      if (index == originalIndex) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @Override
+  public Element getFocused() {
+    return focused.orElse(null);
+  }
+
+  public boolean setFocused(SelectableElement newFocused) {
+    if (focused.isPresent() && !this.focused.get().equals(newFocused)) {
+      focused.get().setIsFocused(false);
+    }
+    boolean result = newFocused.setIsFocused(true);
+    if (result) {
+      focused = Optional.of(newFocused);
+      listWidget.onSetFocused(newFocused);
+    }
+    return result;
   }
 }

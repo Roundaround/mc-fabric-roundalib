@@ -1,19 +1,20 @@
 package me.roundaround.roundalib.config.gui.control;
 
 import java.util.List;
+import java.util.Optional;
 
-import me.roundaround.roundalib.config.gui.IntStepButton;
 import me.roundaround.roundalib.config.gui.OptionRow;
 import me.roundaround.roundalib.config.gui.SelectableElement;
-import me.roundaround.roundalib.config.gui.compat.SelectableElementTextFieldWidget;
+import me.roundaround.roundalib.config.gui.widget.IntStepButtonWidget;
+import me.roundaround.roundalib.config.gui.widget.TextFieldWidget;
 import me.roundaround.roundalib.config.option.IntConfigOption;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 
 public class IntInputControl extends AbstractControlWidget<IntConfigOption> {
-  private SelectableElementTextFieldWidget textBox;
-  private IntStepButton incrementButton;
-  private IntStepButton decrementButton;
+  private TextFieldWidget textBox;
+  private IntStepButtonWidget incrementButton;
+  private IntStepButtonWidget decrementButton;
 
   public IntInputControl(
       IntConfigOption configOption,
@@ -27,7 +28,7 @@ public class IntInputControl extends AbstractControlWidget<IntConfigOption> {
 
   @Override
   public void init() {
-    textBox = new SelectableElementTextFieldWidget(TEXT_RENDERER, left + 1, top + 1,
+    textBox = new TextFieldWidget(TEXT_RENDERER, left + 1, top + 1,
         width - 2 - (configOption.showStepButtons() ? 10 : 0), height - 2,
         new LiteralText("Foo")) {
       @Override
@@ -40,9 +41,9 @@ public class IntInputControl extends AbstractControlWidget<IntConfigOption> {
     textBox.setText(configOption.getValue().toString());
 
     if (configOption.showStepButtons()) {
-      incrementButton = new IntStepButton(this, true, top, right - IntStepButton.WIDTH + 1);
-      decrementButton = new IntStepButton(this, false, bottom - IntStepButton.HEIGHT + 1,
-          right - IntStepButton.WIDTH + 1);
+      incrementButton = new IntStepButtonWidget(this, true, top, right - IntStepButtonWidget.WIDTH + 1);
+      decrementButton = new IntStepButtonWidget(this, false, bottom - IntStepButtonWidget.HEIGHT + 1,
+          right - IntStepButtonWidget.WIDTH + 1);
     }
 
     configOption.subscribeToValueChanges(this::onConfigValueChange);

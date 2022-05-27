@@ -1,9 +1,13 @@
 package me.roundaround.roundalib.config.gui;
 
+import java.util.function.Consumer;
+
+import me.roundaround.roundalib.config.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.Selectable;
 
 public abstract class AbstractClickableWidget<T> extends AbstractWidget<T> implements ClickableWidget {
   protected boolean focused;
+  protected Consumer<Boolean> focusChangeListener;
 
   protected AbstractClickableWidget(T parent, int top, int left, int height, int width) {
     super(parent, top, left, height, width);
@@ -11,7 +15,7 @@ public abstract class AbstractClickableWidget<T> extends AbstractWidget<T> imple
 
   @Override
   public SelectionType getType() {
-    if (this.focused) {
+    if (this.isFocused()) {
       return Selectable.SelectionType.FOCUSED;
     } else if (this.hovered) {
       return Selectable.SelectionType.HOVERED;
@@ -19,16 +23,26 @@ public abstract class AbstractClickableWidget<T> extends AbstractWidget<T> imple
     return Selectable.SelectionType.NONE;
   }
 
-  public boolean changeFocus(boolean lookForwards) {
-    focused = !focused;
-    onFocusedChanged(focused);
+  protected boolean isHoveredOrFocused() {
+    return hovered || isFocused();
+  }
+
+  @Override
+  public boolean isFocused() {
     return focused;
   }
 
-  protected boolean isHoveredOrFocused() {
-    return hovered || focused;
+  @Override
+  public void setFocusChangedListener(Consumer<Boolean> listener) {
+    focusChangeListener = listener;
   }
 
-  protected void onFocusedChanged(boolean newFocused) {
+  @Override
+  public boolean setIsFocused(boolean focused) {
+    this.focused = focused;
+    if (focusChangeListener != null) {
+      focusChangeListener.accept(focused);
+    }
+    return true;
   }
 }
