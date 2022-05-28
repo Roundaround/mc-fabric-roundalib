@@ -35,7 +35,7 @@ public abstract class ModConfig {
   }
 
   public void loadFromFile() {
-    // TODO: Migrate to TOML: https://github.com/TheElectronWill/Night-Config
+    // TODO: Figure out best fileConfig usage
     CommentedFileConfig fileConfig = CommentedFileConfig.builder(this.getConfigFile(".toml")).concurrent().build();
     fileConfig.load();
 
@@ -59,6 +59,8 @@ public abstract class ModConfig {
 
     CommentedFileConfig fileConfig = CommentedFileConfig.builder(this.getConfigFile(".toml")).concurrent().build();
     this.configOptions.values().forEach((configOption) -> {
+      // TODO: Add comment to ConfigOption to fill this with
+      // TODO: Add ConfigOption label as default comment, provide way to disable
       fileConfig.setComment(configOption.getId(), configOption.getLabel().getString());
       fileConfig.set(configOption.getId(), configOption.getValue());
     });
@@ -75,16 +77,12 @@ public abstract class ModConfig {
     return dir;
   }
 
-  public String getConfigFileName(String extension) {
-    return this.modInfo.getModId() + extension;
-  }
-
-  public File getConfigFile() {
-    return getConfigFile(".json");
+  public String getConfigFileName() {
+    return this.modInfo.getModId() + ".toml";
   }
 
   public File getConfigFile(String extension) {
-    return new File(this.getConfigDirectory(), this.getConfigFileName(extension));
+    return new File(this.getConfigDirectory(), this.getConfigFileName());
   }
 
   public ModInfo getModInfo() {
