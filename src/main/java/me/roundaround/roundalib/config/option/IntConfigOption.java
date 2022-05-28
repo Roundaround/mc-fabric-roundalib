@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
-
 import me.roundaround.roundalib.config.gui.OptionRow;
 import me.roundaround.roundalib.config.gui.control.IntInputControl;
 import net.minecraft.util.math.MathHelper;
@@ -21,16 +18,6 @@ public class IntConfigOption extends ConfigOption<Integer, IntInputControl> {
   public IntConfigOption(String id, String labelI18nKey, Integer defaultValue, Options options) {
     super(id, labelI18nKey, defaultValue);
     this.options = options;
-  }
-
-  @Override
-  public Integer deserializeFromJson(JsonElement data) {
-    return data.getAsInt();
-  }
-
-  @Override
-  public JsonElement serializeToJson() {
-    return new JsonPrimitive(this.getValue());
   }
 
   @Override

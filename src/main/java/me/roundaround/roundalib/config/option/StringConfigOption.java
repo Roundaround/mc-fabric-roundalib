@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
-
 import me.roundaround.roundalib.config.gui.OptionRow;
 import me.roundaround.roundalib.config.gui.control.TextInputControl;
 
@@ -21,16 +18,6 @@ public class StringConfigOption extends ConfigOption<String, TextInputControl> {
   public StringConfigOption(String id, String labelI18nKey, String defaultValue, Options options) {
     super(id, labelI18nKey, defaultValue);
     this.options = options;
-  }
-
-  @Override
-  public String deserializeFromJson(JsonElement data) {
-    return data.getAsString();
-  }
-
-  @Override
-  public JsonElement serializeToJson() {
-    return new JsonPrimitive(this.getValue());
   }
 
   @Override

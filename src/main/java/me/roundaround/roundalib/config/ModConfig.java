@@ -6,15 +6,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
-import com.electronwill.nightconfig.core.file.FileConfig;
 import com.google.common.collect.ImmutableList;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
 import me.roundaround.roundalib.RoundaLibMod;
 import me.roundaround.roundalib.config.option.ConfigOption;
-import me.roundaround.roundalib.util.JsonUtil;
 import me.roundaround.roundalib.util.ModInfo;
 import net.fabricmc.loader.api.FabricLoader;
 
@@ -41,47 +36,33 @@ public abstract class ModConfig {
 
   public void loadFromFile() {
     // TODO: Migrate to TOML: https://github.com/TheElectronWill/Night-Config
-    CommentedFileConfig fileConfig = CommentedFileConfig.builder(this.getConfigFile(".toml")).concurrent().autosave().build();
+    CommentedFileConfig fileConfig = CommentedFileConfig.builder(this.getConfigFile(".toml")).concurrent().build();
     fileConfig.load();
 
+    previousConfigVersion = fileConfig.getIntOrElse("config_version", 1);
+    // TODO: Upgrade versions as necessary.
+
     this.configOptions.values().forEach((configOption) -> {
-      RoundaLibMod.LOGGER.info(String.format("%s: %s", configOption.getId(), fileConfig.get(configOption.getId())));
+      Object data = fileConfig.get(configOption.getId());
+      if (data != null) {
+        configOption.deserialize(data);
+      }
     });
-
-    JsonElement element = JsonUtil.parseJsonFile(this.getConfigFile());
-
-    if (element != null && element.isJsonObject()) {
-      JsonObject root = element.getAsJsonObject();
-
-      previousConfigVersion = JsonUtil.getIntOrDefault(root, "config_version", 1);
-      // TODO: Upgrade versions as necessary.
-
-      this.configOptions.values().forEach(configOption -> configOption.readFromJsonRoot(root));
-    } else {
-      this.configOptions.values().forEach(ConfigOption::resetToDefault);
-    }
   }
 
-  public boolean saveToFile() {
+  public void saveToFile() {
     if (previousConfigVersion == this.modInfo.getConfigVersion()
         && this.configOptions.values().stream().noneMatch(ConfigOption::isDirty)) {
       RoundaLibMod.LOGGER.info("Skipping saving config to file because nothing has changed.");
-      return true;
+      return;
     }
-    
-    CommentedFileConfig fileConfig = CommentedFileConfig.builder(this.getConfigFile(".toml")).concurrent().autosave().build();
+
+    CommentedFileConfig fileConfig = CommentedFileConfig.builder(this.getConfigFile(".toml")).concurrent().build();
     this.configOptions.values().forEach((configOption) -> {
       fileConfig.setComment(configOption.getId(), configOption.getLabel().getString());
       fileConfig.set(configOption.getId(), configOption.getValue());
     });
     fileConfig.save();
-
-    JsonObject root = new JsonObject();
-    root.add("config_version", new JsonPrimitive(this.modInfo.getConfigVersion()));
-
-    this.configOptions.values().forEach((configOption -> configOption.writeToJsonRoot(root)));
-
-    return JsonUtil.writeJsonToFile(root, this.getConfigFile());
   }
 
   public File getConfigDirectory() {

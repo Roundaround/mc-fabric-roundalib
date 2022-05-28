@@ -1,8 +1,5 @@
 package me.roundaround.roundalib.config.option;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
-
 import me.roundaround.roundalib.config.gui.OptionRow;
 import me.roundaround.roundalib.config.gui.control.ToggleControl;
 import net.minecraft.text.Text;
@@ -29,16 +26,6 @@ public class BooleanConfigOption extends ConfigOption<Boolean, ToggleControl> {
     super(id, labelI18nKey, defaultValue);
     this.enabledLabel = enabledLabel;
     this.disabledLabel = disabledLabel;
-  }
-
-  @Override
-  public Boolean deserializeFromJson(JsonElement data) {
-    return data.getAsBoolean();
-  }
-
-  @Override
-  public JsonElement serializeToJson() {
-    return new JsonPrimitive(this.getValue());
   }
 
   @Override
