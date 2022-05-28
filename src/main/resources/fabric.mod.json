@@ -15,7 +15,7 @@
   "icon": "assets/roundalib/icon.png",
   "environment": "*",
   "entrypoints": {
-    "*": [
+    "main": [
       "me.roundaround.roundalib.RoundaLibMod"
     ],
     "modmenu": [
