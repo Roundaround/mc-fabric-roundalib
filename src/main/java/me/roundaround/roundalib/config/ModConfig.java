@@ -38,6 +38,7 @@ public abstract class ModConfig {
   }
 
   public void loadFromFile() {
+    // TODO: Migrate to TOML: https://github.com/TheElectronWill/Night-Config
     JsonElement element = JsonUtil.parseJsonFile(this.getConfigFile());
 
     if (element != null && element.isJsonObject()) {
