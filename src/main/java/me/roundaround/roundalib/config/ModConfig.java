@@ -36,8 +36,9 @@ public abstract class ModConfig {
 
   public void loadFromFile() {
     // TODO: Figure out best fileConfig usage
-    CommentedFileConfig fileConfig = CommentedFileConfig.builder(this.getConfigFile(".toml")).concurrent().build();
+    CommentedFileConfig fileConfig = CommentedFileConfig.builder(this.getConfigFile()).concurrent().build();
     fileConfig.load();
+    fileConfig.close();
 
     previousConfigVersion = fileConfig.getIntOrElse("config_version", 1);
     // TODO: Upgrade versions as necessary.
@@ -57,14 +58,16 @@ public abstract class ModConfig {
       return;
     }
 
-    CommentedFileConfig fileConfig = CommentedFileConfig.builder(this.getConfigFile(".toml")).concurrent().build();
+    CommentedFileConfig fileConfig = CommentedFileConfig.builder(this.getConfigFile()).concurrent().build();
     this.configOptions.values().forEach((configOption) -> {
       // TODO: Add comment to ConfigOption to fill this with
       // TODO: Add ConfigOption label as default comment, provide way to disable
       fileConfig.setComment(configOption.getId(), configOption.getLabel().getString());
       fileConfig.set(configOption.getId(), configOption.getValue());
     });
+
     fileConfig.save();
+    fileConfig.close();
   }
 
   public File getConfigDirectory() {
@@ -81,7 +84,7 @@ public abstract class ModConfig {
     return this.modInfo.getModId() + ".toml";
   }
 
-  public File getConfigFile(String extension) {
+  public File getConfigFile() {
     return new File(this.getConfigDirectory(), this.getConfigFileName());
   }
 
