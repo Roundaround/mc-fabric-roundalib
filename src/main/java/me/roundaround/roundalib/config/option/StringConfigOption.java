@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import me.roundaround.roundalib.config.gui.OptionRow;
 import me.roundaround.roundalib.config.gui.control.TextInputControl;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 
 public class StringConfigOption extends ConfigOption<String, TextInputControl> {
   private Optional<Integer> minLength = Optional.empty();
@@ -103,6 +104,24 @@ public class StringConfigOption extends ConfigOption<String, TextInputControl> {
 
     public Builder addCustomValidator(Validator validator) {
       customValidators.add(validator);
+      return this;
+    }
+
+    @Override
+    public Builder setComment(String i18nKey) {
+      comment = Optional.of(new TranslatableText(i18nKey));
+      return this;
+    }
+
+    @Override
+    public Builder setComment(Text comment) {
+      this.comment = Optional.of(comment);
+      return this;
+    }
+
+    @Override
+    public Builder setUseLabelAsCommentFallback(boolean useLabelAsCommentFallback) {
+      this.useLabelAsCommentFallback = useLabelAsCommentFallback;
       return this;
     }
 

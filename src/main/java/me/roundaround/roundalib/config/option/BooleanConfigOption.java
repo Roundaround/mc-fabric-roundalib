@@ -1,5 +1,7 @@
 package me.roundaround.roundalib.config.option;
 
+import java.util.Optional;
+
 import me.roundaround.roundalib.config.gui.OptionRow;
 import me.roundaround.roundalib.config.gui.control.ToggleControl;
 import net.minecraft.client.gui.screen.ScreenTexts;
@@ -87,6 +89,24 @@ public class BooleanConfigOption extends ConfigOption<Boolean, ToggleControl> {
 
     public Builder setDisabledLabel(Text label) {
       disabledLabel = label;
+      return this;
+    }
+
+    @Override
+    public Builder setComment(String i18nKey) {
+      comment = Optional.of(new TranslatableText(i18nKey));
+      return this;
+    }
+
+    @Override
+    public Builder setComment(Text comment) {
+      this.comment = Optional.of(comment);
+      return this;
+    }
+
+    @Override
+    public Builder setUseLabelAsCommentFallback(boolean useLabelAsCommentFallback) {
+      this.useLabelAsCommentFallback = useLabelAsCommentFallback;
       return this;
     }
 

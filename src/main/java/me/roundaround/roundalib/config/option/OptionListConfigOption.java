@@ -1,9 +1,12 @@
 package me.roundaround.roundalib.config.option;
 
+import java.util.Optional;
+
 import me.roundaround.roundalib.config.gui.OptionRow;
 import me.roundaround.roundalib.config.gui.control.OptionListControl;
 import me.roundaround.roundalib.config.value.ListOptionValue;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 
 public class OptionListConfigOption<T extends ListOptionValue<T>> extends ConfigOption<T, OptionListControl<T>> {
   protected OptionListConfigOption(Builder<T> builder) {
@@ -25,11 +28,13 @@ public class OptionListConfigOption<T extends ListOptionValue<T>> extends Config
     return getValue().getId();
   }
 
-  public static <T extends ListOptionValue<T>> OptionListConfigOption<T> defaultInstance(String id, String labelI18nKey, T defaultValue) {
+  public static <T extends ListOptionValue<T>> OptionListConfigOption<T> defaultInstance(String id, String labelI18nKey,
+      T defaultValue) {
     return builder(id, labelI18nKey, defaultValue).build();
   }
 
-  public static <T extends ListOptionValue<T>> OptionListConfigOption<T> defaultInstance(String id, Text label, T defaultValue) {
+  public static <T extends ListOptionValue<T>> OptionListConfigOption<T> defaultInstance(String id, Text label,
+      T defaultValue) {
     return builder(id, label, defaultValue).build();
   }
 
@@ -48,6 +53,24 @@ public class OptionListConfigOption<T extends ListOptionValue<T>> extends Config
 
     private Builder(String id, Text label, T defaultValue) {
       super(id, label, defaultValue);
+    }
+
+    @Override
+    public Builder<T> setComment(String i18nKey) {
+      comment = Optional.of(new TranslatableText(i18nKey));
+      return this;
+    }
+
+    @Override
+    public Builder<T> setComment(Text comment) {
+      this.comment = Optional.of(comment);
+      return this;
+    }
+
+    @Override
+    public Builder<T> setUseLabelAsCommentFallback(boolean useLabelAsCommentFallback) {
+      this.useLabelAsCommentFallback = useLabelAsCommentFallback;
+      return this;
     }
 
     @Override

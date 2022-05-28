@@ -2,6 +2,7 @@ package me.roundaround.roundalib.config;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -12,6 +13,7 @@ import me.roundaround.roundalib.RoundaLibMod;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.util.ModInfo;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.text.Text;
 
 public abstract class ModConfig {
   private final ModInfo modInfo;
@@ -40,7 +42,7 @@ public abstract class ModConfig {
     fileConfig.load();
     fileConfig.close();
 
-    previousConfigVersion = fileConfig.getIntOrElse("config_version", 1);
+    previousConfigVersion = fileConfig.getIntOrElse("configVersion", 1);
     // TODO: Upgrade versions as necessary.
 
     this.configOptions.values().forEach((configOption) -> {
@@ -59,10 +61,15 @@ public abstract class ModConfig {
     }
 
     CommentedFileConfig fileConfig = CommentedFileConfig.builder(this.getConfigFile()).concurrent().build();
+
+    fileConfig.set("configVersion", modInfo.getConfigVersion());
+
     this.configOptions.values().forEach((configOption) -> {
-      // TODO: Add comment to ConfigOption to fill this with
-      // TODO: Add ConfigOption label as default comment, provide way to disable
-      fileConfig.setComment(configOption.getId(), configOption.getLabel().getString());
+      Optional<Text> comment = configOption.getComment().isPresent() ? configOption.getComment()
+          : (configOption.getUseLabelAsCommentFallback() ? Optional.of(configOption.getLabel()) : Optional.empty());
+      if (comment.isPresent()) {
+        fileConfig.setComment(configOption.getId(), comment.get().getString());
+      }
       fileConfig.set(configOption.getId(), configOption.getValue());
     });
 
