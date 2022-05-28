@@ -6,18 +6,33 @@ import java.util.Optional;
 
 import me.roundaround.roundalib.config.gui.OptionRow;
 import me.roundaround.roundalib.config.gui.control.IntInputControl;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 
 public class IntConfigOption extends ConfigOption<Integer, IntInputControl> {
-  private Options options;
+  private Optional<Integer> minValue = Optional.empty();
+  private Optional<Integer> maxValue = Optional.empty();
+  private Optional<Integer> step = Optional.of(1);
+  private List<Validator> validators = List.of();
 
-  public IntConfigOption(String id, String labelI18nKey, Integer defaultValue) {
-    this(id, labelI18nKey, defaultValue, Options.getDefault());
-  }
+  protected IntConfigOption(Builder builder) {
+    super(builder);
 
-  public IntConfigOption(String id, String labelI18nKey, Integer defaultValue, Options options) {
-    super(id, labelI18nKey, defaultValue);
-    this.options = options;
+    minValue = builder.minValue;
+    maxValue = builder.maxValue;
+    step = builder.step;
+
+    List<Validator> allValidators = new ArrayList<>();
+    if (minValue.isPresent()) {
+      allValidators.add((int prev, int curr) -> curr >= minValue.get());
+    }
+    if (maxValue.isPresent()) {
+      allValidators.add((int prev, int curr) -> curr <= maxValue.get());
+    }
+    if (!builder.customValidators.isEmpty()) {
+      allValidators.addAll(builder.customValidators);
+    }
+    validators = List.copyOf(allValidators);
   }
 
   @Override
@@ -34,33 +49,33 @@ public class IntConfigOption extends ConfigOption<Integer, IntInputControl> {
   }
 
   public boolean canIncrement() {
-    if (options.step.isEmpty()) {
+    if (step.isEmpty()) {
       return false;
     }
 
-    return getValue() < options.maxValue.orElse(Integer.MAX_VALUE);
+    return getValue() < maxValue.orElse(Integer.MAX_VALUE);
   }
 
   public boolean canDecrement() {
-    if (options.step.isEmpty()) {
+    if (step.isEmpty()) {
       return false;
     }
 
-    return getValue() > options.minValue.orElse(Integer.MIN_VALUE);
+    return getValue() > minValue.orElse(Integer.MIN_VALUE);
   }
 
   public boolean showStepButtons() {
-    return options.step.isPresent();
+    return step.isPresent();
   }
 
   private boolean step(int mult) {
-    if (options.step.isEmpty()) {
+    if (step.isEmpty()) {
       return false;
     }
 
-    int newValue = MathHelper.clamp(getValue() + options.step.get() * mult,
-        options.minValue.orElse(Integer.MIN_VALUE),
-        options.maxValue.orElse(Integer.MAX_VALUE));
+    int newValue = MathHelper.clamp(getValue() + step.get() * mult,
+        minValue.orElse(Integer.MIN_VALUE),
+        maxValue.orElse(Integer.MAX_VALUE));
 
     if (newValue == getValue()) {
       return false;
@@ -71,83 +86,61 @@ public class IntConfigOption extends ConfigOption<Integer, IntInputControl> {
   }
 
   public boolean validateInput(int newValue) {
-    return options.validators.stream().allMatch((validator) -> {
+    return validators.stream().allMatch((validator) -> {
       return validator.apply(getValue(), newValue);
     });
   }
 
-  public static class Options {
+  public static Builder builder(String id, String labelI18nKey) {
+    return new Builder(id, labelI18nKey);
+  }
+
+  public static Builder builder(String id, Text label) {
+    return new Builder(id, label);
+  }
+
+  public static class Builder extends ConfigOption.Builder<Integer, IntInputControl> {
     private Optional<Integer> minValue = Optional.empty();
     private Optional<Integer> maxValue = Optional.empty();
     private Optional<Integer> step = Optional.of(1);
-    private List<Validator> validators = List.of();
+    private List<Validator> customValidators = new ArrayList<>();
 
-    private Options() {
+    private Builder(String id, String labelI18nKey) {
+      super(id, labelI18nKey, 0);
     }
 
-    private Options(Builder builder) {
-      minValue = builder.minValue;
-      maxValue = builder.maxValue;
-      step = builder.step;
-
-      List<Validator> allValidators = new ArrayList<>();
-      if (minValue.isPresent()) {
-        allValidators.add((int prev, int curr) -> curr >= minValue.get());
-      }
-      if (maxValue.isPresent()) {
-        allValidators.add((int prev, int curr) -> curr <= maxValue.get());
-      }
-      if (!builder.customValidators.isEmpty()) {
-        allValidators.addAll(builder.customValidators);
-      }
-      validators = List.copyOf(allValidators);
+    private Builder(String id, Text label) {
+      super(id, label, 0);
     }
 
-    public static Options getDefault() {
-      return builder().build();
+    public Builder setDefaultValue(Integer defaultValue) {
+      this.defaultValue = defaultValue;
+      return this;
     }
 
-    public static Builder builder() {
-      return new Builder();
+    public Builder setMinValue(int minValue) {
+      this.minValue = Optional.of(minValue);
+      return this;
     }
 
-    public Optional<Integer> getStep() {
-      return step;
+    public Builder setMaxValue(int maxValue) {
+      this.maxValue = Optional.of(maxValue);
+      return this;
     }
 
-    public List<Validator> getValidators() {
-      return validators;
+    public Builder setStep(int step) {
+      this.step = Optional.of(step);
+      return this;
     }
 
-    public final static class Builder {
-      private Optional<Integer> minValue = Optional.empty();
-      private Optional<Integer> maxValue = Optional.empty();
-      private Optional<Integer> step = Optional.of(1);
-      private List<Validator> customValidators = new ArrayList<>();
+    public Builder addCustomValidator(Validator validator) {
+      customValidators.add(validator);
+      return this;
+    }
 
-      public Builder setMinValue(int minValue) {
-        this.minValue = Optional.of(minValue);
-        return this;
-      }
-
-      public Builder setMaxValue(int maxValue) {
-        this.maxValue = Optional.of(maxValue);
-        return this;
-      }
-
-      public Builder setStep(int step) {
-        this.step = Optional.of(step);
-        return this;
-      }
-
-      public Builder addCustomValidator(Validator validator) {
-        customValidators.add(validator);
-        return this;
-      }
-
-      public Options build() {
-        return new Options(this);
-      }
+    @Override
+    public IntConfigOption build() {
+      return new IntConfigOption(this);
     }
   }
 

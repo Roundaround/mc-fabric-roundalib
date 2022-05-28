@@ -2,6 +2,7 @@ package me.roundaround.roundalib.config.option;
 
 import me.roundaround.roundalib.config.gui.OptionRow;
 import me.roundaround.roundalib.config.gui.control.ToggleControl;
+import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
@@ -9,27 +10,89 @@ public class BooleanConfigOption extends ConfigOption<Boolean, ToggleControl> {
   private final Text enabledLabel;
   private final Text disabledLabel;
 
-  // TODO: Make this a lot more user friendly. Use builder pattern, make
-  // shortcuts for prebuilt variants (enabled/disabled, on/off, yes/no, etc)
-
-  public BooleanConfigOption(String id, String labelI18nKey, Boolean defaultValue) {
-    this(id, labelI18nKey, defaultValue, "config.toggle.enabled", "config.toggle.disabled");
-  }
-
-  public BooleanConfigOption(String id, String labelI18nKey, Boolean defaultValue, String enabledI18nKey,
-      String disabledI18nKey) {
-    this(id, labelI18nKey, defaultValue, new TranslatableText(enabledI18nKey), new TranslatableText(disabledI18nKey));
-  }
-
-  public BooleanConfigOption(String id, String labelI18nKey, Boolean defaultValue, Text enabledLabel,
-      Text disabledLabel) {
-    super(id, labelI18nKey, defaultValue);
-    this.enabledLabel = enabledLabel;
-    this.disabledLabel = disabledLabel;
+  protected BooleanConfigOption(Builder builder) {
+    super(builder);
+    enabledLabel = builder.enabledLabel;
+    disabledLabel = builder.disabledLabel;
   }
 
   @Override
   public ToggleControl createControl(OptionRow parent, int top, int left, int height, int width) {
     return new ToggleControl(this, parent, top, left, height, width, enabledLabel, disabledLabel);
+  }
+
+  public static Builder builder(String id, String labelI18nKey) {
+    return new Builder(id, labelI18nKey);
+  }
+
+  public static Builder builder(String id, Text label) {
+    return new Builder(id, label);
+  }
+
+  public static Builder onOffBuilder(String id, String labelI18nKey) {
+    return new Builder(id, labelI18nKey)
+        .setEnabledLabel(ScreenTexts.ON)
+        .setDisabledLabel(ScreenTexts.OFF);
+  }
+
+  public static Builder onOffBuilder(String id, Text label) {
+    return new Builder(id, label)
+        .setEnabledLabel(ScreenTexts.ON)
+        .setDisabledLabel(ScreenTexts.OFF);
+  }
+
+  public static Builder yesNoBuilder(String id, String labelI18nKey) {
+    return new Builder(id, labelI18nKey)
+        .setEnabledLabel(ScreenTexts.YES)
+        .setDisabledLabel(ScreenTexts.NO);
+  }
+
+  public static Builder yesNoBuilder(String id, Text label) {
+    return new Builder(id, label)
+        .setEnabledLabel(ScreenTexts.YES)
+        .setDisabledLabel(ScreenTexts.NO);
+  }
+
+  public static class Builder extends ConfigOption.Builder<Boolean, ToggleControl> {
+    private Text enabledLabel = new TranslatableText("config.toggle.enabled");
+    private Text disabledLabel = new TranslatableText("config.toggle.disabled");
+
+    private Builder(String id, String labelI18nKey) {
+      super(id, labelI18nKey, true);
+    }
+
+    private Builder(String id, Text label) {
+      super(id, label, true);
+    }
+
+    public Builder setDefaultValue(Boolean defaultValue) {
+      this.defaultValue = defaultValue;
+      return this;
+    }
+
+    public Builder setEnabledLabel(String i18nKey) {
+      enabledLabel = new TranslatableText(i18nKey);
+      return this;
+    }
+
+    public Builder setEnabledLabel(Text label) {
+      enabledLabel = label;
+      return this;
+    }
+
+    public Builder setDisabledLabel(String i18nKey) {
+      disabledLabel = new TranslatableText(i18nKey);
+      return this;
+    }
+
+    public Builder setDisabledLabel(Text label) {
+      disabledLabel = label;
+      return this;
+    }
+
+    @Override
+    public BooleanConfigOption build() {
+      return new BooleanConfigOption(this);
+    }
   }
 }

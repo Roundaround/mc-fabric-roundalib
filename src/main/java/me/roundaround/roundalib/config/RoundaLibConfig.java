@@ -11,37 +11,33 @@ import me.roundaround.roundalib.config.option.IntConfigOption;
 import me.roundaround.roundalib.config.option.OptionListConfigOption;
 import me.roundaround.roundalib.config.option.StringConfigOption;
 import me.roundaround.roundalib.config.value.GuiAlignment;
-import net.minecraft.client.gui.screen.ScreenTexts;
 
 public class RoundaLibConfig extends ModConfig {
-  public static final OptionListConfigOption<GuiAlignment> GUI_ALIGNMENT = new OptionListConfigOption<>("guiAlignment",
+  public static final OptionListConfigOption<GuiAlignment> GUI_ALIGNMENT = OptionListConfigOption.defaultInstance(
+      "guiAlignment",
       "config.gui_alignment", GuiAlignment.TOP_LEFT);
 
-  public static final IntConfigOption SOME_INTEGER = new IntConfigOption("someInteger", "config.some_integer", 5);
-  public static final IntConfigOption STEP_BY_TWO = new IntConfigOption("stepByTwo", "config.step_by_two", 10,
-      IntConfigOption.Options.builder().setStep(2).build());
-  public static final IntConfigOption WITHIN_ONE_HUNDRED = new IntConfigOption("withinOneHundred",
-      "config.within_one_hundred", 10,
-      IntConfigOption.Options.builder().setMinValue(-100).setMaxValue(100).build());
-  public static final IntConfigOption WITHIN_ONE_HUNDRED_BIG_STEP = new IntConfigOption("withinOneHundredBigStep",
-      "config.within_one_hundred_big_step", 10,
-      IntConfigOption.Options.builder().setMinValue(-100).setMaxValue(100).setStep(33).build());
+  public static final IntConfigOption SOME_INTEGER = IntConfigOption.builder("someInteger", "config.some_integer")
+      .setDefaultValue(5).build();
+  public static final IntConfigOption STEP_BY_TWO = IntConfigOption.builder("stepByTwo", "config.step_by_two")
+      .setDefaultValue(10).setStep(2).build();
+  public static final IntConfigOption WITHIN_ONE_HUNDRED = IntConfigOption.builder("withinOneHundred",
+      "config.within_one_hundred").setDefaultValue(10).setMinValue(-100).setMaxValue(100).build();
+  public static final IntConfigOption WITHIN_ONE_HUNDRED_BIG_STEP = IntConfigOption.builder("withinOneHundredBigStep",
+      "config.within_one_hundred_big_step").setDefaultValue(10).setMinValue(-100).setMaxValue(100).setStep(33).build();
 
-  public static final StringConfigOption PLAIN_STRING = new StringConfigOption("plainString", "config.plain_string",
-      "Roundalib");
-  public static final StringConfigOption RESTRICTED_LENGTH = new StringConfigOption("restrictedLength",
-      "config.restricted_length", "3 to 6",
-      StringConfigOption.Options.builder().setMinLength(3).setMaxLength(6).build());
-  public static final StringConfigOption REGEX = new StringConfigOption("regex",
-      "config.regex", "alpha_numeric",
-      StringConfigOption.Options.builder().setRegex(Pattern.compile("^[a-zA-Z0-9_]")).build());
+  public static final StringConfigOption PLAIN_STRING = StringConfigOption.defaultInstance("plainString",
+      "config.plain_string", "Roundalib");
+  public static final StringConfigOption RESTRICTED_LENGTH = StringConfigOption.builder("restrictedLength",
+      "config.restricted_length").setDefaultValue("3 to 6").setMinLength(3).setMaxLength(6).build();
+  public static final StringConfigOption REGEX = StringConfigOption.builder("regex",
+      "config.regex").setDefaultValue("alpha_numeric").setRegex(Pattern.compile("^[a-zA-Z0-9_]")).build();
 
-  public static final BooleanConfigOption BASIC_TOGGLE = new BooleanConfigOption("basicToggle", "config.basic_toggle",
-      true);
-  public static final BooleanConfigOption DEFAULT_FALSE = new BooleanConfigOption("defaultFalse",
-      "config.default_false", false);
-  public static final BooleanConfigOption ON_OFF = new BooleanConfigOption("onOff", "config.on_off", true,
-      ScreenTexts.ON, ScreenTexts.OFF);
+  public static final BooleanConfigOption BASIC_TOGGLE = BooleanConfigOption
+      .builder("basicToggle", "config.basic_toggle").build();
+  public static final BooleanConfigOption DEFAULT_FALSE = BooleanConfigOption
+      .builder("defaultFalse", "config.default_false").setDefaultValue(false).build();
+  public static final BooleanConfigOption ON_OFF = BooleanConfigOption.onOffBuilder("onOff", "config.on_off").build();
 
   private static final ImmutableList<ConfigOption<?, ?>> ALL_CONFIG_OPTIONS = ImmutableList.of(
       GUI_ALIGNMENT,

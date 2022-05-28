@@ -12,17 +12,17 @@ import net.minecraft.text.TranslatableText;
 
 public abstract class ConfigOption<D, C extends Widget & Control<?>> {
   private final String id;
-  private final String labelI18nKey;
+  private final Text label;
   private final D defaultValue;
   private final Queue<BiConsumer<D, D>> valueChangeListeners = new LinkedList<>();
 
   private D value;
   private D lastSavedValue;
 
-  public ConfigOption(String id, String labelI18nKey, D defaultValue) {
-    this.id = id;
-    this.labelI18nKey = labelI18nKey;
-    this.defaultValue = defaultValue;
+  protected ConfigOption(Builder<D, C> builder) {
+    id = builder.id;
+    label = builder.label;
+    defaultValue = builder.defaultValue;
     value = defaultValue;
   }
 
@@ -31,7 +31,7 @@ public abstract class ConfigOption<D, C extends Widget & Control<?>> {
   }
 
   public Text getLabel() {
-    return new TranslatableText(labelI18nKey);
+    return label;
   }
 
   public D getValue() {
@@ -80,4 +80,22 @@ public abstract class ConfigOption<D, C extends Widget & Control<?>> {
   }
 
   protected abstract C createControl(OptionRow parent, int top, int left, int height, int width);
+
+  public static abstract class Builder<D2, C2 extends Widget & Control<?>> {
+    protected String id;
+    protected Text label;
+    protected D2 defaultValue;
+
+    protected Builder(String id, String labelI18nKey, D2 defaultValue) {
+      this(id, new TranslatableText(labelI18nKey), defaultValue);
+    }
+    
+    protected Builder(String id, Text label, D2 defaultValue) {
+      this.id = id;
+      this.label = label;
+      this.defaultValue = defaultValue;
+    }
+
+    public abstract ConfigOption<D2, C2> build();
+  }
 }
