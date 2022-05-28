@@ -15,16 +15,6 @@ public final class RoundaLibMod implements ModInitializer {
 
   @Override
   public void onInitialize() {
-    System.out.println("INITIALIZING ROUNDALIB");
-    System.out.println("INITIALIZING ROUNDALIB");
-    System.out.println("INITIALIZING ROUNDALIB");
-    System.out.println("INITIALIZING ROUNDALIB");
-    System.out.println("INITIALIZING ROUNDALIB");
-    System.out.println("INITIALIZING ROUNDALIB");
-    System.out.println("INITIALIZING ROUNDALIB");
-    System.out.println("INITIALIZING ROUNDALIB");
-    System.out.println("INITIALIZING ROUNDALIB");
-    System.out.println("INITIALIZING ROUNDALIB");
     CONFIG.init();
   }
 }
