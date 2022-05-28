@@ -1,6 +1,7 @@
 plugins {
 	id 'fabric-loom' version '0.9-SNAPSHOT'
 	id 'maven-publish'
+  id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 
 sourceCompatibility = JavaVersion.VERSION_16
@@ -29,6 +30,9 @@ dependencies {
 	// ModMenu integration
 	modCompileOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
 	modRuntime "com.terraformersmc:modmenu:${project.mod_menu_version}"
+
+  shadow "com.electronwill.night-config:core:3.6.5"
+  shadow "com.electronwill.night-config:toml:3.6.5"
 }
 
 processResources {

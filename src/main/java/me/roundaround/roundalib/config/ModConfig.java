@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.electronwill.nightconfig.core.file.CommentedFileConfig;
+import com.electronwill.nightconfig.core.file.FileConfig;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -39,6 +41,13 @@ public abstract class ModConfig {
 
   public void loadFromFile() {
     // TODO: Migrate to TOML: https://github.com/TheElectronWill/Night-Config
+    CommentedFileConfig fileConfig = CommentedFileConfig.builder(this.getConfigFile(".toml")).concurrent().autosave().build();
+    fileConfig.load();
+
+    this.configOptions.values().forEach((configOption) -> {
+      RoundaLibMod.LOGGER.info(String.format("%s: %s", configOption.getId(), fileConfig.get(configOption.getId())));
+    });
+
     JsonElement element = JsonUtil.parseJsonFile(this.getConfigFile());
 
     if (element != null && element.isJsonObject()) {
@@ -59,6 +68,13 @@ public abstract class ModConfig {
       RoundaLibMod.LOGGER.info("Skipping saving config to file because nothing has changed.");
       return true;
     }
+    
+    CommentedFileConfig fileConfig = CommentedFileConfig.builder(this.getConfigFile(".toml")).concurrent().autosave().build();
+    this.configOptions.values().forEach((configOption) -> {
+      fileConfig.setComment(configOption.getId(), configOption.getLabel().getString());
+      fileConfig.set(configOption.getId(), configOption.getValue());
+    });
+    fileConfig.save();
 
     JsonObject root = new JsonObject();
     root.add("config_version", new JsonPrimitive(this.modInfo.getConfigVersion()));
@@ -78,12 +94,16 @@ public abstract class ModConfig {
     return dir;
   }
 
-  public String getConfigFileName() {
-    return this.modInfo.getModId() + ".json";
+  public String getConfigFileName(String extension) {
+    return this.modInfo.getModId() + extension;
   }
 
   public File getConfigFile() {
-    return new File(this.getConfigDirectory(), this.getConfigFileName());
+    return getConfigFile(".json");
+  }
+
+  public File getConfigFile(String extension) {
+    return new File(this.getConfigDirectory(), this.getConfigFileName(extension));
   }
 
   public ModInfo getModInfo() {
