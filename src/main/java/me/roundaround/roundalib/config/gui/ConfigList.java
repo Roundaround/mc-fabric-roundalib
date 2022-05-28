@@ -2,6 +2,7 @@ package me.roundaround.roundalib.config.gui;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -242,9 +243,12 @@ public class ConfigList extends AbstractWidget<ConfigScreen> implements Scrollab
         .orElse(optionRows.get(optionRows.size() - 1)).index + amount;
     desiredIndex = Math.min(Math.max(0, desiredIndex), optionRows.size() - 1);
 
-    // TODO: Make this determined by the control (i.e. getPrimarySelectableElement)
-    SelectableElement desiredFocus = optionRows.get(desiredIndex).control.getSelectableElements().get(0);
-    getConfigScreen().setFocused(desiredFocus);
+    Optional<SelectableElement> desiredFocus = optionRows.get(desiredIndex).control.getPrimarySelectableElement();
+    if (desiredFocus.isEmpty()) {
+      return false;
+    }
+
+    getConfigScreen().setFocused(desiredFocus.get());
     return true;
   }
 
