@@ -54,11 +54,11 @@ public abstract class ConfigOption<D, C extends Widget & Control<?>> {
   public void setValue(D value) {
     D prev = this.value;
     this.value = value;
-    valueChangeListeners.forEach((listener) -> listener.accept(prev, this.value));
+    valueChangeListeners.forEach((listener) -> listener.accept(prev, value));
   }
 
   public void resetToDefault() {
-    this.setValue(this.defaultValue);
+    setValue(defaultValue);
   }
 
   public void markValueAsSaved() {
