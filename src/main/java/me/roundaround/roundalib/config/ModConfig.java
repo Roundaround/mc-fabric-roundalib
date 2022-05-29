@@ -29,7 +29,6 @@ public abstract class ModConfig {
   }
 
   public void loadFromFile() {
-    // TODO: Figure out best fileConfig usage
     CommentedFileConfig fileConfig = CommentedFileConfig
         .builder(getConfigFile())
         .preserveInsertionOrder()
