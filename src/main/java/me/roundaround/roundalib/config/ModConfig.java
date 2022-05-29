@@ -1,10 +1,7 @@
 package me.roundaround.roundalib.config;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.google.common.collect.ImmutableList;
@@ -17,35 +14,34 @@ import net.minecraft.text.Text;
 
 public abstract class ModConfig {
   private final ModInfo modInfo;
-  private final HashMap<String, ConfigOption<?, ?>> configOptions = new HashMap<>();
+  private final ImmutableList<ConfigOption<?, ?>> configOptions;
 
   private int previousConfigVersion;
 
-  protected ModConfig(ModInfo modInfo) {
+  protected ModConfig(ModInfo modInfo, ImmutableList<ConfigOption<?, ?>> configOptions) {
     this.modInfo = modInfo;
-
-    this.configOptions.putAll(
-        this.getConfigOptions().stream()
-            .collect(Collectors.toMap(ConfigOption::getId, Function.identity())));
+    this.configOptions = configOptions;
   }
 
-  public abstract ImmutableList<ConfigOption<?, ?>> getConfigOptions();
-
   public void init() {
-    this.loadFromFile();
-    this.saveToFile();
+    loadFromFile();
+    saveToFile();
   }
 
   public void loadFromFile() {
     // TODO: Figure out best fileConfig usage
-    CommentedFileConfig fileConfig = CommentedFileConfig.builder(this.getConfigFile()).concurrent().build();
+    CommentedFileConfig fileConfig = CommentedFileConfig
+        .builder(getConfigFile())
+        .preserveInsertionOrder()
+        .build();
+
     fileConfig.load();
     fileConfig.close();
 
     previousConfigVersion = fileConfig.getIntOrElse("configVersion", 1);
     // TODO: Upgrade versions as necessary.
 
-    this.configOptions.values().forEach((configOption) -> {
+    configOptions.forEach((configOption) -> {
       Object data = fileConfig.get(configOption.getId());
       if (data != null) {
         configOption.deserialize(data);
@@ -54,17 +50,22 @@ public abstract class ModConfig {
   }
 
   public void saveToFile() {
-    if (previousConfigVersion == this.modInfo.getConfigVersion()
-        && this.configOptions.values().stream().noneMatch(ConfigOption::isDirty)) {
+    if (previousConfigVersion == modInfo.getConfigVersion()
+        && configOptions.stream().noneMatch(ConfigOption::isDirty)) {
       RoundaLibMod.LOGGER.info("Skipping saving config to file because nothing has changed.");
       return;
     }
 
-    CommentedFileConfig fileConfig = CommentedFileConfig.builder(this.getConfigFile()).concurrent().build();
+    // TODO: Write own TOML file parsing/editing/saving so that we can make the
+    // files prettier :)
+    CommentedFileConfig fileConfig = CommentedFileConfig
+        .builder(getConfigFile())
+        .preserveInsertionOrder()
+        .build();
 
     fileConfig.set("configVersion", modInfo.getConfigVersion());
 
-    this.configOptions.values().forEach((configOption) -> {
+    configOptions.forEach((configOption) -> {
       Optional<Text> comment = configOption.getComment().isPresent() ? configOption.getComment()
           : (configOption.getUseLabelAsCommentFallback() ? Optional.of(configOption.getLabel()) : Optional.empty());
       if (comment.isPresent()) {
@@ -88,14 +89,18 @@ public abstract class ModConfig {
   }
 
   public String getConfigFileName() {
-    return this.modInfo.getModId() + ".toml";
+    return modInfo.getModId() + ".toml";
   }
 
   public File getConfigFile() {
-    return new File(this.getConfigDirectory(), this.getConfigFileName());
+    return new File(getConfigDirectory(), getConfigFileName());
   }
 
   public ModInfo getModInfo() {
-    return this.modInfo;
+    return modInfo;
+  }
+
+  public ImmutableList<ConfigOption<?, ?>> getConfigOptions() {
+    return configOptions;
   }
 }

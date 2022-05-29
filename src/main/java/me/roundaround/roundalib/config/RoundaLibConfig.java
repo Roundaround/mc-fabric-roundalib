@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 
 import me.roundaround.roundalib.RoundaLibMod;
 import me.roundaround.roundalib.config.option.BooleanConfigOption;
-import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.option.IntConfigOption;
 import me.roundaround.roundalib.config.option.OptionListConfigOption;
 import me.roundaround.roundalib.config.option.StringConfigOption;
@@ -51,30 +50,23 @@ public class RoundaLibConfig extends ModConfig {
   public static final StringConfigOption GROUP_ITEM_4 = StringConfigOption.defaultInstance("group.item4",
       "config.group.item4", "Item 4");
 
-  private static final ImmutableList<ConfigOption<?, ?>> ALL_CONFIG_OPTIONS = ImmutableList.of(
-      GUI_ALIGNMENT,
-      SOME_INTEGER,
-      STEP_BY_TWO,
-      WITHIN_ONE_HUNDRED,
-      WITHIN_ONE_HUNDRED_BIG_STEP,
-      PLAIN_STRING,
-      RESTRICTED_LENGTH,
-      REGEX,
-      WITH_COMMENT,
-      BASIC_TOGGLE,
-      DEFAULT_FALSE,
-      ON_OFF,
-      GROUP_ITEM_1,
-      GROUP_ITEM_2,
-      GROUP_ITEM_3,
-      GROUP_ITEM_4);
-
   public RoundaLibConfig() {
-    super(RoundaLibMod.MOD_INFO);
-  }
-
-  @Override
-  public ImmutableList<ConfigOption<?, ?>> getConfigOptions() {
-    return ALL_CONFIG_OPTIONS;
+    super(RoundaLibMod.MOD_INFO, ImmutableList.of(
+        GUI_ALIGNMENT,
+        SOME_INTEGER,
+        STEP_BY_TWO,
+        WITHIN_ONE_HUNDRED,
+        WITHIN_ONE_HUNDRED_BIG_STEP,
+        PLAIN_STRING,
+        RESTRICTED_LENGTH,
+        REGEX,
+        WITH_COMMENT,
+        BASIC_TOGGLE,
+        DEFAULT_FALSE,
+        ON_OFF,
+        GROUP_ITEM_1,
+        GROUP_ITEM_2,
+        GROUP_ITEM_3,
+        GROUP_ITEM_4));
   }
 }
