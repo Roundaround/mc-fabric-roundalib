@@ -1,6 +1,6 @@
 package me.roundaround.roundalib.config.gui.control;
 
-import me.roundaround.roundalib.config.gui.OptionRow;
+import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import me.roundaround.roundalib.config.option.OptionListConfigOption;
 import me.roundaround.roundalib.config.value.ListOptionValue;
 import net.minecraft.text.Text;
@@ -9,7 +9,7 @@ import net.minecraft.text.TranslatableText;
 public class OptionListControl<T extends ListOptionValue<T>> extends ButtonControl<OptionListConfigOption<T>> {
   private Text cachedText;
 
-  public OptionListControl(OptionListConfigOption<T> configOption, OptionRow parent, int top, int left, int height, int width) {
+  public OptionListControl(OptionListConfigOption<T> configOption, OptionRowWidget parent, int top, int left, int height, int width) {
     super(configOption, parent, top, left, height, width);
   }
 

@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import me.roundaround.roundalib.config.gui.OptionRow;
 import me.roundaround.roundalib.config.gui.control.TextInputControl;
+import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
@@ -40,7 +40,7 @@ public class StringConfigOption extends ConfigOption<String, TextInputControl> {
   }
 
   @Override
-  public TextInputControl createControl(OptionRow parent, int top, int left, int height, int width) {
+  public TextInputControl createControl(OptionRowWidget parent, int top, int left, int height, int width) {
     return new TextInputControl(this, parent, top, left, height, width);
   }
 

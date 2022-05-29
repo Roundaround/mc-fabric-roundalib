@@ -5,8 +5,8 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.function.BiConsumer;
 
-import me.roundaround.roundalib.config.gui.OptionRow;
 import me.roundaround.roundalib.config.gui.control.Control;
+import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import me.roundaround.roundalib.config.gui.widget.Widget;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
@@ -81,7 +81,7 @@ public abstract class ConfigOption<D, C extends Widget & Control<?>> {
     return value;
   }
 
-  public final C createAndInitializeControl(OptionRow parent, int top, int left, int height, int width) {
+  public final C createAndInitializeControl(OptionRowWidget parent, int top, int left, int height, int width) {
     C control = createControl(parent, top, left, height, width);
     control.init();
 
@@ -92,7 +92,7 @@ public abstract class ConfigOption<D, C extends Widget & Control<?>> {
     this.valueChangeListeners.add(listener);
   }
 
-  protected abstract C createControl(OptionRow parent, int top, int left, int height, int width);
+  protected abstract C createControl(OptionRowWidget parent, int top, int left, int height, int width);
 
   public static abstract class Builder<D2, C2 extends Widget & Control<?>> {
     protected String id;

@@ -1,18 +1,18 @@
 package me.roundaround.roundalib.config.gui.control;
 
-import me.roundaround.roundalib.config.gui.AbstractClickableWidget;
-import me.roundaround.roundalib.config.gui.ConfigList;
 import me.roundaround.roundalib.config.gui.ConfigScreen;
-import me.roundaround.roundalib.config.gui.OptionRow;
+import me.roundaround.roundalib.config.gui.widget.AbstractClickableWidget;
+import me.roundaround.roundalib.config.gui.widget.ConfigListWidget;
+import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import me.roundaround.roundalib.config.option.ConfigOption;
 
 public abstract class AbstractClickableControlWidget<O extends ConfigOption<?, ?>>
-    extends AbstractClickableWidget<OptionRow>
+    extends AbstractClickableWidget<OptionRowWidget>
     implements Control<O> {
   protected O configOption;
   protected boolean valid = true;
 
-  protected AbstractClickableControlWidget(O configOption, OptionRow parent, int top, int left, int height, int width) {
+  protected AbstractClickableControlWidget(O configOption, OptionRowWidget parent, int top, int left, int height, int width) {
     super(parent, top, left, height, width);
     this.configOption = configOption;
   }
@@ -39,11 +39,11 @@ public abstract class AbstractClickableControlWidget<O extends ConfigOption<?, ?
     return valid;
   }
 
-  public OptionRow getOptionRow() {
+  public OptionRowWidget getOptionRow() {
     return getParent();
   }
 
-  public ConfigList getConfigList() {
+  public ConfigListWidget getConfigList() {
     return getOptionRow().getConfigList();
   }
 

@@ -5,7 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import org.lwjgl.glfw.GLFW;
 
-import me.roundaround.roundalib.config.gui.OptionRow;
+import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
@@ -24,7 +24,7 @@ public abstract class ButtonControl<O extends ConfigOption<?, ?>> extends Abstra
 
   private boolean isActive = true;
 
-  protected ButtonControl(O configOption, OptionRow parent, int top, int left, int height, int width) {
+  protected ButtonControl(O configOption, OptionRowWidget parent, int top, int left, int height, int width) {
     super(configOption, parent, top, left, height, width);
   }
 

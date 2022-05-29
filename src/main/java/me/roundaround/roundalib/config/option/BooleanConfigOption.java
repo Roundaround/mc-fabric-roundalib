@@ -2,8 +2,8 @@ package me.roundaround.roundalib.config.option;
 
 import java.util.Optional;
 
-import me.roundaround.roundalib.config.gui.OptionRow;
 import me.roundaround.roundalib.config.gui.control.ToggleControl;
+import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
@@ -19,7 +19,7 @@ public class BooleanConfigOption extends ConfigOption<Boolean, ToggleControl> {
   }
 
   @Override
-  public ToggleControl createControl(OptionRow parent, int top, int left, int height, int width) {
+  public ToggleControl createControl(OptionRowWidget parent, int top, int left, int height, int width) {
     return new ToggleControl(this, parent, top, left, height, width, enabledLabel, disabledLabel);
   }
 

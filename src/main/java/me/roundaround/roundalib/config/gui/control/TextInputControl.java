@@ -2,8 +2,8 @@ package me.roundaround.roundalib.config.gui.control;
 
 import java.util.List;
 
-import me.roundaround.roundalib.config.gui.OptionRow;
 import me.roundaround.roundalib.config.gui.SelectableElement;
+import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import me.roundaround.roundalib.config.gui.widget.TextFieldWidget;
 import me.roundaround.roundalib.config.option.StringConfigOption;
 import net.minecraft.client.util.math.MatrixStack;
@@ -13,7 +13,7 @@ public class TextInputControl extends AbstractControlWidget<StringConfigOption> 
 
   public TextInputControl(
       StringConfigOption configOption,
-      OptionRow parent,
+      OptionRowWidget parent,
       int top,
       int left,
       int height,

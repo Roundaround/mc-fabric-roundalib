@@ -7,8 +7,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import org.lwjgl.glfw.GLFW;
 
-import me.roundaround.roundalib.config.gui.AbstractClickableWidget;
-import me.roundaround.roundalib.config.gui.OptionRow;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.render.GameRenderer;
@@ -20,13 +18,13 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
-public class ResetButtonWidget extends AbstractClickableWidget<OptionRow> {
+public class ResetButtonWidget extends AbstractClickableWidget<OptionRowWidget> {
   public static final int HEIGHT = 12;
   public static final int WIDTH = 12;
   protected static final Identifier TEXTURE = new Identifier("roundalib", "textures/gui.png");
   protected static final TranslatableText TOOLTIP = new TranslatableText("config.reset.tooltip");
 
-  public ResetButtonWidget(OptionRow parent, int top, int left) {
+  public ResetButtonWidget(OptionRowWidget parent, int top, int left) {
     super(parent, top, left, HEIGHT, WIDTH);
   }
 

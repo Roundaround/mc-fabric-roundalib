@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import me.roundaround.roundalib.config.gui.OptionRow;
 import me.roundaround.roundalib.config.gui.control.IntInputControl;
+import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
@@ -37,7 +37,7 @@ public class IntConfigOption extends ConfigOption<Integer, IntInputControl> {
   }
 
   @Override
-  public IntInputControl createControl(OptionRow parent, int top, int left, int height, int width) {
+  public IntInputControl createControl(OptionRowWidget parent, int top, int left, int height, int width) {
     return new IntInputControl(this, parent, top, left, height, width);
   }
 

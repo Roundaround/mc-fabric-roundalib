@@ -1,7 +1,8 @@
-package me.roundaround.roundalib.config.gui;
+package me.roundaround.roundalib.config.gui.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import me.roundaround.roundalib.config.gui.Scrollable;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.Tessellator;
@@ -10,14 +11,14 @@ import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.MathHelper;
 
-public class Scrollbar extends AbstractWidget<Scrollable> {
+public class ScrollbarWidget extends AbstractWidget<Scrollable> {
   private final double scrollSpeed;
 
   private boolean scrolling;
   private double scrollAmount;
   private int maxPosition;
 
-  public Scrollbar(
+  public ScrollbarWidget(
       Scrollable parent, double scrollSpeed, int top, int left, int height, int width) {
     super(parent, top, left, height, width);
     this.scrollSpeed = scrollSpeed;

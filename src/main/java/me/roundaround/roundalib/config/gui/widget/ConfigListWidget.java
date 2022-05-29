@@ -1,4 +1,4 @@
-package me.roundaround.roundalib.config.gui;
+package me.roundaround.roundalib.config.gui.widget;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +10,9 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import me.roundaround.roundalib.config.gui.ConfigScreen;
+import me.roundaround.roundalib.config.gui.Scrollable;
+import me.roundaround.roundalib.config.gui.SelectableElement;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -24,7 +27,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 
 @Environment(EnvType.CLIENT)
-public class ConfigList extends AbstractWidget<ConfigScreen> implements Scrollable {
+public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Scrollable {
   private static final int SCROLLBAR_WIDTH = 6;
   private static final int PADDING_X = 4;
   private static final int PADDING_Y = 4;
@@ -32,15 +35,15 @@ public class ConfigList extends AbstractWidget<ConfigScreen> implements Scrollab
 
   public final ConfigScreen parent;
 
-  private final Scrollbar scrollbar;
-  private final List<OptionRow> optionRows = new ArrayList<>();
+  private final ScrollbarWidget scrollbar;
+  private final List<OptionRowWidget> optionRows = new ArrayList<>();
   private final int elementStartX;
   private final int elementStartY;
   private final int elementWidth;
   private final int elementHeight;
   private double scrollAmount = 0;
 
-  public ConfigList(ConfigScreen parent, int top, int left, int height, int width) {
+  public ConfigListWidget(ConfigScreen parent, int top, int left, int height, int width) {
     super(parent, top, left, height, width);
     this.parent = parent;
 
@@ -48,9 +51,9 @@ public class ConfigList extends AbstractWidget<ConfigScreen> implements Scrollab
     elementStartY = top + PADDING_Y;
 
     elementWidth = width - (2 * PADDING_X) - SCROLLBAR_WIDTH;
-    elementHeight = OptionRow.HEIGHT;
+    elementHeight = OptionRowWidget.HEIGHT;
 
-    scrollbar = new Scrollbar(
+    scrollbar = new ScrollbarWidget(
         this,
         (elementHeight + ROW_PADDING) / 2d,
         top,
@@ -63,11 +66,12 @@ public class ConfigList extends AbstractWidget<ConfigScreen> implements Scrollab
   public void init() {
     optionRows.clear();
 
-    ImmutableList<ConfigOption<?, ?>> configOptions = parent.getModConfig().getConfigOptions();
+    // TODO: Consider showing groups in config list
+    ImmutableList<ConfigOption<?, ?>> configOptions = parent.getModConfig().getConfigOptionsAsFlatList();
     IntStream.range(0, configOptions.size())
         .forEach(
             idx -> optionRows.add(
-                new OptionRow(
+                new OptionRowWidget(
                     this,
                     idx,
                     configOptions.get(idx),
@@ -203,13 +207,13 @@ public class ConfigList extends AbstractWidget<ConfigScreen> implements Scrollab
 
   @Override
   public void tick() {
-    optionRows.forEach(OptionRow::tick);
+    optionRows.forEach(OptionRowWidget::tick);
   }
 
   @Override
   public List<SelectableElement> getSelectableElements() {
     return optionRows.stream()
-        .map(OptionRow::getSelectableElements)
+        .map(OptionRowWidget::getSelectableElements)
         .flatMap(List::stream)
         .collect(Collectors.toList());
   }
@@ -220,7 +224,7 @@ public class ConfigList extends AbstractWidget<ConfigScreen> implements Scrollab
         .forEach(this::ensureVisible);
   }
 
-  public void ensureVisible(OptionRow optionRow) {
+  public void ensureVisible(OptionRowWidget optionRow) {
     int rowTop = optionRow.getTop() - PADDING_Y - 1;
     if (rowTop < top) {
       scroll(rowTop - top);

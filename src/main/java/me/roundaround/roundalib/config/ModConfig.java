@@ -7,6 +7,7 @@ import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 import me.roundaround.roundalib.RoundaLibMod;
 import me.roundaround.roundalib.config.option.ConfigOption;
@@ -24,7 +25,7 @@ import net.minecraft.util.Identifier;
 
 public abstract class ModConfig {
   private final ModInfo modInfo;
-  private final ImmutableList<ConfigOption<?, ?>> configOptions;
+  private final ImmutableMap<String, ImmutableList<ConfigOption<?, ?>>> configOptions;
   private final IdentifiableResourceReloadListener reloadListener = new SimpleSynchronousResourceReloadListener() {
     @Override
     public Identifier getFabricId() {
@@ -39,9 +40,10 @@ public abstract class ModConfig {
 
   private int version;
 
+  // TODO: Make `ConfigGroup extends ImmutableMap<String, ImmutableList<>>`
   protected ModConfig(ModInfo modInfo, ImmutableList<ConfigOption<?, ?>> configOptions) {
     this.modInfo = modInfo;
-    this.configOptions = configOptions;
+    this.configOptions = ImmutableMap.of(modInfo.getModId(), configOptions);
   }
 
   protected boolean updateConfigVersion(int version, Config config) {
@@ -64,8 +66,15 @@ public abstract class ModConfig {
     return modInfo;
   }
 
-  public ImmutableList<ConfigOption<?, ?>> getConfigOptions() {
+  public ImmutableMap<String, ImmutableList<ConfigOption<?, ?>>> getConfigOptions() {
     return configOptions;
+  }
+
+  public ImmutableList<ConfigOption<?, ?>> getConfigOptionsAsFlatList() {
+    return configOptions.values()
+        .stream()
+        .flatMap(ImmutableList<ConfigOption<?, ?>>::stream)
+        .collect(ImmutableList.toImmutableList());
   }
 
   public void loadFromFile() {
@@ -77,23 +86,25 @@ public abstract class ModConfig {
     fileConfig.load();
     fileConfig.close();
 
-    version = fileConfig.getIntOrElse("configVersion", 1);
+    version = fileConfig.getIntOrElse("configVersion", -1);
     CommentedConfig config = CommentedConfig.copy(fileConfig);
     if (updateConfigVersion(version, config)) {
       fileConfig.putAll(config);
     }
 
-    configOptions.forEach((configOption) -> {
-      Object data = fileConfig.get(configOption.getId());
-      if (data != null) {
-        configOption.deserialize(data);
-      }
+    configOptions.entrySet().forEach((entry) -> {
+      entry.getValue().forEach((configOption) -> {
+        String key = entry.getKey() + "." + configOption.getId();
+        Object data = fileConfig.get(key);
+        if (data != null) {
+          configOption.deserialize(data);
+        }
+      });
     });
   }
 
   public void saveToFile() {
-    if (version == modInfo.getConfigVersion()
-        && configOptions.stream().noneMatch(ConfigOption::isDirty)) {
+    if (version == modInfo.getConfigVersion() && !isDirty()) {
       RoundaLibMod.LOGGER.info("Skipping saving config to file because nothing has changed.");
       return;
     }
@@ -108,13 +119,22 @@ public abstract class ModConfig {
     fileConfig.setComment("configVersion", new TranslatableText("config.version_comment").getString());
     fileConfig.set("configVersion", modInfo.getConfigVersion());
 
-    configOptions.forEach((configOption) -> {
-      Optional<Text> comment = configOption.getComment().isPresent() ? configOption.getComment()
-          : (configOption.getUseLabelAsCommentFallback() ? Optional.of(configOption.getLabel()) : Optional.empty());
-      if (comment.isPresent()) {
-        fileConfig.setComment(configOption.getId(), comment.get().getString());
-      }
-      fileConfig.set(configOption.getId(), configOption.getValue());
+    configOptions.entrySet().forEach((entry) -> {
+      entry.getValue().forEach((configOption) -> {
+        String key = entry.getKey() + "." + configOption.getId();
+
+        Optional<Text> comment = Optional.empty();
+        if (configOption.getComment().isPresent()) {
+          comment = configOption.getComment();
+        } else if (configOption.getUseLabelAsCommentFallback()) {
+          comment = Optional.of(configOption.getLabel());
+        }
+
+        if (comment.isPresent()) {
+          fileConfig.setComment(key, comment.get().getString());
+        }
+        fileConfig.set(key, configOption.getValue());
+      });
     });
 
     fileConfig.save();
@@ -133,5 +153,11 @@ public abstract class ModConfig {
 
   private File getConfigFile() {
     return new File(getConfigDirectory(), modInfo.getModId() + ".toml");
+  }
+
+  private boolean isDirty() {
+    return configOptions.values().stream().anyMatch((group) -> {
+      return group.stream().anyMatch(ConfigOption::isDirty);
+    });
   }
 }

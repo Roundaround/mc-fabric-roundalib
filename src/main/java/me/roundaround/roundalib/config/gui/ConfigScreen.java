@@ -13,6 +13,8 @@ import org.lwjgl.glfw.GLFW;
 
 import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.gui.widget.ButtonWidget;
+import me.roundaround.roundalib.config.gui.widget.ConfigListWidget;
+import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -42,9 +44,9 @@ public class ConfigScreen extends Screen {
   private final Screen parent;
   private final ModConfig modConfig;
   private final List<SelectableElement> selectableElements = new ArrayList<>();
-  private final Set<OptionRow> invalidRows = new HashSet<>(); 
+  private final Set<OptionRowWidget> invalidRows = new HashSet<>(); 
 
-  private ConfigList listWidget;
+  private ConfigListWidget listWidget;
   private ButtonWidget doneButton;
   private Optional<SelectableElement> focused = Optional.empty();
 
@@ -61,7 +63,7 @@ public class ConfigScreen extends Screen {
     int listWidth = (int) Math.max(LIST_MIN_WIDTH, width / 1.5f);
     int listLeft = (int) ((width / 2f) - (listWidth / 2f));
     int listHeight = height - HEADER_HEIGHT - FOOTER_HEIGHT;
-    listWidget = new ConfigList(this, HEADER_HEIGHT, listLeft, listHeight, listWidth);
+    listWidget = new ConfigListWidget(this, HEADER_HEIGHT, listLeft, listHeight, listWidth);
     listWidget.init();
 
     int doneButtonLeft = (int) (width / 2f - DONE_BUTTON_WIDTH / 2f);
@@ -270,12 +272,12 @@ public class ConfigScreen extends Screen {
     listWidget.onSetFocused(newFocused);
   }
 
-  public void markInvalid(OptionRow optionRow) {
+  public void markInvalid(OptionRowWidget optionRow) {
     invalidRows.add(optionRow);
     updateDoneButton();
   }
 
-  public void markValid(OptionRow optionRow) {
+  public void markValid(OptionRowWidget optionRow) {
     invalidRows.remove(optionRow);
     updateDoneButton();
   }

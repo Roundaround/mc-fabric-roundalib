@@ -1,8 +1,7 @@
-package me.roundaround.roundalib.config.gui;
+package me.roundaround.roundalib.config.gui.widget;
 
 import java.util.function.Consumer;
 
-import me.roundaround.roundalib.config.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.Selectable;
 
 public abstract class AbstractClickableWidget<T> extends AbstractWidget<T> implements ClickableWidget {

@@ -1,4 +1,4 @@
-package me.roundaround.roundalib.config.gui;
+package me.roundaround.roundalib.config.gui.widget;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,9 +7,9 @@ import java.util.stream.Collectors;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import me.roundaround.roundalib.config.gui.ConfigScreen;
+import me.roundaround.roundalib.config.gui.SelectableElement;
 import me.roundaround.roundalib.config.gui.control.Control;
-import me.roundaround.roundalib.config.gui.widget.ResetButtonWidget;
-import me.roundaround.roundalib.config.gui.widget.Widget;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -23,7 +23,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.Matrix4f;
 
 @Environment(EnvType.CLIENT)
-public class OptionRow extends AbstractWidget<ConfigList> {
+public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
   public static final int HEIGHT = 20;
   protected static final int LABEL_COLOR = 0xFFFFFFFF;
   protected static final int HIGHLIGHT_COLOR = 0x50FFFFFF;
@@ -40,7 +40,8 @@ public class OptionRow extends AbstractWidget<ConfigList> {
 
   private final ImmutableList<Widget> subWidgets;
 
-  public OptionRow(ConfigList parent, int index, ConfigOption<?, ?> configOption, int top, int left, int width) {
+  public OptionRowWidget(ConfigListWidget parent, int index, ConfigOption<?, ?> configOption, int top, int left,
+      int width) {
     super(parent, top, left, HEIGHT, width);
 
     int controlWidth = Math.max(CONTROL_MIN_WIDTH, Math.round(width * 0.3f));
@@ -201,7 +202,7 @@ public class OptionRow extends AbstractWidget<ConfigList> {
     return getConfigScreen().setFocused(control.getPrimarySelectableElement().get());
   }
 
-  public ConfigList getConfigList() {
+  public ConfigListWidget getConfigList() {
     return getParent();
   }
 

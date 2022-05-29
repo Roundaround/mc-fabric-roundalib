@@ -1,6 +1,5 @@
-package me.roundaround.roundalib.config.gui;
+package me.roundaround.roundalib.config.gui.widget;
 
-import me.roundaround.roundalib.config.gui.widget.Widget;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;

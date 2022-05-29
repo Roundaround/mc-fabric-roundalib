@@ -2,8 +2,8 @@ package me.roundaround.roundalib.config.option;
 
 import java.util.Optional;
 
-import me.roundaround.roundalib.config.gui.OptionRow;
 import me.roundaround.roundalib.config.gui.control.OptionListControl;
+import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import me.roundaround.roundalib.config.value.ListOptionValue;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
@@ -14,7 +14,7 @@ public class OptionListConfigOption<T extends ListOptionValue<T>> extends Config
   }
 
   @Override
-  public OptionListControl<T> createControl(OptionRow parent, int top, int left, int height, int width) {
+  public OptionListControl<T> createControl(OptionRowWidget parent, int top, int left, int height, int width) {
     return new OptionListControl<T>(this, parent, top, left, height, width);
   }
 
