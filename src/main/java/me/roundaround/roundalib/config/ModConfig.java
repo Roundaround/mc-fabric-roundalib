@@ -133,7 +133,8 @@ public abstract class ModConfig {
         }
 
         if (comment.isPresent()) {
-          fileConfig.setComment(key, comment.get().getString());
+          // Prefix comment with space to get "# This is a comment"
+          fileConfig.setComment(key, " " + comment.get().getString());
         }
         fileConfig.set(key, configOption.getValue());
       });
@@ -147,11 +148,11 @@ public abstract class ModConfig {
     return false;
   }
 
-  protected <T extends ConfigOption<?, ?>> T register(T configOption) {
-    return register(null, configOption);
+  protected <T extends ConfigOption<?, ?>> T registerConfigOption(T configOption) {
+    return registerConfigOption(null, configOption);
   }
 
-  protected <T extends ConfigOption<?, ?>> T register(String group, T configOption) {
+  protected <T extends ConfigOption<?, ?>> T registerConfigOption(String group, T configOption) {
     String key = modInfo.getModId();
     if (group != null) {
       key += "." + group;
