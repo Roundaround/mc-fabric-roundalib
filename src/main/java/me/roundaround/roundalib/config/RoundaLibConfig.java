@@ -13,6 +13,12 @@ import me.roundaround.roundalib.config.value.GuiAlignment;
 import net.minecraft.client.gui.screen.ScreenTexts;
 
 public class RoundaLibConfig extends ModConfig {
+  // TODO: Consider a single static/global config registry with the following:
+  // register(MODID, ConfigOption)
+  // isDirty(MODID)
+  // getConfigGroups(MODID)
+  // getConfigOptions(MODID)
+
   public static final OptionListConfigOption<GuiAlignment> GUI_ALIGNMENT;
 
   public static final IntConfigOption SOME_INTEGER;
