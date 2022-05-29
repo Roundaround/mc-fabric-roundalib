@@ -1,13 +1,16 @@
 package me.roundaround.roundalib.config;
 
 import java.io.File;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
 import me.roundaround.roundalib.RoundaLibMod;
 import me.roundaround.roundalib.config.option.ConfigOption;
@@ -25,7 +28,7 @@ import net.minecraft.util.Identifier;
 
 public abstract class ModConfig {
   private final ModInfo modInfo;
-  private final ImmutableMap<String, ImmutableList<ConfigOption<?, ?>>> configOptions;
+  private final Map<String, List<ConfigOption<?, ?>>> configOptions = new LinkedHashMap<>();
   private final IdentifiableResourceReloadListener reloadListener = new SimpleSynchronousResourceReloadListener() {
     @Override
     public Identifier getFabricId() {
@@ -34,20 +37,19 @@ public abstract class ModConfig {
 
     @Override
     public void reload(ResourceManager manager) {
+      if (saved) {
+        return;
+      }
       saveToFile();
+      saved = true;
     }
   };
 
   private int version;
+  private boolean saved = false;
 
-  // TODO: Make `ConfigGroup extends ImmutableMap<String, ImmutableList<>>`
-  protected ModConfig(ModInfo modInfo, ImmutableList<ConfigOption<?, ?>> configOptions) {
+  protected ModConfig(ModInfo modInfo) {
     this.modInfo = modInfo;
-    this.configOptions = ImmutableMap.of(modInfo.getModId(), configOptions);
-  }
-
-  protected boolean updateConfigVersion(int version, Config config) {
-    return false;
   }
 
   public void init() {
@@ -66,15 +68,15 @@ public abstract class ModConfig {
     return modInfo;
   }
 
-  public ImmutableMap<String, ImmutableList<ConfigOption<?, ?>>> getConfigOptions() {
-    return configOptions;
+  public Map<String, List<ConfigOption<?, ?>>> getConfigOptions() {
+    return Map.copyOf(configOptions);
   }
 
-  public ImmutableList<ConfigOption<?, ?>> getConfigOptionsAsFlatList() {
-    return configOptions.values()
+  public List<ConfigOption<?, ?>> getConfigOptionsAsFlatList() {
+    return List.copyOf(configOptions.values()
         .stream()
-        .flatMap(ImmutableList<ConfigOption<?, ?>>::stream)
-        .collect(ImmutableList.toImmutableList());
+        .flatMap(List<ConfigOption<?, ?>>::stream)
+        .collect(Collectors.toList()));
   }
 
   public void loadFromFile() {
@@ -139,6 +141,27 @@ public abstract class ModConfig {
 
     fileConfig.save();
     fileConfig.close();
+  }
+
+  protected boolean updateConfigVersion(int version, Config config) {
+    return false;
+  }
+
+  protected <T extends ConfigOption<?, ?>> T register(T configOption) {
+    return register(null, configOption);
+  }
+
+  protected <T extends ConfigOption<?, ?>> T register(String group, T configOption) {
+    String key = modInfo.getModId();
+    if (group != null) {
+      key += "." + group;
+    }
+
+    if (!configOptions.containsKey(key)) {
+      configOptions.put(key, new LinkedList<>());
+    }
+    configOptions.get(key).add(configOption);
+    return configOption;
   }
 
   private File getConfigDirectory() {

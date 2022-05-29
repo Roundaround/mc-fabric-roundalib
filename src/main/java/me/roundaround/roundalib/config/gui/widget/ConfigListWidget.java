@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -67,7 +66,7 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
     optionRows.clear();
 
     // TODO: Consider showing groups in config list
-    ImmutableList<ConfigOption<?, ?>> configOptions = parent.getModConfig().getConfigOptionsAsFlatList();
+    List<ConfigOption<?, ?>> configOptions = parent.getModConfig().getConfigOptionsAsFlatList();
     IntStream.range(0, configOptions.size())
         .forEach(
             idx -> optionRows.add(
