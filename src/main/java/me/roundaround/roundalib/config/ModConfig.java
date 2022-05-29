@@ -11,13 +11,31 @@ import com.google.common.collect.ImmutableList;
 import me.roundaround.roundalib.RoundaLibMod;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.util.ModInfo;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.resource.ResourceManager;
+import net.minecraft.resource.ResourceType;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Identifier;
 
 public abstract class ModConfig {
   private final ModInfo modInfo;
   private final ImmutableList<ConfigOption<?, ?>> configOptions;
+  private final IdentifiableResourceReloadListener reloadListener = new SimpleSynchronousResourceReloadListener() {
+    @Override
+    public Identifier getFabricId() {
+      return new Identifier(modInfo.getModId(), modInfo.getModId() + "_reload");
+    }
+
+    @Override
+    public void reload(ResourceManager manager) {
+      saveToFile();
+    }
+  };
 
   private int version;
 
@@ -32,7 +50,14 @@ public abstract class ModConfig {
 
   public void init() {
     loadFromFile();
-    saveToFile();
+
+    // Wait for all resources (including i18n lang files) to finish loading,
+    // then attempt to save the config to file.
+    if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+      ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(reloadListener);
+    } else {
+      ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(reloadListener);
+    }
   }
 
   public ModInfo getModInfo() {
