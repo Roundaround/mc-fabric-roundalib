@@ -1,4 +1,5 @@
 {
+  "config.version_comment": "Config version is auto-generated; DO NOT CHANGE",
   "config.reset.tooltip": "Reset to default",
   "config.gui_alignment.top_left": "Top left",
   "config.gui_alignment.top_center": "Top center",

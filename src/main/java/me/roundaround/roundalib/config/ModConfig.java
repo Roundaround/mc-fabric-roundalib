@@ -3,6 +3,8 @@ package me.roundaround.roundalib.config;
 import java.io.File;
 import java.util.Optional;
 
+import com.electronwill.nightconfig.core.CommentedConfig;
+import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.google.common.collect.ImmutableList;
 
@@ -11,21 +13,34 @@ import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.util.ModInfo;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 
 public abstract class ModConfig {
   private final ModInfo modInfo;
   private final ImmutableList<ConfigOption<?, ?>> configOptions;
 
-  private int previousConfigVersion;
+  private int version;
 
   protected ModConfig(ModInfo modInfo, ImmutableList<ConfigOption<?, ?>> configOptions) {
     this.modInfo = modInfo;
     this.configOptions = configOptions;
   }
 
+  protected boolean updateConfigVersion(int version, Config config) {
+    return false;
+  }
+
   public void init() {
     loadFromFile();
     saveToFile();
+  }
+
+  public ModInfo getModInfo() {
+    return modInfo;
+  }
+
+  public ImmutableList<ConfigOption<?, ?>> getConfigOptions() {
+    return configOptions;
   }
 
   public void loadFromFile() {
@@ -37,8 +52,11 @@ public abstract class ModConfig {
     fileConfig.load();
     fileConfig.close();
 
-    previousConfigVersion = fileConfig.getIntOrElse("configVersion", 1);
-    // TODO: Upgrade versions as necessary.
+    version = fileConfig.getIntOrElse("configVersion", 1);
+    CommentedConfig config = CommentedConfig.copy(fileConfig);
+    if (updateConfigVersion(version, config)) {
+      fileConfig.putAll(config);
+    }
 
     configOptions.forEach((configOption) -> {
       Object data = fileConfig.get(configOption.getId());
@@ -49,7 +67,7 @@ public abstract class ModConfig {
   }
 
   public void saveToFile() {
-    if (previousConfigVersion == modInfo.getConfigVersion()
+    if (version == modInfo.getConfigVersion()
         && configOptions.stream().noneMatch(ConfigOption::isDirty)) {
       RoundaLibMod.LOGGER.info("Skipping saving config to file because nothing has changed.");
       return;
@@ -62,6 +80,7 @@ public abstract class ModConfig {
         .preserveInsertionOrder()
         .build();
 
+    fileConfig.setComment("configVersion", new TranslatableText("config.version_comment").getString());
     fileConfig.set("configVersion", modInfo.getConfigVersion());
 
     configOptions.forEach((configOption) -> {
@@ -77,7 +96,7 @@ public abstract class ModConfig {
     fileConfig.close();
   }
 
-  public File getConfigDirectory() {
+  private File getConfigDirectory() {
     File dir = FabricLoader.getInstance().getConfigDir().toFile();
 
     if (!dir.exists() && !dir.mkdirs()) {
@@ -87,19 +106,7 @@ public abstract class ModConfig {
     return dir;
   }
 
-  public String getConfigFileName() {
-    return modInfo.getModId() + ".toml";
-  }
-
-  public File getConfigFile() {
-    return new File(getConfigDirectory(), getConfigFileName());
-  }
-
-  public ModInfo getModInfo() {
-    return modInfo;
-  }
-
-  public ImmutableList<ConfigOption<?, ?>> getConfigOptions() {
-    return configOptions;
+  private File getConfigFile() {
+    return new File(getConfigDirectory(), modInfo.getModId() + ".toml");
   }
 }
