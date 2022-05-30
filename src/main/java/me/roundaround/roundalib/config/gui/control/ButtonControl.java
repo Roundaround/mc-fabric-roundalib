@@ -128,6 +128,6 @@ public abstract class ButtonControl<O extends ConfigOption<?, ?>> extends Abstra
 
   @Override
   public void appendNarrations(NarrationMessageBuilder builder) {
-    // TODO Auto-generated method stub
+    // TODO: Fill in
   }
 }

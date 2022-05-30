@@ -110,7 +110,7 @@ public class ResetButtonWidget extends AbstractClickableWidget<OptionRowWidget> 
 
   @Override
   public void appendNarrations(NarrationMessageBuilder builder) {
-    // TODO Auto-generated method stub
+    // TODO: Fill in
   }
 
   private void onPress() {

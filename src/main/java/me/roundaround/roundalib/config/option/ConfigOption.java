@@ -73,6 +73,7 @@ public abstract class ConfigOption<D, C extends Widget & Control<?>> {
     return !value.equals(defaultValue);
   }
 
+  @SuppressWarnings("unchecked")
   public void deserialize(Object data) {
     setValue((D) data);
   }
