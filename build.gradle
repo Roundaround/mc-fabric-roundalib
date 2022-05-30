@@ -20,10 +20,10 @@ repositories {
 
 sourceSets {
 	// Uncomment to enable test mod
-	// testmod{
-	// 	compileClasspath += main.compileClasspath
-	// 	runtimeClasspath += main.runtimeClasspath
-	// }
+	testmod{
+		compileClasspath += main.compileClasspath
+		runtimeClasspath += main.runtimeClasspath
+	}
 }
 
 dependencies {
@@ -35,8 +35,8 @@ dependencies {
 
 	// ModMenu integration
   // Only necessary for test mod
-	// modCompileOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
-	// modRuntime "com.terraformersmc:modmenu:${project.mod_menu_version}"
+	modCompileOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
+	modRuntime "com.terraformersmc:modmenu:${project.mod_menu_version}"
 
   shadow "com.electronwill.night-config:core:3.6.5"
   shadow "com.electronwill.night-config:toml:3.6.5"

@@ -1,10 +1,10 @@
 package me.roundaround.roundalib.config.gui.widget;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -39,7 +39,6 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
   private final int elementStartX;
   private final int elementStartY;
   private final int elementWidth;
-  private final int elementHeight;
   private double scrollAmount = 0;
 
   public ConfigListWidget(ConfigScreen parent, int top, int left, int height, int width) {
@@ -50,11 +49,10 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
     elementStartY = top + PADDING_Y;
 
     elementWidth = width - (2 * PADDING_X) - SCROLLBAR_WIDTH;
-    elementHeight = OptionRowWidget.HEIGHT;
 
     scrollbar = new ScrollbarWidget(
         this,
-        (elementHeight + ROW_PADDING) / 2d,
+        (OptionRowWidget.HEIGHT + ROW_PADDING) / 2d,
         top,
         right - SCROLLBAR_WIDTH + 1,
         height,
@@ -65,21 +63,27 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
   public void init() {
     optionRows.clear();
 
-    // TODO: Consider showing groups in config list
-    List<ConfigOption<?, ?>> configOptions = parent.getModConfig().getConfigOptionsAsFlatList();
-    IntStream.range(0, configOptions.size())
-        .forEach(
-            idx -> optionRows.add(
-                new OptionRowWidget(
-                    this,
-                    idx,
-                    configOptions.get(idx),
-                    getElementTop(idx),
-                    elementStartX,
-                    elementWidth)));
+    int currentOffset = elementStartY;
+    int index = 0;
+    for (var entry : parent.getModConfig().getConfigOptions().entrySet()) {
+      // TODO: Add group title row
 
-    scrollbar.setMaxPosition(
-        optionRows.size() * (elementHeight + ROW_PADDING) + PADDING_Y - ROW_PADDING + 1);
+      LinkedList<ConfigOption<?, ?>> configOptions = entry.getValue();
+      for (ConfigOption<?, ?> configOption : configOptions) {
+        OptionRowWidget optionRow = new OptionRowWidget(
+            this,
+            index++,
+            configOption,
+            currentOffset,
+            elementStartX,
+            elementWidth);
+
+        currentOffset += optionRow.height + ROW_PADDING;
+        optionRows.add(optionRow);
+      }
+    }
+
+    scrollbar.setMaxPosition(currentOffset - elementStartY + PADDING_Y + 1);
   }
 
   @Override
@@ -113,8 +117,9 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
   public void setScrollAmount(double amount) {
     scrollAmount = amount;
 
-    IntStream.range(0, optionRows.size())
-        .forEach(idx -> optionRows.get(idx).moveTop(getElementTop(idx)));
+    for (OptionRowWidget optionRow : optionRows) {
+      optionRow.moveTop(optionRow.getInitialTop() - (int) Math.round(scrollAmount));
+    }
   }
 
   @Override
@@ -198,10 +203,6 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
             optionRow.render(matrixStack, mouseX, mouseY, partialTicks);
           }
         });
-  }
-
-  private int getElementTop(int idx) {
-    return elementStartY - (int) Math.round(scrollAmount) + idx * (elementHeight + ROW_PADDING);
   }
 
   @Override

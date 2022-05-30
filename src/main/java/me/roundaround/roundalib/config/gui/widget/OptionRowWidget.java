@@ -26,13 +26,14 @@ import net.minecraft.util.math.Matrix4f;
 public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
   public static final int HEIGHT = 20;
   protected static final int LABEL_COLOR = 0xFFFFFFFF;
-  protected static final int HIGHLIGHT_COLOR = 0x50FFFFFF;
+  protected static final int HIGHLIGHT_COLOR = 0x30FFFFFF;
   protected static final int PADDING = 4;
   protected static final int CONTROL_MIN_WIDTH = 100;
   protected static final int ROW_SHADE_STRENGTH = 85;
   protected static final int ROW_SHADE_FADE_WIDTH = 10;
   protected static final int ROW_SHADE_FADE_OVERFLOW = 10;
 
+  protected final int initialTop;
   protected final int index;
   protected final ConfigOption<?, ?> configOption;
   protected final Widget control;
@@ -43,6 +44,8 @@ public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
   public OptionRowWidget(ConfigListWidget parent, int index, ConfigOption<?, ?> configOption, int top, int left,
       int width) {
     super(parent, top, left, HEIGHT, width);
+
+    initialTop = top;
 
     int controlWidth = Math.max(CONTROL_MIN_WIDTH, Math.round(width * 0.3f));
 
@@ -60,6 +63,12 @@ public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
         right - PADDING - ResetButtonWidget.WIDTH);
 
     subWidgets = ImmutableList.of(control, resetButton);
+  }
+
+  @Override
+  public boolean onMouseClicked(double mouseX, double mouseY, int button) {
+    // TODO: Clicking on non-controls should click the primary element
+    return super.onMouseClicked(mouseX, mouseY, button);
   }
 
   @Override
@@ -90,6 +99,10 @@ public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
 
     control.moveTop(top);
     resetButton.moveTop(top + (HEIGHT - ResetButtonWidget.HEIGHT) / 2);
+  }
+
+  public int getInitialTop() {
+    return initialTop;
   }
 
   protected void renderBackground(

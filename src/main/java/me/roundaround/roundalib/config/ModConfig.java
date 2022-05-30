@@ -28,7 +28,7 @@ import net.minecraft.util.Identifier;
 
 public abstract class ModConfig {
   private final ModInfo modInfo;
-  private final Map<String, List<ConfigOption<?, ?>>> configOptions = new LinkedHashMap<>();
+  private final LinkedHashMap<String, LinkedList<ConfigOption<?, ?>>> configOptions = new LinkedHashMap<>();
   private final IdentifiableResourceReloadListener reloadListener = new SimpleSynchronousResourceReloadListener() {
     @Override
     public Identifier getFabricId() {
@@ -68,15 +68,8 @@ public abstract class ModConfig {
     return modInfo;
   }
 
-  public Map<String, List<ConfigOption<?, ?>>> getConfigOptions() {
-    return Map.copyOf(configOptions);
-  }
-
-  public List<ConfigOption<?, ?>> getConfigOptionsAsFlatList() {
-    return List.copyOf(configOptions.values()
-        .stream()
-        .flatMap(List<ConfigOption<?, ?>>::stream)
-        .collect(Collectors.toList()));
+  public LinkedHashMap<String, LinkedList<ConfigOption<?, ?>>> getConfigOptions() {
+    return configOptions;
   }
 
   public void loadFromFile() {
