@@ -1,0 +1,21 @@
+{
+  "roundalib-testmod.modname": "RoundaLib Test Mod",
+  "roundalib-testmod.config.title": "RoundaLib Test Mod",
+  "config.gui_alignment": "GUI alignment",
+  "config.some_integer": "Any integer",
+  "config.step_by_two": "Step buttons adjust by 2",
+  "config.within_one_hundred": "From -100 to 100",
+  "config.within_one_hundred_big_step": "From -100 to 100, large step",
+  "config.plain_string": "Any text",
+  "config.restricted_length": "Between 3 and 6 chars",
+  "config.regex": "Alpha numeric and _ only",
+  "config.with_comment": "Has custom config file comment",
+  "config.with_comment.comment": "Custom comment",
+  "config.basic_toggle": "Default toggle",
+  "config.default_false": "Default toggle, disabled by default",
+  "config.on_off": "ON/OFF toggle",
+  "config.group.item1": "Item under 'group'",
+  "config.group.item2": "Item under 'group'",
+  "config.group.item3": "Item under 'group'",
+  "config.group.item4": "Item under 'group'"
+}

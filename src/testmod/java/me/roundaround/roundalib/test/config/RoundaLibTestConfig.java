@@ -1,16 +1,16 @@
-package me.roundaround.roundalib.config;
+package me.roundaround.roundalib.test.config;
 
 import java.util.regex.Pattern;
 
-import me.roundaround.roundalib.RoundaLibMod;
+import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.option.BooleanConfigOption;
 import me.roundaround.roundalib.config.option.IntConfigOption;
 import me.roundaround.roundalib.config.option.OptionListConfigOption;
 import me.roundaround.roundalib.config.option.StringConfigOption;
 import me.roundaround.roundalib.config.value.GuiAlignment;
-import net.minecraft.client.gui.screen.ScreenTexts;
+import me.roundaround.roundalib.test.RoundaLibTestMod;
 
-public class RoundaLibConfig extends ModConfig {
+public class RoundaLibTestConfig extends ModConfig {
   public final OptionListConfigOption<GuiAlignment> GUI_ALIGNMENT;
 
   public final IntConfigOption SOME_INTEGER;
@@ -32,8 +32,8 @@ public class RoundaLibConfig extends ModConfig {
   public final StringConfigOption GROUP_ITEM_3;
   public final StringConfigOption GROUP_ITEM_4;
 
-  public RoundaLibConfig() {
-    super(RoundaLibMod.MOD_INFO);
+  public RoundaLibTestConfig() {
+    super(RoundaLibTestMod.MOD_INFO);
 
     GUI_ALIGNMENT = registerConfigOption(OptionListConfigOption
         .defaultInstance("guiAlignment", "config.gui_alignment", GuiAlignment.TOP_LEFT));
@@ -77,7 +77,7 @@ public class RoundaLibConfig extends ModConfig {
     WITH_COMMENT = registerConfigOption(StringConfigOption
         .builder("withComment", "config.with_comment")
         .setDefaultValue("Roundalib")
-        .setComment(ScreenTexts.PROCEED)
+        .setComment("config.with_comment.comment")
         .build());
 
     BASIC_TOGGLE = registerConfigOption(BooleanConfigOption

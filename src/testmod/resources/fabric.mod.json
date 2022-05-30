@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "roundalib",
+  "id": "roundalib-testmod",
   "version": "${version}",
-  "name": "RoundaLib",
-  "description": "Common library for Roundaround's mods.",
+  "name": "RoundaLib Testing Mod",
+  "description": "Test mod for RoundaLib",
   "authors": [
     "Roundaround"
   ],
@@ -12,11 +12,13 @@
     "sources": ""
   },
   "license": "MIT",
-  "icon": "assets/roundalib/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
-      "me.roundaround.roundalib.RoundaLibMod"
+      "me.roundaround.roundalib.test.RoundaLibTestMod"
+    ],
+    "modmenu": [
+      "me.roundaround.roundalib.test.compat.modmenu.ModMenuImpl"
     ]
   },
   "depends": {
@@ -24,10 +26,5 @@
     "fabric": "*",
     "minecraft": "1.17.x",
     "java": ">=16"
-  },
-  "custom": {
-    "modmenu": {
-      "badges": [ "library" ]
-    }
   }
 }

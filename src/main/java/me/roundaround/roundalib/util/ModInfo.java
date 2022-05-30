@@ -8,7 +8,7 @@ public class ModInfo {
   private final String configScreenTitleI18nKey;
 
   public ModInfo(String modId, String modVersion, int configVersion) {
-    this(modId, modVersion, configVersion, "modname", "config.title");
+    this(modId, modVersion, configVersion, modId + ".modname", modId + ".config.title");
   }
 
   public ModInfo(
