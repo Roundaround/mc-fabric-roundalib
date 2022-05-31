@@ -39,8 +39,8 @@ public class ConfigScreen extends Screen {
   private static final int TITLE_POS_Y = 17;
   private static final int FOOTER_BUTTON_WIDTH = 150;
   private static final int FOOTER_BUTTON_HEIGHT = 20;
-  private static final int FOOTER_BUTTON_POS_Y = 27;
-  private static final int FOOTER_BUTTON_SPACING = 12;
+  private static final int FOOTER_BUTTON_POS_Y = 28;
+  private static final int FOOTER_BUTTON_SPACING = 8;
 
   @Nullable
   private final Screen parent;
@@ -70,7 +70,7 @@ public class ConfigScreen extends Screen {
     listWidget = new ConfigListWidget(this, HEADER_HEIGHT, listLeft, listHeight, listWidth);
     listWidget.init();
 
-    int cancelButtonLeft = (int) (width / 2f - FOOTER_BUTTON_WIDTH) - FOOTER_BUTTON_SPACING;
+    int cancelButtonLeft = (width - FOOTER_BUTTON_SPACING) / 2 - FOOTER_BUTTON_WIDTH;
     int cancelButtonTop = height - FOOTER_BUTTON_POS_Y;
     cancelButton = new ButtonWidget(
         cancelButtonTop,
@@ -82,7 +82,7 @@ public class ConfigScreen extends Screen {
           onClose();
         });
 
-    int doneButtonLeft = (int) (width / 2f) + FOOTER_BUTTON_SPACING;
+    int doneButtonLeft = (width + FOOTER_BUTTON_SPACING) / 2;
     int doneButtonTop = height - FOOTER_BUTTON_POS_Y;
     doneButton = new ButtonWidget(
         doneButtonTop,
@@ -206,8 +206,7 @@ public class ConfigScreen extends Screen {
 
   public void renderHeader(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
     renderBackgroundInRegion(0, HEADER_HEIGHT, 0, width);
-    drawCenteredText(
-        matrixStack, textRenderer, title, width / 2, TITLE_POS_Y, TITLE_COLOR);
+    drawCenteredText(matrixStack, textRenderer, title, width / 2, TITLE_POS_Y, TITLE_COLOR);
   }
 
   public void renderFooter(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
