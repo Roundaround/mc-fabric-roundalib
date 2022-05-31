@@ -9,6 +9,7 @@ public abstract class AbstractWidget<T> extends DrawableHelper implements Widget
   protected static final MinecraftClient MINECRAFT = MinecraftClient.getInstance();
   protected static final TextRenderer TEXT_RENDERER = MINECRAFT.textRenderer;
 
+  protected final int initialTop;
   protected T parent;
   protected int width;
   protected int height;
@@ -26,6 +27,8 @@ public abstract class AbstractWidget<T> extends DrawableHelper implements Widget
     this.right = left + width - 1;
     this.height = height;
     this.width = width;
+
+    initialTop = top;
   }
 
   @Override
@@ -95,5 +98,9 @@ public abstract class AbstractWidget<T> extends DrawableHelper implements Widget
   public void moveTop(int top) {
     this.top = top;
     this.bottom = this.top + this.height - 1;
+  }
+
+  public int getInitialTop() {
+    return initialTop;
   }
 }

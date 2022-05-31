@@ -2,6 +2,7 @@ package me.roundaround.roundalib.config.gui.widget;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
@@ -33,7 +34,6 @@ public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
   protected static final int ROW_SHADE_FADE_WIDTH = 10;
   protected static final int ROW_SHADE_FADE_OVERFLOW = 10;
 
-  protected final int initialTop;
   protected final int index;
   protected final ConfigOption<?, ?> configOption;
   protected final Widget control;
@@ -41,11 +41,14 @@ public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
 
   private final ImmutableList<Widget> subWidgets;
 
-  public OptionRowWidget(ConfigListWidget parent, int index, ConfigOption<?, ?> configOption, int top, int left,
+  public OptionRowWidget(
+      ConfigListWidget parent,
+      int index,
+      ConfigOption<?, ?> configOption,
+      int top,
+      int left,
       int width) {
     super(parent, top, left, HEIGHT, width);
-
-    initialTop = top;
 
     int controlWidth = Math.max(CONTROL_MIN_WIDTH, Math.round(width * 0.3f));
 
@@ -99,10 +102,6 @@ public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
 
     control.moveTop(top);
     resetButton.moveTop(top + (HEIGHT - ResetButtonWidget.HEIGHT) / 2);
-  }
-
-  public int getInitialTop() {
-    return initialTop;
   }
 
   protected void renderBackground(
@@ -202,10 +201,16 @@ public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
     return configOption;
   }
 
+  @Override
   public List<SelectableElement> getSelectableElements() {
     List<SelectableElement> elements = new ArrayList<>(control.getSelectableElements());
     elements.add(resetButton);
     return elements;
+  }
+
+  @Override
+  public Optional<SelectableElement> getPrimarySelectableElement() {
+    return control.getPrimarySelectableElement();
   }
 
   public boolean focusPrimaryElement() {

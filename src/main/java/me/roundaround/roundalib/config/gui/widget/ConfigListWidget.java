@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -35,7 +36,7 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
   public final ConfigScreen parent;
 
   private final ScrollbarWidget scrollbar;
-  private final List<OptionRowWidget> optionRows = new ArrayList<>();
+  private final List<AbstractWidget<ConfigListWidget>> rows = new ArrayList<>();
   private final int elementStartX;
   private final int elementStartY;
   private final int elementWidth;
@@ -61,7 +62,7 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
 
   @Override
   public void init() {
-    optionRows.clear();
+    rows.clear();
 
     int currentOffset = elementStartY;
     int index = 0;
@@ -79,7 +80,7 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
             elementWidth);
 
         currentOffset += optionRow.height + ROW_PADDING;
-        optionRows.add(optionRow);
+        rows.add(optionRow);
       }
     }
 
@@ -117,7 +118,7 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
   public void setScrollAmount(double amount) {
     scrollAmount = amount;
 
-    for (OptionRowWidget optionRow : optionRows) {
+    for (AbstractWidget<ConfigListWidget> optionRow : rows) {
       optionRow.moveTop(optionRow.getInitialTop() - (int) Math.round(scrollAmount));
     }
   }
@@ -132,7 +133,7 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
 
   @Override
   public List<Text> getTooltip(int mouseX, int mouseY, float delta) {
-    return optionRows.stream()
+    return rows.stream()
         .map(optionRow -> optionRow.getTooltip(mouseX, mouseY, delta))
         .flatMap(List::stream)
         .collect(Collectors.toList());
@@ -197,57 +198,60 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
 
   protected void renderConfigOptionEntries(
       MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-    optionRows.forEach(
-        optionRow -> {
-          if (optionRow.getBottom() >= top && optionRow.getTop() <= bottom) {
-            optionRow.render(matrixStack, mouseX, mouseY, partialTicks);
+    rows.forEach(
+        row -> {
+          if (row.getBottom() >= top && row.getTop() <= bottom) {
+            row.render(matrixStack, mouseX, mouseY, partialTicks);
           }
         });
   }
 
   @Override
   public void tick() {
-    optionRows.forEach(OptionRowWidget::tick);
+    rows.forEach((row) -> row.tick());
   }
 
   @Override
   public List<SelectableElement> getSelectableElements() {
-    return optionRows.stream()
-        .map(OptionRowWidget::getSelectableElements)
+    return rows.stream()
+        .map((row) -> row.getSelectableElements())
         .flatMap(List::stream)
         .collect(Collectors.toList());
   }
 
   public void onSetFocused(Element focused) {
-    optionRows.stream()
-        .filter((optionRow) -> optionRow.getSelectableElements().indexOf(focused) > -1)
+    rows.stream()
+        .filter((row) -> row.getSelectableElements().indexOf(focused) > -1)
         .forEach(this::ensureVisible);
   }
 
-  public void ensureVisible(OptionRowWidget optionRow) {
-    int rowTop = optionRow.getTop() - PADDING_Y - 1;
+  public void ensureVisible(AbstractWidget<ConfigListWidget> row) {
+    int rowTop = row.getTop() - PADDING_Y - 1;
     if (rowTop < top) {
       scroll(rowTop - top);
       return;
     }
 
-    int rowBottom = optionRow.getBottom() + PADDING_Y + 1;
+    int rowBottom = row.getBottom() + PADDING_Y + 1;
     if (rowBottom > bottom) {
       scroll(rowBottom - bottom);
     }
   }
 
   public boolean moveFocus(int amount) {
-    if (optionRows.isEmpty()) {
+    if (rows.isEmpty()) {
       return false;
     }
 
-    int desiredIndex = optionRows.stream()
-        .filter((optionRow) -> optionRow.getSelectableElements().contains(getConfigScreen().getFocused())).findFirst()
-        .orElse(optionRows.get(optionRows.size() - 1)).index + amount;
-    desiredIndex = Math.min(Math.max(0, desiredIndex), optionRows.size() - 1);
+    int desiredIndex = IntStream.range(0, rows.size())
+        .filter((index) -> {
+          AbstractWidget<ConfigListWidget> row = rows.get(index);
+          return row.getSelectableElements().contains(getConfigScreen().getFocused());
+        })
+        .findFirst()
+        .orElse(rows.size() - 1 + amount);
 
-    Optional<SelectableElement> desiredFocus = optionRows.get(desiredIndex).control.getPrimarySelectableElement();
+    Optional<SelectableElement> desiredFocus = rows.get(desiredIndex).getPrimarySelectableElement();
     if (desiredFocus.isEmpty()) {
       return false;
     }
