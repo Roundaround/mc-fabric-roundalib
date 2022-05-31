@@ -16,6 +16,7 @@
   "config.on_off": "ON/OFF toggle",
   "config.difficulty": "Difficulty",
   "config.game_mode": "Game mode",
+  "roundalib-testmod.group.title": "Group 'group'",
   "config.group.item1": "Item under 'group'",
   "config.group.item2": "Item under 'group'",
   "config.group.item3": "Item under 'group'",

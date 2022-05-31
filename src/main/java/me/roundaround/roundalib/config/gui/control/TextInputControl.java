@@ -65,6 +65,7 @@ public class TextInputControl extends AbstractControlWidget<StringConfigOption> 
 
   @Override
   public boolean onMouseClicked(double mouseX, double mouseY, int button) {
+    // TODO: Text field is clickable even when scrolled out of view
     return textBox.mouseClicked(mouseX, mouseY, button);
   }
 
