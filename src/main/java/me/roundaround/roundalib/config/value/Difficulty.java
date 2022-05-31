@@ -6,7 +6,7 @@ public enum Difficulty implements ListOptionValue<Difficulty> {
   PEACEFUL(net.minecraft.world.Difficulty.PEACEFUL),
   EASY(net.minecraft.world.Difficulty.EASY),
   NORMAL(net.minecraft.world.Difficulty.NORMAL),
-  HARD(net.minecraft.world.Difficulty.PEACEFUL);
+  HARD(net.minecraft.world.Difficulty.HARD);
 
   private final String id;
   private final net.minecraft.world.Difficulty vanillaDifficulty;

@@ -7,6 +7,10 @@ public class ModInfo {
   private final String modNameI18nKey;
   private final String configScreenTitleI18nKey;
 
+  public ModInfo(String modId, String modVersion) {
+    this(modId, modVersion, 0, modId + ".modname", modId + ".config.title");
+  }
+
   public ModInfo(String modId, String modVersion, int configVersion) {
     this(modId, modVersion, configVersion, modId + ".modname", modId + ".config.title");
   }

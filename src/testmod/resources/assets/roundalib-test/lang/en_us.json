@@ -14,6 +14,8 @@
   "config.basic_toggle": "Default toggle",
   "config.default_false": "Default toggle, disabled by default",
   "config.on_off": "ON/OFF toggle",
+  "config.difficulty": "Difficulty",
+  "config.game_mode": "Game mode",
   "config.group.item1": "Item under 'group'",
   "config.group.item2": "Item under 'group'",
   "config.group.item3": "Item under 'group'",

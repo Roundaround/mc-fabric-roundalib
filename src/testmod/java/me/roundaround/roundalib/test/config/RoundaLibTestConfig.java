@@ -7,6 +7,8 @@ import me.roundaround.roundalib.config.option.BooleanConfigOption;
 import me.roundaround.roundalib.config.option.IntConfigOption;
 import me.roundaround.roundalib.config.option.OptionListConfigOption;
 import me.roundaround.roundalib.config.option.StringConfigOption;
+import me.roundaround.roundalib.config.value.Difficulty;
+import me.roundaround.roundalib.config.value.GameMode;
 import me.roundaround.roundalib.config.value.GuiAlignment;
 import me.roundaround.roundalib.test.RoundaLibTestMod;
 
@@ -31,6 +33,9 @@ public class RoundaLibTestConfig extends ModConfig {
   public final StringConfigOption GROUP_ITEM_2;
   public final StringConfigOption GROUP_ITEM_3;
   public final StringConfigOption GROUP_ITEM_4;
+
+  public final OptionListConfigOption<Difficulty> DIFFICULTY;
+  public final OptionListConfigOption<GameMode> GAME_MODE;
 
   public RoundaLibTestConfig() {
     super(RoundaLibTestMod.MOD_INFO);
@@ -90,6 +95,11 @@ public class RoundaLibTestConfig extends ModConfig {
     ON_OFF = registerConfigOption(BooleanConfigOption
         .onOffBuilder("onOff", "config.on_off")
         .build());
+
+    DIFFICULTY = registerConfigOption(OptionListConfigOption
+        .defaultInstance("difficulty", "config.difficulty", Difficulty.getDefault()));
+    GAME_MODE = registerConfigOption(OptionListConfigOption
+        .defaultInstance("gameMode", "config.game_mode", GameMode.getDefault()));
 
     GROUP_ITEM_1 = registerConfigOption("group", StringConfigOption
         .defaultInstance("item1", "config.group.item1", "Item 1"));

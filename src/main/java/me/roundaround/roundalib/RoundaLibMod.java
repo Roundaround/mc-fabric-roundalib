@@ -9,7 +9,7 @@ import net.fabricmc.api.ModInitializer;
 public final class RoundaLibMod implements ModInitializer {
   public static final String MOD_ID = "roundalib";
   public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
-  public static final ModInfo MOD_INFO = new ModInfo(MOD_ID, "0.0.7", 1);
+  public static final ModInfo MOD_INFO = new ModInfo(MOD_ID, "0.0.7");
 
   @Override
   public void onInitialize() {

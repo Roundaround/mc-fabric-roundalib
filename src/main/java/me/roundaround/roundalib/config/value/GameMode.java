@@ -23,7 +23,7 @@ public enum GameMode implements ListOptionValue<GameMode> {
 
   @Override
   public String getI18nKey() {
-    return "gamemode." + id;
+    return "selectWorld.gameMode." + id;
   }
 
   @Override
