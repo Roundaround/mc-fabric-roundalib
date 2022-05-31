@@ -11,6 +11,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
+import me.roundaround.roundalib.RoundaLibMod;
 import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.gui.widget.ButtonWidget;
 import me.roundaround.roundalib.config.gui.widget.ConfigListWidget;
@@ -36,9 +37,10 @@ public class ConfigScreen extends Screen {
   private static final int LIST_MIN_WIDTH = 400;
   private static final int TITLE_COLOR = 0xFFFFFFFF;
   private static final int TITLE_POS_Y = 17;
-  private static final int DONE_BUTTON_WIDTH = 200;
-  private static final int DONE_BUTTON_HEIGHT = 20;
-  private static final int DONE_BUTTON_POS_Y = 27;
+  private static final int FOOTER_BUTTON_WIDTH = 150;
+  private static final int FOOTER_BUTTON_HEIGHT = 20;
+  private static final int FOOTER_BUTTON_POS_Y = 27;
+  private static final int FOOTER_BUTTON_SPACING = 12;
 
   @Nullable
   private final Screen parent;
@@ -47,8 +49,10 @@ public class ConfigScreen extends Screen {
   private final Set<OptionRowWidget> invalidRows = new HashSet<>(); 
 
   private ConfigListWidget listWidget;
+  private ButtonWidget cancelButton;
   private ButtonWidget doneButton;
   private Optional<SelectableElement> focused = Optional.empty();
+  private boolean shouldSave = false;
 
   public ConfigScreen(@Nullable Screen parent, ModConfig modConfig) {
     super(new TranslatableText(modConfig.getModInfo().getConfigScreenTitleI18nKey()));
@@ -66,35 +70,50 @@ public class ConfigScreen extends Screen {
     listWidget = new ConfigListWidget(this, HEADER_HEIGHT, listLeft, listHeight, listWidth);
     listWidget.init();
 
-    int doneButtonLeft = (int) (width / 2f - DONE_BUTTON_WIDTH / 2f);
-    int doneButtonTop = height - DONE_BUTTON_POS_Y;
+    int cancelButtonLeft = (int) (width / 2f - FOOTER_BUTTON_WIDTH) - FOOTER_BUTTON_SPACING;
+    int cancelButtonTop = height - FOOTER_BUTTON_POS_Y;
+    cancelButton = new ButtonWidget(
+        cancelButtonTop,
+        cancelButtonLeft,
+        FOOTER_BUTTON_HEIGHT,
+        FOOTER_BUTTON_WIDTH,
+        ScreenTexts.CANCEL,
+        (button) -> {
+          onClose();
+        });
+
+    int doneButtonLeft = (int) (width / 2f) + FOOTER_BUTTON_SPACING;
+    int doneButtonTop = height - FOOTER_BUTTON_POS_Y;
     doneButton = new ButtonWidget(
         doneButtonTop,
         doneButtonLeft,
-        DONE_BUTTON_HEIGHT,
-        DONE_BUTTON_WIDTH,
+        FOOTER_BUTTON_HEIGHT,
+        FOOTER_BUTTON_WIDTH,
         ScreenTexts.DONE,
         (button) -> {
-          if (client == null) {
-            return;
-          }
-
-          modConfig.saveToFile();
-          client.setScreen(parent);
+          shouldSave = true;
+          onClose();
         });
 
     selectableElements.addAll(listWidget.getSelectableElements());
+    selectableElements.add(cancelButton);
     selectableElements.add(doneButton);
   }
 
   @Override
   public void removed() {
     client.keyboard.setRepeatEvents(false);
-    modConfig.saveToFile();
   }
 
   @Override
   public void onClose() {
+    RoundaLibMod.LOGGER.info("onClose");
+    if (shouldSave) {
+      modConfig.saveToFile();
+    } else {
+      modConfig.loadFromFile();
+    }
+
     if (client == null) {
       return;
     }
@@ -193,6 +212,7 @@ public class ConfigScreen extends Screen {
 
   public void renderFooter(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
     renderBackgroundInRegion(height - FOOTER_HEIGHT - 1, height, 0, width);
+    cancelButton.render(matrixStack, mouseX, mouseY, partialTicks);
     doneButton.render(matrixStack, mouseX, mouseY, partialTicks);
   }
 

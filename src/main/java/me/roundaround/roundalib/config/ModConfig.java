@@ -126,7 +126,7 @@ public abstract class ModConfig {
           // Prefix comment with space to get "# This is a comment"
           fileConfig.setComment(key, " " + comment.get().getString());
         }
-        fileConfig.set(key, configOption.getValue());
+        fileConfig.set(key, configOption.serialize());
       });
     });
 
