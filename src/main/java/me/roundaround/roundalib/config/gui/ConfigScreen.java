@@ -11,7 +11,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
-import me.roundaround.roundalib.RoundaLibMod;
 import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.gui.widget.ButtonWidget;
 import me.roundaround.roundalib.config.gui.widget.ConfigListWidget;
@@ -79,7 +78,7 @@ public class ConfigScreen extends Screen {
         FOOTER_BUTTON_WIDTH,
         ScreenTexts.CANCEL,
         (button) -> {
-          onClose();
+          close();
         });
 
     int doneButtonLeft = (width + FOOTER_BUTTON_SPACING) / 2;
@@ -92,7 +91,7 @@ public class ConfigScreen extends Screen {
         ScreenTexts.DONE,
         (button) -> {
           shouldSave = true;
-          onClose();
+          close();
         });
 
     selectableElements.addAll(listWidget.getSelectableElements());
@@ -106,8 +105,7 @@ public class ConfigScreen extends Screen {
   }
 
   @Override
-  public void onClose() {
-    RoundaLibMod.LOGGER.info("onClose");
+  public void close() {
     if (shouldSave) {
       modConfig.saveToFile();
     } else {

@@ -55,7 +55,7 @@ public class GroupTitleWidget extends AbstractWidget<ConfigListWidget> {
 
       Tessellator tessellator = Tessellator.getInstance();
       BufferBuilder bufferBuilder = tessellator.getBuffer();
-      Matrix4f matrix4f = matrixStack.peek().getModel();
+      Matrix4f matrix4f = matrixStack.peek().getPositionMatrix();
 
       int bgLeft = left - ROW_SHADE_FADE_OVERFLOW;
       int bgRight = right + ROW_SHADE_FADE_OVERFLOW;
