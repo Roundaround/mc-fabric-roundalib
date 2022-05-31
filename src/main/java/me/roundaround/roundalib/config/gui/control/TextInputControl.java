@@ -23,8 +23,13 @@ public class TextInputControl extends AbstractControlWidget<StringConfigOption> 
 
   @Override
   public void init() {
-    textBox = new TextFieldWidget(TEXT_RENDERER, left + 1, top + 1,
-        width - 2, height - 2,
+    textBox = new TextFieldWidget(
+        this,
+        TEXT_RENDERER,
+        left + 1,
+        top + 1,
+        width - 2,
+        height - 2,
         configOption.getLabel());
     textBox.setMaxLength(50);
     textBox.setChangedListener(this::onTextFieldValueChange);
@@ -65,7 +70,6 @@ public class TextInputControl extends AbstractControlWidget<StringConfigOption> 
 
   @Override
   public boolean onMouseClicked(double mouseX, double mouseY, int button) {
-    // TODO: Text field is clickable even when scrolled out of view
     return textBox.mouseClicked(mouseX, mouseY, button);
   }
 

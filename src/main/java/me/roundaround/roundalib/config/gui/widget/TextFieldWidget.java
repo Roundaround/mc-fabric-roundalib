@@ -8,14 +8,31 @@ import net.minecraft.text.Text;
 
 public class TextFieldWidget extends net.minecraft.client.gui.widget.TextFieldWidget implements SelectableElement {
   private Consumer<Boolean> focusChangedListener;
+  private Widget parent;
 
-  public TextFieldWidget(TextRenderer textRenderer, int x, int y, int width, int height,
-      TextFieldWidget copyFrom, Text text) {
+  public TextFieldWidget(
+      Widget parent,
+      TextRenderer textRenderer,
+      int x,
+      int y,
+      int width,
+      int height,
+      TextFieldWidget copyFrom,
+      Text text) {
     super(textRenderer, x, y, width, height, copyFrom, text);
+    this.parent = parent;
   }
 
-  public TextFieldWidget(TextRenderer textRenderer, int x, int y, int width, int height, Text text) {
+  public TextFieldWidget(
+      Widget parent,
+      TextRenderer textRenderer,
+      int x,
+      int y,
+      int width,
+      int height,
+      Text text) {
     super(textRenderer, x, y, width, height, text);
+    this.parent = parent;
   }
 
   @Override
@@ -24,6 +41,14 @@ public class TextFieldWidget extends net.minecraft.client.gui.widget.TextFieldWi
       return false;
     }
     return super.charTyped(chr, modifiers);
+  }
+
+  @Override
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    if (!parent.isMouseOver(mouseX, mouseY)) {
+      return false;
+    }
+    return super.mouseClicked(mouseX, mouseY, button);
   }
 
   @Override

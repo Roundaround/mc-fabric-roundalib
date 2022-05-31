@@ -26,8 +26,13 @@ public class IntInputControl extends AbstractControlWidget<IntConfigOption> {
 
   @Override
   public void init() {
-    textBox = new TextFieldWidget(TEXT_RENDERER, left + 1, top + 1,
-        width - 2 - (configOption.showStepButtons() ? 10 : 0), height - 2,
+    textBox = new TextFieldWidget(
+        this,
+        TEXT_RENDERER,
+        left + 1,
+        top + 1,
+        width - 2 - (configOption.showStepButtons() ? 10 : 0),
+        height - 2,
         configOption.getLabel()) {
       @Override
       protected boolean isCharAllowed(char chr) {
