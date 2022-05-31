@@ -25,6 +25,9 @@ import net.minecraft.util.Identifier;
 
 public abstract class ModConfig {
   private final ModInfo modInfo;
+  private final int configVersion;
+  private final String configScreenI18nKey;
+  private final boolean showGroupTitles;
   private final LinkedHashMap<String, LinkedList<ConfigOption<?, ?>>> configOptions = new LinkedHashMap<>();
   private final IdentifiableResourceReloadListener reloadListener = new SimpleSynchronousResourceReloadListener() {
     @Override
@@ -46,7 +49,14 @@ public abstract class ModConfig {
   private boolean saved = false;
 
   protected ModConfig(ModInfo modInfo) {
+    this(modInfo, options(modInfo));
+  }
+
+  protected ModConfig(ModInfo modInfo, OptionsBuilder options) {
     this.modInfo = modInfo;
+    configVersion = options.configVersion;
+    configScreenI18nKey = options.configScreenI18nKey;
+    showGroupTitles = options.showGroupTitles;
   }
 
   public void init() {
@@ -63,6 +73,18 @@ public abstract class ModConfig {
 
   public ModInfo getModInfo() {
     return modInfo;
+  }
+
+  public int getConfigVersion() {
+    return configVersion;
+  }
+
+  public String getConfigScreenI18nKey() {
+    return configScreenI18nKey;
+  }
+
+  public boolean getShowGroupTitles() {
+    return showGroupTitles;
   }
 
   public LinkedHashMap<String, LinkedList<ConfigOption<?, ?>>> getConfigOptions() {
@@ -96,7 +118,7 @@ public abstract class ModConfig {
   }
 
   public void saveToFile() {
-    if (version == modInfo.getConfigVersion() && !isDirty()) {
+    if (version == configVersion && !isDirty()) {
       RoundaLibMod.LOGGER.info("Skipping saving config to file because nothing has changed.");
       return;
     }
@@ -109,7 +131,7 @@ public abstract class ModConfig {
         .build();
 
     fileConfig.setComment("configVersion", new TranslatableText("config.version_comment").getString());
-    fileConfig.set("configVersion", modInfo.getConfigVersion());
+    fileConfig.set("configVersion", configVersion);
 
     configOptions.entrySet().forEach((entry) -> {
       entry.getValue().forEach((configOption) -> {
@@ -173,5 +195,40 @@ public abstract class ModConfig {
     return configOptions.values().stream().anyMatch((group) -> {
       return group.stream().anyMatch(ConfigOption::isDirty);
     });
+  }
+
+  public static OptionsBuilder options(ModInfo modInfo) {
+    return new OptionsBuilder(modInfo);
+  }
+
+  public static class OptionsBuilder {
+    private int configVersion;
+    private String configScreenI18nKey;
+    private boolean showGroupTitles;
+
+    private OptionsBuilder(ModInfo modInfo) {
+      configVersion = 1;
+      configScreenI18nKey = modInfo.getModId() + ".config.title";
+      showGroupTitles = true;
+    }
+
+    public OptionsBuilder setConfigVersion(int configVersion) {
+      this.configVersion = configVersion;
+      return this;
+    }
+
+    public OptionsBuilder setConfigScreenI18nKey(String configScreenI18nKey) {
+      this.configScreenI18nKey = configScreenI18nKey;
+      return this;
+    }
+
+    public OptionsBuilder setShowGroupTitles(boolean showGroupTitles) {
+      this.showGroupTitles = showGroupTitles;
+      return this;
+    }
+
+    public OptionsBuilder hideGroupTitles() {
+      return setShowGroupTitles(false);
+    }
   }
 }

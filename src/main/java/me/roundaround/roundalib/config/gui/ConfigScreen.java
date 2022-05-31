@@ -46,7 +46,7 @@ public class ConfigScreen extends Screen {
   private final Screen parent;
   private final ModConfig modConfig;
   private final List<SelectableElement> selectableElements = new ArrayList<>();
-  private final Set<OptionRowWidget> invalidRows = new HashSet<>(); 
+  private final Set<OptionRowWidget> invalidRows = new HashSet<>();
 
   private ConfigListWidget listWidget;
   private ButtonWidget cancelButton;
@@ -55,7 +55,7 @@ public class ConfigScreen extends Screen {
   private boolean shouldSave = false;
 
   public ConfigScreen(@Nullable Screen parent, ModConfig modConfig) {
-    super(new TranslatableText(modConfig.getModInfo().getConfigScreenTitleI18nKey()));
+    super(new TranslatableText(modConfig.getConfigScreenI18nKey()));
     this.parent = parent;
     this.modConfig = modConfig;
   }

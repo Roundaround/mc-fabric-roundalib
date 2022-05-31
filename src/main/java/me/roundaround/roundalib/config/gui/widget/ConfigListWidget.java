@@ -70,7 +70,7 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
     for (var entry : parent.getModConfig().getConfigOptions().entrySet()) {
       String modId = parent.getModConfig().getModInfo().getModId();
       String groupId = entry.getKey();
-      if (!groupId.equals(modId)) {
+      if (parent.getModConfig().getShowGroupTitles() && !groupId.equals(modId)) {
         String groupI18nKey = entry.getKey() + ".title";
         GroupTitleWidget groupTitle = new GroupTitleWidget(
             this,
