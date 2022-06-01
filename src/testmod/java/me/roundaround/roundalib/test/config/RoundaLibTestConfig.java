@@ -3,10 +3,6 @@ package me.roundaround.roundalib.test.config;
 import java.util.regex.Pattern;
 
 import me.roundaround.roundalib.config.ModConfig;
-import me.roundaround.roundalib.config.gui.control.IntInputControl;
-import me.roundaround.roundalib.config.gui.control.OptionListControl;
-import me.roundaround.roundalib.config.gui.control.TextInputControl;
-import me.roundaround.roundalib.config.gui.control.ToggleControl;
 import me.roundaround.roundalib.config.option.BooleanConfigOption;
 import me.roundaround.roundalib.config.option.IntConfigOption;
 import me.roundaround.roundalib.config.option.OptionListConfigOption;
@@ -15,8 +11,6 @@ import me.roundaround.roundalib.config.value.Difficulty;
 import me.roundaround.roundalib.config.value.GameMode;
 import me.roundaround.roundalib.config.value.GuiAlignment;
 import me.roundaround.roundalib.test.RoundaLibTestMod;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 
 public class RoundaLibTestConfig extends ModConfig {
   public OptionListConfigOption<GuiAlignment> GUI_ALIGNMENT;
@@ -115,34 +109,5 @@ public class RoundaLibTestConfig extends ModConfig {
         .defaultInstance("item3", "config.group.item3", "Item 3"));
     GROUP_ITEM_4 = registerConfigOption("group", StringConfigOption
         .defaultInstance("item4", "config.group.item4", "Item 4"));
-  }
-
-  @Environment(EnvType.CLIENT)
-  public void clientInit() {
-    registerControlFactory(GUI_ALIGNMENT, OptionListControl::new);
-
-    registerControlFactory(SOME_INTEGER, IntInputControl::new);
-    registerControlFactory(STEP_BY_TWO, IntInputControl::new);
-    registerControlFactory(WITHIN_ONE_HUNDRED,IntInputControl::new);
-    registerControlFactory(WITHIN_ONE_HUNDRED_BIG_STEP, IntInputControl::new);
-    
-    registerControlFactory(PLAIN_STRING, TextInputControl::new);
-    registerControlFactory(RESTRICTED_LENGTH, TextInputControl::new);
-    registerControlFactory(REGEX, TextInputControl::new);
-    registerControlFactory(WITH_COMMENT, TextInputControl::new);
-    
-    registerControlFactory(BASIC_TOGGLE, ToggleControl::new);
-    registerControlFactory(DEFAULT_FALSE, ToggleControl::new);
-    registerControlFactory(ON_OFF, ToggleControl::new);
-    
-    registerControlFactory(DIFFICULTY, OptionListControl::new);
-    registerControlFactory(GAME_MODE, OptionListControl::new);
-    
-    registerControlFactory(GROUP_ITEM_1, TextInputControl::new);
-    registerControlFactory(GROUP_ITEM_2, TextInputControl::new);
-    registerControlFactory(GROUP_ITEM_3, TextInputControl::new);
-    registerControlFactory(GROUP_ITEM_4, TextInputControl::new);
-
-    init();
   }
 }

@@ -281,7 +281,6 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
     return getParent();
   }
 
-  @SuppressWarnings("unchecked")
   public <O extends ConfigOption<?>> ControlWidget<O> createControl(
       O configOption,
       OptionRowWidget optionRow,
@@ -291,8 +290,7 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
       int width) {
     ControlFactory<O> controlFactory = (ControlFactory<O>) parent
         .getModConfig()
-        .getControlFactories()
-        .get(configOption.getId());
+        .getControlFactory(configOption);
     return controlFactory.apply(configOption, optionRow, top, left, height, width);
   }
 }

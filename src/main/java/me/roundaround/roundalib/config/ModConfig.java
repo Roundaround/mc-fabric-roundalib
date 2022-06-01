@@ -10,8 +10,11 @@ import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 
+import org.apache.commons.lang3.NotImplementedException;
+
 import me.roundaround.roundalib.RoundaLibMod;
 import me.roundaround.roundalib.config.gui.control.ControlFactory;
+import me.roundaround.roundalib.config.gui.control.DefaultControlFactoryMap;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.util.ModInfo;
 import net.fabricmc.api.EnvType;
@@ -49,7 +52,7 @@ public abstract class ModConfig {
   };
 
   @Environment(EnvType.CLIENT)
-  private final HashMap<String, ControlFactory<?>> controlFactories = new HashMap<>();
+  private final HashMap<String, ControlFactory<?>> customControlFactories = new HashMap<>();
 
   private int version;
   private boolean saved = false;
@@ -98,8 +101,16 @@ public abstract class ModConfig {
   }
 
   @Environment(EnvType.CLIENT)
-  public HashMap<String, ControlFactory<?>> getControlFactories() {
-    return controlFactories;
+  @SuppressWarnings("unchecked")
+  public <T extends ConfigOption<?>> ControlFactory<T> getControlFactory(T configOption) {
+    if (customControlFactories.containsKey(configOption.getId())) {
+      return (ControlFactory<T>) customControlFactories.get(configOption.getId());
+    }
+    Optional<ControlFactory<T>> factory = DefaultControlFactoryMap.getControlFactory(configOption);
+    if (factory.isEmpty()) {
+      throw new NotImplementedException();
+    }
+    return factory.get();
   }
 
   public void loadFromFile() {
@@ -189,8 +200,9 @@ public abstract class ModConfig {
   }
 
   @Environment(EnvType.CLIENT)
-  protected <T extends ConfigOption<?>> T registerControlFactory(T configOption, ControlFactory<T> controlFactory) {
-    controlFactories.put(configOption.getId(), controlFactory);
+  protected <T extends ConfigOption<?>> T registerCustomControlFactory(T configOption,
+      ControlFactory<T> controlFactory) {
+    customControlFactories.put(configOption.getId(), controlFactory);
     return configOption;
   }
 
