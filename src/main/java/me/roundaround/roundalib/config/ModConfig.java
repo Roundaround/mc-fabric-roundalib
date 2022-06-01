@@ -1,7 +1,6 @@
 package me.roundaround.roundalib.config;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Optional;
@@ -10,15 +9,10 @@ import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 
-import org.apache.commons.lang3.NotImplementedException;
-
 import me.roundaround.roundalib.RoundaLibMod;
-import me.roundaround.roundalib.config.gui.control.ControlFactory;
-import me.roundaround.roundalib.config.gui.control.DefaultControlFactoryMap;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.util.ModInfo;
 import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
@@ -50,9 +44,6 @@ public abstract class ModConfig {
       saved = true;
     }
   };
-
-  @Environment(EnvType.CLIENT)
-  private final HashMap<String, ControlFactory<?>> customControlFactories = new HashMap<>();
 
   private int version;
   private boolean saved = false;
@@ -98,19 +89,6 @@ public abstract class ModConfig {
 
   public LinkedHashMap<String, LinkedList<ConfigOption<?>>> getConfigOptions() {
     return configOptions;
-  }
-
-  @Environment(EnvType.CLIENT)
-  @SuppressWarnings("unchecked")
-  public <T extends ConfigOption<?>> ControlFactory<T> getControlFactory(T configOption) {
-    if (customControlFactories.containsKey(configOption.getId())) {
-      return (ControlFactory<T>) customControlFactories.get(configOption.getId());
-    }
-    Optional<ControlFactory<T>> factory = DefaultControlFactoryMap.getControlFactory(configOption);
-    if (factory.isEmpty()) {
-      throw new NotImplementedException();
-    }
-    return factory.get();
   }
 
   public void loadFromFile() {
@@ -196,13 +174,6 @@ public abstract class ModConfig {
       configOptions.put(key, new LinkedList<>());
     }
     configOptions.get(key).add(configOption);
-    return configOption;
-  }
-
-  @Environment(EnvType.CLIENT)
-  protected <T extends ConfigOption<?>> T registerCustomControlFactory(T configOption,
-      ControlFactory<T> controlFactory) {
-    customControlFactories.put(configOption.getId(), controlFactory);
     return configOption;
   }
 

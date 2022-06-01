@@ -10,10 +10,11 @@ import java.util.stream.IntStream;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import me.roundaround.roundalib.RoundaLibMod;
 import me.roundaround.roundalib.config.gui.ConfigScreen;
 import me.roundaround.roundalib.config.gui.Scrollable;
 import me.roundaround.roundalib.config.gui.SelectableElement;
-import me.roundaround.roundalib.config.gui.control.ControlFactory;
+import me.roundaround.roundalib.config.gui.control.ControlFactoryRegistry;
 import me.roundaround.roundalib.config.gui.control.ControlWidget;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.fabricmc.api.EnvType;
@@ -288,9 +289,15 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
       int left,
       int height,
       int width) {
-    ControlFactory<O> controlFactory = (ControlFactory<O>) parent
-        .getModConfig()
-        .getControlFactory(configOption);
-    return controlFactory.apply(configOption, optionRow, top, left, height, width);
+    try {
+      return ControlFactoryRegistry.getControlFactory(configOption)
+          .apply(configOption, optionRow, top, left, height, width);
+    } catch (ControlFactoryRegistry.RegistrationException e) {
+      // TODO: Create better error message
+      String message = "Unable to instantiate a GUI control for config option '" + configOption.getId() + "'";
+      RoundaLibMod.LOGGER.error(message, e);
+      System.exit(0);
+      return null;
+    }
   }
 }
