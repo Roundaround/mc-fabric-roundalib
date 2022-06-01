@@ -2,13 +2,11 @@ package me.roundaround.roundalib.config.option;
 
 import java.util.Optional;
 
-import me.roundaround.roundalib.config.gui.control.ToggleControl;
-import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
-public class BooleanConfigOption extends ConfigOption<Boolean, ToggleControl> {
+public class BooleanConfigOption extends ConfigOption<Boolean> {
   private final Text enabledLabel;
   private final Text disabledLabel;
 
@@ -18,9 +16,12 @@ public class BooleanConfigOption extends ConfigOption<Boolean, ToggleControl> {
     disabledLabel = builder.disabledLabel;
   }
 
-  @Override
-  public ToggleControl createControl(OptionRowWidget parent, int top, int left, int height, int width) {
-    return new ToggleControl(this, parent, top, left, height, width, enabledLabel, disabledLabel);
+  public Text getEnabledLabel() {
+    return enabledLabel;
+  }
+
+  public Text getDisabledLabel() {
+    return disabledLabel;
   }
 
   public static Builder builder(String id, String labelI18nKey) {
@@ -55,7 +56,7 @@ public class BooleanConfigOption extends ConfigOption<Boolean, ToggleControl> {
         .setDisabledLabel(ScreenTexts.NO);
   }
 
-  public static class Builder extends ConfigOption.Builder<Boolean, ToggleControl> {
+  public static class Builder extends ConfigOption.Builder<Boolean> {
     private Text enabledLabel = new TranslatableText("config.toggle.enabled");
     private Text disabledLabel = new TranslatableText("config.toggle.disabled");
 

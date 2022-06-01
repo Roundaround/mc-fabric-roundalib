@@ -4,13 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import me.roundaround.roundalib.config.gui.control.IntInputControl;
-import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
 
-public class IntConfigOption extends ConfigOption<Integer, IntInputControl> {
+public class IntConfigOption extends ConfigOption<Integer> {
   private Optional<Integer> minValue = Optional.empty();
   private Optional<Integer> maxValue = Optional.empty();
   private Optional<Integer> step = Optional.of(1);
@@ -34,11 +32,6 @@ public class IntConfigOption extends ConfigOption<Integer, IntInputControl> {
       allValidators.addAll(builder.customValidators);
     }
     validators = List.copyOf(allValidators);
-  }
-
-  @Override
-  public IntInputControl createControl(OptionRowWidget parent, int top, int left, int height, int width) {
-    return new IntInputControl(this, parent, top, left, height, width);
   }
 
   public boolean increment() {
@@ -100,7 +93,7 @@ public class IntConfigOption extends ConfigOption<Integer, IntInputControl> {
     return new Builder(id, label);
   }
 
-  public static class Builder extends ConfigOption.Builder<Integer, IntInputControl> {
+  public static class Builder extends ConfigOption.Builder<Integer> {
     private Optional<Integer> minValue = Optional.empty();
     private Optional<Integer> maxValue = Optional.empty();
     private Optional<Integer> step = Optional.of(1);

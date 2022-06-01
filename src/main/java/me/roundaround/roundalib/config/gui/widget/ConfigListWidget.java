@@ -13,6 +13,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.config.gui.ConfigScreen;
 import me.roundaround.roundalib.config.gui.Scrollable;
 import me.roundaround.roundalib.config.gui.SelectableElement;
+import me.roundaround.roundalib.config.gui.control.ControlFactory;
+import me.roundaround.roundalib.config.gui.control.ControlWidget;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -84,8 +86,8 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
         rows.add(groupTitle);
       }
 
-      LinkedList<ConfigOption<?, ?>> configOptions = entry.getValue();
-      for (ConfigOption<?, ?> configOption : configOptions) {
+      LinkedList<ConfigOption<?>> configOptions = entry.getValue();
+      for (ConfigOption<?> configOption : configOptions) {
         OptionRowWidget optionRow = new OptionRowWidget(
             this,
             index++,
@@ -277,5 +279,20 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
 
   public ConfigScreen getConfigScreen() {
     return getParent();
+  }
+
+  @SuppressWarnings("unchecked")
+  public <O extends ConfigOption<?>> ControlWidget<O> createControl(
+      O configOption,
+      OptionRowWidget optionRow,
+      int top,
+      int left,
+      int height,
+      int width) {
+    ControlFactory<O> controlFactory = (ControlFactory<O>) parent
+        .getModConfig()
+        .getControlFactories()
+        .get(configOption.getId());
+    return controlFactory.apply(configOption, optionRow, top, left, height, width);
   }
 }

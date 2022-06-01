@@ -14,7 +14,10 @@
   "license": "MIT",
   "environment": "*",
   "entrypoints": {
-    "main": [
+    "server": [
+      "me.roundaround.roundalib.test.RoundaLibTestMod"
+    ],
+    "client": [
       "me.roundaround.roundalib.test.RoundaLibTestMod"
     ],
     "modmenu": [

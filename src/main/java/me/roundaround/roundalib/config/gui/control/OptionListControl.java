@@ -9,12 +9,15 @@ import net.minecraft.text.TranslatableText;
 public class OptionListControl<T extends ListOptionValue<T>> extends ButtonControl<OptionListConfigOption<T>> {
   private Text cachedText;
 
-  public OptionListControl(OptionListConfigOption<T> configOption, OptionRowWidget parent, int top, int left, int height, int width) {
+  public OptionListControl(
+      OptionListConfigOption<T> configOption,
+      OptionRowWidget parent,
+      int top,
+      int left,
+      int height,
+      int width) {
     super(configOption, parent, top, left, height, width);
-  }
 
-  @Override
-  public void init() {
     configOption.subscribeToValueChanges(this::onConfigValueChange);
     cachedText = new TranslatableText(configOption.getValue().getI18nKey());
   }

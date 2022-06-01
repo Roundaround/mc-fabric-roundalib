@@ -5,13 +5,10 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.function.BiConsumer;
 
-import me.roundaround.roundalib.config.gui.control.Control;
-import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
-import me.roundaround.roundalib.config.gui.widget.Widget;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
-public abstract class ConfigOption<D, C extends Widget & Control<?>> {
+public abstract class ConfigOption<D> {
   private final String id;
   private final Text label;
   private final Optional<Text> comment;
@@ -22,7 +19,7 @@ public abstract class ConfigOption<D, C extends Widget & Control<?>> {
   private D value;
   private D lastSavedValue;
 
-  protected ConfigOption(Builder<D, C> builder) {
+  protected ConfigOption(Builder<D> builder) {
     id = builder.id;
     label = builder.label;
     comment = builder.comment;
@@ -82,20 +79,11 @@ public abstract class ConfigOption<D, C extends Widget & Control<?>> {
     return value;
   }
 
-  public final C createAndInitializeControl(OptionRowWidget parent, int top, int left, int height, int width) {
-    C control = createControl(parent, top, left, height, width);
-    control.init();
-
-    return control;
-  }
-
   public final void subscribeToValueChanges(BiConsumer<D, D> listener) {
     this.valueChangeListeners.add(listener);
   }
 
-  protected abstract C createControl(OptionRowWidget parent, int top, int left, int height, int width);
-
-  public static abstract class Builder<D2, C2 extends Widget & Control<?>> {
+  public static abstract class Builder<D2> {
     protected String id;
     protected Text label;
     protected Optional<Text> comment = Optional.empty();
@@ -112,21 +100,21 @@ public abstract class ConfigOption<D, C extends Widget & Control<?>> {
       this.defaultValue = defaultValue;
     }
 
-    public Builder<D2, C2> setComment(String i18nKey) {
+    public Builder<D2> setComment(String i18nKey) {
       comment = Optional.of(new TranslatableText(i18nKey));
       return this;
     }
 
-    public Builder<D2, C2> setComment(Text comment) {
+    public Builder<D2> setComment(Text comment) {
       this.comment = Optional.of(comment);
       return this;
     }
 
-    public Builder<D2, C2> setUseLabelAsCommentFallback(boolean useLabelAsCommentFallback) {
+    public Builder<D2> setUseLabelAsCommentFallback(boolean useLabelAsCommentFallback) {
       this.useLabelAsCommentFallback = useLabelAsCommentFallback;
       return this;
     }
 
-    public abstract ConfigOption<D2, C2> build();
+    public abstract ConfigOption<D2> build();
   }
 }

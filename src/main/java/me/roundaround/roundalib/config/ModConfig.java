@@ -1,6 +1,7 @@
 package me.roundaround.roundalib.config;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Optional;
@@ -10,9 +11,11 @@ import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 
 import me.roundaround.roundalib.RoundaLibMod;
+import me.roundaround.roundalib.config.gui.control.ControlFactory;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.util.ModInfo;
 import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
@@ -28,7 +31,7 @@ public abstract class ModConfig {
   private final int configVersion;
   private final String configScreenI18nKey;
   private final boolean showGroupTitles;
-  private final LinkedHashMap<String, LinkedList<ConfigOption<?, ?>>> configOptions = new LinkedHashMap<>();
+  private final LinkedHashMap<String, LinkedList<ConfigOption<?>>> configOptions = new LinkedHashMap<>();
   private final IdentifiableResourceReloadListener reloadListener = new SimpleSynchronousResourceReloadListener() {
     @Override
     public Identifier getFabricId() {
@@ -44,6 +47,9 @@ public abstract class ModConfig {
       saved = true;
     }
   };
+
+  @Environment(EnvType.CLIENT)
+  private final HashMap<String, ControlFactory<?>> controlFactories = new HashMap<>();
 
   private int version;
   private boolean saved = false;
@@ -87,8 +93,13 @@ public abstract class ModConfig {
     return showGroupTitles;
   }
 
-  public LinkedHashMap<String, LinkedList<ConfigOption<?, ?>>> getConfigOptions() {
+  public LinkedHashMap<String, LinkedList<ConfigOption<?>>> getConfigOptions() {
     return configOptions;
+  }
+
+  @Environment(EnvType.CLIENT)
+  public HashMap<String, ControlFactory<?>> getControlFactories() {
+    return controlFactories;
   }
 
   public void loadFromFile() {
@@ -160,11 +171,11 @@ public abstract class ModConfig {
     return false;
   }
 
-  protected <T extends ConfigOption<?, ?>> T registerConfigOption(T configOption) {
+  protected <T extends ConfigOption<?>> T registerConfigOption(T configOption) {
     return registerConfigOption(null, configOption);
   }
 
-  protected <T extends ConfigOption<?, ?>> T registerConfigOption(String group, T configOption) {
+  protected <T extends ConfigOption<?>> T registerConfigOption(String group, T configOption) {
     String key = modInfo.getModId();
     if (group != null) {
       key += "." + group;
@@ -174,6 +185,12 @@ public abstract class ModConfig {
       configOptions.put(key, new LinkedList<>());
     }
     configOptions.get(key).add(configOption);
+    return configOption;
+  }
+
+  @Environment(EnvType.CLIENT)
+  protected <T extends ConfigOption<?>> T registerControlFactory(T configOption, ControlFactory<T> controlFactory) {
+    controlFactories.put(configOption.getId(), controlFactory);
     return configOption;
   }
 

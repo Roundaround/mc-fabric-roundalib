@@ -35,7 +35,7 @@ public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
   protected static final int ROW_SHADE_FADE_OVERFLOW = 10;
 
   protected final int index;
-  protected final ConfigOption<?, ?> configOption;
+  protected final ConfigOption<?> configOption;
   protected final Widget control;
   protected final ResetButtonWidget resetButton;
 
@@ -44,7 +44,7 @@ public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
   public OptionRowWidget(
       ConfigListWidget parent,
       int index,
-      ConfigOption<?, ?> configOption,
+      ConfigOption<?> configOption,
       int top,
       int left,
       int width) {
@@ -54,7 +54,8 @@ public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
 
     this.index = index;
     this.configOption = configOption;
-    control = configOption.createAndInitializeControl(
+    control = getConfigList().createControl(
+        configOption,
         this,
         top,
         right - controlWidth - ResetButtonWidget.WIDTH - (PADDING * 2),
@@ -192,7 +193,7 @@ public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
     }
   }
 
-  public ConfigOption<?, ?> getConfigOption() {
+  public ConfigOption<?> getConfigOption() {
     return configOption;
   }
 

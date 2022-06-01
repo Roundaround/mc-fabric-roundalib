@@ -22,10 +22,7 @@ public class IntInputControl extends AbstractControlWidget<IntConfigOption> {
       int height,
       int width) {
     super(configOption, parent, top, left, height, width);
-  }
 
-  @Override
-  public void init() {
     textBox = new TextFieldWidget(
         this,
         TEXT_RENDERER,

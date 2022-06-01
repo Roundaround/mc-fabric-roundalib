@@ -5,12 +5,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import me.roundaround.roundalib.config.gui.control.TextInputControl;
-import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
-public class StringConfigOption extends ConfigOption<String, TextInputControl> {
+public class StringConfigOption extends ConfigOption<String> {
   private Optional<Integer> minLength = Optional.empty();
   private Optional<Integer> maxLength = Optional.empty();
   private Optional<Pattern> regex = Optional.empty();
@@ -39,11 +37,6 @@ public class StringConfigOption extends ConfigOption<String, TextInputControl> {
     validators = List.copyOf(allValidators);
   }
 
-  @Override
-  public TextInputControl createControl(OptionRowWidget parent, int top, int left, int height, int width) {
-    return new TextInputControl(this, parent, top, left, height, width);
-  }
-
   public boolean validateInput(String newValue) {
     // TODO: Return a result object with details about which validator failed,
     // show a tooltip with error?
@@ -68,7 +61,7 @@ public class StringConfigOption extends ConfigOption<String, TextInputControl> {
     return new Builder(id, label);
   }
 
-  public static class Builder extends ConfigOption.Builder<String, TextInputControl> {
+  public static class Builder extends ConfigOption.Builder<String> {
     private Optional<Integer> minLength = Optional.empty();
     private Optional<Integer> maxLength = Optional.empty();
     private Optional<Pattern> regex = Optional.empty();

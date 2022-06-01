@@ -6,13 +6,14 @@ import me.roundaround.roundalib.config.gui.widget.ConfigListWidget;
 import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import me.roundaround.roundalib.config.option.ConfigOption;
 
-public abstract class AbstractClickableControlWidget<O extends ConfigOption<?, ?>>
+public abstract class AbstractClickableControlWidget<O extends ConfigOption<?>>
     extends AbstractClickableWidget<OptionRowWidget>
-    implements Control<O> {
+    implements ControlWidget<O> {
   protected O configOption;
   protected boolean valid = true;
 
-  protected AbstractClickableControlWidget(O configOption, OptionRowWidget parent, int top, int left, int height, int width) {
+  protected AbstractClickableControlWidget(O configOption, OptionRowWidget parent, int top, int left, int height,
+      int width) {
     super(parent, top, left, height, width);
     this.configOption = configOption;
   }

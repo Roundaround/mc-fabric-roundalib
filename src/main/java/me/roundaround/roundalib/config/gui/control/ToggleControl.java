@@ -29,10 +29,7 @@ public class ToggleControl extends ButtonControl<BooleanConfigOption> {
     super(configOption, parent, top, left, height, width);
     this.enabledLabel = enabledLabel;
     this.disabledLabel = disabledLabel;
-  }
 
-  @Override
-  public void init() {
     configOption.subscribeToValueChanges(this::onConfigValueChange);
     cachedText = configOption.getValue() ? enabledLabel : disabledLabel;
   }

@@ -2,20 +2,13 @@ package me.roundaround.roundalib.config.option;
 
 import java.util.Optional;
 
-import me.roundaround.roundalib.config.gui.control.OptionListControl;
-import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import me.roundaround.roundalib.config.value.ListOptionValue;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
-public class OptionListConfigOption<T extends ListOptionValue<T>> extends ConfigOption<T, OptionListControl<T>> {
+public class OptionListConfigOption<T extends ListOptionValue<T>> extends ConfigOption<T> {
   protected OptionListConfigOption(Builder<T> builder) {
     super(builder);
-  }
-
-  @Override
-  public OptionListControl<T> createControl(OptionRowWidget parent, int top, int left, int height, int width) {
-    return new OptionListControl<T>(this, parent, top, left, height, width);
   }
 
   @Override
@@ -46,7 +39,7 @@ public class OptionListConfigOption<T extends ListOptionValue<T>> extends Config
     return new Builder<T>(id, label, defaultValue);
   }
 
-  public static class Builder<T extends ListOptionValue<T>> extends ConfigOption.Builder<T, OptionListControl<T>> {
+  public static class Builder<T extends ListOptionValue<T>> extends ConfigOption.Builder<T> {
     private Builder(String id, String labelI18nKey, T defaultValue) {
       super(id, labelI18nKey, defaultValue);
     }
