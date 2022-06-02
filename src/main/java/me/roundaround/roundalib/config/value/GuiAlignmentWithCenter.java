@@ -2,7 +2,7 @@ package me.roundaround.roundalib.config.value;
 
 import java.util.Arrays;
 
-import me.roundaround.roundalib.util.GuiUtil;
+import me.roundaround.roundalib.config.gui.GuiUtil;
 
 public enum GuiAlignmentWithCenter implements ListOptionValue<GuiAlignmentWithCenter> {
   TOP_LEFT(AlignmentY.TOP, AlignmentX.LEFT),

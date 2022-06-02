@@ -1,4 +1,4 @@
-package me.roundaround.roundalib.util;
+package me.roundaround.roundalib.config.gui;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -6,6 +6,9 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 
 public class GuiUtil {
+  public static int LABEL_COLOR = 0xFFFFFFFF;
+  public static int ERROR_COLOR = 0xFFFF0000;
+
   private static final MinecraftClient MINECRAFT = MinecraftClient.getInstance();
 
   public static int getScaledWindowWidth() {

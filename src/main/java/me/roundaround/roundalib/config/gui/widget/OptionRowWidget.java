@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import me.roundaround.roundalib.config.gui.ConfigScreen;
+import me.roundaround.roundalib.config.gui.GuiUtil;
 import me.roundaround.roundalib.config.gui.SelectableElement;
 import me.roundaround.roundalib.config.gui.control.Control;
 import me.roundaround.roundalib.config.option.ConfigOption;
@@ -26,7 +27,6 @@ import net.minecraft.util.math.Matrix4f;
 @Environment(EnvType.CLIENT)
 public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
   public static final int HEIGHT = 20;
-  protected static final int LABEL_COLOR = 0xFFFFFFFF;
   protected static final int HIGHLIGHT_COLOR = 0x30FFFFFF;
   protected static final int PADDING = 4;
   protected static final int CONTROL_MIN_WIDTH = 100;
@@ -173,7 +173,7 @@ public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
         configOption.getLabel(),
         left + PADDING,
         top + (height - 8) / 2,
-        LABEL_COLOR);
+        isValid() ? GuiUtil.LABEL_COLOR : GuiUtil.ERROR_COLOR);
   }
 
   protected void renderControl(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {

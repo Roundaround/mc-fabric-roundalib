@@ -2,6 +2,7 @@ package me.roundaround.roundalib.config.gui.control;
 
 import java.util.List;
 
+import me.roundaround.roundalib.config.gui.GuiUtil;
 import me.roundaround.roundalib.config.gui.SelectableElement;
 import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import me.roundaround.roundalib.config.gui.widget.TextFieldWidget;
@@ -97,13 +98,13 @@ public class TextInputControl extends AbstractControlWidget<StringConfigOption> 
 
   @Override
   public void markInvalid() {
-    textBox.setEditableColor(16711680);
+    textBox.setEditableColor(GuiUtil.ERROR_COLOR);
     super.markInvalid();
   }
 
   @Override
   public void markValid() {
-    textBox.setEditableColor(14737632);
+    textBox.setEditableColor(GuiUtil.LABEL_COLOR);
     super.markValid();
   }
 

@@ -3,6 +3,7 @@ package me.roundaround.roundalib.config.gui.widget;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import me.roundaround.roundalib.config.gui.ConfigScreen;
+import me.roundaround.roundalib.config.gui.GuiUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.render.BufferBuilder;
@@ -17,7 +18,6 @@ import net.minecraft.util.math.Matrix4f;
 @Environment(EnvType.CLIENT)
 public class GroupTitleWidget extends AbstractWidget<ConfigListWidget> {
   public static final int HEIGHT = 20;
-  protected static final int LABEL_COLOR = 0xFFFFFFFF;
   protected static final int ROW_SHADE_STRENGTH = 85;
   protected static final int ROW_SHADE_FADE_WIDTH = 10;
   protected static final int ROW_SHADE_FADE_OVERFLOW = 10;
@@ -113,7 +113,7 @@ public class GroupTitleWidget extends AbstractWidget<ConfigListWidget> {
         label.asOrderedText(),
         left + width / 2,
         top + (height - 8) / 2,
-        LABEL_COLOR);
+        GuiUtil.LABEL_COLOR);
   }
 
   protected void renderDecorations(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
