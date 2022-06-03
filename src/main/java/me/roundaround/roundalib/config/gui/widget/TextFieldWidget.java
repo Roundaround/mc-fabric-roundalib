@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import me.roundaround.roundalib.config.gui.SelectableElement;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.screen.narration.NarrationPart;
 import net.minecraft.text.Text;
 
 public class TextFieldWidget extends net.minecraft.client.gui.widget.TextFieldWidget implements SelectableElement {
@@ -45,7 +46,7 @@ public class TextFieldWidget extends net.minecraft.client.gui.widget.TextFieldWi
   }
 
   @Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+  public boolean mouseClicked(double mouseX, double mouseY, int button) {
     if (!parent.isMouseOver(mouseX, mouseY)) {
       return false;
     }
@@ -82,8 +83,7 @@ public class TextFieldWidget extends net.minecraft.client.gui.widget.TextFieldWi
 
   @Override
   public void appendNarrations(NarrationMessageBuilder builder) {
-    // TODO: Figure out why this just says "Edit box, <value>"
-    super.appendNarrations(builder);
+    builder.put(NarrationPart.TITLE, getNarrationMessage());
   }
 
   protected boolean isCharAllowed(char chr) {
