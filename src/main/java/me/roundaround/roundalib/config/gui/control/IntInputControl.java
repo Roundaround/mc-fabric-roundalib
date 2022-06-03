@@ -1,14 +1,17 @@
 package me.roundaround.roundalib.config.gui.control;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import me.roundaround.roundalib.config.gui.GuiUtil;
 import me.roundaround.roundalib.config.gui.SelectableElement;
 import me.roundaround.roundalib.config.gui.widget.IntStepButtonWidget;
 import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import me.roundaround.roundalib.config.gui.widget.TextFieldWidget;
+import me.roundaround.roundalib.config.gui.widget.Widget;
 import me.roundaround.roundalib.config.option.IntConfigOption;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.Text;
 
 public class IntInputControl extends AbstractControlWidget<IntConfigOption> {
   private TextFieldWidget textBox;
@@ -65,6 +68,7 @@ public class IntInputControl extends AbstractControlWidget<IntConfigOption> {
 
   @Override
   public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+    super.render(matrices, mouseX, mouseY, delta);
     textBox.render(matrices, mouseX, mouseY, delta);
     if (configOption.showStepButtons()) {
       incrementButton.render(matrices, mouseX, mouseY, delta);
@@ -79,6 +83,20 @@ public class IntInputControl extends AbstractControlWidget<IntConfigOption> {
       incrementButton.tick();
       decrementButton.tick();
     }
+  }
+
+  @Override
+  public List<Text> getTooltip(int mouseX, int mouseY, float delta) {
+    return getSelectableElements().stream()
+        .map((element) -> {
+          if (element instanceof Widget) {
+            return ((Widget) element).getTooltip(mouseX, mouseY, delta);
+          }
+          return null;
+        })
+        .filter((tooltip) -> tooltip != null)
+        .flatMap(List::stream)
+        .collect(Collectors.toList());
   }
 
   @Override

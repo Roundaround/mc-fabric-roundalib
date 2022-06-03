@@ -7,6 +7,8 @@ import net.minecraft.client.gui.Selectable;
 
 public interface SelectableElement extends Selectable, Element {
   boolean setIsFocused(boolean focused);
+
   boolean isFocused();
+
   void setFocusChangedListener(Consumer<Boolean> listener);
 }

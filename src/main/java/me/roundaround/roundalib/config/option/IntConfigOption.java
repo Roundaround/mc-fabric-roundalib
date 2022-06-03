@@ -34,6 +34,10 @@ public class IntConfigOption extends ConfigOption<Integer> {
     validators = List.copyOf(allValidators);
   }
 
+  public int getStep() {
+    return step.isEmpty() ? 1 : step.get();
+  }
+
   public boolean increment() {
     return step(1);
   }

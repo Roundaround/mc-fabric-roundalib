@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 
 import me.roundaround.roundalib.config.gui.SelectableElement;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.text.Text;
 
 public class TextFieldWidget extends net.minecraft.client.gui.widget.TextFieldWidget implements SelectableElement {
@@ -77,6 +78,12 @@ public class TextFieldWidget extends net.minecraft.client.gui.widget.TextFieldWi
   @Override
   public void setFocusChangedListener(Consumer<Boolean> focusChangedListener) {
     this.focusChangedListener = focusChangedListener;
+  }
+
+  @Override
+  public void appendNarrations(NarrationMessageBuilder builder) {
+    // TODO: Figure out why this just says "Edit box, <value>"
+    super.appendNarrations(builder);
   }
 
   protected boolean isCharAllowed(char chr) {

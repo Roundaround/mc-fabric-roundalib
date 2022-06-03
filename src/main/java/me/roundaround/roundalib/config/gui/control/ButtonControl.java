@@ -8,7 +8,6 @@ import org.lwjgl.glfw.GLFW;
 import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.sound.SoundManager;
@@ -61,6 +60,8 @@ public abstract class ButtonControl<O extends ConfigOption<?>> extends AbstractC
 
   @Override
   public void render(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
+    super.render(matrixStack, mouseX, mouseY, delta);
+
     RenderSystem.setShaderColor(1, 1, 1, 1);
     RenderSystem.enableBlend();
     RenderSystem.blendFunc(
@@ -124,10 +125,5 @@ public abstract class ButtonControl<O extends ConfigOption<?>> extends AbstractC
     }
 
     return 1;
-  }
-
-  @Override
-  public void appendNarrations(NarrationMessageBuilder builder) {
-    // TODO: Fill in
   }
 }

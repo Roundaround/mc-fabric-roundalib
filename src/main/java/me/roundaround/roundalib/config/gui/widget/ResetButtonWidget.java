@@ -9,6 +9,7 @@ import org.lwjgl.glfw.GLFW;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.screen.narration.NarrationPart;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.sound.SoundManager;
@@ -109,8 +110,19 @@ public class ResetButtonWidget extends AbstractClickableWidget<OptionRowWidget> 
   }
 
   @Override
+  public boolean isNarratable() {
+    return !isDisabled();
+  }
+
+  @Override
   public void appendNarrations(NarrationMessageBuilder builder) {
-    // TODO: Fill in
+    builder.put(NarrationPart.TITLE, new TranslatableText("narrator.controls.reset", parent.getConfigOption().getLabel()));
+    if (focused) {
+      builder.put(NarrationPart.USAGE, new TranslatableText("narration.button.usage.focused"));
+    } else if (hovered) {
+      builder.put(NarrationPart.USAGE, new TranslatableText("narration.button.usage.hovered"));
+    }
+    builder.put(NarrationPart.HINT, TOOLTIP);
   }
 
   private void onPress() {

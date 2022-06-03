@@ -19,6 +19,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.render.BufferBuilder;
@@ -94,9 +95,9 @@ public class ConfigScreen extends Screen {
           close();
         });
 
-    selectableElements.addAll(listWidget.getSelectableElements());
-    selectableElements.add(cancelButton);
-    selectableElements.add(doneButton);
+    listWidget.getSelectableElements().forEach(this::addSelectableChild);
+    addSelectableChild(cancelButton);
+    addSelectableChild(doneButton);
   }
 
   @Override
@@ -304,5 +305,11 @@ public class ConfigScreen extends Screen {
       return;
     }
     doneButton.active = invalidRows.isEmpty();
+  }
+
+  @Override
+  protected <T extends Element & Selectable> T addSelectableChild(T child) {
+    selectableElements.add((SelectableElement) child);
+    return super.addSelectableChild(child);
   }
 }

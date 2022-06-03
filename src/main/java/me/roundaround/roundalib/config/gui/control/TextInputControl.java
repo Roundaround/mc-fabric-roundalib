@@ -48,6 +48,7 @@ public class TextInputControl extends AbstractControlWidget<StringConfigOption> 
 
   @Override
   public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+    super.render(matrices, mouseX, mouseY, delta);
     textBox.render(matrices, mouseX, mouseY, delta);
   }
 

@@ -1,6 +1,9 @@
 {
   "config.version_comment": " Config version is auto-generated\n DO NOT CHANGE",
   "config.reset.tooltip": "Reset to default",
+  "config.step.narration": "%s step button",
+  "config.step_up.tooltip": "Increment by %s",
+  "config.step_down.tooltip": "Decrement by %s",
   "config.gui_alignment.top_left": "Top left",
   "config.gui_alignment.top_center": "Top center",
   "config.gui_alignment.top_right": "Top right",
