@@ -27,7 +27,7 @@ public enum GuiAlignment implements ListOptionValue<GuiAlignment> {
 
   @Override
   public String getI18nKey() {
-    return "config.gui_alignment." + this.id;
+    return "roundalib.gui_alignment." + this.id;
   }
 
   @Override

@@ -23,7 +23,7 @@ public class ResetButtonWidget extends AbstractClickableWidget<OptionRowWidget> 
   public static final int HEIGHT = 12;
   public static final int WIDTH = 12;
   protected static final Identifier TEXTURE = new Identifier("roundalib", "textures/gui.png");
-  protected static final TranslatableText TOOLTIP = new TranslatableText("config.reset.tooltip");
+  protected static final TranslatableText TOOLTIP = new TranslatableText("roundalib.reset.tooltip");
 
   public ResetButtonWidget(OptionRowWidget parent, int top, int left) {
     super(parent, top, left, HEIGHT, WIDTH);

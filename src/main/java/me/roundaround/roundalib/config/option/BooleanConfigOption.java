@@ -57,8 +57,8 @@ public class BooleanConfigOption extends ConfigOption<Boolean> {
   }
 
   public static class Builder extends ConfigOption.Builder<Boolean> {
-    private Text enabledLabel = new TranslatableText("config.toggle.enabled");
-    private Text disabledLabel = new TranslatableText("config.toggle.disabled");
+    private Text enabledLabel = new TranslatableText("roundalib.toggle.enabled");
+    private Text disabledLabel = new TranslatableText("roundalib.toggle.disabled");
 
     private Builder(String id, String labelI18nKey) {
       super(id, labelI18nKey, true);

@@ -32,7 +32,7 @@ public enum GuiAlignmentWithCenter implements ListOptionValue<GuiAlignmentWithCe
 
   @Override
   public String getI18nKey() {
-    return "config.gui_alignment." + this.id;
+    return "roundalib.gui_alignment." + this.id;
   }
 
   @Override

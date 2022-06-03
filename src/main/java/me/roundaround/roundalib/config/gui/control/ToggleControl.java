@@ -17,7 +17,7 @@ public class ToggleControl extends ButtonControl<BooleanConfigOption> {
 
   public ToggleControl(BooleanConfigOption configOption, OptionRowWidget parent, int top, int left, int height,
       int width) {
-    this(configOption, parent, top, left, height, width, "config.toggle.enabled", "config.toggle.disabled");
+    this(configOption, parent, top, left, height, width, "roundalib.toggle.enabled", "roundalib.toggle.disabled");
   }
 
   public ToggleControl(BooleanConfigOption configOption, OptionRowWidget parent, int top, int left, int height,

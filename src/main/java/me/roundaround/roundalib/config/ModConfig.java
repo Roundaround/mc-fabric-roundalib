@@ -130,7 +130,7 @@ public abstract class ModConfig {
         .preserveInsertionOrder()
         .build();
 
-    fileConfig.setComment("configVersion", new TranslatableText("config.version_comment").getString());
+    fileConfig.setComment("configVersion", new TranslatableText("roundalib.version_comment").getString());
     fileConfig.set("configVersion", configVersion);
 
     configOptions.entrySet().forEach((entry) -> {

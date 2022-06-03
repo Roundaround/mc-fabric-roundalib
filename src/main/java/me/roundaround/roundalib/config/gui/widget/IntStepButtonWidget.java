@@ -32,7 +32,7 @@ public class IntStepButtonWidget extends AbstractClickableWidget<IntInputControl
   public IntStepButtonWidget(IntInputControl parent, boolean increment, int top, int left) {
     super(parent, top, left, HEIGHT, WIDTH);
     this.increment = increment;
-    tooltip = new TranslatableText(increment ? "config.step_up.tooltip" : "config.step_down.tooltip",
+    tooltip = new TranslatableText(increment ? "roundalib.step_up.tooltip" : "roundalib.step_down.tooltip",
         parent.getConfigOption().getStep());
   }
 
@@ -125,7 +125,7 @@ public class IntStepButtonWidget extends AbstractClickableWidget<IntInputControl
   @Override
   public void appendNarrations(NarrationMessageBuilder builder) {
     builder.put(NarrationPart.TITLE,
-        new TranslatableText("config.step.narration", parent.getConfigOption().getLabel()));
+        new TranslatableText("roundalib.step.narration", parent.getConfigOption().getLabel()));
     if (focused) {
       builder.put(NarrationPart.USAGE, new TranslatableText("narration.button.usage.focused"));
     } else if (hovered) {
