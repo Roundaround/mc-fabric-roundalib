@@ -9,11 +9,11 @@ import net.minecraft.client.gui.screen.narration.NarrationPart;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
-public class OptionListControl extends ButtonControl<OptionListConfigOption> {
+public class OptionListControl<S extends ListOptionValue<S>, T extends OptionListConfigOption<S>> extends ButtonControl<T> {
   private Text cachedText;
 
   public OptionListControl(
-      OptionListConfigOption configOption,
+      T configOption,
       OptionRowWidget parent,
       int top,
       int left,
@@ -32,12 +32,15 @@ public class OptionListControl extends ButtonControl<OptionListConfigOption> {
 
   @Override
   protected void onPress(int button) {
-    ListOptionValue<?> currentValue = configOption.getValue();
-    configOption.setValue(button == 0 ? currentValue.getNext() : currentValue.getPrev());
+    if (button == 0) {
+      configOption.setNext();
+    } else {
+      configOption.setPrev();
+    }
     super.onPress(button);
   }
 
-  private void onConfigValueChange(ListOptionValue<?> prev, ListOptionValue<?> curr) {
+  private void onConfigValueChange(S prev, S curr) {
     cachedText = new TranslatableText(curr.getI18nKey());
   }
 

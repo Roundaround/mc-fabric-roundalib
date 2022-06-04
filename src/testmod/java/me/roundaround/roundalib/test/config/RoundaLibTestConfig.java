@@ -13,7 +13,7 @@ import me.roundaround.roundalib.config.value.GuiAlignment;
 import me.roundaround.roundalib.test.RoundaLibTestMod;
 
 public class RoundaLibTestConfig extends ModConfig {
-  public OptionListConfigOption GUI_ALIGNMENT;
+  public OptionListConfigOption<GuiAlignment> GUI_ALIGNMENT;
 
   public IntConfigOption SOME_INTEGER;
   public IntConfigOption STEP_BY_TWO;
@@ -34,8 +34,8 @@ public class RoundaLibTestConfig extends ModConfig {
   public StringConfigOption GROUP_ITEM_3;
   public StringConfigOption GROUP_ITEM_4;
 
-  public OptionListConfigOption DIFFICULTY;
-  public OptionListConfigOption GAME_MODE;
+  public OptionListConfigOption<Difficulty> DIFFICULTY;
+  public OptionListConfigOption<GameMode> GAME_MODE;
 
   public RoundaLibTestConfig() {
     super(RoundaLibTestMod.MOD_ID);

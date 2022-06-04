@@ -292,7 +292,7 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
     try {
       return ControlFactoryRegistry.getControlFactory(configOption)
           .apply(configOption, optionRow, top, left, height, width);
-    } catch (ControlFactoryRegistry.RegistrationException e) {
+    } catch (ControlFactoryRegistry.NotRegisteredException e) {
       // TODO: Create better error message
       String message = "Unable to instantiate a GUI control for config option '" + configOption.getId() + "'";
       RoundaLibMod.LOGGER.error(message, e);

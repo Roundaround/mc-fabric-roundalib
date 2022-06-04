@@ -9,17 +9,17 @@ import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.option.IntConfigOption;
 import me.roundaround.roundalib.config.option.OptionListConfigOption;
 import me.roundaround.roundalib.config.option.StringConfigOption;
+import me.roundaround.roundalib.config.value.Difficulty;
+import me.roundaround.roundalib.config.value.GameMode;
+import me.roundaround.roundalib.config.value.GuiAlignment;
+import me.roundaround.roundalib.config.value.ListOptionValue;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 @Environment(EnvType.CLIENT)
 public class ControlFactoryRegistry {
-  // TODO: Improve this. Had to remove the generic type from ListOptionValue and
-  // related classes in order to allow registering here by generic. Perhaps the
-  // control itself should not care about the config option's type, and should
-  // use an interface somehow?
-
   private static final Map<Class<?>, ControlFactory<?>> byClazz = new HashMap<>();
+  private static final Map<Class<?>, ControlFactory<?>> byOptionListClazz = new HashMap<>();
   private static final Map<String, ControlFactory<?>> byId = new HashMap<>();
 
   static {
@@ -34,7 +34,9 @@ public class ControlFactoryRegistry {
       register(BooleanConfigOption.class, ToggleControl::new);
       register(IntConfigOption.class, IntInputControl::new);
       register(StringConfigOption.class, TextInputControl::new);
-      register(OptionListConfigOption.class, OptionListControl::new);
+      registerOptionList(GuiAlignment.class, OptionListControl::new);
+      registerOptionList(Difficulty.class, OptionListControl::new);
+      registerOptionList(GameMode.class, OptionListControl::new);
     } catch (RegistrationException e) {
       RoundaLibMod.LOGGER.error("There was an error registering the built-in control factories!", e);
       System.exit(0);
@@ -42,7 +44,9 @@ public class ControlFactoryRegistry {
 
   }
 
-  public static <T extends ConfigOption<?>> void register(Class<T> clazz, ControlFactory<T> factory)
+  public static <T extends ConfigOption<?>> void register(
+      Class<T> clazz,
+      ControlFactory<T> factory)
       throws RegistrationException {
     if (byClazz.containsKey(clazz)) {
       throw new RegistrationException();
@@ -50,7 +54,19 @@ public class ControlFactoryRegistry {
     byClazz.put(clazz, factory);
   }
 
-  public static <T extends ConfigOption<?>> void register(String id, ControlFactory<T> factory)
+  public static <S extends ListOptionValue<S>, T extends OptionListConfigOption<S>> void registerOptionList(
+      Class<S> clazz,
+      ControlFactory<T> factory)
+      throws RegistrationException {
+    if (byOptionListClazz.containsKey(clazz)) {
+      throw new RegistrationException();
+    }
+    byOptionListClazz.put(clazz, factory);
+  }
+
+  public static <T extends ConfigOption<?>> void register(
+      String id,
+      ControlFactory<T> factory)
       throws RegistrationException {
     if (byId.containsKey(id)) {
       throw new RegistrationException();
@@ -60,7 +76,7 @@ public class ControlFactoryRegistry {
 
   @SuppressWarnings("unchecked")
   public static <T extends ConfigOption<?>> ControlFactory<T> getControlFactory(T configOption)
-      throws RegistrationException {
+      throws NotRegisteredException {
     String id = configOption.getId();
     if (byId.containsKey(id)) {
       return (ControlFactory<T>) byId.get(id);
@@ -71,9 +87,19 @@ public class ControlFactoryRegistry {
       return (ControlFactory<T>) byClazz.get(clazz);
     }
 
-    throw new RegistrationException();
+    if (clazz.equals(OptionListConfigOption.class)) {
+      Class<?> subClazz = configOption.getValue().getClass();
+      if (byOptionListClazz.containsKey(subClazz)) {
+        return (ControlFactory<T>) byOptionListClazz.get(subClazz);
+      }
+    }
+
+    throw new NotRegisteredException();
   }
 
   public static class RegistrationException extends Exception {
+  }
+
+  public static class NotRegisteredException extends Exception {
   }
 }
