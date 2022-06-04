@@ -86,7 +86,7 @@ publishing {
   repositories {
     maven {
       allowInsecureProtocol = true
-      url = selfHostedMavenUrl
+      url = selfHostedMavenUrl + "/releases"
       credentials {
         username = selfHostedMavenUser
         password = selfHostedMavenPass
