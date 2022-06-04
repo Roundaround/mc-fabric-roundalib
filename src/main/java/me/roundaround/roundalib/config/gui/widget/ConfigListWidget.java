@@ -71,7 +71,7 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
     int currentOffset = elementStartY;
     int index = 0;
     for (var entry : parent.getModConfig().getConfigOptions().entrySet()) {
-      String modId = parent.getModConfig().getModInfo().getModId();
+      String modId = parent.getModConfig().getModId();
       String groupId = entry.getKey();
       if (parent.getModConfig().getShowGroupTitles() && !groupId.equals(modId)) {
         String groupI18nKey = entry.getKey() + ".title";

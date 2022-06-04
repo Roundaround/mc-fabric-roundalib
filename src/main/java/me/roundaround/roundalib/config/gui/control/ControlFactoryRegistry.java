@@ -14,13 +14,22 @@ import net.fabricmc.api.Environment;
 
 @Environment(EnvType.CLIENT)
 public class ControlFactoryRegistry {
+  // TODO: Improve this. Had to remove the generic type from ListOptionValue and
+  // related classes in order to allow registering here by generic. Perhaps the
+  // control itself should not care about the config option's type, and should
+  // use an interface somehow?
+
   private static final Map<Class<?>, ControlFactory<?>> byClazz = new HashMap<>();
   private static final Map<String, ControlFactory<?>> byId = new HashMap<>();
+
+  static {
+    registerDefaults();
+  }
 
   private ControlFactoryRegistry() {
   }
 
-  static {
+  private static void registerDefaults() {
     try {
       register(BooleanConfigOption.class, ToggleControl::new);
       register(IntConfigOption.class, IntInputControl::new);
@@ -30,6 +39,7 @@ public class ControlFactoryRegistry {
       RoundaLibMod.LOGGER.error("There was an error registering the built-in control factories!", e);
       System.exit(0);
     }
+
   }
 
   public static <T extends ConfigOption<?>> void register(Class<T> clazz, ControlFactory<T> factory)

@@ -19,8 +19,7 @@ repositories {
 }
 
 sourceSets {
-  // Uncomment to enable test mod
-  testmod{
+  testmod {
     compileClasspath += main.compileClasspath
     runtimeClasspath += main.runtimeClasspath
   }
@@ -55,12 +54,11 @@ tasks.withType(JavaCompile).configureEach {
   it.options.release = 17
 }
 
-// TODO: Enable once we've hit stable.
-//configurations.all {
-//	resolutionStrategy {
-//		failOnNonReproducibleResolution()
-//	}
-//}
+configurations.all {
+	resolutionStrategy {
+		failOnNonReproducibleResolution()
+	}
+}
 
 java {
   withSourcesJar()

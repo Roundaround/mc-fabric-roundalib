@@ -11,7 +11,6 @@ import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 
 import me.roundaround.roundalib.RoundaLibMod;
 import me.roundaround.roundalib.config.option.ConfigOption;
-import me.roundaround.roundalib.util.ModInfo;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
@@ -24,7 +23,7 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
 public abstract class ModConfig {
-  private final ModInfo modInfo;
+  private final String modId;
   private final int configVersion;
   private final String configScreenI18nKey;
   private final boolean showGroupTitles;
@@ -32,7 +31,7 @@ public abstract class ModConfig {
   private final IdentifiableResourceReloadListener reloadListener = new SimpleSynchronousResourceReloadListener() {
     @Override
     public Identifier getFabricId() {
-      return new Identifier(modInfo.getModId(), modInfo.getModId() + "_reload");
+      return new Identifier(modId, modId + "_reload");
     }
 
     @Override
@@ -48,12 +47,12 @@ public abstract class ModConfig {
   private int version;
   private boolean saved = false;
 
-  protected ModConfig(ModInfo modInfo) {
-    this(modInfo, options(modInfo));
+  protected ModConfig(String modId) {
+    this(modId, options(modId));
   }
 
-  protected ModConfig(ModInfo modInfo, OptionsBuilder options) {
-    this.modInfo = modInfo;
+  protected ModConfig(String modId, OptionsBuilder options) {
+    this.modId = modId;
     configVersion = options.configVersion;
     configScreenI18nKey = options.configScreenI18nKey;
     showGroupTitles = options.showGroupTitles;
@@ -71,8 +70,8 @@ public abstract class ModConfig {
     }
   }
 
-  public ModInfo getModInfo() {
-    return modInfo;
+  public String getModId() {
+    return modId;
   }
 
   public int getConfigVersion() {
@@ -165,7 +164,7 @@ public abstract class ModConfig {
   }
 
   protected <T extends ConfigOption<?>> T registerConfigOption(String group, T configOption) {
-    String key = modInfo.getModId();
+    String key = modId;
     if (group != null) {
       key += "." + group;
     }
@@ -188,7 +187,7 @@ public abstract class ModConfig {
   }
 
   private File getConfigFile() {
-    return new File(getConfigDirectory(), modInfo.getModId() + ".toml");
+    return new File(getConfigDirectory(), modId + ".toml");
   }
 
   private boolean isDirty() {
@@ -197,8 +196,8 @@ public abstract class ModConfig {
     });
   }
 
-  public static OptionsBuilder options(ModInfo modInfo) {
-    return new OptionsBuilder(modInfo);
+  public static OptionsBuilder options(String modId) {
+    return new OptionsBuilder(modId);
   }
 
   public static class OptionsBuilder {
@@ -206,9 +205,9 @@ public abstract class ModConfig {
     private String configScreenI18nKey;
     private boolean showGroupTitles;
 
-    private OptionsBuilder(ModInfo modInfo) {
+    private OptionsBuilder(String modId) {
       configVersion = 1;
-      configScreenI18nKey = modInfo.getModId() + ".config.title";
+      configScreenI18nKey = modId + ".config.title";
       showGroupTitles = true;
     }
 
