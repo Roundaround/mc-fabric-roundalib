@@ -19,6 +19,9 @@ public abstract class ConfigOption<D> {
   private D value;
   private D lastSavedValue;
 
+  // TODO: Create library for registering custom commands
+  // TODO: Create commands for managing the config
+
   protected ConfigOption(Builder<D> builder) {
     id = builder.id;
     label = builder.label;
