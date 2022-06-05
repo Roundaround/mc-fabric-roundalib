@@ -42,14 +42,14 @@ public class OptionListConfigOption<T extends ListOptionValue<T>> extends Config
     return builder(id, label, defaultValue).build();
   }
 
-  private static <T extends ListOptionValue<T>> Builder<T> builder(
+  public static <T extends ListOptionValue<T>> Builder<T> builder(
       String id,
       String labelI18nKey,
       T defaultValue) {
     return new Builder<T>(id, labelI18nKey, defaultValue);
   }
 
-  private static <T extends ListOptionValue<T>> Builder<T> builder(
+  public static <T extends ListOptionValue<T>> Builder<T> builder(
       String id,
       Text label,
       T defaultValue) {
