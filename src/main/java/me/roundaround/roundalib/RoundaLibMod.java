@@ -10,7 +10,6 @@ public final class RoundaLibMod implements ModInitializer {
   public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 
   // TODO: Update README
-  // TODO: Create new icon for RoundaLib
 
   @Override
   public void onInitialize() {
