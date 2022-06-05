@@ -28,6 +28,7 @@ public class RoundaLibTestConfig extends ModConfig {
   public BooleanConfigOption BASIC_TOGGLE;
   public BooleanConfigOption DEFAULT_FALSE;
   public BooleanConfigOption ON_OFF;
+  public BooleanConfigOption YES_NO;
 
   public StringConfigOption GROUP_ITEM_1;
   public StringConfigOption GROUP_ITEM_2;
@@ -94,6 +95,9 @@ public class RoundaLibTestConfig extends ModConfig {
         .build());
     ON_OFF = registerConfigOption(BooleanConfigOption
         .onOffBuilder("onOff", "roundalib-testmod.on_off")
+        .build());
+    YES_NO = registerConfigOption(BooleanConfigOption
+        .yesNoBuilder("yesNo", "roundalib-testmod.yes_no")
         .build());
 
     DIFFICULTY = registerConfigOption(OptionListConfigOption

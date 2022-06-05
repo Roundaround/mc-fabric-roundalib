@@ -10,32 +10,14 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
 public class ToggleControl extends ButtonControl<BooleanConfigOption> {
-  private final Text enabledLabel;
-  private final Text disabledLabel;
-
   private Text cachedText;
 
   public ToggleControl(BooleanConfigOption configOption, OptionRowWidget parent, int top, int left, int height,
       int width) {
-    this(configOption, parent, top, left, height, width, "roundalib.toggle.enabled", "roundalib.toggle.disabled");
-  }
-
-  public ToggleControl(BooleanConfigOption configOption, OptionRowWidget parent, int top, int left, int height,
-      int width,
-      String enabledI18nKey, String disabledI18nKey) {
-    this(configOption, parent, top, left, height, width, new TranslatableText(enabledI18nKey),
-        new TranslatableText(disabledI18nKey));
-  }
-
-  public ToggleControl(BooleanConfigOption configOption, OptionRowWidget parent, int top, int left, int height,
-      int width,
-      Text enabledLabel, Text disabledLabel) {
     super(configOption, parent, top, left, height, width);
-    this.enabledLabel = enabledLabel;
-    this.disabledLabel = disabledLabel;
 
     configOption.subscribeToValueChanges(this::onConfigValueChange);
-    cachedText = configOption.getValue() ? enabledLabel : disabledLabel;
+    cachedText = configOption.getValue() ? configOption.getEnabledLabel() : configOption.getDisabledLabel();
   }
 
   @Override
@@ -50,7 +32,7 @@ public class ToggleControl extends ButtonControl<BooleanConfigOption> {
   }
 
   private void onConfigValueChange(boolean prev, boolean curr) {
-    cachedText = curr ? enabledLabel : disabledLabel;
+    cachedText = curr ? configOption.getEnabledLabel() : configOption.getDisabledLabel();
   }
 
   private MutableText composeLabelText() {
@@ -58,7 +40,7 @@ public class ToggleControl extends ButtonControl<BooleanConfigOption> {
   }
 
   private Text composeUsageText() {
-    Text nextValueText = configOption.getValue() ? disabledLabel : enabledLabel;
+    Text nextValueText = configOption.getValue() ? configOption.getDisabledLabel() : configOption.getEnabledLabel();
     return ScreenTexts.composeGenericOptionText(configOption.getLabel(), nextValueText);
   }
 

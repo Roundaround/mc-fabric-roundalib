@@ -14,6 +14,7 @@
   "roundalib-testmod.basic_toggle": "Default toggle",
   "roundalib-testmod.default_false": "Default toggle, disabled by default",
   "roundalib-testmod.on_off": "ON/OFF toggle",
+  "roundalib-testmod.yes_no": "YES/NO toggle",
   "roundalib-testmod.difficulty": "Difficulty",
   "roundalib-testmod.game_mode": "Game mode",
   "roundalib-testmod.group.title": "Group 'group'",
