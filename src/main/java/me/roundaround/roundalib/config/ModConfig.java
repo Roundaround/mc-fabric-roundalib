@@ -11,16 +11,9 @@ import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 
 import me.roundaround.roundalib.RoundaLibMod;
 import me.roundaround.roundalib.config.option.ConfigOption;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.resource.ResourceType;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Identifier;
 
 public abstract class ModConfig {
   private final String modId;
@@ -28,24 +21,8 @@ public abstract class ModConfig {
   private final String configScreenI18nKey;
   private final boolean showGroupTitles;
   private final LinkedHashMap<String, LinkedList<ConfigOption<?>>> configOptions = new LinkedHashMap<>();
-  private final IdentifiableResourceReloadListener reloadListener = new SimpleSynchronousResourceReloadListener() {
-    @Override
-    public Identifier getFabricId() {
-      return new Identifier(modId, modId + "_reload");
-    }
-
-    @Override
-    public void reload(ResourceManager manager) {
-      if (saved) {
-        return;
-      }
-      saveToFile();
-      saved = true;
-    }
-  };
 
   private int version;
-  private boolean saved = false;
 
   protected ModConfig(String modId) {
     this(modId, options(modId));
@@ -60,14 +37,7 @@ public abstract class ModConfig {
 
   public void init() {
     loadFromFile();
-
-    // Wait for all resources (including i18n lang files) to finish loading,
-    // then attempt to save the config to file.
-    if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-      ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(reloadListener);
-    } else {
-      ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(reloadListener);
-    }
+    saveToFile();
   }
 
   public String getModId() {
@@ -129,23 +99,17 @@ public abstract class ModConfig {
         .preserveInsertionOrder()
         .build();
 
-    fileConfig.setComment("configVersion", new TranslatableText("roundalib.version_comment").getString());
+    fileConfig.setComment("configVersion", " Config version is auto-generated\n DO NOT CHANGE");
     fileConfig.set("configVersion", configVersion);
 
     configOptions.entrySet().forEach((entry) -> {
       entry.getValue().forEach((configOption) -> {
         String key = entry.getKey() + "." + configOption.getId();
 
-        Optional<Text> comment = Optional.empty();
-        if (configOption.getComment().isPresent()) {
-          comment = configOption.getComment();
-        } else if (configOption.getUseLabelAsCommentFallback()) {
-          comment = Optional.of(configOption.getLabel());
-        }
-
+        Optional<String> comment = configOption.getComment();
         if (comment.isPresent()) {
           // Prefix comment with space to get "# This is a comment"
-          fileConfig.setComment(key, " " + comment.get().getString());
+          fileConfig.setComment(key, " " + comment.get());
         }
         fileConfig.set(key, configOption.serialize());
       });

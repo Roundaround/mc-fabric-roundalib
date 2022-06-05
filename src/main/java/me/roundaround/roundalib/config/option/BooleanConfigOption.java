@@ -93,14 +93,7 @@ public class BooleanConfigOption extends ConfigOption<Boolean> {
       return this;
     }
 
-    @Override
-    public Builder setComment(String i18nKey) {
-      comment = Optional.of(new TranslatableText(i18nKey));
-      return this;
-    }
-
-    @Override
-    public Builder setComment(Text comment) {
+    public Builder setComment(String comment) {
       this.comment = Optional.of(comment);
       return this;
     }

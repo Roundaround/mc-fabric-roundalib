@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import me.roundaround.roundalib.config.value.ListOptionValue;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 
 public class OptionListConfigOption<T extends ListOptionValue<T>> extends ConfigOption<T> {
   protected OptionListConfigOption(Builder<T> builder) {
@@ -66,14 +65,7 @@ public class OptionListConfigOption<T extends ListOptionValue<T>> extends Config
       super(id, label, defaultValue);
     }
 
-    @Override
-    public Builder<T> setComment(String i18nKey) {
-      comment = Optional.of(new TranslatableText(i18nKey));
-      return this;
-    }
-
-    @Override
-    public Builder<T> setComment(Text comment) {
+    public Builder<T> setComment(String comment) {
       this.comment = Optional.of(comment);
       return this;
     }

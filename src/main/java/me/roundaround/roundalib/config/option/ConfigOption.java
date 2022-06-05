@@ -11,7 +11,7 @@ import net.minecraft.text.TranslatableText;
 public abstract class ConfigOption<D> {
   private final String id;
   private final Text label;
-  private final Optional<Text> comment;
+  private final Optional<String> comment;
   private final boolean useLabelAsCommentFallback;
   private final D defaultValue;
   private final Queue<BiConsumer<D, D>> valueChangeListeners = new LinkedList<>();
@@ -36,7 +36,7 @@ public abstract class ConfigOption<D> {
     return label;
   }
 
-  public Optional<Text> getComment() {
+  public Optional<String> getComment() {
     return comment;
   }
 
@@ -86,7 +86,7 @@ public abstract class ConfigOption<D> {
   public static abstract class Builder<D2> {
     protected String id;
     protected Text label;
-    protected Optional<Text> comment = Optional.empty();
+    protected Optional<String> comment = Optional.empty();
     protected boolean useLabelAsCommentFallback = true;
     protected D2 defaultValue;
 
@@ -100,12 +100,7 @@ public abstract class ConfigOption<D> {
       this.defaultValue = defaultValue;
     }
 
-    public Builder<D2> setComment(String i18nKey) {
-      comment = Optional.of(new TranslatableText(i18nKey));
-      return this;
-    }
-
-    public Builder<D2> setComment(Text comment) {
+    public Builder<D2> setComment(String comment) {
       this.comment = Optional.of(comment);
       return this;
     }

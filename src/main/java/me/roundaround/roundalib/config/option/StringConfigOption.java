@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 
 public class StringConfigOption extends ConfigOption<String> {
   private Optional<Integer> minLength = Optional.empty();
@@ -100,14 +99,7 @@ public class StringConfigOption extends ConfigOption<String> {
       return this;
     }
 
-    @Override
-    public Builder setComment(String i18nKey) {
-      comment = Optional.of(new TranslatableText(i18nKey));
-      return this;
-    }
-
-    @Override
-    public Builder setComment(Text comment) {
+    public Builder setComment(String comment) {
       this.comment = Optional.of(comment);
       return this;
     }

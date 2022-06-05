@@ -10,7 +10,6 @@
   "roundalib-testmod.restricted_length": "Between 3 and 6 chars",
   "roundalib-testmod.regex": "Alpha numeric and _ only",
   "roundalib-testmod.with_comment": "Has custom config file comment",
-  "roundalib-testmod.with_comment.comment": "Custom comment",
   "roundalib-testmod.basic_toggle": "Default toggle",
   "roundalib-testmod.default_false": "Default toggle, disabled by default",
   "roundalib-testmod.on_off": "ON/OFF toggle",

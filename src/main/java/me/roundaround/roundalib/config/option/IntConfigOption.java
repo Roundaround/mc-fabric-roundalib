@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
 
 public class IntConfigOption extends ConfigOption<Integer> {
@@ -136,14 +135,7 @@ public class IntConfigOption extends ConfigOption<Integer> {
       return this;
     }
 
-    @Override
-    public Builder setComment(String i18nKey) {
-      comment = Optional.of(new TranslatableText(i18nKey));
-      return this;
-    }
-
-    @Override
-    public Builder setComment(Text comment) {
+    public Builder setComment(String comment) {
       this.comment = Optional.of(comment);
       return this;
     }

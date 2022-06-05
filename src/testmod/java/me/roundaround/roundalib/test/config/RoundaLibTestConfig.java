@@ -83,7 +83,7 @@ public class RoundaLibTestConfig extends ModConfig {
     WITH_COMMENT = registerConfigOption(StringConfigOption
         .builder("withComment", "roundalib-testmod.with_comment")
         .setDefaultValue("Roundalib")
-        .setComment("roundalib-testmod.with_comment.comment")
+        .setComment("Custom comment")
         .build());
 
     BASIC_TOGGLE = registerConfigOption(BooleanConfigOption
