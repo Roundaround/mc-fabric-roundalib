@@ -1,11 +1,12 @@
 plugins {
   id 'fabric-loom' version '0.12-SNAPSHOT'
   id 'maven-publish'
-  id 'com.github.johnrengelman.shadow' version '7.0.0'
+  id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
+import net.fabricmc.loom.task.RemapJarTask
+
+def targetJavaVersion = 17
 
 archivesBaseName = project.archives_base_name
 version = project.mod_version
@@ -16,6 +17,17 @@ repositories {
     name = "ModMenu"
     url = "https://maven.terraformersmc.com/releases/"
   }
+}
+
+configurations {
+  shadow
+  api.extendsFrom shadow
+}
+
+configurations.all {
+	resolutionStrategy {
+		failOnNonReproducibleResolution()
+	}
 }
 
 sourceSets {
@@ -49,32 +61,58 @@ processResources {
   }
 }
 
+java {
+  sourceCompatibility = JavaVersion.toVersion(targetJavaVersion)
+  targetCompatibility = JavaVersion.toVersion(targetJavaVersion)
+    
+  withSourcesJar()
+}
+
 tasks.withType(JavaCompile).configureEach {
   it.options.encoding = "UTF-8"
-  it.options.release = 17
-}
-
-configurations.all {
-	resolutionStrategy {
-		failOnNonReproducibleResolution()
-	}
-}
-
-java {
-  withSourcesJar()
+  it.options.release.set(targetJavaVersion)
 }
 
 jar {
   from("LICENSE") {
-    rename { "${it}_${project.archivesBaseName}"}
+    rename { "${it}_${archivesBaseName}"}
   }
 }
 
+shadowJar {
+  dependsOn jar
+  
+  relocate 'com.electronwill.nightconfig', 'me.roundaround.roundalib.shadow.nightconfig'
+
+  configurations = [project.configurations.shadow]
+  classifier "shadow"
+}
+
+remapJar {
+  dependsOn shadowJar
+  input.set(shadowJar.archiveFile)
+}
+
+task shadowRemapJar(type: RemapJarTask) {
+  dependsOn shadowJar
+
+  input.set(shadowJar.archiveFile)
+  archiveFileName = "${archivesBaseName}-${project.version}.jar"
+  addNestedDependencies.set(true)
+}
+
+tasks.shadowRemapJar.dependsOn shadowJar
+
+build {
+  dependsOn shadowRemapJar
+}
+
 tasks.publish.dependsOn build
+
 publishing {
   publications {
     mavenJava(MavenPublication) {
-      artifactId project.archives_base_name
+      artifactId archivesBaseName
       version = project.mod_version + "+" + project.minecraft_version
 
       artifact(remapJar) {
