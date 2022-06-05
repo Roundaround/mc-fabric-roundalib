@@ -101,8 +101,6 @@ task shadowRemapJar(type: RemapJarTask) {
   addNestedDependencies.set(true)
 }
 
-tasks.shadowRemapJar.dependsOn shadowJar
-
 build {
   dependsOn shadowRemapJar
 }
@@ -115,8 +113,8 @@ publishing {
       artifactId archivesBaseName
       version = project.mod_version + "+" + project.minecraft_version
 
-      artifact(remapJar) {
-        builtBy remapJar
+      artifact(shadowRemapJar) {
+        builtBy shadowRemapJar
       }
     }
   }
