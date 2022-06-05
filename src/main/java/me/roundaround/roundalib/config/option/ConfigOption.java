@@ -101,6 +101,8 @@ public abstract class ConfigOption<D> {
     }
 
     public Builder<D2> setComment(String comment) {
+      // TODO: Allow passing an array of strings for multi-line comments, prefix
+      // each line with a space for nice formatting
       this.comment = Optional.of(comment);
       return this;
     }
