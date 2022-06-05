@@ -12,6 +12,7 @@
     "sources": ""
   },
   "license": "MIT",
+  "icon": "assets/roundalib-test/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
