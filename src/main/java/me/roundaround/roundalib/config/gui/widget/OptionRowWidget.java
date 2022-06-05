@@ -185,12 +185,13 @@ public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
   }
 
   protected void renderDecorations(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-    if (isMouseOver(mouseX, mouseY) && parent.isMouseOver(mouseX, mouseY)) {
-      drawHorizontalLine(matrixStack, left - 1, right + 1, top - 1, HIGHLIGHT_COLOR);
-      drawHorizontalLine(matrixStack, left - 1, right + 1, bottom + 1, HIGHLIGHT_COLOR);
-      drawVerticalLine(matrixStack, left - 1, top - 1, bottom + 1, HIGHLIGHT_COLOR);
-      drawVerticalLine(matrixStack, right + 1, top - 1, bottom + 1, HIGHLIGHT_COLOR);
-    }
+    // TODO: Re-enable once clicking on row does anything
+    // if (isMouseOver(mouseX, mouseY) && parent.isMouseOver(mouseX, mouseY)) {
+    //   drawHorizontalLine(matrixStack, left - 1, right + 1, top - 1, HIGHLIGHT_COLOR);
+    //   drawHorizontalLine(matrixStack, left - 1, right + 1, bottom + 1, HIGHLIGHT_COLOR);
+    //   drawVerticalLine(matrixStack, left - 1, top - 1, bottom + 1, HIGHLIGHT_COLOR);
+    //   drawVerticalLine(matrixStack, right + 1, top - 1, bottom + 1, HIGHLIGHT_COLOR);
+    // }
   }
 
   public ConfigOption<?> getConfigOption() {
