@@ -12,8 +12,6 @@ import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import me.roundaround.roundalib.RoundaLibMod;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 
 public abstract class ModConfig {
   private final String modId;
