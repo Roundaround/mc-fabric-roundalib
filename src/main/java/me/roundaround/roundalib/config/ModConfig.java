@@ -121,6 +121,9 @@ public abstract class ModConfig {
     return false;
   }
 
+  // TODO: Consider a builder pattern similar to ForgeConfigSpec:
+  // https://git.roundaround.me/Roundaround/mc-forge-inventory-management/-/blob/main/src/main/java/me/roundaround/inventorymanagement/ConfigHandler.java
+
   protected <T extends ConfigOption<?>> T registerConfigOption(T configOption) {
     return registerConfigOption(null, configOption);
   }
