@@ -6,7 +6,6 @@ import java.util.Queue;
 import java.util.function.BiConsumer;
 
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 
 public abstract class ConfigOption<D> {
   private final String id;
@@ -94,7 +93,7 @@ public abstract class ConfigOption<D> {
     protected D2 defaultValue;
 
     protected Builder(String id, String labelI18nKey, D2 defaultValue) {
-      this(id, new TranslatableText(labelI18nKey), defaultValue);
+      this(id, Text.translatable(labelI18nKey), defaultValue);
     }
 
     protected Builder(String id, Text label, D2 defaultValue) {

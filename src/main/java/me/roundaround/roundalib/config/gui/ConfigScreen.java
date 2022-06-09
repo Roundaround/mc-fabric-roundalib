@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
+
+import com.mojang.blaze3d.systems.RenderSystem;
 
 import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.gui.widget.ButtonWidget;
@@ -21,14 +21,14 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.screen.ScreenTexts;
+import net.minecraft.text.Text;
 
 @Environment(EnvType.CLIENT)
 public class ConfigScreen extends Screen {
@@ -55,7 +55,7 @@ public class ConfigScreen extends Screen {
   private boolean shouldSave = false;
 
   public ConfigScreen(@Nullable Screen parent, ModConfig modConfig) {
-    super(new TranslatableText(modConfig.getConfigScreenI18nKey()));
+    super(Text.translatable(modConfig.getConfigScreenI18nKey()));
     this.parent = parent;
     this.modConfig = modConfig;
   }

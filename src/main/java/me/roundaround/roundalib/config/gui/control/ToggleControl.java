@@ -2,12 +2,11 @@ package me.roundaround.roundalib.config.gui.control;
 
 import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import me.roundaround.roundalib.config.option.BooleanConfigOption;
-import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;
+import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 
 public class ToggleControl extends ButtonControl<BooleanConfigOption> {
   private Text cachedText;
@@ -52,9 +51,9 @@ public class ToggleControl extends ButtonControl<BooleanConfigOption> {
     // SPACE) to use.
     Text usageText = composeUsageText();
     if (focused) {
-      builder.put(NarrationPart.USAGE, new TranslatableText("narration.cycle_button.usage.focused", usageText));
+      builder.put(NarrationPart.USAGE, Text.translatable("narration.cycle_button.usage.focused", usageText));
     } else if (hovered) {
-      builder.put(NarrationPart.USAGE, new TranslatableText("narration.cycle_button.usage.hovered", usageText));
+      builder.put(NarrationPart.USAGE, Text.translatable("narration.cycle_button.usage.hovered", usageText));
     }
   }
 }

@@ -28,7 +28,6 @@ import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 
 @Environment(EnvType.CLIENT)
 public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Scrollable {
@@ -77,7 +76,7 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
         String groupI18nKey = entry.getKey() + ".title";
         GroupTitleWidget groupTitle = new GroupTitleWidget(
             this,
-            new TranslatableText(groupI18nKey),
+            Text.translatable(groupI18nKey),
             index++,
             currentOffset,
             elementStartX,

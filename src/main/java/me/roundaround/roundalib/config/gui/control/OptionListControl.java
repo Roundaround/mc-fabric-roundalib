@@ -3,13 +3,13 @@ package me.roundaround.roundalib.config.gui.control;
 import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import me.roundaround.roundalib.config.option.OptionListConfigOption;
 import me.roundaround.roundalib.config.value.ListOptionValue;
-import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;
+import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 
-public class OptionListControl<S extends ListOptionValue<S>, T extends OptionListConfigOption<S>> extends ButtonControl<T> {
+public class OptionListControl<S extends ListOptionValue<S>, T extends OptionListConfigOption<S>>
+    extends ButtonControl<T> {
   private Text cachedText;
 
   public OptionListControl(
@@ -22,7 +22,7 @@ public class OptionListControl<S extends ListOptionValue<S>, T extends OptionLis
     super(configOption, parent, top, left, height, width);
 
     configOption.subscribeToValueChanges(this::onConfigValueChange);
-    cachedText = new TranslatableText(configOption.getValue().getI18nKey());
+    cachedText = Text.translatable(configOption.getValue().getI18nKey());
   }
 
   @Override
@@ -41,7 +41,7 @@ public class OptionListControl<S extends ListOptionValue<S>, T extends OptionLis
   }
 
   private void onConfigValueChange(S prev, S curr) {
-    cachedText = new TranslatableText(curr.getI18nKey());
+    cachedText = Text.translatable(curr.getI18nKey());
   }
 
   private Text composeLabelText() {
@@ -50,7 +50,7 @@ public class OptionListControl<S extends ListOptionValue<S>, T extends OptionLis
 
   private Text composeUsageText() {
     return ScreenTexts.composeGenericOptionText(configOption.getLabel(),
-        new TranslatableText(configOption.getValue().getNext().getI18nKey()));
+        Text.translatable(configOption.getValue().getNext().getI18nKey()));
   }
 
   @Override
@@ -61,9 +61,9 @@ public class OptionListControl<S extends ListOptionValue<S>, T extends OptionLis
     // only mentions using ENTER (no SPACE) to use.
     Text usageText = composeUsageText();
     if (focused) {
-      builder.put(NarrationPart.USAGE, new TranslatableText("narration.cycle_button.usage.focused", usageText));
+      builder.put(NarrationPart.USAGE, Text.translatable("narration.cycle_button.usage.focused", usageText));
     } else if (hovered) {
-      builder.put(NarrationPart.USAGE, new TranslatableText("narration.cycle_button.usage.hovered", usageText));
+      builder.put(NarrationPart.USAGE, Text.translatable("narration.cycle_button.usage.hovered", usageText));
     }
   }
 }

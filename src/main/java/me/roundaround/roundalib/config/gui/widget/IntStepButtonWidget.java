@@ -17,7 +17,6 @@ import net.minecraft.client.sound.SoundManager;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
 public class IntStepButtonWidget extends AbstractClickableWidget<IntInputControl> {
@@ -32,7 +31,7 @@ public class IntStepButtonWidget extends AbstractClickableWidget<IntInputControl
   public IntStepButtonWidget(IntInputControl parent, boolean increment, int top, int left) {
     super(parent, top, left, HEIGHT, WIDTH);
     this.increment = increment;
-    tooltip = new TranslatableText(increment ? "roundalib.step_up.tooltip" : "roundalib.step_down.tooltip",
+    tooltip = Text.translatable(increment ? "roundalib.step_up.tooltip" : "roundalib.step_down.tooltip",
         parent.getConfigOption().getStep());
   }
 
@@ -125,11 +124,11 @@ public class IntStepButtonWidget extends AbstractClickableWidget<IntInputControl
   @Override
   public void appendNarrations(NarrationMessageBuilder builder) {
     builder.put(NarrationPart.TITLE,
-        new TranslatableText("roundalib.step.narration", parent.getConfigOption().getLabel()));
+        Text.translatable("roundalib.step.narration", parent.getConfigOption().getLabel()));
     if (focused) {
-      builder.put(NarrationPart.USAGE, new TranslatableText("narration.button.usage.focused"));
+      builder.put(NarrationPart.USAGE, Text.translatable("narration.button.usage.focused"));
     } else if (hovered) {
-      builder.put(NarrationPart.USAGE, new TranslatableText("narration.button.usage.hovered"));
+      builder.put(NarrationPart.USAGE, Text.translatable("narration.button.usage.hovered"));
     }
     builder.put(NarrationPart.HINT, tooltip);
   }

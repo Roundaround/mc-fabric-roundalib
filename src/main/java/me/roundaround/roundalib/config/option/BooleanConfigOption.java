@@ -2,9 +2,8 @@ package me.roundaround.roundalib.config.option;
 
 import java.util.Optional;
 
-import net.minecraft.client.gui.screen.ScreenTexts;
+import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 
 public class BooleanConfigOption extends ConfigOption<Boolean> {
   private final Text enabledLabel;
@@ -57,8 +56,8 @@ public class BooleanConfigOption extends ConfigOption<Boolean> {
   }
 
   public static class Builder extends ConfigOption.Builder<Boolean> {
-    private Text enabledLabel = new TranslatableText("roundalib.toggle.enabled");
-    private Text disabledLabel = new TranslatableText("roundalib.toggle.disabled");
+    private Text enabledLabel = Text.translatable("roundalib.toggle.enabled");
+    private Text disabledLabel = Text.translatable("roundalib.toggle.disabled");
 
     private Builder(String id, String labelI18nKey) {
       super(id, labelI18nKey, true);
@@ -74,7 +73,7 @@ public class BooleanConfigOption extends ConfigOption<Boolean> {
     }
 
     public Builder setEnabledLabel(String i18nKey) {
-      enabledLabel = new TranslatableText(i18nKey);
+      enabledLabel = Text.translatable(i18nKey);
       return this;
     }
 
@@ -84,7 +83,7 @@ public class BooleanConfigOption extends ConfigOption<Boolean> {
     }
 
     public Builder setDisabledLabel(String i18nKey) {
-      disabledLabel = new TranslatableText(i18nKey);
+      disabledLabel = Text.translatable(i18nKey);
       return this;
     }
 
