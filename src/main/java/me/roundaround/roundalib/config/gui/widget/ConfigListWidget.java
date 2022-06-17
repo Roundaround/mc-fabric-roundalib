@@ -87,8 +87,8 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
         rows.add(groupTitle);
       }
 
-      LinkedList<ConfigOption<?>> configOptions = entry.getValue();
-      for (ConfigOption<?> configOption : configOptions) {
+      LinkedList<ConfigOption<?, ?>> configOptions = entry.getValue();
+      for (ConfigOption<?, ?> configOption : configOptions) {
         OptionRowWidget optionRow = new OptionRowWidget(
             this,
             index++,
@@ -282,7 +282,7 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
     return getParent();
   }
 
-  public <O extends ConfigOption<?>> ControlWidget<O> createControl(
+  public <O extends ConfigOption<?, ?>> ControlWidget<O> createControl(
       O configOption,
       OptionRowWidget optionRow,
       int top,

@@ -3,7 +3,7 @@ package me.roundaround.roundalib.config;
 import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.Optional;
+import java.util.List;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.Config;
@@ -18,7 +18,7 @@ public abstract class ModConfig {
   private final int configVersion;
   private final String configScreenI18nKey;
   private final boolean showGroupTitles;
-  private final LinkedHashMap<String, LinkedList<ConfigOption<?>>> configOptions = new LinkedHashMap<>();
+  private final LinkedHashMap<String, LinkedList<ConfigOption<?, ?>>> configOptions = new LinkedHashMap<>();
 
   private int version;
 
@@ -54,7 +54,7 @@ public abstract class ModConfig {
     return showGroupTitles;
   }
 
-  public LinkedHashMap<String, LinkedList<ConfigOption<?>>> getConfigOptions() {
+  public LinkedHashMap<String, LinkedList<ConfigOption<?, ?>>> getConfigOptions() {
     return configOptions;
   }
 
@@ -104,10 +104,10 @@ public abstract class ModConfig {
       entry.getValue().forEach((configOption) -> {
         String key = entry.getKey() + "." + configOption.getId();
 
-        Optional<String> comment = configOption.getComment();
-        if (comment.isPresent()) {
-          // Prefix comment with space to get "# This is a comment"
-          fileConfig.setComment(key, " " + comment.get());
+        List<String> comment = configOption.getComment();
+        if (!comment.isEmpty()) {
+          // Prefix each line with space to get "# This is a comment"
+          fileConfig.setComment(key, " " + String.join("\n ", comment));
         }
         fileConfig.set(key, configOption.serialize());
       });
@@ -124,11 +124,11 @@ public abstract class ModConfig {
   // TODO: Consider a builder pattern similar to ForgeConfigSpec:
   // https://git.roundaround.me/Roundaround/mc-forge-inventory-management/-/blob/main/src/main/java/me/roundaround/inventorymanagement/ConfigHandler.java
 
-  protected <T extends ConfigOption<?>> T registerConfigOption(T configOption) {
+  protected <T extends ConfigOption<?, ?>> T registerConfigOption(T configOption) {
     return registerConfigOption(null, configOption);
   }
 
-  protected <T extends ConfigOption<?>> T registerConfigOption(String group, T configOption) {
+  protected <T extends ConfigOption<?, ?>> T registerConfigOption(String group, T configOption) {
     String key = modId;
     if (group != null) {
       key += "." + group;

@@ -6,7 +6,7 @@ import me.roundaround.roundalib.config.gui.widget.ConfigListWidget;
 import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import me.roundaround.roundalib.config.option.ConfigOption;
 
-public abstract class AbstractControlWidget<O extends ConfigOption<?>>
+public abstract class AbstractControlWidget<O extends ConfigOption<?, ?>>
     extends AbstractWidget<OptionRowWidget>
     implements ControlWidget<O> {
   protected O configOption;

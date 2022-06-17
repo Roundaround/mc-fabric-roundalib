@@ -44,7 +44,7 @@ public class ControlFactoryRegistry {
 
   }
 
-  public static <T extends ConfigOption<?>> void register(
+  public static <T extends ConfigOption<?, ?>> void register(
       Class<T> clazz,
       ControlFactory<T> factory)
       throws RegistrationException {
@@ -64,7 +64,7 @@ public class ControlFactoryRegistry {
     byOptionListClazz.put(clazz, factory);
   }
 
-  public static <T extends ConfigOption<?>> void register(
+  public static <T extends ConfigOption<?, ?>> void register(
       String id,
       ControlFactory<T> factory)
       throws RegistrationException {
@@ -75,7 +75,7 @@ public class ControlFactoryRegistry {
   }
 
   @SuppressWarnings("unchecked")
-  public static <T extends ConfigOption<?>> ControlFactory<T> getControlFactory(T configOption)
+  public static <T extends ConfigOption<?, ?>> ControlFactory<T> getControlFactory(T configOption)
       throws NotRegisteredException {
     String id = configOption.getId();
     if (byId.containsKey(id)) {

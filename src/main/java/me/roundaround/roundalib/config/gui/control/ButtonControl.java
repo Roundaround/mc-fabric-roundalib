@@ -16,7 +16,7 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-public abstract class ButtonControl<O extends ConfigOption<?>> extends AbstractClickableControlWidget<O> {
+public abstract class ButtonControl<O extends ConfigOption<?, ?>> extends AbstractClickableControlWidget<O> {
   protected static final Identifier BUTTON_TEXTURES = new Identifier("minecraft", "textures/gui/widgets.png");
   protected static final int BUTTON_TEXTURE_WIDTH = 200;
   protected static final int BUTTON_TEXTURE_HEIGHT = 20;

@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 import net.minecraft.text.Text;
 
-public class StringConfigOption extends ConfigOption<String> {
+public class StringConfigOption extends ConfigOption<String, StringConfigOption.Builder> {
   private Optional<Integer> minLength = Optional.empty();
   private Optional<Integer> maxLength = Optional.empty();
   private Optional<Pattern> regex = Optional.empty();
@@ -60,7 +60,7 @@ public class StringConfigOption extends ConfigOption<String> {
     return new Builder(id, label);
   }
 
-  public static class Builder extends ConfigOption.Builder<String> {
+  public static class Builder extends ConfigOption.Builder<String, Builder> {
     private Optional<Integer> minLength = Optional.empty();
     private Optional<Integer> maxLength = Optional.empty();
     private Optional<Pattern> regex = Optional.empty();
@@ -96,17 +96,6 @@ public class StringConfigOption extends ConfigOption<String> {
 
     public Builder addCustomValidator(Validator validator) {
       customValidators.add(validator);
-      return this;
-    }
-
-    public Builder setComment(String comment) {
-      this.comment = Optional.of(comment);
-      return this;
-    }
-
-    @Override
-    public Builder setUseLabelAsCommentFallback(boolean useLabelAsCommentFallback) {
-      this.useLabelAsCommentFallback = useLabelAsCommentFallback;
       return this;
     }
 

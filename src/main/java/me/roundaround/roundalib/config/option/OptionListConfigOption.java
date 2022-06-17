@@ -1,11 +1,10 @@
 package me.roundaround.roundalib.config.option;
 
-import java.util.Optional;
-
 import me.roundaround.roundalib.config.value.ListOptionValue;
 import net.minecraft.text.Text;
 
-public class OptionListConfigOption<T extends ListOptionValue<T>> extends ConfigOption<T> {
+public class OptionListConfigOption<T extends ListOptionValue<T>>
+    extends ConfigOption<T, OptionListConfigOption.Builder<T>> {
   protected OptionListConfigOption(Builder<T> builder) {
     super(builder);
   }
@@ -56,24 +55,13 @@ public class OptionListConfigOption<T extends ListOptionValue<T>> extends Config
     return new Builder<T>(id, label, defaultValue);
   }
 
-  public static class Builder<T extends ListOptionValue<T>> extends ConfigOption.Builder<T> {
+  public static class Builder<T extends ListOptionValue<T>> extends ConfigOption.Builder<T, Builder<T>> {
     private Builder(String id, String labelI18nKey, T defaultValue) {
       super(id, labelI18nKey, defaultValue);
     }
 
     private Builder(String id, Text label, T defaultValue) {
       super(id, label, defaultValue);
-    }
-
-    public Builder<T> setComment(String comment) {
-      this.comment = Optional.of(comment);
-      return this;
-    }
-
-    @Override
-    public Builder<T> setUseLabelAsCommentFallback(boolean useLabelAsCommentFallback) {
-      this.useLabelAsCommentFallback = useLabelAsCommentFallback;
-      return this;
     }
 
     @Override
