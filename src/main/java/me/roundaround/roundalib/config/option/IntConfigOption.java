@@ -7,7 +7,7 @@ import java.util.Optional;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 
-public class IntConfigOption extends ConfigOption<Integer> {
+public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Builder> {
   private Optional<Integer> minValue = Optional.empty();
   private Optional<Integer> maxValue = Optional.empty();
   private Optional<Integer> step = Optional.of(1);
@@ -96,7 +96,7 @@ public class IntConfigOption extends ConfigOption<Integer> {
     return new Builder(id, label);
   }
 
-  public static class Builder extends ConfigOption.Builder<Integer> {
+  public static class Builder extends ConfigOption.Builder<Integer, Builder> {
     private Optional<Integer> minValue = Optional.empty();
     private Optional<Integer> maxValue = Optional.empty();
     private Optional<Integer> step = Optional.of(1);
@@ -132,17 +132,6 @@ public class IntConfigOption extends ConfigOption<Integer> {
 
     public Builder addCustomValidator(Validator validator) {
       customValidators.add(validator);
-      return this;
-    }
-
-    public Builder setComment(String comment) {
-      this.comment = Optional.of(comment);
-      return this;
-    }
-
-    @Override
-    public Builder setUseLabelAsCommentFallback(boolean useLabelAsCommentFallback) {
-      this.useLabelAsCommentFallback = useLabelAsCommentFallback;
       return this;
     }
 
