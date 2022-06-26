@@ -110,7 +110,7 @@ public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Build
       super(id, label, 0);
     }
 
-    public Builder setDefaultValue(Integer defaultValue) {
+    public Builder setDefaultValue(int defaultValue) {
       this.defaultValue = defaultValue;
       return this;
     }
