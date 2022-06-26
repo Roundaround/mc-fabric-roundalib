@@ -4,6 +4,7 @@ import java.util.regex.Pattern;
 
 import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.option.BooleanConfigOption;
+import me.roundaround.roundalib.config.option.FloatConfigOption;
 import me.roundaround.roundalib.config.option.IntConfigOption;
 import me.roundaround.roundalib.config.option.OptionListConfigOption;
 import me.roundaround.roundalib.config.option.StringConfigOption;
@@ -19,6 +20,9 @@ public class RoundaLibTestConfig extends ModConfig {
   public IntConfigOption STEP_BY_TWO;
   public IntConfigOption WITHIN_ONE_HUNDRED;
   public IntConfigOption WITHIN_ONE_HUNDRED_BIG_STEP;
+
+  public FloatConfigOption SOME_FLOAT;
+  public FloatConfigOption UP_TO_PI;
 
   public StringConfigOption PLAIN_STRING;
   public StringConfigOption RESTRICTED_LENGTH;
@@ -65,6 +69,17 @@ public class RoundaLibTestConfig extends ModConfig {
         .setMinValue(-100)
         .setMaxValue(100)
         .setStep(33)
+        .build());
+
+    SOME_FLOAT = registerConfigOption(FloatConfigOption
+        .builder("someFloat", "roundalib-testmod.some_float")
+        .setDefaultValue(5.5f)
+        .build());
+    UP_TO_PI = registerConfigOption(FloatConfigOption
+        .builder("upToPi", "roundalib-testmod.up_to_pi")
+        .setDefaultValue(2)
+        .setMinValue(0)
+        .setMaxValue((float) Math.PI)
         .build());
 
     PLAIN_STRING = registerConfigOption(StringConfigOption

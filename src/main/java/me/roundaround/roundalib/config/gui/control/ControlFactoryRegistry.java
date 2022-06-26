@@ -6,6 +6,7 @@ import java.util.Map;
 import me.roundaround.roundalib.RoundaLibMod;
 import me.roundaround.roundalib.config.option.BooleanConfigOption;
 import me.roundaround.roundalib.config.option.ConfigOption;
+import me.roundaround.roundalib.config.option.FloatConfigOption;
 import me.roundaround.roundalib.config.option.IntConfigOption;
 import me.roundaround.roundalib.config.option.OptionListConfigOption;
 import me.roundaround.roundalib.config.option.StringConfigOption;
@@ -33,6 +34,7 @@ public class ControlFactoryRegistry {
     try {
       register(BooleanConfigOption.class, ToggleControl::new);
       register(IntConfigOption.class, IntInputControl::new);
+      register(FloatConfigOption.class, FloatInputControl::new);
       register(StringConfigOption.class, TextInputControl::new);
       registerOptionList(GuiAlignment.class, OptionListControl::new);
       registerOptionList(Difficulty.class, OptionListControl::new);
