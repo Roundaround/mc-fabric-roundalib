@@ -20,6 +20,8 @@ public class RoundaLibTestConfig extends ModConfig {
   public IntConfigOption STEP_BY_TWO;
   public IntConfigOption WITHIN_ONE_HUNDRED;
   public IntConfigOption WITHIN_ONE_HUNDRED_BIG_STEP;
+  public IntConfigOption INT_SLIDER;
+  public IntConfigOption INT_SLIDER_WEIRD_RANGE;
 
   public FloatConfigOption SOME_FLOAT;
   public FloatConfigOption UP_TO_PI;
@@ -70,6 +72,19 @@ public class RoundaLibTestConfig extends ModConfig {
         .setMinValue(-100)
         .setMaxValue(100)
         .setStep(33)
+        .build());
+    INT_SLIDER = registerConfigOption(IntConfigOption
+        .sliderBuilder("intSlider", "roundalib-testmod.int_slider")
+        .setDefaultValue(10)
+        .setMinValue(0)
+        .setMaxValue(100)
+        .build());
+    INT_SLIDER_WEIRD_RANGE = registerConfigOption(IntConfigOption
+        .sliderBuilder("intSliderWeirdRange", "roundalib-testmod.int_slider_weird_range")
+        .setDefaultValue(10)
+        .setMinValue(-17)
+        .setMaxValue(33)
+        .setStep(3)
         .build());
 
     SOME_FLOAT = registerConfigOption(FloatConfigOption

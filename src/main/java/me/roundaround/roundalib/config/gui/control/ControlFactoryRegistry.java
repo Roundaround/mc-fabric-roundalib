@@ -34,7 +34,7 @@ public class ControlFactoryRegistry {
   private static void registerDefaults() {
     try {
       register(BooleanConfigOption.class, ToggleControl::new);
-      register(IntConfigOption.class, IntInputControl::new);
+      register(IntConfigOption.class, new IntControlFactory());
       register(FloatConfigOption.class, new FloatControlFactory());
       register(StringConfigOption.class, TextInputControl::new);
       registerOptionList(GuiAlignment.class, OptionListControl::new);
@@ -104,6 +104,22 @@ public class ControlFactoryRegistry {
   }
 
   public static class NotRegisteredException extends Exception {
+  }
+
+  private static class IntControlFactory implements ControlFactory<IntConfigOption> {
+    @Override
+    public ControlWidget<IntConfigOption> apply(
+        IntConfigOption configOption,
+        OptionRowWidget optionRow,
+        int top,
+        int left,
+        int height,
+        int width) {
+      ControlFactory<IntConfigOption> constructor = configOption.useSlider()
+          ? IntSliderControl::new
+          : IntInputControl::new;
+      return constructor.apply(configOption, optionRow, top, left, height, width);
+    }
   }
 
   private static class FloatControlFactory implements ControlFactory<FloatConfigOption> {
