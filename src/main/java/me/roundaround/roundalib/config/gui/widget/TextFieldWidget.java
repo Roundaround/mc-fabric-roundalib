@@ -11,6 +11,7 @@ import net.minecraft.text.Text;
 public class TextFieldWidget extends net.minecraft.client.gui.widget.TextFieldWidget implements SelectableElement {
   private Consumer<Boolean> focusChangedListener;
   private Widget parent;
+  private boolean dragging = false;
 
   public TextFieldWidget(
       Widget parent,
@@ -50,7 +51,22 @@ public class TextFieldWidget extends net.minecraft.client.gui.widget.TextFieldWi
     if (!parent.isMouseOver(mouseX, mouseY)) {
       return false;
     }
+    dragging = isMouseOver(mouseX, mouseY);
     return super.mouseClicked(mouseX, mouseY, button);
+  }
+
+  @Override
+  public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+    if (!dragging) {
+      return false;
+    }
+    return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+  }
+
+  @Override
+  public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    dragging = false;
+    return super.mouseReleased(mouseX, mouseY, button);
   }
 
   @Override

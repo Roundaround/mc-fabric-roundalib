@@ -23,6 +23,7 @@ public class RoundaLibTestConfig extends ModConfig {
 
   public FloatConfigOption SOME_FLOAT;
   public FloatConfigOption UP_TO_PI;
+  public FloatConfigOption SLIDER;
 
   public StringConfigOption PLAIN_STRING;
   public StringConfigOption RESTRICTED_LENGTH;
@@ -80,6 +81,12 @@ public class RoundaLibTestConfig extends ModConfig {
         .setDefaultValue(2)
         .setMinValue(0)
         .setMaxValue((float) Math.PI)
+        .build());
+    SLIDER = registerConfigOption(FloatConfigOption
+        .sliderBuilder("slider", "roundalib-testmod.slider")
+        .setDefaultValue(0.5f)
+        .setMinValue(0)
+        .setMaxValue(1)
         .build());
 
     PLAIN_STRING = registerConfigOption(StringConfigOption
