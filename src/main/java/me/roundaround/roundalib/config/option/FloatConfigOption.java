@@ -10,6 +10,7 @@ public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Bui
   private Optional<Float> minValue = Optional.empty();
   private Optional<Float> maxValue = Optional.empty();
   private List<Validator> validators = List.of();
+  private boolean slider = false;
 
   protected FloatConfigOption(Builder builder) {
     super(builder);
@@ -28,6 +29,8 @@ public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Bui
       allValidators.addAll(builder.customValidators);
     }
     validators = List.copyOf(allValidators);
+
+    slider = builder.slider;
   }
 
   @Override
@@ -42,6 +45,10 @@ public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Bui
     });
   }
 
+  public boolean useSlider() {
+    return slider;
+  }
+
   public static Builder builder(String id, String labelI18nKey) {
     return new Builder(id, labelI18nKey);
   }
@@ -50,10 +57,19 @@ public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Bui
     return new Builder(id, label);
   }
 
+  public static Builder sliderBuilder(String id, String labelI18nKey) {
+    return builder(id, labelI18nKey).setUseSlider(true);
+  }
+
+  public static Builder sliderBuilder(String id, Text label) {
+    return builder(id, label).setUseSlider(true);
+  }
+
   public static class Builder extends ConfigOption.Builder<Float, Builder> {
     private Optional<Float> minValue = Optional.empty();
     private Optional<Float> maxValue = Optional.empty();
     private List<Validator> customValidators = new ArrayList<>();
+    private boolean slider = false;
 
     private Builder(String id, String labelI18nKey) {
       super(id, labelI18nKey, 0f);
@@ -80,6 +96,11 @@ public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Bui
 
     public Builder addCustomValidator(Validator validator) {
       customValidators.add(validator);
+      return this;
+    }
+
+    public Builder setUseSlider(boolean slider) {
+      this.slider = slider;
       return this;
     }
 

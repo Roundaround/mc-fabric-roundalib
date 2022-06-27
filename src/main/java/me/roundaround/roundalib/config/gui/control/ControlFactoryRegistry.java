@@ -2,8 +2,10 @@ package me.roundaround.roundalib.config.gui.control;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import me.roundaround.roundalib.RoundaLibMod;
+import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import me.roundaround.roundalib.config.option.BooleanConfigOption;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.option.FloatConfigOption;
@@ -34,7 +36,7 @@ public class ControlFactoryRegistry {
     try {
       register(BooleanConfigOption.class, ToggleControl::new);
       register(IntConfigOption.class, IntInputControl::new);
-      register(FloatConfigOption.class, FloatInputControl::new);
+      register(FloatConfigOption.class, new FloatControlFactory());
       register(StringConfigOption.class, TextInputControl::new);
       registerOptionList(GuiAlignment.class, OptionListControl::new);
       registerOptionList(Difficulty.class, OptionListControl::new);
@@ -103,5 +105,21 @@ public class ControlFactoryRegistry {
   }
 
   public static class NotRegisteredException extends Exception {
+  }
+
+  private static class FloatControlFactory implements ControlFactory<FloatConfigOption> {
+    @Override
+    public ControlWidget<FloatConfigOption> apply(
+        FloatConfigOption configOption,
+        OptionRowWidget optionRow,
+        int top,
+        int left,
+        int height,
+        int width) {
+      ControlFactory<FloatConfigOption> constructor = configOption.useSlider()
+          ? FloatSliderControl::new
+          : FloatInputControl::new;
+      return constructor.apply(configOption, optionRow, top, left, height, width);
+    }
   }
 }
