@@ -12,7 +12,6 @@ import org.lwjgl.glfw.GLFW;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import me.roundaround.roundalib.config.ModConfig;
-import me.roundaround.roundalib.config.gui.control.FloatSliderControl;
 import me.roundaround.roundalib.config.gui.widget.ButtonWidget;
 import me.roundaround.roundalib.config.gui.widget.ConfigListWidget;
 import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
