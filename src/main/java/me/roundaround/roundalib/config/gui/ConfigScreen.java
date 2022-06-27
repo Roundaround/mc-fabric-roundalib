@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import me.roundaround.roundalib.config.ModConfig;
+import me.roundaround.roundalib.config.gui.control.FloatSliderControl;
 import me.roundaround.roundalib.config.gui.widget.ButtonWidget;
 import me.roundaround.roundalib.config.gui.widget.ConfigListWidget;
 import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
@@ -135,7 +136,8 @@ public class ConfigScreen extends Screen {
       return true;
     }
     return selectableElements.stream().anyMatch((element) -> {
-      return element.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+      boolean result = element.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+      return result;
     }) || super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
   }
 
@@ -147,6 +149,19 @@ public class ConfigScreen extends Screen {
     return selectableElements.stream().anyMatch((element) -> {
       return element.mouseScrolled(mouseX, mouseY, amount);
     }) || super.mouseScrolled(mouseX, mouseY, amount);
+  }
+
+  @Override
+  public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    if (listWidget.mouseReleased(mouseX, mouseY, button)) {
+      return true;
+    }
+    
+    selectableElements.forEach((element) -> {
+      element.mouseReleased(mouseX, mouseY, button);
+    });
+
+    return super.mouseReleased(mouseX, mouseY, button);
   }
 
   @Override

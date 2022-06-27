@@ -26,7 +26,7 @@ public class ScrollbarWidget extends AbstractWidget<Scrollable> {
 
   @Override
   public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-    int maxScroll = this.getMaxScroll();
+    int maxScroll = getMaxScroll();
     if (maxScroll <= 0) {
       return;
     }
@@ -34,12 +34,12 @@ public class ScrollbarWidget extends AbstractWidget<Scrollable> {
     RenderSystem.disableTexture();
     RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
-    int handleHeight = (int) ((float) this.height * this.height / this.maxPosition);
-    handleHeight = MathHelper.clamp(handleHeight, 32, this.height - 8);
+    int handleHeight = (int) ((float) height * height / maxPosition);
+    handleHeight = MathHelper.clamp(handleHeight, 32, height - 8);
 
-    int handleTop = (int) Math.round(this.scrollAmount) * (this.height - handleHeight) / maxScroll + this.top;
-    if (handleTop < this.top) {
-      handleTop = this.top;
+    int handleTop = (int) Math.round(scrollAmount) * (height - handleHeight) / maxScroll + top;
+    if (handleTop < top) {
+      handleTop = top;
     }
 
     Tessellator tessellator = Tessellator.getInstance();
@@ -48,22 +48,22 @@ public class ScrollbarWidget extends AbstractWidget<Scrollable> {
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
 
     // Shadow
-    bufferBuilder.vertex(this.left, handleTop + handleHeight - 1, 0).color(128, 128, 128, 255).next();
-    bufferBuilder.vertex(this.right, handleTop + handleHeight - 1, 0).color(128, 128, 128, 255).next();
-    bufferBuilder.vertex(this.right, handleTop, 0).color(128, 128, 128, 255).next();
-    bufferBuilder.vertex(this.left, handleTop, 0).color(128, 128, 128, 255).next();
+    bufferBuilder.vertex(left, handleTop + handleHeight - 1, 0).color(128, 128, 128, 255).next();
+    bufferBuilder.vertex(right, handleTop + handleHeight - 1, 0).color(128, 128, 128, 255).next();
+    bufferBuilder.vertex(right, handleTop, 0).color(128, 128, 128, 255).next();
+    bufferBuilder.vertex(left, handleTop, 0).color(128, 128, 128, 255).next();
 
     // Main face
     bufferBuilder
-        .vertex(this.left, handleTop + handleHeight - 2, 0)
+        .vertex(left, handleTop + handleHeight - 2, 0)
         .color(192, 192, 192, 255)
         .next();
     bufferBuilder
-        .vertex(this.right - 1, handleTop + handleHeight - 2, 0)
+        .vertex(right - 1, handleTop + handleHeight - 2, 0)
         .color(192, 192, 192, 255)
         .next();
-    bufferBuilder.vertex(this.right - 1, handleTop, 0).color(192, 192, 192, 255).next();
-    bufferBuilder.vertex(this.left, handleTop, 0).color(192, 192, 192, 255).next();
+    bufferBuilder.vertex(right - 1, handleTop, 0).color(192, 192, 192, 255).next();
+    bufferBuilder.vertex(left, handleTop, 0).color(192, 192, 192, 255).next();
 
     tessellator.draw();
 
@@ -71,36 +71,43 @@ public class ScrollbarWidget extends AbstractWidget<Scrollable> {
   }
 
   @Override
-  public boolean mouseClicked(double mouseX, double mouseY, int button) {
-    this.scrolling = button == 0 && this.isMouseOver(mouseX, mouseY);
-    return this.scrolling;
+  public boolean onMouseClicked(double mouseX, double mouseY, int button) {
+    scrolling = button == 0;
+    return scrolling;
   }
 
   @Override
-  public boolean mouseDragged(
-      double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-    if (button == 0 && this.scrolling) {
-      if (mouseY < (double) this.top) {
-        this.setScrollAmount(0.0D);
-      } else if (mouseY > (double) this.bottom) {
-        this.setScrollAmount(this.getMaxScroll());
-      } else {
-        double percent = Math.max(1, this.getMaxScroll());
-        int bottom = this.height;
-        int top = MathHelper.clamp(((int) ((float) bottom * bottom / this.maxPosition)), 32, bottom - 8);
-        double scaled = Math.max(1, percent / (bottom - top));
-        this.setScrollAmount(this.scrollAmount + deltaY * scaled);
-      }
+  public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    if (button == 0) {
+      scrolling = false;
+    }
+    return super.mouseReleased(mouseX, mouseY, button);
+  }
 
-      return true;
-    } else {
+  @Override
+  public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+    if (!scrolling || button != 0) {
       return false;
     }
+
+    if (mouseY < top) {
+      setScrollAmount(0);
+    } else if (mouseY > bottom) {
+      setScrollAmount(getMaxScroll());
+    } else {
+      double percent = Math.max(1, getMaxScroll());
+      int bottom = height;
+      int top = MathHelper.clamp(((int) ((float) bottom * bottom / maxPosition)), 32, bottom - 8);
+      double scaled = Math.max(1, percent / (bottom - top));
+      setScrollAmount(scrollAmount + deltaY * scaled);
+    }
+
+    return true;
   }
 
   @Override
   public boolean onMouseScrolled(double mouseX, double mouseY, double amount) {
-    this.setScrollAmount(this.scrollAmount - amount * this.scrollSpeed);
+    setScrollAmount(scrollAmount - amount * scrollSpeed);
     return true;
   }
 
@@ -113,11 +120,11 @@ public class ScrollbarWidget extends AbstractWidget<Scrollable> {
   }
 
   private int getMaxScroll() {
-    return Math.max(0, this.maxPosition - (this.height - 4));
+    return Math.max(0, maxPosition - (height - 4));
   }
 
   private void setScrollAmount(double amount) {
-    this.scrollAmount = MathHelper.clamp(amount, 0, this.getMaxScroll());
-    this.parent.setScrollAmount(this.scrollAmount);
+    scrollAmount = MathHelper.clamp(amount, 0, getMaxScroll());
+    parent.setScrollAmount(scrollAmount);
   }
 }

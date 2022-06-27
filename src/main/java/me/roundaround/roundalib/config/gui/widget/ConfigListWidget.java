@@ -115,13 +115,22 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
   }
 
   @Override
+  public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    if (scrollbar.mouseReleased(mouseX, mouseY, button)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  @Override
   public boolean mouseDragged(
       double mouseX, double mouseY, int button, double deltaX, double deltaY) {
     if (scrollbar.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)) {
       return true;
     }
 
-    return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+    return false;
   }
 
   @Override

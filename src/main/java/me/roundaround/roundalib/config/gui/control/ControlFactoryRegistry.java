@@ -2,7 +2,6 @@ package me.roundaround.roundalib.config.gui.control;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import me.roundaround.roundalib.RoundaLibMod;
 import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;

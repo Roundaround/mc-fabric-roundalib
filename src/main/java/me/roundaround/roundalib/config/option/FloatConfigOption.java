@@ -11,6 +11,7 @@ public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Bui
   private Optional<Float> maxValue = Optional.empty();
   private List<Validator> validators = List.of();
   private boolean slider = false;
+  private Optional<Integer> step = Optional.of(20);
 
   protected FloatConfigOption(Builder builder) {
     super(builder);
@@ -31,12 +32,21 @@ public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Bui
     validators = List.copyOf(allValidators);
 
     slider = builder.slider;
+    step = builder.step;
   }
 
   @Override
   public void deserialize(Object data) {
     // Getting around a weird issue where the default deserializes into a Double
     setValue(((Double) data).floatValue());
+  }
+
+  public Optional<Float> getMinValue() {
+    return minValue;
+  }
+
+  public Optional<Float> getMaxValue() {
+    return maxValue;
   }
 
   public boolean validateInput(float newValue) {
@@ -47,6 +57,10 @@ public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Bui
 
   public boolean useSlider() {
     return slider;
+  }
+
+  public int getStep() {
+    return step.isEmpty() ? 20 : step.get();
   }
 
   public static Builder builder(String id, String labelI18nKey) {
@@ -70,6 +84,7 @@ public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Bui
     private Optional<Float> maxValue = Optional.empty();
     private List<Validator> customValidators = new ArrayList<>();
     private boolean slider = false;
+    private Optional<Integer> step = Optional.of(20);
 
     private Builder(String id, String labelI18nKey) {
       super(id, labelI18nKey, 0f);
@@ -101,6 +116,11 @@ public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Bui
 
     public Builder setUseSlider(boolean slider) {
       this.slider = slider;
+      return this;
+    }
+
+    public Builder setStep(int step) {
+      this.step = Optional.of(step);
       return this;
     }
 
