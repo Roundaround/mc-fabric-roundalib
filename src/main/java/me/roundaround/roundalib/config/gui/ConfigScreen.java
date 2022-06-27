@@ -12,7 +12,6 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import me.roundaround.roundalib.config.ModConfig;
-import me.roundaround.roundalib.config.gui.control.FloatSliderControl;
 import me.roundaround.roundalib.config.gui.widget.ButtonWidget;
 import me.roundaround.roundalib.config.gui.widget.ConfigListWidget;
 import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
