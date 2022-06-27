@@ -12,6 +12,7 @@ public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Build
   private Optional<Integer> maxValue = Optional.empty();
   private Optional<Integer> step = Optional.of(1);
   private List<Validator> validators = List.of();
+  private boolean slider = false;
 
   protected IntConfigOption(Builder builder) {
     super(builder);
@@ -31,6 +32,16 @@ public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Build
       allValidators.addAll(builder.customValidators);
     }
     validators = List.copyOf(allValidators);
+
+    slider = builder.slider;
+  }
+
+  public Optional<Integer> getMinValue() {
+    return minValue;
+  }
+
+  public Optional<Integer> getMaxValue() {
+    return maxValue;
   }
 
   public int getStep() {
@@ -65,6 +76,10 @@ public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Build
     return step.isPresent();
   }
 
+  public boolean useSlider() {
+    return slider;
+  }
+
   private boolean step(int mult) {
     if (step.isEmpty()) {
       return false;
@@ -96,11 +111,20 @@ public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Build
     return new Builder(id, label);
   }
 
+  public static Builder sliderBuilder(String id, String labelI18nKey) {
+    return builder(id, labelI18nKey).setUseSlider(true);
+  }
+
+  public static Builder sliderBuilder(String id, Text label) {
+    return builder(id, label).setUseSlider(true);
+  }
+
   public static class Builder extends ConfigOption.Builder<Integer, Builder> {
     private Optional<Integer> minValue = Optional.empty();
     private Optional<Integer> maxValue = Optional.empty();
     private Optional<Integer> step = Optional.of(1);
     private List<Validator> customValidators = new ArrayList<>();
+    private boolean slider = false;
 
     private Builder(String id, String labelI18nKey) {
       super(id, labelI18nKey, 0);
@@ -135,8 +159,16 @@ public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Build
       return this;
     }
 
+    public Builder setUseSlider(boolean slider) {
+      this.slider = slider;
+      return this;
+    }
+
     @Override
     public IntConfigOption build() {
+      if (slider && (minValue.isEmpty() || maxValue.isEmpty())) {
+        throw new IllegalStateException();
+      }
       return new IntConfigOption(this);
     }
   }
