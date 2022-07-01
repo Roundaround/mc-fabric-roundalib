@@ -3,6 +3,7 @@ package me.roundaround.roundalib.config.option;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
@@ -13,6 +14,7 @@ public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Build
   private Optional<Integer> step = Optional.of(1);
   private List<Validator> validators = List.of();
   private boolean slider = false;
+  private Function<Integer, String> valueDisplayFunction = (Integer value) -> value.toString();
 
   protected IntConfigOption(Builder builder) {
     super(builder);
@@ -34,6 +36,7 @@ public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Build
     validators = List.copyOf(allValidators);
 
     slider = builder.slider;
+    valueDisplayFunction = builder.valueDisplayFunction;
   }
 
   public Optional<Integer> getMinValue() {
@@ -97,6 +100,10 @@ public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Build
     return true;
   }
 
+  public String getValueAsString() {
+    return valueDisplayFunction.apply(getValue());
+  }
+
   public boolean validateInput(int newValue) {
     return validators.stream().allMatch((validator) -> {
       return validator.apply(getValue(), newValue);
@@ -125,6 +132,7 @@ public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Build
     private Optional<Integer> step = Optional.of(1);
     private List<Validator> customValidators = new ArrayList<>();
     private boolean slider = false;
+    private Function<Integer, String> valueDisplayFunction = (Integer value) -> value.toString();
 
     private Builder(String id, String labelI18nKey) {
       super(id, labelI18nKey, 0);
@@ -161,6 +169,11 @@ public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Build
 
     public Builder setUseSlider(boolean slider) {
       this.slider = slider;
+      return this;
+    }
+
+    public Builder setValueDisplayFunction(Function<Integer, String> valueDisplayFunction) {
+      this.valueDisplayFunction = valueDisplayFunction;
       return this;
     }
 

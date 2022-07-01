@@ -3,6 +3,7 @@ package me.roundaround.roundalib.config.option;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import net.minecraft.text.Text;
 
@@ -12,6 +13,7 @@ public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Bui
   private List<Validator> validators = List.of();
   private boolean slider = false;
   private Optional<Integer> step = Optional.of(20);
+  private Function<Float, String> valueDisplayFunction = (Float value) -> value.toString();
 
   protected FloatConfigOption(Builder builder) {
     super(builder);
@@ -33,6 +35,7 @@ public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Bui
 
     slider = builder.slider;
     step = builder.step;
+    valueDisplayFunction = builder.valueDisplayFunction;
   }
 
   @Override
@@ -63,6 +66,10 @@ public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Bui
     return step.isEmpty() ? 20 : step.get();
   }
 
+  public String getValueAsString() {
+    return valueDisplayFunction.apply(getValue());
+  }
+
   public static Builder builder(String id, String labelI18nKey) {
     return new Builder(id, labelI18nKey);
   }
@@ -85,6 +92,7 @@ public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Bui
     private List<Validator> customValidators = new ArrayList<>();
     private boolean slider = false;
     private Optional<Integer> step = Optional.of(20);
+    private Function<Float, String> valueDisplayFunction = (Float value) -> String.format("%.2f", value);;
 
     private Builder(String id, String labelI18nKey) {
       super(id, labelI18nKey, 0f);
@@ -121,6 +129,11 @@ public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Bui
 
     public Builder setStep(int step) {
       this.step = Optional.of(step);
+      return this;
+    }
+
+    public Builder setValueDisplayFunction(Function<Float, String> valueDisplayFunction) {
+      this.valueDisplayFunction = valueDisplayFunction;
       return this;
     }
 

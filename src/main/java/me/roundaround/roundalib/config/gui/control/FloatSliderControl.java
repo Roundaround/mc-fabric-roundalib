@@ -7,6 +7,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import me.roundaround.roundalib.config.option.FloatConfigOption;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.sound.PositionedSoundInstance;
@@ -22,6 +23,8 @@ public class FloatSliderControl extends AbstractClickableControlWidget<FloatConf
   protected static final int BACKGROUND_HEIGHT = 20;
   protected static final int BAR_WIDTH = 8;
   protected static final int BAR_HEIGHT = 20;
+
+  private static final MinecraftClient MINECRAFT = MinecraftClient.getInstance();
 
   private boolean mouseDown = false;
 
@@ -41,6 +44,14 @@ public class FloatSliderControl extends AbstractClickableControlWidget<FloatConf
 
     renderBackground(matrixStack, mouseX, mouseY);
     renderBar(matrixStack, mouseX, mouseY);
+
+    drawCenteredText(
+        matrixStack,
+        MINECRAFT.textRenderer,
+        configOption.getValueAsString(),
+        left + width / 2,
+        top + (height - 8) / 2,
+        0xFFFFFF | 255 << 24);
   }
 
   protected void renderBackground(MatrixStack matrixStack, int mouseX, int mouseY) {
