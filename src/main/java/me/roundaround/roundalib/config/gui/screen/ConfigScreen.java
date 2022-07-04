@@ -1,4 +1,4 @@
-package me.roundaround.roundalib.config.gui;
+package me.roundaround.roundalib.config.gui.screen;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -12,6 +12,7 @@ import org.lwjgl.glfw.GLFW;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import me.roundaround.roundalib.config.ModConfig;
+import me.roundaround.roundalib.config.gui.SelectableElement;
 import me.roundaround.roundalib.config.gui.widget.ButtonWidget;
 import me.roundaround.roundalib.config.gui.widget.ConfigListWidget;
 import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
@@ -155,7 +156,7 @@ public class ConfigScreen extends Screen {
     if (listWidget.mouseReleased(mouseX, mouseY, button)) {
       return true;
     }
-    
+
     selectableElements.forEach((element) -> {
       element.mouseReleased(mouseX, mouseY, button);
     });

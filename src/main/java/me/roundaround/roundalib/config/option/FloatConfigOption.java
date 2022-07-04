@@ -92,7 +92,7 @@ public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Bui
     private List<Validator> customValidators = new ArrayList<>();
     private boolean slider = false;
     private Optional<Integer> step = Optional.of(20);
-    private Function<Float, String> valueDisplayFunction = (Float value) -> String.format("%.2f", value);;
+    private Function<Float, String> valueDisplayFunction = (Float value) -> String.format("%.2f", value);
 
     private Builder(String id, String labelI18nKey) {
       super(id, labelI18nKey, 0f);

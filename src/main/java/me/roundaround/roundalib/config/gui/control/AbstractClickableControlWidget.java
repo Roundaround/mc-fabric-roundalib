@@ -1,6 +1,6 @@
 package me.roundaround.roundalib.config.gui.control;
 
-import me.roundaround.roundalib.config.gui.ConfigScreen;
+import me.roundaround.roundalib.config.gui.screen.ConfigScreen;
 import me.roundaround.roundalib.config.gui.widget.AbstractClickableWidget;
 import me.roundaround.roundalib.config.gui.widget.ConfigListWidget;
 import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;

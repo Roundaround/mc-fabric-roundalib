@@ -7,13 +7,17 @@ import me.roundaround.roundalib.config.option.BooleanConfigOption;
 import me.roundaround.roundalib.config.option.FloatConfigOption;
 import me.roundaround.roundalib.config.option.IntConfigOption;
 import me.roundaround.roundalib.config.option.OptionListConfigOption;
+import me.roundaround.roundalib.config.option.PositionConfigOption;
 import me.roundaround.roundalib.config.option.StringConfigOption;
 import me.roundaround.roundalib.config.value.Difficulty;
 import me.roundaround.roundalib.config.value.GameMode;
 import me.roundaround.roundalib.config.value.GuiAlignment;
+import me.roundaround.roundalib.config.value.Position;
 import me.roundaround.roundalib.test.RoundaLibTestMod;
 
 public class RoundaLibTestConfig extends ModConfig {
+  public PositionConfigOption POSITION;
+
   public OptionListConfigOption<GuiAlignment> GUI_ALIGNMENT;
 
   public IntConfigOption SOME_INTEGER;
@@ -47,6 +51,10 @@ public class RoundaLibTestConfig extends ModConfig {
 
   public RoundaLibTestConfig() {
     super(RoundaLibTestMod.MOD_ID);
+
+    POSITION = registerConfigOption(PositionConfigOption
+        .builder("position", "roundalib-testmod.position", new Position(4, 8))
+        .build());
 
     GUI_ALIGNMENT = registerConfigOption(OptionListConfigOption
         .defaultInstance("guiAlignment", "roundalib-testmod.gui_alignment", GuiAlignment.TOP_LEFT));
