@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -43,7 +42,6 @@ public class ConfigScreen extends Screen {
   private static final int FOOTER_BUTTON_POS_Y = 28;
   private static final int FOOTER_BUTTON_SPACING = 8;
 
-  @Nullable
   private final Screen parent;
   private final ModConfig modConfig;
   private final List<SelectableElement> selectableElements = new ArrayList<>();
@@ -55,7 +53,7 @@ public class ConfigScreen extends Screen {
   private Optional<SelectableElement> focused = Optional.empty();
   private boolean shouldSave = false;
 
-  public ConfigScreen(@Nullable Screen parent, ModConfig modConfig) {
+  public ConfigScreen(Screen parent, ModConfig modConfig) {
     super(Text.translatable(modConfig.getConfigScreenI18nKey()));
     this.parent = parent;
     this.modConfig = modConfig;
