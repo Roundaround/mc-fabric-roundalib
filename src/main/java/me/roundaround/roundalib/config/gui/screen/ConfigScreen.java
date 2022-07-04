@@ -236,14 +236,27 @@ public class ConfigScreen extends Screen {
     RenderSystem.setShaderTexture(0, OPTIONS_BACKGROUND_TEXTURE);
     RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 
-    float width = (right - left) / 32f;
-    float height = (top - bottom) / 32f;
-
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-    bufferBuilder.vertex(left, bottom, 0).texture(0, height).color(64, 64, 64, 255).next();
-    bufferBuilder.vertex(right, bottom, 0).texture(width, height).color(64, 64, 64, 255).next();
-    bufferBuilder.vertex(right, top, 0).texture(width, 0).color(64, 64, 64, 255).next();
-    bufferBuilder.vertex(left, top, 0).texture(0, 0).color(64, 64, 64, 255).next();
+    bufferBuilder
+        .vertex(left, bottom, 0)
+        .texture(left / 32f, bottom / 32f)
+        .color(64, 64, 64, 255)
+        .next();
+    bufferBuilder
+        .vertex(right, bottom, 0)
+        .texture(right / 32f, bottom / 32f)
+        .color(64, 64, 64, 255)
+        .next();
+    bufferBuilder
+        .vertex(right, top, 0)
+        .texture(right / 32f, top / 32f)
+        .color(64, 64, 64, 255)
+        .next();
+    bufferBuilder
+        .vertex(left, top, 0)
+        .texture(left / 32f, top / 32f)
+        .color(64, 64, 64, 255)
+        .next();
     tessellator.draw();
   }
 
