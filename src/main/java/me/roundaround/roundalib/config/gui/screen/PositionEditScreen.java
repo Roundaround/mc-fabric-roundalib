@@ -89,52 +89,24 @@ public class PositionEditScreen extends Screen {
     bufferBuilder
         .vertex(0, height, 0)
         .texture(0, height / 32f)
-        .color(64, 64, 64, 255)
+        .color(32, 32, 32, 255)
         .next();
     bufferBuilder
         .vertex(width, height, 0)
         .texture(width / 32f, height / 32f)
-        .color(64, 64, 64, 255)
+        .color(32, 32, 32, 255)
         .next();
     bufferBuilder
         .vertex(width, 0, 0)
         .texture(width / 32f, 0)
-        .color(64, 64, 64, 255)
+        .color(32, 32, 32, 255)
         .next();
     bufferBuilder
         .vertex(0, 0, 0)
         .texture(0, 0)
-        .color(64, 64, 64, 255)
+        .color(32, 32, 32, 255)
         .next();
     tessellator.draw();
-
-    RenderSystem.disableTexture();
-    RenderSystem.enableBlend();
-    RenderSystem.defaultBlendFunc();
-    RenderSystem.setShader(GameRenderer::getPositionColorShader);
-    bufferBuilder = tessellator.getBuffer();
-
-    bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-    bufferBuilder
-        .vertex(0, height, 0)
-        .color(0, 0, 0, 10)
-        .next();
-    bufferBuilder
-        .vertex(width, height, 0)
-        .color(0, 0, 0, 10)
-        .next();
-    bufferBuilder
-        .vertex(width, 0, 0)
-        .color(0, 0, 0, 10)
-        .next();
-    bufferBuilder
-        .vertex(0, 0, 0)
-        .color(0, 0, 0, 10)
-        .next();
-    tessellator.draw();
-
-    RenderSystem.enableTexture();
-    RenderSystem.disableBlend();
   }
 
   protected void renderContent(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
