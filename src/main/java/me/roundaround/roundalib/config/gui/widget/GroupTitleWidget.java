@@ -109,7 +109,7 @@ public class GroupTitleWidget extends AbstractWidget<ConfigListWidget> {
   protected void renderLabel(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
     drawCenteredTextWithShadow(
         matrixStack,
-        TEXT_RENDERER,
+        GuiUtil.getTextRenderer(),
         label.asOrderedText(),
         left + width / 2,
         top + (height - 8) / 2,

@@ -1,7 +1,6 @@
 package me.roundaround.roundalib.config.gui.widget;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -70,6 +69,10 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
     int currentOffset = elementStartY;
     int index = 0;
     for (var entry : parent.getModConfig().getConfigOptions().entrySet()) {
+      if (entry.getValue().stream().noneMatch(ConfigOption::shouldShowInConfigScreen)) {
+        continue;
+      }
+
       String modId = parent.getModConfig().getModId();
       String groupId = entry.getKey();
       if (parent.getModConfig().getShowGroupTitles() && !groupId.equals(modId)) {
@@ -86,7 +89,12 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
         rows.add(groupTitle);
       }
 
-      LinkedList<ConfigOption<?, ?>> configOptions = entry.getValue();
+      List<ConfigOption<?, ?>> configOptions = entry
+          .getValue()
+          .stream()
+          .filter(ConfigOption::shouldShowInConfigScreen)
+          .collect(Collectors.toList());
+
       for (ConfigOption<?, ?> configOption : configOptions) {
         OptionRowWidget optionRow = new OptionRowWidget(
             this,

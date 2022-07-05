@@ -1,15 +1,13 @@
 package me.roundaround.roundalib.config.gui.control;
 
+import me.roundaround.roundalib.config.gui.GuiUtil;
 import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import me.roundaround.roundalib.config.option.ConfigOption;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.text.Text;
 
 public class SubScreenControl<D, C extends ConfigOption<D, ?>> extends ButtonControl<C> {
-  private static MinecraftClient MINECRAFT = MinecraftClient.getInstance();
-
   protected final SubScreenFactory<D, C> subScreenFactory;
 
   public SubScreenControl(
@@ -45,8 +43,7 @@ public class SubScreenControl<D, C extends ConfigOption<D, ?>> extends ButtonCon
   @Override
   protected void onPress(int button) {
     super.onPress(button);
-    Screen subScreen = subScreenFactory.apply(parent.getConfigScreen(), configOption);
-    MINECRAFT.setScreen(subScreen);
+    GuiUtil.setScreen(subScreenFactory.apply(parent.getConfigScreen(), configOption));
   }
 
   @Override

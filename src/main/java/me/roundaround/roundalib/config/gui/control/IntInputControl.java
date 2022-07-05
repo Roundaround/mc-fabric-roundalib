@@ -29,7 +29,7 @@ public class IntInputControl extends AbstractControlWidget<IntConfigOption> {
 
     textBox = new TextFieldWidget(
         this,
-        TEXT_RENDERER,
+        GuiUtil.getTextRenderer(),
         left + 1,
         top + 1,
         width - 2 - (configOption.showStepButtons() ? 10 : 0),

@@ -10,6 +10,7 @@ import net.minecraft.text.Text;
 
 public abstract class ConfigOption<D, B extends ConfigOption.Builder<D, B>> {
   private final String id;
+  private final boolean showInConfigScreen;
   private final Text label;
   private final List<String> comment;
   private final boolean useLabelAsCommentFallback;
@@ -24,6 +25,7 @@ public abstract class ConfigOption<D, B extends ConfigOption.Builder<D, B>> {
 
   protected ConfigOption(B builder) {
     id = builder.id;
+    showInConfigScreen = builder.showInConfigScreen;
     label = builder.label;
     comment = builder.comment;
     useLabelAsCommentFallback = builder.useLabelAsCommentFallback;
@@ -33,6 +35,10 @@ public abstract class ConfigOption<D, B extends ConfigOption.Builder<D, B>> {
 
   public String getId() {
     return id;
+  }
+
+  public boolean shouldShowInConfigScreen() {
+    return showInConfigScreen;
   }
 
   public Text getLabel() {
@@ -88,6 +94,7 @@ public abstract class ConfigOption<D, B extends ConfigOption.Builder<D, B>> {
 
   public static abstract class Builder<D2, B extends Builder<D2, B>> {
     protected String id;
+    protected boolean showInConfigScreen = true;
     protected Text label;
     protected List<String> comment = List.of();
     protected boolean useLabelAsCommentFallback = true;
@@ -101,6 +108,12 @@ public abstract class ConfigOption<D, B extends ConfigOption.Builder<D, B>> {
       this.id = id;
       this.label = label;
       this.defaultValue = defaultValue;
+    }
+
+    @SuppressWarnings("unchecked")
+    public B hideFromConfigScreen() {
+      showInConfigScreen = false;
+      return (B) this;
     }
 
     @SuppressWarnings("unchecked")

@@ -15,6 +15,9 @@
   "icon": "assets/roundalib-test/icon.png",
   "environment": "*",
   "entrypoints": {
+    "client": [
+      "me.roundaround.roundalib.test.RoundaLibTestClientMod"
+    ],
     "main": [
       "me.roundaround.roundalib.test.RoundaLibTestMod"
     ],

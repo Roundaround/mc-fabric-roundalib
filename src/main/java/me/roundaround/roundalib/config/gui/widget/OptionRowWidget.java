@@ -169,7 +169,7 @@ public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
   protected void renderLabel(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
     drawTextWithShadow(
         matrixStack,
-        TEXT_RENDERER,
+        GuiUtil.getTextRenderer(),
         configOption.getLabel(),
         left + PADDING,
         top + (height - 8) / 2,

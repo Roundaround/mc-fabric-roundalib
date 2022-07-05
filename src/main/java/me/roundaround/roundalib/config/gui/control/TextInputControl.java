@@ -23,7 +23,7 @@ public class TextInputControl extends AbstractControlWidget<StringConfigOption> 
 
     textBox = new TextFieldWidget(
         this,
-        TEXT_RENDERER,
+        GuiUtil.getTextRenderer(),
         left + 1,
         top + 1,
         width - 2,

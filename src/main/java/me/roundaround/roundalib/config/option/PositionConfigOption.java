@@ -1,9 +1,5 @@
 package me.roundaround.roundalib.config.option;
 
-import java.util.List;
-
-import com.electronwill.nightconfig.core.utils.StringUtils;
-
 import me.roundaround.roundalib.config.value.Position;
 import net.minecraft.text.Text;
 
@@ -15,17 +11,16 @@ public class PositionConfigOption extends ConfigOption<Position, PositionConfigO
   @Override
   public void deserialize(Object data) {
     String value = (String) data;
-    value = value.substring(1, value.length() - 1);// removes the parentheses
-    List<String> split = StringUtils.split(value, ',');// splits the string
-    int x = Integer.parseInt(split.get(0));
-    int y = Integer.parseInt(split.get(1));
+    String[] split = value.substring(1, value.length() - 1).split(",");
+    int x = Integer.parseInt(split[0]);
+    int y = Integer.parseInt(split[1]);
     setValue(new Position(x, y));
   }
 
   @Override
   public Object serialize() {
     Position value = getValue();
-    return "(" + value.x() + "," + value.y() + ")";
+    return String.format("(%d,%d)", value.x(), value.y());
   }
 
   public static Builder builder(String id, String labelI18nKey, Position defaultValue) {

@@ -1,16 +1,16 @@
 package me.roundaround.roundalib.config.gui.control;
 
+import org.lwjgl.glfw.GLFW;
+
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import org.lwjgl.glfw.GLFW;
-
+import me.roundaround.roundalib.config.gui.GuiUtil;
 import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.client.sound.SoundManager;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
@@ -30,8 +30,7 @@ public abstract class ButtonControl<O extends ConfigOption<?, ?>> extends Abstra
   protected abstract Text getCurrentText();
 
   protected void onPress(int button) {
-    SoundManager soundManager = MINECRAFT.getSoundManager();
-    soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1));
+    GuiUtil.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1));
   }
 
   @Override
@@ -110,7 +109,7 @@ public abstract class ButtonControl<O extends ConfigOption<?, ?>> extends Abstra
     int color = colorInt | 255 << 24;
     drawCenteredText(
         matrixStack,
-        TEXT_RENDERER,
+        GuiUtil.getTextRenderer(),
         getCurrentText(),
         left + width / 2,
         top + (height - 8) / 2,

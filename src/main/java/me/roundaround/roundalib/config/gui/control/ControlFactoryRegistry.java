@@ -4,14 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import me.roundaround.roundalib.RoundaLibMod;
-import me.roundaround.roundalib.config.gui.screen.PositionEditScreen;
 import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import me.roundaround.roundalib.config.option.BooleanConfigOption;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.option.FloatConfigOption;
 import me.roundaround.roundalib.config.option.IntConfigOption;
 import me.roundaround.roundalib.config.option.OptionListConfigOption;
-import me.roundaround.roundalib.config.option.PositionConfigOption;
 import me.roundaround.roundalib.config.option.StringConfigOption;
 import me.roundaround.roundalib.config.value.Difficulty;
 import me.roundaround.roundalib.config.value.GameMode;
@@ -42,8 +40,6 @@ public class ControlFactoryRegistry {
       registerOptionList(GuiAlignment.class, OptionListControl::new);
       registerOptionList(Difficulty.class, OptionListControl::new);
       registerOptionList(GameMode.class, OptionListControl::new);
-      register(PositionConfigOption.class,
-          SubScreenControl.getControlFactory(PositionEditScreen.getSubScreenFactory()));
     } catch (RegistrationException e) {
       RoundaLibMod.LOGGER.error("There was an error registering the built-in control factories!", e);
       System.exit(0);
