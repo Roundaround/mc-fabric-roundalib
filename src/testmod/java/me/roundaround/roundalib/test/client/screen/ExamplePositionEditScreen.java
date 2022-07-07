@@ -9,13 +9,13 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 
-public class BeaconEffectPositionEditScreen extends PositionEditScreen {
-  private BeaconEffectPositionEditScreen(Screen parent, PositionConfigOption configOption) {
-    super(Text.literal("Edit beacon effect position"), parent, configOption);
+public class ExamplePositionEditScreen extends PositionEditScreen {
+  private ExamplePositionEditScreen(Screen parent, PositionConfigOption configOption) {
+    super(Text.literal("Edit position"), parent, configOption);
   }
 
   public static SubScreenFactory<Position, PositionConfigOption> getSubScreenFactory() {
-    return BeaconEffectPositionEditScreen::new;
+    return ExamplePositionEditScreen::new;
   }
 
   @Override
@@ -23,7 +23,7 @@ public class BeaconEffectPositionEditScreen extends PositionEditScreen {
     drawCenteredTextWithShadow(
         matrixStack,
         textRenderer,
-        Text.literal("Testing").asOrderedText(),
+        Text.literal(getValue().toString()).asOrderedText(),
         width / 2,
         height / 2,
         GuiUtil.LABEL_COLOR);

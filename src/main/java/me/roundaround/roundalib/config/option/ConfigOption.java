@@ -63,6 +63,10 @@ public abstract class ConfigOption<D, B extends ConfigOption.Builder<D, B>> {
     valueChangeListeners.forEach((listener) -> listener.accept(prev, value));
   }
 
+  public D getDefault() {
+    return defaultValue;
+  }
+
   public void resetToDefault() {
     setValue(defaultValue);
   }

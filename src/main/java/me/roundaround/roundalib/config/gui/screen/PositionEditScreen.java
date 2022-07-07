@@ -13,8 +13,25 @@ import net.minecraft.text.Text;
 
 @Environment(EnvType.CLIENT)
 public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position, PositionConfigOption> {
-  protected PositionEditScreen(Text title, Screen parent, PositionConfigOption configOption) {
+  private boolean inverseX = false;
+  private boolean inverseY = false;
+
+  protected PositionEditScreen(
+      Text title,
+      Screen parent,
+      PositionConfigOption configOption) {
+    this(title, parent, configOption, false, false);
+  }
+
+  protected PositionEditScreen(
+      Text title,
+      Screen parent,
+      PositionConfigOption configOption,
+      boolean inverseX,
+      boolean inverseY) {
     super(title, parent, configOption);
+    this.inverseX = inverseX;
+    this.inverseY = inverseY;
   }
 
   @Override
@@ -29,16 +46,16 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
 
     switch (keyCode) {
       case GLFW.GLFW_KEY_UP:
-        setValue(value.movedUp(amount));
+        setValue(value.movedUp(amount * (inverseY ? -1 : 1)));
         return true;
       case GLFW.GLFW_KEY_DOWN:
-        setValue(value.movedDown(amount));
+        setValue(value.movedDown(amount * (inverseY ? -1 : 1)));
         return true;
       case GLFW.GLFW_KEY_LEFT:
-        setValue(value.movedLeft(amount));
+        setValue(value.movedLeft(amount * (inverseX ? -1 : 1)));
         return true;
       case GLFW.GLFW_KEY_RIGHT:
-        setValue(value.movedRight(amount));
+        setValue(value.movedRight(amount * (inverseX ? -1 : 1)));
         return true;
     }
 

@@ -7,7 +7,7 @@ import me.roundaround.roundalib.config.gui.control.ControlFactoryRegistry;
 import me.roundaround.roundalib.config.gui.control.ControlFactoryRegistry.RegistrationException;
 import me.roundaround.roundalib.config.gui.control.SubScreenControl;
 import me.roundaround.roundalib.event.HandleInputCallback;
-import me.roundaround.roundalib.test.client.screen.BeaconEffectPositionEditScreen;
+import me.roundaround.roundalib.test.client.screen.ExamplePositionEditScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.option.KeyBinding;
@@ -22,8 +22,8 @@ public class RoundaLibTestClientMod implements ClientModInitializer {
 
   private void initCustomConfigControls() {
     try {
-      ControlFactoryRegistry.register(RoundaLibTestMod.CONFIG.BEACON_EFFECT_POSITION.getId(),
-          SubScreenControl.getControlFactory(BeaconEffectPositionEditScreen.getSubScreenFactory()));
+      ControlFactoryRegistry.register(RoundaLibTestMod.CONFIG.EXAMPLE_POSITION.getId(),
+          SubScreenControl.getControlFactory(ExamplePositionEditScreen.getSubScreenFactory()));
     } catch (RegistrationException e) {
       RoundaLibTestMod.LOGGER.error(e);
     }
@@ -39,8 +39,8 @@ public class RoundaLibTestClientMod implements ClientModInitializer {
     HandleInputCallback.EVENT.register(() -> {
       while (openPositionEditScreenKeybinding.wasPressed()) {
         GuiUtil.setScreen(
-            BeaconEffectPositionEditScreen.getSubScreenFactory().apply(null,
-                RoundaLibTestMod.CONFIG.BEACON_EFFECT_POSITION));
+            ExamplePositionEditScreen.getSubScreenFactory().apply(null,
+                RoundaLibTestMod.CONFIG.EXAMPLE_POSITION));
       }
     });
   }

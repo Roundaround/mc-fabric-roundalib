@@ -1,5 +1,9 @@
 package me.roundaround.roundalib.config.gui.screen;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.lwjgl.glfw.GLFW;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -51,6 +55,11 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
         commitValueToConfig();
         close();
         return true;
+      case GLFW.GLFW_KEY_R:
+        if (GuiUtil.isShiftHeld()) {
+          setValue(configOption.getDefault());
+          return true;
+        }
     }
 
     return false;
@@ -140,23 +149,37 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
   }
 
   protected void renderHelpPrompt(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-    drawTextWithShadow(
-        matrixStack,
-        textRenderer,
-        Text.literal("Hold shift for help"),
-        4,
-        height - 4 - textRenderer.fontHeight,
-        GuiUtil.LABEL_COLOR);
+    renderHelpLines(matrixStack, getHelpShort(mouseX, mouseY, partialTicks));
   }
 
   protected void renderHelpExpanded(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-    drawTextWithShadow(
-        matrixStack,
-        textRenderer,
-        Text.literal("This is where the full help text will render"),
-        4,
-        height - 4 - textRenderer.fontHeight,
-        GuiUtil.LABEL_COLOR);
+    renderHelpLines(matrixStack, getHelpLong(mouseX, mouseY, partialTicks));
+  }
+
+  private void renderHelpLines(MatrixStack matrixStack, List<Text> lines) {
+    int startingOffset = height - 4 - textRenderer.fontHeight
+        - (lines.size() - 1) * (textRenderer.fontHeight + 2);
+
+    for (int i = 0; i < lines.size(); i++) {
+      drawTextWithShadow(
+          matrixStack,
+          textRenderer,
+          lines.get(i),
+          4,
+          startingOffset + i * (textRenderer.fontHeight + 2),
+          GuiUtil.LABEL_COLOR);
+    }
+  }
+
+  protected List<Text> getHelpShort(int mouseX, int mouseY, float partialTicks) {
+    return List.of(Text.literal("Hold shift for help"));
+  }
+
+  protected List<Text> getHelpLong(int mouseX, int mouseY, float partialTicks) {
+    return List.of(
+        Text.literal("ESCAPE: cancel and discard changes"),
+        Text.literal("ENTER/RETURN: save changes"),
+        Text.literal("SHIFT+R: reset value to default"));
   }
 
   protected void renderOverlay(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {

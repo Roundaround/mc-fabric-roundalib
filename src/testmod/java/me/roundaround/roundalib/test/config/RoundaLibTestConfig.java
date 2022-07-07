@@ -16,7 +16,7 @@ import me.roundaround.roundalib.config.value.Position;
 import me.roundaround.roundalib.test.RoundaLibTestMod;
 
 public class RoundaLibTestConfig extends ModConfig {
-  public PositionConfigOption BEACON_EFFECT_POSITION;
+  public PositionConfigOption EXAMPLE_POSITION;
 
   public OptionListConfigOption<GuiAlignment> GUI_ALIGNMENT;
 
@@ -52,8 +52,8 @@ public class RoundaLibTestConfig extends ModConfig {
   public RoundaLibTestConfig() {
     super(RoundaLibTestMod.MOD_ID);
 
-    BEACON_EFFECT_POSITION = registerConfigOption(PositionConfigOption
-        .builder("beaconEffectPosition", "roundalib-testmod.beacon_effect_position", new Position(2, 2))
+    EXAMPLE_POSITION = registerConfigOption(PositionConfigOption
+        .builder("examplePosition", "roundalib-testmod.example_position", new Position(2, 4))
         .build());
 
     GUI_ALIGNMENT = registerConfigOption(OptionListConfigOption
