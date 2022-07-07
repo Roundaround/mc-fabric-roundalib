@@ -1,7 +1,5 @@
 package me.roundaround.roundalib.config.gui.screen;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.lwjgl.glfw.GLFW;
