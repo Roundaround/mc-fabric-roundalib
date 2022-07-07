@@ -1,12 +1,9 @@
 package me.roundaround.roundalib.config.gui;
 
-import org.lwjgl.glfw.GLFW;
-
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.sound.SoundManager;
-import net.minecraft.client.util.InputUtil;
 
 public class GuiUtil {
   public static int LABEL_COLOR = 0xFFFFFFFF;
@@ -44,10 +41,5 @@ public class GuiUtil {
 
   public static TextRenderer getTextRenderer() {
     return MINECRAFT.textRenderer;
-  }
-
-  public static boolean isShiftHeld() {
-    return InputUtil.isKeyPressed(MINECRAFT.getWindow().getHandle(), GLFW.GLFW_KEY_LEFT_SHIFT)
-        || InputUtil.isKeyPressed(MINECRAFT.getWindow().getHandle(), GLFW.GLFW_KEY_RIGHT_SHIFT);
   }
 }

@@ -10,6 +10,7 @@ import me.roundaround.roundalib.config.gui.GuiUtil;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.GameRenderer;
@@ -47,15 +48,16 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
   public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
     switch (keyCode) {
       case GLFW.GLFW_KEY_ESCAPE:
-        close();
+        discardAndExit();
         return true;
-      case GLFW.GLFW_KEY_ENTER:
-        commitValueToConfig();
-        close();
-        return true;
+      case GLFW.GLFW_KEY_S:
+        if (Screen.hasControlDown()) {
+          saveAndExit();
+          return true;
+        }
       case GLFW.GLFW_KEY_R:
-        if (GuiUtil.isShiftHeld()) {
-          setValue(configOption.getDefault());
+        if (Screen.hasControlDown()) {
+          resetToDefault();
           return true;
         }
     }
@@ -72,7 +74,11 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
   }
 
   protected void renderBackground(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-    renderTextureBackground(matrixStack, mouseX, mouseY, partialTicks);
+    if (parent == null) {
+      renderDarkenBackground(matrixStack, mouseX, mouseY, partialTicks);
+    } else {
+      renderTextureBackground(matrixStack, mouseX, mouseY, partialTicks);
+    }
   }
 
   protected void renderTextureBackground(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
@@ -139,7 +145,7 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
   }
 
   protected void renderHelp(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-    if (GuiUtil.isShiftHeld()) {
+    if (Screen.hasShiftDown()) {
       renderHelpExpanded(matrixStack, mouseX, mouseY, partialTicks);
     } else {
       renderHelpPrompt(matrixStack, mouseX, mouseY, partialTicks);
@@ -174,10 +180,13 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
   }
 
   protected List<Text> getHelpLong(int mouseX, int mouseY, float partialTicks) {
+    // TODO: Migrate to translation keys and Text.translatables
     return List.of(
-        Text.literal("ESCAPE: cancel and discard changes"),
-        Text.literal("ENTER/RETURN: save changes"),
-        Text.literal("SHIFT+R: reset value to default"));
+        Text.literal("Escape: cancel and discard changes"),
+        (MinecraftClient.IS_SYSTEM_MAC ? Text.literal("Cmd + S: save changes")
+            : Text.literal("Ctrl + S: save changes")),
+        (MinecraftClient.IS_SYSTEM_MAC ? Text.literal("Cmd + R: reset value to default")
+            : Text.literal("Ctrl + R: reset value to default")));
   }
 
   protected void renderOverlay(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
@@ -197,5 +206,19 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
 
   protected void commitValueToConfig() {
     configOption.setValue(value);
+  }
+
+  private void discardAndExit() {
+    // TODO: Confirm?
+    close();
+  }
+
+  private void saveAndExit() {
+    commitValueToConfig();
+    close();
+  }
+
+  private void resetToDefault() {
+    setValue(configOption.getDefault());
   }
 }

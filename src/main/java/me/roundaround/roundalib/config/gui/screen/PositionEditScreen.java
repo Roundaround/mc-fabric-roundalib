@@ -1,14 +1,15 @@
 package me.roundaround.roundalib.config.gui.screen;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.lwjgl.glfw.GLFW;
 
-import me.roundaround.roundalib.config.gui.GuiUtil;
 import me.roundaround.roundalib.config.option.PositionConfigOption;
 import me.roundaround.roundalib.config.value.Position;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 
 @Environment(EnvType.CLIENT)
@@ -40,7 +41,7 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
       return true;
     }
 
-    boolean shiftHeld = GuiUtil.isShiftHeld();
+    boolean shiftHeld = Screen.hasShiftDown();
     int amount = shiftHeld ? 8 : 1;
     Position value = getValue();
 
@@ -63,11 +64,12 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
   }
 
   @Override
-  protected void renderBackground(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-    if (parent == null) {
-      renderDarkenBackground(matrixStack, mouseX, mouseY, partialTicks);
-    } else {
-      renderTextureBackground(matrixStack, mouseX, mouseY, partialTicks);
-    }
+  protected List<Text> getHelpLong(int mouseX, int mouseY, float partialTicks) {
+    // TODO: Migrate to translation keys and Text.translatables
+    ArrayList<Text> full = new ArrayList<>();
+    full.add(Text.literal("Arrow keys: shift by 1"));
+    full.add(Text.literal("Shift + arrow keys: shift by 8"));
+    full.addAll(super.getHelpLong(mouseX, mouseY, partialTicks));
+    return full;
   }
 }
