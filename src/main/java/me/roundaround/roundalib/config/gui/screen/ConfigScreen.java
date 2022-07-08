@@ -134,8 +134,7 @@ public class ConfigScreen extends Screen {
       return true;
     }
     return selectableElements.stream().anyMatch((element) -> {
-      boolean result = element.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
-      return result;
+      return element.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
     }) || super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
   }
 

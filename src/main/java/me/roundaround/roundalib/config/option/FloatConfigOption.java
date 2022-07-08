@@ -38,6 +38,17 @@ public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Bui
     valueDisplayFunction = builder.valueDisplayFunction;
   }
 
+  private FloatConfigOption(FloatConfigOption other) {
+    super(other);
+
+    minValue = other.minValue;
+    maxValue = other.maxValue;
+    validators = other.validators;
+    slider = other.slider;
+    step = other.step;
+    valueDisplayFunction = other.valueDisplayFunction;
+  }
+
   @Override
   public void deserialize(Object data) {
     // Getting around a weird issue where the default deserializes into a Double
@@ -68,6 +79,11 @@ public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Bui
 
   public String getValueAsString() {
     return valueDisplayFunction.apply(getValue());
+  }
+
+  @Override
+  public FloatConfigOption copy() {
+    return new FloatConfigOption(this);
   }
 
   public static Builder builder(String id, String labelI18nKey) {

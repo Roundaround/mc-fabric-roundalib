@@ -36,12 +36,26 @@ public class StringConfigOption extends ConfigOption<String, StringConfigOption.
     validators = List.copyOf(allValidators);
   }
 
+  private StringConfigOption(StringConfigOption other) {
+    super(other);
+
+    minLength = other.minLength;
+    maxLength = other.maxLength;
+    regex = other.regex;
+    validators = other.validators;
+  }
+
   public boolean validateInput(String newValue) {
     // TODO: Return a result object with details about which validator failed,
     // show a tooltip with error?
     return validators.stream().allMatch((validator) -> {
       return validator.apply(getValue(), newValue);
     });
+  }
+
+  @Override
+  public StringConfigOption copy() {
+    return new StringConfigOption(this);
   }
 
   public static StringConfigOption defaultInstance(String id, String labelI18nKey, String defaultValue) {

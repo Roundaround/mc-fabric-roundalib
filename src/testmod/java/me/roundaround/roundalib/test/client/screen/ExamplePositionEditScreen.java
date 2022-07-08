@@ -20,6 +20,7 @@ public class ExamplePositionEditScreen extends PositionEditScreen {
 
   @Override
   protected void renderContent(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    super.renderContent(matrixStack, mouseX, mouseY, partialTicks);
     drawCenteredTextWithShadow(
         matrixStack,
         textRenderer,

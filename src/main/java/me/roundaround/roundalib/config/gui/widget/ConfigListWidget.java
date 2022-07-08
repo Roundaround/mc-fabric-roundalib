@@ -277,13 +277,17 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
       return false;
     }
 
-    int desiredIndex = IntStream.range(0, rows.size())
-        .filter((index) -> {
-          AbstractWidget<ConfigListWidget> row = rows.get(index);
-          return row.getSelectableElements().contains(getConfigScreen().getFocused());
-        })
-        .findFirst()
-        .orElse(rows.size() - 1 + amount);
+    int desiredIndex = 0;
+    Element focused = getConfigScreen().getFocused();
+    if (focused != null) {
+      desiredIndex = IntStream.range(0, rows.size())
+          .filter((index) -> {
+            AbstractWidget<ConfigListWidget> row = rows.get(index);
+            return row.getSelectableElements().contains(focused);
+          })
+          .findFirst()
+          .orElse(rows.size() - 1 + amount);
+    }
 
     Optional<SelectableElement> desiredFocus = rows.get(desiredIndex).getPrimarySelectableElement();
     if (desiredFocus.isEmpty()) {

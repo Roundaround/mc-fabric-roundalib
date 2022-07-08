@@ -8,6 +8,10 @@ public class PositionConfigOption extends ConfigOption<Position, PositionConfigO
     super(builder);
   }
 
+  private PositionConfigOption(PositionConfigOption other) {
+    super(other);
+  }
+
   @Override
   public void deserialize(Object data) {
     String value = (String) data;
@@ -21,6 +25,11 @@ public class PositionConfigOption extends ConfigOption<Position, PositionConfigO
   public Object serialize() {
     Position value = getValue();
     return String.format("(%d,%d)", value.x(), value.y());
+  }
+
+  @Override
+  public PositionConfigOption copy() {
+    return new PositionConfigOption(this);
   }
 
   public static Builder builder(String id, String labelI18nKey, Position defaultValue) {

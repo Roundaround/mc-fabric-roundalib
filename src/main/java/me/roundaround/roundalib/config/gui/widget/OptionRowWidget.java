@@ -37,7 +37,7 @@ public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
   protected final int index;
   protected final ConfigOption<?, ?> configOption;
   protected final Widget control;
-  protected final ResetButtonWidget resetButton;
+  protected final ResetButtonWidget<OptionRowWidget> resetButton;
 
   private final ImmutableList<Widget> subWidgets;
 
@@ -61,10 +61,27 @@ public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
         right - controlWidth - ResetButtonWidget.WIDTH - (PADDING * 2),
         height,
         controlWidth);
-    resetButton = new ResetButtonWidget(
+    resetButton = new ResetButtonWidget<OptionRowWidget>(
         this,
         top + (HEIGHT - ResetButtonWidget.HEIGHT) / 2,
-        right - PADDING - ResetButtonWidget.WIDTH);
+        right - PADDING - ResetButtonWidget.WIDTH) {
+      @Override
+      protected ConfigOption<?, ?> getConfigOption() {
+        return configOption;
+      }
+
+      @Override
+      public void tick() {
+        if (isDisabled() && isFocused()) {
+          focusPrimaryElement();
+        }
+      }
+
+      @Override
+      protected boolean isDisabled() {
+        return super.isDisabled() && isValid();
+      }
+    };
 
     subWidgets = ImmutableList.of(control, resetButton);
   }
@@ -187,10 +204,14 @@ public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
   protected void renderDecorations(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
     // TODO: Re-enable once clicking on row does anything
     // if (isMouseOver(mouseX, mouseY) && parent.isMouseOver(mouseX, mouseY)) {
-    //   drawHorizontalLine(matrixStack, left - 1, right + 1, top - 1, HIGHLIGHT_COLOR);
-    //   drawHorizontalLine(matrixStack, left - 1, right + 1, bottom + 1, HIGHLIGHT_COLOR);
-    //   drawVerticalLine(matrixStack, left - 1, top - 1, bottom + 1, HIGHLIGHT_COLOR);
-    //   drawVerticalLine(matrixStack, right + 1, top - 1, bottom + 1, HIGHLIGHT_COLOR);
+    // drawHorizontalLine(matrixStack, left - 1, right + 1, top - 1,
+    // HIGHLIGHT_COLOR);
+    // drawHorizontalLine(matrixStack, left - 1, right + 1, bottom + 1,
+    // HIGHLIGHT_COLOR);
+    // drawVerticalLine(matrixStack, left - 1, top - 1, bottom + 1,
+    // HIGHLIGHT_COLOR);
+    // drawVerticalLine(matrixStack, right + 1, top - 1, bottom + 1,
+    // HIGHLIGHT_COLOR);
     // }
   }
 

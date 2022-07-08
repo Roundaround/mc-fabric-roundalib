@@ -3,7 +3,9 @@ package me.roundaround.roundalib.config.gui;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.sound.SoundManager;
+import net.minecraft.sound.SoundEvent;
 
 public class GuiUtil {
   public static int LABEL_COLOR = 0xFFFFFFFF;
@@ -37,6 +39,10 @@ public class GuiUtil {
 
   public static SoundManager getSoundManager() {
     return MINECRAFT.getSoundManager();
+  }
+
+  public static void playSoundEvent(SoundEvent soundEvent) {
+    getSoundManager().play(PositionedSoundInstance.master(soundEvent, 1));
   }
 
   public static TextRenderer getTextRenderer() {

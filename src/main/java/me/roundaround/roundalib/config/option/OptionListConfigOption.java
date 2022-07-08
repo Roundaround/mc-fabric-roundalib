@@ -9,6 +9,10 @@ public class OptionListConfigOption<T extends ListOptionValue<T>>
     super(builder);
   }
 
+  private OptionListConfigOption(OptionListConfigOption<T> other) {
+    super(other);
+  }
+
   @Override
   public void deserialize(Object data) {
     setValue(getValue().getFromId((String) data));
@@ -25,6 +29,11 @@ public class OptionListConfigOption<T extends ListOptionValue<T>>
 
   public void setPrev() {
     setValue(getValue().getPrev());
+  }
+
+  @Override
+  public OptionListConfigOption<T> copy() {
+    return new OptionListConfigOption<>(this);
   }
 
   public static <T extends ListOptionValue<T>> OptionListConfigOption<T> defaultInstance(

@@ -39,6 +39,17 @@ public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Build
     valueDisplayFunction = builder.valueDisplayFunction;
   }
 
+  private IntConfigOption(IntConfigOption other) {
+    super(other);
+
+    minValue = other.minValue;
+    maxValue = other.maxValue;
+    step = other.step;
+    validators = other.validators;
+    slider = other.slider;
+    valueDisplayFunction = other.valueDisplayFunction;
+  }
+
   public Optional<Integer> getMinValue() {
     return minValue;
   }
@@ -108,6 +119,11 @@ public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Build
     return validators.stream().allMatch((validator) -> {
       return validator.apply(getValue(), newValue);
     });
+  }
+
+  @Override
+  public IntConfigOption copy() {
+    return new IntConfigOption(this);
   }
 
   public static Builder builder(String id, String labelI18nKey) {

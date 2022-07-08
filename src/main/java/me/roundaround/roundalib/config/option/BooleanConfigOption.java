@@ -13,12 +13,23 @@ public class BooleanConfigOption extends ConfigOption<Boolean, BooleanConfigOpti
     disabledLabel = builder.disabledLabel;
   }
 
+  protected BooleanConfigOption(BooleanConfigOption other) {
+    super(other);
+    enabledLabel = other.enabledLabel;
+    disabledLabel = other.disabledLabel;
+  }
+
   public Text getEnabledLabel() {
     return enabledLabel;
   }
 
   public Text getDisabledLabel() {
     return disabledLabel;
+  }
+
+  @Override
+  public BooleanConfigOption copy() {
+    return new BooleanConfigOption(this);
   }
 
   public static Builder builder(String id, String labelI18nKey) {

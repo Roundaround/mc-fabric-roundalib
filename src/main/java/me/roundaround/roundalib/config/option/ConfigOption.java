@@ -33,6 +33,16 @@ public abstract class ConfigOption<D, B extends ConfigOption.Builder<D, B>> {
     value = defaultValue;
   }
 
+  protected ConfigOption(ConfigOption<D, B> other) {
+    id = other.id;
+    showInConfigScreen = other.showInConfigScreen;
+    label = other.label;
+    comment = other.comment;
+    useLabelAsCommentFallback = other.useLabelAsCommentFallback;
+    defaultValue = other.defaultValue;
+    value = other.value;
+  }
+
   public String getId() {
     return id;
   }
@@ -95,6 +105,8 @@ public abstract class ConfigOption<D, B extends ConfigOption.Builder<D, B>> {
   public final void subscribeToValueChanges(BiConsumer<D, D> listener) {
     this.valueChangeListeners.add(listener);
   }
+
+  public abstract ConfigOption<D, B> copy();
 
   public static abstract class Builder<D2, B extends Builder<D2, B>> {
     protected String id;

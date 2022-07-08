@@ -36,4 +36,20 @@ public class ButtonWidget extends net.minecraft.client.gui.widget.ButtonWidget i
   public void setFocusChangedListener(Consumer<Boolean> listener) {
     focusChangeListener = listener;
   }
+
+  public int getTop() {
+    return y;
+  }
+
+  public int getBottom() {
+    return y + height;
+  }
+
+  public int getLeft() {
+    return x;
+  }
+
+  public int getRight() {
+    return x + width;
+  }
 }
