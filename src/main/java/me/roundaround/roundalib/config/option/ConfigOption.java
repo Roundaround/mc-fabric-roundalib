@@ -139,6 +139,12 @@ public abstract class ConfigOption<D, B extends ConfigOption.Builder<D, B>> {
     }
 
     @SuppressWarnings("unchecked")
+    public B setComment(String...comment) {
+      this.comment = List.of(comment);
+      return (B) this;
+    }
+
+    @SuppressWarnings("unchecked")
     public B setComment(Collection<String> comment) {
       this.comment = List.copyOf(comment);
       return (B) this;
