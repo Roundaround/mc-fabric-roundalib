@@ -4,7 +4,10 @@
   "package": "me.roundaround.roundalib.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [],
-  "client": ["MinecraftClientMixin"],
+  "client": [
+    "MinecraftClientMixin",
+    "ScreenMixin"
+  ],
   "server": [],
   "injectors": {
     "defaultRequire": 1
