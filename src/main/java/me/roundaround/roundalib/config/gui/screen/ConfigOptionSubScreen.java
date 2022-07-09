@@ -144,7 +144,7 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
         }
     }
 
-    return false;
+    return super.keyPressed(keyCode, scanCode, modifiers);
   }
 
   @Override
