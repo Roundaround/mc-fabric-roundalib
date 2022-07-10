@@ -81,6 +81,11 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
       protected ConfigOption<?, ?> getConfigOption() {
         return intermediateValue;
       }
+
+      @Override
+      protected void performReset() {
+        resetToDefault();
+      }
     };
 
     addSelectableChild(resetButton);
