@@ -2,6 +2,7 @@ package me.roundaround.roundalib.config.gui.screen;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.lwjgl.glfw.GLFW;
@@ -42,6 +43,7 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
   private ResetButtonWidget<ConfigOptionSubScreen<D, C>> resetButton;
   private IconButtonWidget<ConfigOptionSubScreen<D, C>> cancelButton;
   private IconButtonWidget<ConfigOptionSubScreen<D, C>> doneButton;
+  private Optional<SelectableElement> focused = Optional.empty();
 
   @SuppressWarnings("unchecked")
   protected ConfigOptionSubScreen(Text title, Screen parent, C configOption) {
@@ -153,6 +155,46 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
   }
 
   @Override
+  public boolean changeFocus(boolean lookForwards) {
+    if (selectableElements.isEmpty()) {
+      return false;
+    }
+
+    int index = focused.isPresent() ? selectableElements.indexOf(focused.get()) : -1;
+    int step = lookForwards ? 1 : -1;
+    if (!lookForwards && index == -1) {
+      index = 0;
+    }
+
+    index = (index + selectableElements.size() + step) % selectableElements.size();
+
+    int originalIndex = index;
+    while (!setFocused(selectableElements.get(index))) {
+      index = (index + selectableElements.size() + step) % selectableElements.size();
+      if (index == originalIndex) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @Override
+  public Element getFocused() {
+    return focused.orElse(null);
+  }
+
+  public boolean setFocused(SelectableElement newFocused) {
+    if (focused.isPresent() && !this.focused.get().equals(newFocused)) {
+      focused.get().setIsFocused(false);
+    }
+    boolean result = newFocused.setIsFocused(true);
+    if (result) {
+      focused = Optional.of(newFocused);
+    }
+    return result;
+  }
+
+  @Override
   protected <T extends Element & Selectable> T addSelectableChild(T child) {
     selectableElements.add((SelectableElement) child);
     return super.addSelectableChild(child);
@@ -190,22 +232,22 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
     bufferBuilder
         .vertex(0, height, 0)
         .texture(0, height / 32f)
-        .color(32, 32, 32, 255)
+        .color(64, 64, 64, 255)
         .next();
     bufferBuilder
         .vertex(width, height, 0)
         .texture(width / 32f, height / 32f)
-        .color(32, 32, 32, 255)
+        .color(64, 64, 64, 255)
         .next();
     bufferBuilder
         .vertex(width, 0, 0)
         .texture(width / 32f, 0)
-        .color(32, 32, 32, 255)
+        .color(64, 64, 64, 255)
         .next();
     bufferBuilder
         .vertex(0, 0, 0)
         .texture(0, 0)
-        .color(32, 32, 32, 255)
+        .color(64, 64, 64, 255)
         .next();
     tessellator.draw();
   }
@@ -238,7 +280,7 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
         .color(0, 0, 0, DARKEN_STRENGTH)
         .next();
     tessellator.draw();
-    
+
     RenderSystem.disableBlend();
     RenderSystem.enableTexture();
     RenderSystem.colorMask(true, true, true, true);
@@ -288,17 +330,18 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
   }
 
   protected List<Text> getHelpShort(int mouseX, int mouseY, float partialTicks) {
-    return List.of(Text.literal("Hold shift for help"));
+    return List.of(Text.translatable("roundalib.help.short"));
   }
 
   protected List<Text> getHelpLong(int mouseX, int mouseY, float partialTicks) {
-    // TODO: Migrate to translation keys and Text.translatables
     return List.of(
-        Text.literal("Escape: cancel and discard changes"),
-        (MinecraftClient.IS_SYSTEM_MAC ? Text.literal("Cmd + S: save changes")
-            : Text.literal("Ctrl + S: save changes")),
-        (MinecraftClient.IS_SYSTEM_MAC ? Text.literal("Cmd + R: reset value to default")
-            : Text.literal("Ctrl + R: reset value to default")));
+        Text.translatable("roundalib.help.cancel"),
+        (MinecraftClient.IS_SYSTEM_MAC
+            ? Text.translatable("roundalib.help.save.mac")
+            : Text.translatable("roundalib.help.save.win")),
+        (MinecraftClient.IS_SYSTEM_MAC
+            ? Text.translatable("roundalib.help.reset.mac")
+            : Text.translatable("roundalib.help.reset.win")));
   }
 
   protected void renderOverlay(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {

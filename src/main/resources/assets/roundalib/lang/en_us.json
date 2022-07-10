@@ -16,5 +16,14 @@
   "roundalib.gui_alignment.bottom_center": "Bottom center",
   "roundalib.gui_alignment.bottom_right": "Bottom right",
   "roundalib.toggle.enabled": "Enabled",
-  "roundalib.toggle.disabled": "Disabled"
+  "roundalib.toggle.disabled": "Disabled",
+  "roundalib.help.short": "Hold shift for help",
+  "roundalib.help.cancel": "Escape: cancel and discard changes",
+  "roundalib.help.save.win": "Ctrl + S: save changes",
+  "roundalib.help.save.mac": "Cmd + S: save changes",
+  "roundalib.help.reset.win": "Ctrl + R: reset value to default",
+  "roundalib.help.reset.mac": "Cmd + R: reset value to default",
+  "roundalib.help.position.single": "Arrow keys: shift by 1",
+  "roundalib.help.position.multi": "Shift + arrow keys: shift by 8",
+  "roundalib.subscreen.label": "Edit"
 }

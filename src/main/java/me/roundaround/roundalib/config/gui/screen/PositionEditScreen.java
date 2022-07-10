@@ -65,10 +65,9 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
 
   @Override
   protected List<Text> getHelpLong(int mouseX, int mouseY, float partialTicks) {
-    // TODO: Migrate to translation keys and Text.translatables
     ArrayList<Text> full = new ArrayList<>();
-    full.add(Text.literal("Arrow keys: shift by 1"));
-    full.add(Text.literal("Shift + arrow keys: shift by 8"));
+    full.add(Text.translatable("roundalib.help.position.single"));
+    full.add(Text.translatable("roundalib.help.position.multi"));
     full.addAll(super.getHelpLong(mouseX, mouseY, partialTicks));
     return full;
   }
