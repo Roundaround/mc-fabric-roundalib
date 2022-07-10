@@ -216,6 +216,8 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
     RenderSystem.disableTexture();
     RenderSystem.enableBlend();
     RenderSystem.defaultBlendFunc();
+    RenderSystem.disableDepthTest();
+    RenderSystem.colorMask(true, true, true, false);
     RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
@@ -236,6 +238,11 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
         .color(0, 0, 0, DARKEN_STRENGTH)
         .next();
     tessellator.draw();
+    
+    RenderSystem.disableBlend();
+    RenderSystem.enableTexture();
+    RenderSystem.colorMask(true, true, true, true);
+    RenderSystem.enableDepthTest();
   }
 
   protected void renderContent(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
