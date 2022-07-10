@@ -168,9 +168,9 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
 
   protected void renderBackground(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
     if (parent == null) {
-      renderDarkenBackground(matrixStack, mouseX, mouseY, partialTicks);
-    } else {
       renderTextureBackground(matrixStack, mouseX, mouseY, partialTicks);
+    } else {
+      renderDarkenBackground(matrixStack, mouseX, mouseY, partialTicks);
     }
   }
 
@@ -310,6 +310,10 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
     return intermediateValue.getValue();
   }
 
+  protected void resetToDefault() {
+    setValue(intermediateValue.getDefault());
+  }
+
   protected boolean isDirty() {
     return intermediateValue.isDirty();
   }
@@ -318,17 +322,13 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
     configOption.setValue(getValue());
   }
 
-  private void discardAndExit() {
+  protected void discardAndExit() {
     // TODO: Confirm?
     close();
   }
 
-  private void saveAndExit() {
+  protected void saveAndExit() {
     commitValueToConfig();
     close();
-  }
-
-  private void resetToDefault() {
-    setValue(configOption.getDefault());
   }
 }
