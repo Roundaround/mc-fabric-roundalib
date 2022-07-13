@@ -14,6 +14,7 @@ import me.roundaround.roundalib.config.option.StringConfigOption;
 import me.roundaround.roundalib.config.value.Difficulty;
 import me.roundaround.roundalib.config.value.GameMode;
 import me.roundaround.roundalib.config.value.GuiAlignment;
+import me.roundaround.roundalib.config.value.GuiTheme;
 import me.roundaround.roundalib.config.value.ListOptionValue;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -38,6 +39,7 @@ public class ControlFactoryRegistry {
       register(FloatConfigOption.class, new FloatControlFactory());
       register(StringConfigOption.class, TextInputControl::new);
       registerOptionList(GuiAlignment.class, OptionListControl::new);
+      registerOptionList(GuiTheme.class, OptionListControl::new);
       registerOptionList(Difficulty.class, OptionListControl::new);
       registerOptionList(GameMode.class, OptionListControl::new);
     } catch (RegistrationException e) {
