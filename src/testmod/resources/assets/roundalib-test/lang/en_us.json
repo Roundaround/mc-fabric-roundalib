@@ -1,6 +1,7 @@
 {
   "roundalib-testmod.modname": "RoundaLib Test Mod",
   "roundalib-testmod.config.title": "RoundaLib Test Mod",
+  "roundalib-testmod.example_position": "Example position",
   "roundalib-testmod.gui_alignment": "GUI alignment",
   "roundalib-testmod.some_integer": "Any integer",
   "roundalib-testmod.step_by_two": "Step buttons adjust by 2",

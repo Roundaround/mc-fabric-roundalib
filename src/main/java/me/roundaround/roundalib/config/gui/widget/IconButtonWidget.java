@@ -17,13 +17,17 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class IconButtonWidget<T> extends AbstractClickableWidget<T> {
-  public static final int HEIGHT = 12;
-  public static final int WIDTH = 12;
+  public static final int HEIGHT_LARGE = 12;
+  public static final int WIDTH_LARGE = 12;
+  public static final int HEIGHT_SMALL = 9;
+  public static final int WIDTH_SMALL = 9;
+  public static final int SMALL_TEX_START_X = 36;
   protected static final Identifier TEXTURE = new Identifier("roundalib", "textures/gui.png");
 
   private final int texIdx;
   private final Text hoverTooltip;
   private final PressAction<T> pressAction;
+  private final boolean large;
 
   public IconButtonWidget(
       T parent,
@@ -32,10 +36,22 @@ public class IconButtonWidget<T> extends AbstractClickableWidget<T> {
       int texIdx,
       Text hoverTooltip,
       PressAction<T> pressAction) {
-    super(parent, top, left, HEIGHT, WIDTH);
+    this(parent, top, left, true, texIdx, hoverTooltip, pressAction);
+  }
+
+  public IconButtonWidget(
+      T parent,
+      int top,
+      int left,
+      boolean large,
+      int texIdx,
+      Text hoverTooltip,
+      PressAction<T> pressAction) {
+    super(parent, top, left, large ? HEIGHT_LARGE : HEIGHT_SMALL, large ? WIDTH_LARGE : WIDTH_SMALL);
     this.texIdx = texIdx;
     this.hoverTooltip = hoverTooltip;
     this.pressAction = pressAction;
+    this.large = large;
   }
 
   @Override
@@ -49,10 +65,10 @@ public class IconButtonWidget<T> extends AbstractClickableWidget<T> {
     RenderSystem.setShader(GameRenderer::getPositionTexShader);
     RenderSystem.applyModelViewMatrix();
 
-    int u = getImageXOffset() * WIDTH;
-    int v = getImageYOffset() * HEIGHT;
+    int u = (large ? 0 : SMALL_TEX_START_X) + getImageXOffset() * width;
+    int v = getImageYOffset() * height;
 
-    drawTexture(matrixStack, left, top, u, v, WIDTH, HEIGHT);
+    drawTexture(matrixStack, left, top, u, v, width, height);
   }
 
   @Override

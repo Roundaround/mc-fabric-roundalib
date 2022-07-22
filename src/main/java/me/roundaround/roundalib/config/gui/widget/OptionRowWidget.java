@@ -58,13 +58,13 @@ public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
         configOption,
         this,
         top,
-        right - controlWidth - ResetButtonWidget.WIDTH - (PADDING * 2),
+        right - controlWidth - ResetButtonWidget.WIDTH_LARGE - (PADDING * 2),
         height,
         controlWidth);
     resetButton = new ResetButtonWidget<OptionRowWidget>(
         this,
-        top + (HEIGHT - ResetButtonWidget.HEIGHT) / 2,
-        right - PADDING - ResetButtonWidget.WIDTH) {
+        top + (HEIGHT - ResetButtonWidget.HEIGHT_LARGE) / 2,
+        right - PADDING - ResetButtonWidget.WIDTH_LARGE) {
       @Override
       protected ConfigOption<?, ?> getConfigOption() {
         return configOption;
@@ -119,7 +119,7 @@ public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
     super.moveTop(top);
 
     control.moveTop(top);
-    resetButton.moveTop(top + (HEIGHT - ResetButtonWidget.HEIGHT) / 2);
+    resetButton.moveTop(top + (HEIGHT - ResetButtonWidget.HEIGHT_LARGE) / 2);
   }
 
   protected void renderBackground(

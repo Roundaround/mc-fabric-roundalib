@@ -57,8 +57,8 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
   protected void init() {
     doneButton = new IconButtonWidget<ConfigOptionSubScreen<D, C>>(
         this,
-        height - 4 - IconButtonWidget.HEIGHT,
-        width - 4 - IconButtonWidget.WIDTH,
+        height - 4 - IconButtonWidget.HEIGHT_LARGE,
+        width - 4 - IconButtonWidget.WIDTH_LARGE,
         2,
         Text.translatable("roundalib.save.tooltip"),
         (button) -> {
@@ -67,8 +67,8 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
 
     cancelButton = new IconButtonWidget<ConfigOptionSubScreen<D, C>>(
         this,
-        height - 4 - IconButtonWidget.HEIGHT,
-        doneButton.getLeft() - 4 - IconButtonWidget.WIDTH,
+        height - 4 - IconButtonWidget.HEIGHT_LARGE,
+        doneButton.getLeft() - 4 - IconButtonWidget.WIDTH_LARGE,
         1,
         Text.translatable("roundalib.discard.tooltip"),
         (button) -> {
@@ -77,8 +77,8 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
 
     resetButton = new ResetButtonWidget<ConfigOptionSubScreen<D, C>>(
         this,
-        height - 4 - IconButtonWidget.HEIGHT,
-        cancelButton.getLeft() - 4 - IconButtonWidget.WIDTH) {
+        height - 4 - IconButtonWidget.HEIGHT_LARGE,
+        cancelButton.getLeft() - 4 - IconButtonWidget.WIDTH_LARGE) {
       @Override
       protected ConfigOption<?, ?> getConfigOption() {
         return intermediateValue;

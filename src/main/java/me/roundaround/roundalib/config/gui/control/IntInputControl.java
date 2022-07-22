@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import me.roundaround.roundalib.config.gui.GuiUtil;
 import me.roundaround.roundalib.config.gui.SelectableElement;
+import me.roundaround.roundalib.config.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.config.gui.widget.IntStepButtonWidget;
 import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import me.roundaround.roundalib.config.gui.widget.TextFieldWidget;
@@ -50,9 +51,9 @@ public class IntInputControl extends AbstractControlWidget<IntConfigOption> {
     });
 
     if (configOption.showStepButtons()) {
-      incrementButton = new IntStepButtonWidget(this, true, top, right - IntStepButtonWidget.WIDTH + 1);
-      decrementButton = new IntStepButtonWidget(this, false, bottom - IntStepButtonWidget.HEIGHT + 1,
-          right - IntStepButtonWidget.WIDTH + 1);
+      incrementButton = new IntStepButtonWidget(this, true, top, right - IconButtonWidget.WIDTH_SMALL + 1);
+      decrementButton = new IntStepButtonWidget(this, false, bottom - IconButtonWidget.HEIGHT_SMALL + 1,
+          right - IconButtonWidget.WIDTH_SMALL + 1);
     }
 
     configOption.subscribeToValueChanges(this::onConfigValueChange);
@@ -173,7 +174,7 @@ public class IntInputControl extends AbstractControlWidget<IntConfigOption> {
 
     if (configOption.showStepButtons()) {
       incrementButton.moveTop(top);
-      decrementButton.moveTop(bottom - IntStepButtonWidget.HEIGHT + 1);
+      decrementButton.moveTop(bottom - IconButtonWidget.HEIGHT_SMALL + 1);
     }
   }
 }
