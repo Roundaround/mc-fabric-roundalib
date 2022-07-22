@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 import net.minecraft.text.Text;
 
@@ -15,6 +16,7 @@ public abstract class ConfigOption<D, B extends ConfigOption.Builder<D, B>> {
   private final List<String> comment;
   private final boolean useLabelAsCommentFallback;
   private final D defaultValue;
+  private final Supplier<Boolean> disabledSupplier;
   private final Queue<BiConsumer<D, D>> valueChangeListeners = new LinkedList<>();
 
   private D value;
@@ -30,6 +32,7 @@ public abstract class ConfigOption<D, B extends ConfigOption.Builder<D, B>> {
     comment = builder.comment;
     useLabelAsCommentFallback = builder.useLabelAsCommentFallback;
     defaultValue = builder.defaultValue;
+    disabledSupplier = builder.disabledSupplier;
     value = defaultValue;
   }
 
@@ -40,6 +43,7 @@ public abstract class ConfigOption<D, B extends ConfigOption.Builder<D, B>> {
     comment = other.comment;
     useLabelAsCommentFallback = other.useLabelAsCommentFallback;
     defaultValue = other.defaultValue;
+    disabledSupplier = other.disabledSupplier;
     value = other.value;
   }
 
@@ -93,6 +97,10 @@ public abstract class ConfigOption<D, B extends ConfigOption.Builder<D, B>> {
     return !value.equals(defaultValue);
   }
 
+  public boolean isDisabled() {
+    return disabledSupplier.get();
+  }
+
   @SuppressWarnings("unchecked")
   public void deserialize(Object data) {
     setValue((D) data);
@@ -115,6 +123,7 @@ public abstract class ConfigOption<D, B extends ConfigOption.Builder<D, B>> {
     protected List<String> comment = List.of();
     protected boolean useLabelAsCommentFallback = true;
     protected D2 defaultValue;
+    protected Supplier<Boolean> disabledSupplier = () -> false;
 
     protected Builder(String id, String labelI18nKey, D2 defaultValue) {
       this(id, Text.translatable(labelI18nKey), defaultValue);
@@ -153,6 +162,12 @@ public abstract class ConfigOption<D, B extends ConfigOption.Builder<D, B>> {
     @SuppressWarnings("unchecked")
     public B setUseLabelAsCommentFallback(boolean useLabelAsCommentFallback) {
       this.useLabelAsCommentFallback = useLabelAsCommentFallback;
+      return (B) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public B setDisabledSupplier(Supplier<Boolean> disabledSupplier) {
+      this.disabledSupplier = disabledSupplier;
       return (B) this;
     }
 

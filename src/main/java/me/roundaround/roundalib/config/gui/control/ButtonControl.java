@@ -21,8 +21,6 @@ public abstract class ButtonControl<O extends ConfigOption<?, ?>> extends Abstra
   protected static final int BUTTON_TEXTURE_WIDTH = 200;
   protected static final int BUTTON_TEXTURE_HEIGHT = 20;
 
-  private boolean isActive = true;
-
   protected ButtonControl(O configOption, OptionRowWidget parent, int top, int left, int height, int width) {
     super(configOption, parent, top, left, height, width);
   }
@@ -35,7 +33,7 @@ public abstract class ButtonControl<O extends ConfigOption<?, ?>> extends Abstra
 
   @Override
   public boolean onMouseClicked(double mouseX, double mouseY, int button) {
-    if (!isActive) {
+    if (isDisabled()) {
       return false;
     }
 
@@ -45,7 +43,7 @@ public abstract class ButtonControl<O extends ConfigOption<?, ?>> extends Abstra
 
   @Override
   public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-    if (!isActive) {
+    if (isDisabled()) {
       return false;
     }
 
@@ -105,7 +103,7 @@ public abstract class ButtonControl<O extends ConfigOption<?, ?>> extends Abstra
         width / 2,
         height / 2);
 
-    int colorInt = isActive ? 0xFFFFFF : 0xA0A0A0;
+    int colorInt = isDisabled() ? 0xA0A0A0 : 0xFFFFFF;
     int color = colorInt | 255 << 24;
     drawCenteredText(
         matrixStack,
@@ -117,7 +115,7 @@ public abstract class ButtonControl<O extends ConfigOption<?, ?>> extends Abstra
   }
 
   protected int getImageOffset() {
-    if (!isActive) {
+    if (isDisabled()) {
       return 0;
     } else if (isHoveredOrFocused()) {
       return 2;

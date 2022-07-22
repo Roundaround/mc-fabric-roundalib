@@ -51,4 +51,8 @@ public abstract class AbstractClickableControlWidget<O extends ConfigOption<?, ?
   public ConfigScreen getConfigScreen() {
     return getConfigList().getConfigScreen();
   }
+
+  public boolean isDisabled() {
+    return configOption.isDisabled();
+  }
 }
