@@ -130,8 +130,8 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
   }
 
   @Override
-  protected void renderBackground(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-    super.renderBackground(matrixStack, mouseX, mouseY, partialTicks);
+  protected void renderContent(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    super.renderContent(matrixStack, mouseX, mouseY, partialTicks);
 
     matrixStack.push();
     matrixStack.translate(0, 0, 50);
