@@ -15,7 +15,7 @@ public abstract class ResetButtonWidget<T> extends IconButtonWidget<T> {
   }
 
   public ResetButtonWidget(T parent, int top, int left, PressAction<T> pressAction) {
-    super(parent, top, left, 0, TOOLTIP, pressAction);
+    super(parent, top, left, true, IconButtonWidget.UV_LG_UNDO, TOOLTIP, pressAction);
   }
 
   protected void performReset() {

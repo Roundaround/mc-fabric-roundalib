@@ -51,9 +51,9 @@ public class IntInputControl extends AbstractControlWidget<IntConfigOption> {
     });
 
     if (configOption.showStepButtons()) {
-      incrementButton = new IntStepButtonWidget(this, true, top, right - IconButtonWidget.WIDTH_SMALL + 1);
-      decrementButton = new IntStepButtonWidget(this, false, bottom - IconButtonWidget.HEIGHT_SMALL + 1,
-          right - IconButtonWidget.WIDTH_SMALL + 1);
+      incrementButton = new IntStepButtonWidget(this, true, top, right - IconButtonWidget.WIDTH_SM + 1);
+      decrementButton = new IntStepButtonWidget(this, false, bottom - IconButtonWidget.HEIGHT_SM + 1,
+          right - IconButtonWidget.WIDTH_SM + 1);
     }
 
     configOption.subscribeToValueChanges(this::onConfigValueChange);
@@ -174,7 +174,7 @@ public class IntInputControl extends AbstractControlWidget<IntConfigOption> {
 
     if (configOption.showStepButtons()) {
       incrementButton.moveTop(top);
-      decrementButton.moveTop(bottom - IconButtonWidget.HEIGHT_SMALL + 1);
+      decrementButton.moveTop(bottom - IconButtonWidget.HEIGHT_SM + 1);
     }
   }
 }

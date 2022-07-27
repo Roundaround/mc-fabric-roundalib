@@ -55,21 +55,21 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
 
   @Override
   protected void init() {
-    doneButton = new IconButtonWidget<ConfigOptionSubScreen<D, C>>(
+    doneButton = IconButtonWidget.large(
         this,
-        height - 4 - IconButtonWidget.HEIGHT_LARGE,
-        width - 4 - IconButtonWidget.WIDTH_LARGE,
-        2,
+        height - 4 - IconButtonWidget.HEIGHT_LG,
+        width - 4 - IconButtonWidget.WIDTH_LG,
+        IconButtonWidget.UV_LG_CONFIRM,
         Text.translatable("roundalib.save.tooltip"),
         (button) -> {
           saveAndExit();
         });
 
-    cancelButton = new IconButtonWidget<ConfigOptionSubScreen<D, C>>(
+    cancelButton = IconButtonWidget.large(
         this,
-        height - 4 - IconButtonWidget.HEIGHT_LARGE,
-        doneButton.getLeft() - 4 - IconButtonWidget.WIDTH_LARGE,
-        1,
+        height - 4 - IconButtonWidget.HEIGHT_LG,
+        doneButton.getLeft() - 4 - IconButtonWidget.WIDTH_LG,
+        IconButtonWidget.UV_LG_CANCEL,
         Text.translatable("roundalib.discard.tooltip"),
         (button) -> {
           discardAndExit();
@@ -77,8 +77,8 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
 
     resetButton = new ResetButtonWidget<ConfigOptionSubScreen<D, C>>(
         this,
-        height - 4 - IconButtonWidget.HEIGHT_LARGE,
-        cancelButton.getLeft() - 4 - IconButtonWidget.WIDTH_LARGE) {
+        height - 4 - IconButtonWidget.HEIGHT_LG,
+        cancelButton.getLeft() - 4 - IconButtonWidget.WIDTH_LG) {
       @Override
       protected ConfigOption<?, ?> getConfigOption() {
         return intermediateValue;
@@ -307,6 +307,7 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
   }
 
   protected void renderHelpPrompt(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+
     renderHelpLines(matrixStack, getHelpShort(mouseX, mouseY, partialTicks));
   }
 
@@ -315,6 +316,10 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
   }
 
   private void renderHelpLines(MatrixStack matrixStack, List<Text> lines) {
+    renderHelpLines(matrixStack, lines, false);
+  }
+
+  private void renderHelpLines(MatrixStack matrixStack, List<Text> lines, boolean offsetForIcon) {
     int startingOffset = height - 4 - textRenderer.fontHeight
         - (lines.size() - 1) * (textRenderer.fontHeight + 2);
 

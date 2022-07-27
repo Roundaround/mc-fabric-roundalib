@@ -8,6 +8,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import me.roundaround.roundalib.config.gui.GuiUtil;
+import me.roundaround.roundalib.config.value.Position;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;
 import net.minecraft.client.render.GameRenderer;
@@ -17,41 +18,65 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class IconButtonWidget<T> extends AbstractClickableWidget<T> {
-  public static final int HEIGHT_LARGE = 12;
-  public static final int WIDTH_LARGE = 12;
-  public static final int HEIGHT_SMALL = 9;
-  public static final int WIDTH_SMALL = 9;
-  public static final int SMALL_TEX_START_X = 36;
+  public static final int HEIGHT_LG = 13;
+  public static final int WIDTH_LG = 13;
+  public static final int HEIGHT_SM = 9;
+  public static final int WIDTH_SM = 9;
+  public static final int SMALL_TEX_START_X = 3 * WIDTH_LG;
+  public static final Position UV_LG_UNDO = new Position(0, HEIGHT_LG);
+  public static final Position UV_LG_CANCEL = new Position(0, 2 * HEIGHT_LG);
+  public static final Position UV_LG_CONFIRM = new Position(0, 3 * HEIGHT_LG);
+  public static final Position UV_LG_HELP = new Position(0, 4 * HEIGHT_LG);
+  public static final Position UV_LG_CLOSE = new Position(0, 5 * HEIGHT_LG);
+  public static final Position UV_LG_ARROW_UP = new Position(0, 6 * HEIGHT_LG);
+  public static final Position UV_LG_ARROW_DOWN = new Position(0, 7 * HEIGHT_LG);
+  public static final Position UV_LG_ARROW_LEFT = new Position(0, 8 * HEIGHT_LG);
+  public static final Position UV_LG_ARROW_RIGHT = new Position(0, 9 * HEIGHT_LG);
+  public static final Position UV_SM_PLUS = new Position(SMALL_TEX_START_X, HEIGHT_SM);
+  public static final Position UV_SM_MINUS = new Position(SMALL_TEX_START_X, 2 * HEIGHT_SM);
+  public static final Position UV_SM_ARROW_UP = new Position(SMALL_TEX_START_X, 3 * HEIGHT_SM);
+  public static final Position UV_SM_ARROW_DOWN = new Position(SMALL_TEX_START_X, 4 * HEIGHT_SM);
+  public static final Position UV_SM_ARROW_LEFT = new Position(SMALL_TEX_START_X, 5 * HEIGHT_SM);
+  public static final Position UV_SM_ARROW_RIGHT = new Position(SMALL_TEX_START_X, 6 * HEIGHT_SM);
+
   protected static final Identifier TEXTURE = new Identifier("roundalib", "textures/gui.png");
 
-  private final int texIdx;
+  private final Position texUV;
   private final Text hoverTooltip;
   private final PressAction<T> pressAction;
-  private final boolean large;
 
-  public IconButtonWidget(
-      T parent,
-      int top,
-      int left,
-      int texIdx,
-      Text hoverTooltip,
-      PressAction<T> pressAction) {
-    this(parent, top, left, true, texIdx, hoverTooltip, pressAction);
-  }
-
-  public IconButtonWidget(
+  protected IconButtonWidget(
       T parent,
       int top,
       int left,
       boolean large,
-      int texIdx,
+      Position texUV,
       Text hoverTooltip,
       PressAction<T> pressAction) {
-    super(parent, top, left, large ? HEIGHT_LARGE : HEIGHT_SMALL, large ? WIDTH_LARGE : WIDTH_SMALL);
-    this.texIdx = texIdx;
+    super(parent, top, left, large ? HEIGHT_LG : HEIGHT_SM, large ? WIDTH_LG : WIDTH_SM);
+    this.texUV = texUV;
     this.hoverTooltip = hoverTooltip;
     this.pressAction = pressAction;
-    this.large = large;
+  }
+
+  public static <T> IconButtonWidget<T> small(
+      T parent,
+      int top,
+      int left,
+      Position texUV,
+      Text hoverTooltip,
+      PressAction<T> pressAction) {
+    return new IconButtonWidget<>(parent, top, left, false, texUV, hoverTooltip, pressAction);
+  }
+
+  public static <T> IconButtonWidget<T> large(
+      T parent,
+      int top,
+      int left,
+      Position texUV,
+      Text hoverTooltip,
+      PressAction<T> pressAction) {
+    return new IconButtonWidget<>(parent, top, left, true, texUV, hoverTooltip, pressAction);
   }
 
   @Override
@@ -65,8 +90,8 @@ public class IconButtonWidget<T> extends AbstractClickableWidget<T> {
     RenderSystem.setShader(GameRenderer::getPositionTexShader);
     RenderSystem.applyModelViewMatrix();
 
-    int u = (large ? 0 : SMALL_TEX_START_X) + getImageXOffset() * width;
-    int v = getImageYOffset() * height;
+    int u = texUV.x() + getImageXOffset() * width;
+    int v = texUV.y() + getImageYOffset() * height;
 
     drawTexture(matrixStack, left, top, u, v, width, height);
   }
@@ -143,7 +168,7 @@ public class IconButtonWidget<T> extends AbstractClickableWidget<T> {
   }
 
   protected int getImageYOffset() {
-    return texIdx + 1;
+    return 0;
   }
 
   protected boolean isDisabled() {

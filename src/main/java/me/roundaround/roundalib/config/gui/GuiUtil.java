@@ -48,4 +48,8 @@ public class GuiUtil {
   public static TextRenderer getTextRenderer() {
     return MINECRAFT.textRenderer;
   }
+
+  public static int genColorInt(float r, float g, float b, float a) {
+    return ((int) (a * 255) << 24) | ((int) (r * 255) << 16) | ((int) (g * 255) << 8) | (int) (b * 255);
+  }
 }

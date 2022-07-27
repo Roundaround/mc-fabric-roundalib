@@ -18,7 +18,7 @@ public class IntStepButtonWidget extends IconButtonWidget<IntInputControl> {
         top,
         left,
         false,
-        increment ? 0 : 1,
+        increment ? IconButtonWidget.UV_SM_PLUS : IconButtonWidget.UV_SM_MINUS,
         Text.translatable(increment ? "roundalib.step_up.tooltip" : "roundalib.step_down.tooltip",
             parent.getConfigOption().getStep()),
         IntStepButtonWidget::onPress);
