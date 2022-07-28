@@ -5,18 +5,26 @@ import java.util.List;
 
 import org.lwjgl.glfw.GLFW;
 
-import me.roundaround.roundalib.config.gui.GuiUtil;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+
 import me.roundaround.roundalib.config.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.config.option.PositionConfigOption;
 import me.roundaround.roundalib.config.value.Position;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
 public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position, PositionConfigOption> {
+  protected static final Identifier TEXTURE = new Identifier("roundalib", "textures/gui.png");
+  protected static final Position CROSSHAIR_UV = new Position(247, 0);
+  protected static final int CROSSHAIR_SIZE = 9;
+
   private boolean inverseX = false;
   private boolean inverseY = false;
 
@@ -133,21 +141,19 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
   protected void renderContent(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
     super.renderContent(matrixStack, mouseX, mouseY, partialTicks);
 
+    int left = upButton.getLeft() + 2;
+    int top = leftButton.getTop() + 2;
+    
+    RenderSystem.setShaderColor(1, 1, 1, 0.4f);
+    RenderSystem.enableBlend();
+    RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
+    RenderSystem.setShaderTexture(0, TEXTURE);
+    RenderSystem.setShader(GameRenderer::getPositionTexShader);
+    RenderSystem.applyModelViewMatrix();
+
     matrixStack.push();
     matrixStack.translate(0, 0, 50);
-
-    int left = upButton.getLeft() + 1;
-    int right = upButton.getRight() - 1;
-    int top = leftButton.getTop() + 1;
-    int bottom = leftButton.getBottom() - 1;
-
-    int centerX = (left + right) / 2;
-    int centerY = (top + bottom) / 2;
-
-    fill(matrixStack, centerX, top, centerX + 1, bottom + 1, GuiUtil.genColorInt(0.4f, 0.4f, 0.4f, 1));
-    fill(matrixStack, left, centerY, centerX, centerY + 1, GuiUtil.genColorInt(0.4f, 0.4f, 0.4f, 1));
-    fill(matrixStack, centerX + 1, centerY, right + 1, centerY + 1, GuiUtil.genColorInt(0.4f, 0.4f, 0.4f, 1));
-
+    drawTexture(matrixStack, left, top, CROSSHAIR_UV.x(), CROSSHAIR_UV.y(), CROSSHAIR_SIZE, CROSSHAIR_SIZE);
     matrixStack.pop();
   }
 
