@@ -9,8 +9,6 @@ public final class RoundaLibMod implements ModInitializer {
   public static final String MOD_ID = "roundalib";
   public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 
-  // TODO: Update README
-
   @Override
   public void onInitialize() {
   }

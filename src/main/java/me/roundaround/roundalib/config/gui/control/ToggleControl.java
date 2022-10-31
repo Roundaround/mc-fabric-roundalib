@@ -30,7 +30,7 @@ public class ToggleControl extends ButtonControl<BooleanConfigOption> {
     super.onPress(button);
   }
 
-  private void onConfigValueChange(boolean prev, boolean curr) {
+  private void onConfigValueChange(Boolean prev, Boolean curr) {
     cachedText = curr ? configOption.getEnabledLabel() : configOption.getDisabledLabel();
   }
 
@@ -47,8 +47,6 @@ public class ToggleControl extends ButtonControl<BooleanConfigOption> {
   public void appendNarrations(NarrationMessageBuilder builder) {
     builder.put(NarrationPart.TITLE, composeLabelText());
 
-    // TODO: Write own usage texts: current one only mentions using ENTER (no
-    // SPACE) to use.
     Text usageText = composeUsageText();
     if (focused) {
       builder.put(NarrationPart.USAGE, Text.translatable("narration.cycle_button.usage.focused", usageText));

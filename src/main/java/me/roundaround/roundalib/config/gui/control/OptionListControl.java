@@ -57,8 +57,6 @@ public class OptionListControl<S extends ListOptionValue<S>, T extends OptionLis
   public void appendNarrations(NarrationMessageBuilder builder) {
     builder.put(NarrationPart.TITLE, composeLabelText());
 
-    // TODO: Write own usage texts: current one only mentions going forward, and
-    // only mentions using ENTER (no SPACE) to use.
     Text usageText = composeUsageText();
     if (focused) {
       builder.put(NarrationPart.USAGE, Text.translatable("narration.cycle_button.usage.focused", usageText));

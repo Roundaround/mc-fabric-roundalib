@@ -383,7 +383,6 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
   }
 
   protected void discardAndExit() {
-    // TODO: Confirm?
     close();
   }
 

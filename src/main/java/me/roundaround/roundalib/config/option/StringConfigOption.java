@@ -46,8 +46,6 @@ public class StringConfigOption extends ConfigOption<String, StringConfigOption.
   }
 
   public boolean validateInput(String newValue) {
-    // TODO: Return a result object with details about which validator failed,
-    // show a tooltip with error?
     return validators.stream().allMatch((validator) -> {
       return validator.apply(getValue(), newValue);
     });

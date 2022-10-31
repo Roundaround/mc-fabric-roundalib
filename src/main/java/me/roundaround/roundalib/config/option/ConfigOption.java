@@ -22,9 +22,6 @@ public abstract class ConfigOption<D, B extends ConfigOption.Builder<D, B>> {
   private D value;
   private D lastSavedValue;
 
-  // TODO: Create library for registering custom commands
-  // TODO: Create commands for managing the config
-
   protected ConfigOption(B builder) {
     id = builder.id;
     showInConfigScreen = builder.showInConfigScreen;

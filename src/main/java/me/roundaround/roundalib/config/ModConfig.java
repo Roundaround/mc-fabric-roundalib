@@ -90,8 +90,6 @@ public abstract class ModConfig {
       return;
     }
 
-    // TODO: Write own TOML file parsing/editing/saving so that we can make the
-    // files prettier :)
     CommentedFileConfig fileConfig = CommentedFileConfig
         .builder(getConfigFile())
         .preserveInsertionOrder()
@@ -120,9 +118,6 @@ public abstract class ModConfig {
   protected boolean updateConfigVersion(int version, Config config) {
     return false;
   }
-
-  // TODO: Consider a builder pattern similar to ForgeConfigSpec:
-  // https://git.roundaround.me/Roundaround/mc-forge-inventory-management/-/blob/main/src/main/java/me/roundaround/inventorymanagement/ConfigHandler.java
 
   protected <T extends ConfigOption<?, ?>> T registerConfigOption(T configOption) {
     return registerConfigOption(null, configOption);
