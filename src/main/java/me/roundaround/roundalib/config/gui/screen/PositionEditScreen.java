@@ -148,7 +148,7 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
     RenderSystem.enableBlend();
     RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
     RenderSystem.setShaderTexture(0, TEXTURE);
-    RenderSystem.setShader(GameRenderer::getPositionTexShader);
+    RenderSystem.setShader(GameRenderer::getPositionColorTexProgram);
     RenderSystem.applyModelViewMatrix();
 
     matrixStack.push();

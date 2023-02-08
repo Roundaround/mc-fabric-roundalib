@@ -87,7 +87,7 @@ public class IconButtonWidget<T> extends AbstractClickableWidget<T> {
     RenderSystem.enableBlend();
     RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
     RenderSystem.setShaderTexture(0, TEXTURE);
-    RenderSystem.setShader(GameRenderer::getPositionTexShader);
+    RenderSystem.setShader(GameRenderer::getPositionTexProgram);
     RenderSystem.applyModelViewMatrix();
 
     int u = texUV.x() + getImageXOffset() * width;
@@ -177,7 +177,7 @@ public class IconButtonWidget<T> extends AbstractClickableWidget<T> {
 
   protected void onPress() {
     pressAction.apply(this);
-    GuiUtil.playSoundEvent(SoundEvents.UI_BUTTON_CLICK);
+    GuiUtil.playSoundEvent(SoundEvents.UI_BUTTON_CLICK.value());
   }
 
   @FunctionalInterface

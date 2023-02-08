@@ -224,7 +224,7 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
   protected void renderTextureBackground(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
     Tessellator tessellator = Tessellator.getInstance();
     BufferBuilder bufferBuilder = tessellator.getBuffer();
-    RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+    RenderSystem.setShader(GameRenderer::getPositionColorTexProgram);
     RenderSystem.setShaderTexture(0, OPTIONS_BACKGROUND_TEXTURE);
     RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 
@@ -260,7 +260,7 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
     RenderSystem.defaultBlendFunc();
     RenderSystem.disableDepthTest();
     RenderSystem.colorMask(true, true, true, false);
-    RenderSystem.setShader(GameRenderer::getPositionColorShader);
+    RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
 
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
     bufferBuilder

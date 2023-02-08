@@ -61,8 +61,6 @@ public class ConfigScreen extends Screen {
 
   @Override
   protected void init() {
-    client.keyboard.setRepeatEvents(true);
-
     int listWidth = (int) Math.max(LIST_MIN_WIDTH, width / 1.5f);
     int listLeft = (int) ((width / 2f) - (listWidth / 2f));
     int listHeight = height - HEADER_HEIGHT - FOOTER_HEIGHT;
@@ -97,11 +95,6 @@ public class ConfigScreen extends Screen {
     listWidget.getSelectableElements().forEach(this::addSelectableChild);
     addSelectableChild(cancelButton);
     addSelectableChild(doneButton);
-  }
-
-  @Override
-  public void removed() {
-    client.keyboard.setRepeatEvents(false);
   }
 
   @Override
@@ -229,7 +222,7 @@ public class ConfigScreen extends Screen {
   public void renderBackgroundInRegion(int top, int bottom, int left, int right) {
     Tessellator tessellator = Tessellator.getInstance();
     BufferBuilder bufferBuilder = tessellator.getBuffer();
-    RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+    RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
     RenderSystem.setShaderTexture(0, OPTIONS_BACKGROUND_TEXTURE);
     RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 

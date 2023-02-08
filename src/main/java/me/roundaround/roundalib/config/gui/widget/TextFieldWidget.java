@@ -98,7 +98,7 @@ public class TextFieldWidget extends net.minecraft.client.gui.widget.TextFieldWi
   }
 
   @Override
-  public void appendNarrations(NarrationMessageBuilder builder) {
+  public void appendClickableNarrations(NarrationMessageBuilder builder) {
     builder.put(NarrationPart.TITLE, getNarrationMessage());
   }
 

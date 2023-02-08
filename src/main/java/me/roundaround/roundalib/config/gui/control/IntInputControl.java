@@ -170,7 +170,7 @@ public class IntInputControl extends AbstractControlWidget<IntConfigOption> {
   @Override
   public void moveTop(int top) {
     super.moveTop(top);
-    textBox.y = top + 1;
+    textBox.setY(top + 1);
 
     if (configOption.showStepButtons()) {
       incrementButton.moveTop(top);

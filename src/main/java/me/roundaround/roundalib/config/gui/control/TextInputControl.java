@@ -112,6 +112,6 @@ public class TextInputControl extends AbstractControlWidget<StringConfigOption> 
   @Override
   public void moveTop(int top) {
     super.moveTop(top);
-    textBox.y = top + 1;
+    textBox.setY(top + 1);
   }
 }

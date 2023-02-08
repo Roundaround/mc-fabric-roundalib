@@ -166,6 +166,6 @@ public class FloatInputControl extends AbstractControlWidget<FloatConfigOption> 
   @Override
   public void moveTop(int top) {
     super.moveTop(top);
-    textBox.y = top + 1;
+    textBox.setY(top + 1);
   }
 }

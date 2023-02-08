@@ -177,7 +177,7 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
     Tessellator tessellator = Tessellator.getInstance();
     BufferBuilder bufferBuilder = tessellator.getBuffer();
 
-    RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+    RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
     RenderSystem.setShaderTexture(0, DrawableHelper.OPTIONS_BACKGROUND_TEXTURE);
     RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 
@@ -213,7 +213,7 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
         GlStateManager.SrcFactor.ZERO,
         GlStateManager.DstFactor.ONE);
     RenderSystem.disableTexture();
-    RenderSystem.setShader(GameRenderer::getPositionColorShader);
+    RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
     bufferBuilder.vertex(0, top + PADDING_Y, 0).color(0, 0, 0, 0).next();

@@ -32,7 +32,7 @@ public class ScrollbarWidget extends AbstractWidget<Scrollable> {
     }
 
     RenderSystem.disableTexture();
-    RenderSystem.setShader(GameRenderer::getPositionColorShader);
+    RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 
     int handleHeight = (int) ((float) height * height / maxPosition);
     handleHeight = MathHelper.clamp(handleHeight, 32, height - 8);
