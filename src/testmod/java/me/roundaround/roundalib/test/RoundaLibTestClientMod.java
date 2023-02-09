@@ -6,8 +6,8 @@ import me.roundaround.roundalib.config.gui.GuiUtil;
 import me.roundaround.roundalib.config.gui.control.ControlFactoryRegistry;
 import me.roundaround.roundalib.config.gui.control.ControlFactoryRegistry.RegistrationException;
 import me.roundaround.roundalib.config.gui.control.SubScreenControl;
-import me.roundaround.roundalib.event.HandleInputCallback;
 import me.roundaround.roundalib.test.client.screen.ExamplePositionEditScreen;
+import me.roundaround.roundalib.test.event.HandleInputCallback;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.option.KeyBinding;
@@ -32,7 +32,7 @@ public class RoundaLibTestClientMod implements ClientModInitializer {
   private void initKeyBindings() {
     KeyBinding openPositionEditScreenKeybinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
         "roundalib-testmod.keybind.open_position_screen",
-        InputUtil.Type.KEYSYM, // TKEYSYM for keyboard, MOUSE for mouse.
+        InputUtil.Type.KEYSYM,
         GLFW.GLFW_KEY_K,
         "roundalib-testmod.keybind.category"));
 

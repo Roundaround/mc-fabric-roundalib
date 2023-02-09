@@ -1,4 +1,4 @@
-package me.roundaround.roundalib.event;
+package me.roundaround.roundalib.test.event;
 
 import java.util.Arrays;
 

@@ -1,11 +1,11 @@
-package me.roundaround.roundalib.mixin;
+package me.roundaround.roundalib.test.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import me.roundaround.roundalib.event.HandleScreenInputCallback;
+import me.roundaround.roundalib.test.event.HandleScreenInputCallback;
 import net.minecraft.client.gui.screen.Screen;
 
 @Mixin(Screen.class)
