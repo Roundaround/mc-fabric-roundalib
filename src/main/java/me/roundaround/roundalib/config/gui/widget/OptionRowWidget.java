@@ -49,7 +49,7 @@ public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
       int top,
       int left,
       int width) {
-    super(parent, top, left, HEIGHT, width);
+    super(parent, configOption.getConfig(), top, left, HEIGHT, width);
 
     int controlWidth = Math.max(CONTROL_MIN_WIDTH, Math.round(width * 0.3f));
 
@@ -64,6 +64,7 @@ public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
         controlWidth);
     resetButton = new ResetButtonWidget<OptionRowWidget>(
         this,
+        this.config,
         top + (HEIGHT - ResetButtonWidget.HEIGHT_LG) / 2,
         right - PADDING - ResetButtonWidget.WIDTH_LG) {
       @Override

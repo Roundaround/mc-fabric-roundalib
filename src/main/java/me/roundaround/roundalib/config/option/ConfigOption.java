@@ -7,15 +7,17 @@ import java.util.Queue;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
+import me.roundaround.roundalib.config.ModConfig;
 import net.minecraft.text.Text;
 
-public abstract class ConfigOption<D, B extends ConfigOption.Builder<D, B>> {
+public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, B>> {
+  private final ModConfig config;
   private final String id;
-  private final boolean showInConfigScreen;
   private final Text label;
+  private final D defaultValue;
+  private final boolean showInConfigScreen;
   private final List<String> comment;
   private final boolean useLabelAsCommentFallback;
-  private final D defaultValue;
   private final Supplier<Boolean> disabledSupplier;
   private final Queue<BiConsumer<D, D>> valueChangeListeners = new LinkedList<>();
 
@@ -23,79 +25,85 @@ public abstract class ConfigOption<D, B extends ConfigOption.Builder<D, B>> {
   private D lastSavedValue;
 
   protected ConfigOption(B builder) {
-    id = builder.id;
-    showInConfigScreen = builder.showInConfigScreen;
-    label = builder.label;
-    comment = builder.comment;
-    useLabelAsCommentFallback = builder.useLabelAsCommentFallback;
-    defaultValue = builder.defaultValue;
-    disabledSupplier = builder.disabledSupplier;
-    value = defaultValue;
+    this.config = builder.config;
+    this.id = builder.id;
+    this.label = builder.label;
+    this.defaultValue = builder.defaultValue;
+    this.showInConfigScreen = builder.showInConfigScreen;
+    this.comment = builder.comment;
+    this.useLabelAsCommentFallback = builder.useLabelAsCommentFallback;
+    this.disabledSupplier = builder.disabledSupplier;
+    this.value = defaultValue;
   }
 
   protected ConfigOption(ConfigOption<D, B> other) {
-    id = other.id;
-    showInConfigScreen = other.showInConfigScreen;
-    label = other.label;
-    comment = other.comment;
-    useLabelAsCommentFallback = other.useLabelAsCommentFallback;
-    defaultValue = other.defaultValue;
-    disabledSupplier = other.disabledSupplier;
-    value = other.value;
+    this.config = other.config;
+    this.id = other.id;
+    this.label = other.label;
+    this.defaultValue = other.defaultValue;
+    this.showInConfigScreen = other.showInConfigScreen;
+    this.comment = other.comment;
+    this.useLabelAsCommentFallback = other.useLabelAsCommentFallback;
+    this.disabledSupplier = other.disabledSupplier;
+    this.value = other.value;
+  }
+
+  public ModConfig getConfig() {
+    return this.config;
   }
 
   public String getId() {
-    return id;
+    return this.id;
   }
 
   public boolean shouldShowInConfigScreen() {
-    return showInConfigScreen;
+    return this.showInConfigScreen;
   }
 
   public Text getLabel() {
-    return label;
+    return this.label;
   }
 
   public List<String> getComment() {
-    return comment;
+    return this.comment;
   }
 
   public boolean getUseLabelAsCommentFallback() {
-    return useLabelAsCommentFallback;
+    return this.useLabelAsCommentFallback;
   }
 
   public D getValue() {
-    return value;
+    return this.value;
   }
 
   public void setValue(D value) {
     D prev = this.value;
     this.value = value;
-    valueChangeListeners.forEach((listener) -> listener.accept(prev, value));
+    this.valueChangeListeners.forEach((listener) -> listener.accept(prev, value));
   }
 
   public D getDefault() {
-    return defaultValue;
+    return this.defaultValue;
   }
 
   public void resetToDefault() {
-    setValue(defaultValue);
+    setValue(this.defaultValue);
   }
 
   public void markValueAsSaved() {
-    lastSavedValue = value;
+    this.lastSavedValue = value;
   }
 
   public boolean isDirty() {
-    return !value.equals(lastSavedValue);
+    return !this.value.equals(this.lastSavedValue);
   }
 
   public boolean isModified() {
-    return !value.equals(defaultValue);
+    return !this.value.equals(this.defaultValue);
   }
 
   public boolean isDisabled() {
-    return disabledSupplier.get();
+    return this.disabledSupplier.get();
   }
 
   @SuppressWarnings("unchecked")
@@ -113,20 +121,22 @@ public abstract class ConfigOption<D, B extends ConfigOption.Builder<D, B>> {
 
   public abstract ConfigOption<D, B> copy();
 
-  public static abstract class Builder<D2, B extends Builder<D2, B>> {
-    protected String id;
+  public static abstract class AbstractBuilder<D, B extends AbstractBuilder<D, B>> {
+    protected final ModConfig config;
+    protected final String id;
+    protected final Text label;
+    protected D defaultValue;
     protected boolean showInConfigScreen = true;
-    protected Text label;
     protected List<String> comment = List.of();
     protected boolean useLabelAsCommentFallback = true;
-    protected D2 defaultValue;
     protected Supplier<Boolean> disabledSupplier = () -> false;
 
-    protected Builder(String id, String labelI18nKey, D2 defaultValue) {
-      this(id, Text.translatable(labelI18nKey), defaultValue);
+    protected AbstractBuilder(ModConfig config, String id, String labelI18nKey, D defaultValue) {
+      this(config, id, Text.translatable(labelI18nKey), defaultValue);
     }
 
-    protected Builder(String id, Text label, D2 defaultValue) {
+    protected AbstractBuilder(ModConfig config, String id, Text label, D defaultValue) {
+      this.config = config;
       this.id = id;
       this.label = label;
       this.defaultValue = defaultValue;
@@ -134,7 +144,7 @@ public abstract class ConfigOption<D, B extends ConfigOption.Builder<D, B>> {
 
     @SuppressWarnings("unchecked")
     public B hideFromConfigScreen() {
-      showInConfigScreen = false;
+      this.showInConfigScreen = false;
       return (B) this;
     }
 
@@ -145,7 +155,7 @@ public abstract class ConfigOption<D, B extends ConfigOption.Builder<D, B>> {
     }
 
     @SuppressWarnings("unchecked")
-    public B setComment(String...comment) {
+    public B setComment(String... comment) {
       this.comment = List.of(comment);
       return (B) this;
     }
@@ -168,6 +178,6 @@ public abstract class ConfigOption<D, B extends ConfigOption.Builder<D, B>> {
       return (B) this;
     }
 
-    public abstract ConfigOption<D2, B> build();
+    public abstract ConfigOption<D, B> build();
   }
 }

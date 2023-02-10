@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+import me.roundaround.roundalib.config.ModConfig;
 import net.minecraft.text.Text;
 
 public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Builder> {
@@ -18,35 +19,35 @@ public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Bui
   protected FloatConfigOption(Builder builder) {
     super(builder);
 
-    minValue = builder.minValue;
-    maxValue = builder.maxValue;
+    this.minValue = builder.minValue;
+    this.maxValue = builder.maxValue;
 
     List<Validator> allValidators = new ArrayList<>();
-    if (minValue.isPresent()) {
+    if (this.minValue.isPresent()) {
       allValidators.add((float prev, float curr) -> curr >= minValue.get());
     }
-    if (maxValue.isPresent()) {
+    if (this.maxValue.isPresent()) {
       allValidators.add((float prev, float curr) -> curr <= maxValue.get());
     }
     if (!builder.customValidators.isEmpty()) {
       allValidators.addAll(builder.customValidators);
     }
-    validators = List.copyOf(allValidators);
+    this.validators = List.copyOf(allValidators);
 
-    slider = builder.slider;
-    step = builder.step;
-    valueDisplayFunction = builder.valueDisplayFunction;
+    this.slider = builder.slider;
+    this.step = builder.step;
+    this.valueDisplayFunction = builder.valueDisplayFunction;
   }
 
   private FloatConfigOption(FloatConfigOption other) {
     super(other);
 
-    minValue = other.minValue;
-    maxValue = other.maxValue;
-    validators = other.validators;
-    slider = other.slider;
-    step = other.step;
-    valueDisplayFunction = other.valueDisplayFunction;
+    this.minValue = other.minValue;
+    this.maxValue = other.maxValue;
+    this.validators = other.validators;
+    this.slider = other.slider;
+    this.step = other.step;
+    this.valueDisplayFunction = other.valueDisplayFunction;
   }
 
   @Override
@@ -56,29 +57,29 @@ public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Bui
   }
 
   public Optional<Float> getMinValue() {
-    return minValue;
+    return this.minValue;
   }
 
   public Optional<Float> getMaxValue() {
-    return maxValue;
+    return this.maxValue;
   }
 
   public boolean validateInput(float newValue) {
-    return validators.stream().allMatch((validator) -> {
+    return this.validators.stream().allMatch((validator) -> {
       return validator.apply(getValue(), newValue);
     });
   }
 
   public boolean useSlider() {
-    return slider;
+    return this.slider;
   }
 
   public int getStep() {
-    return step.isEmpty() ? 20 : step.get();
+    return this.step.isEmpty() ? 20 : this.step.get();
   }
 
   public String getValueAsString() {
-    return valueDisplayFunction.apply(getValue());
+    return this.valueDisplayFunction.apply(getValue());
   }
 
   @Override
@@ -86,23 +87,23 @@ public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Bui
     return new FloatConfigOption(this);
   }
 
-  public static Builder builder(String id, String labelI18nKey) {
-    return new Builder(id, labelI18nKey);
+  public static Builder builder(ModConfig config, String id, String labelI18nKey) {
+    return new Builder(config, id, labelI18nKey);
   }
 
-  public static Builder builder(String id, Text label) {
-    return new Builder(id, label);
+  public static Builder builder(ModConfig config, String id, Text label) {
+    return new Builder(config, id, label);
   }
 
-  public static Builder sliderBuilder(String id, String labelI18nKey) {
-    return builder(id, labelI18nKey).setUseSlider(true);
+  public static Builder sliderBuilder(ModConfig config, String id, String labelI18nKey) {
+    return builder(config, id, labelI18nKey).setUseSlider(true);
   }
 
-  public static Builder sliderBuilder(String id, Text label) {
-    return builder(id, label).setUseSlider(true);
+  public static Builder sliderBuilder(ModConfig config, String id, Text label) {
+    return builder(config, id, label).setUseSlider(true);
   }
 
-  public static class Builder extends ConfigOption.Builder<Float, Builder> {
+  public static class Builder extends ConfigOption.AbstractBuilder<Float, Builder> {
     private Optional<Float> minValue = Optional.empty();
     private Optional<Float> maxValue = Optional.empty();
     private List<Validator> customValidators = new ArrayList<>();
@@ -110,12 +111,12 @@ public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Bui
     private Optional<Integer> step = Optional.of(20);
     private Function<Float, String> valueDisplayFunction = (Float value) -> String.format("%.2f", value);
 
-    private Builder(String id, String labelI18nKey) {
-      super(id, labelI18nKey, 0f);
+    private Builder(ModConfig config, String id, String labelI18nKey) {
+      super(config, id, labelI18nKey, 0f);
     }
 
-    private Builder(String id, Text label) {
-      super(id, label, 0f);
+    private Builder(ModConfig config, String id, Text label) {
+      super(config, id, label, 0f);
     }
 
     public Builder setDefaultValue(float defaultValue) {

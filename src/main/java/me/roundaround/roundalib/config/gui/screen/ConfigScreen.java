@@ -64,7 +64,7 @@ public class ConfigScreen extends Screen {
     int listWidth = (int) Math.max(LIST_MIN_WIDTH, width / 1.5f);
     int listLeft = (int) ((width / 2f) - (listWidth / 2f));
     int listHeight = height - HEADER_HEIGHT - FOOTER_HEIGHT;
-    listWidget = new ConfigListWidget(this, HEADER_HEIGHT, listLeft, listHeight, listWidth);
+    listWidget = new ConfigListWidget(this, this.modConfig, HEADER_HEIGHT, listLeft, listHeight, listWidth);
     listWidget.init();
 
     int cancelButtonLeft = (width - FOOTER_BUTTON_SPACING) / 2 - FOOTER_BUTTON_WIDTH;
@@ -248,10 +248,6 @@ public class ConfigScreen extends Screen {
         .color(64, 64, 64, 255)
         .next();
     tessellator.draw();
-  }
-
-  public ModConfig getModConfig() {
-    return modConfig;
   }
 
   @Override

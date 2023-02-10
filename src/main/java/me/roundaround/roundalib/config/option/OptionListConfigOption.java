@@ -1,5 +1,6 @@
 package me.roundaround.roundalib.config.option;
 
+import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.value.ListOptionValue;
 import net.minecraft.text.Text;
 
@@ -36,41 +37,46 @@ public class OptionListConfigOption<T extends ListOptionValue<T>>
     return new OptionListConfigOption<>(this);
   }
 
-  public static <T extends ListOptionValue<T>> OptionListConfigOption<T> defaultInstance(
+  public static <T extends ListOptionValue<T>, C extends ModConfig> OptionListConfigOption<T> defaultInstance(
+      ModConfig config,
       String id,
       String labelI18nKey,
       T defaultValue) {
-    return builder(id, labelI18nKey, defaultValue).build();
+    return builder(config, id, labelI18nKey, defaultValue).build();
   }
 
-  public static <T extends ListOptionValue<T>> OptionListConfigOption<T> defaultInstance(
+  public static <T extends ListOptionValue<T>, C extends ModConfig> OptionListConfigOption<T> defaultInstance(
+      ModConfig config,
       String id,
       Text label,
       T defaultValue) {
-    return builder(id, label, defaultValue).build();
+    return builder(config, id, label, defaultValue).build();
   }
 
-  public static <T extends ListOptionValue<T>> Builder<T> builder(
+  public static <T extends ListOptionValue<T>, C extends ModConfig> Builder<T> builder(
+      ModConfig config,
       String id,
       String labelI18nKey,
       T defaultValue) {
-    return new Builder<T>(id, labelI18nKey, defaultValue);
+    return new Builder<>(config, id, labelI18nKey, defaultValue);
   }
 
   public static <T extends ListOptionValue<T>> Builder<T> builder(
+      ModConfig config,
       String id,
       Text label,
       T defaultValue) {
-    return new Builder<T>(id, label, defaultValue);
+    return new Builder<>(config, id, label, defaultValue);
   }
 
-  public static class Builder<T extends ListOptionValue<T>> extends ConfigOption.Builder<T, Builder<T>> {
-    private Builder(String id, String labelI18nKey, T defaultValue) {
-      super(id, labelI18nKey, defaultValue);
+  public static class Builder<T extends ListOptionValue<T>>
+      extends ConfigOption.AbstractBuilder<T, Builder<T>> {
+    private Builder(ModConfig config, String id, String labelI18nKey, T defaultValue) {
+      super(config, id, labelI18nKey, defaultValue);
     }
 
-    private Builder(String id, Text label, T defaultValue) {
-      super(id, label, defaultValue);
+    private Builder(ModConfig config, String id, Text label, T defaultValue) {
+      super(config, id, label, defaultValue);
     }
 
     @Override

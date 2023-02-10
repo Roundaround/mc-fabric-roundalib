@@ -1,5 +1,6 @@
 package me.roundaround.roundalib.config.gui.widget;
 
+import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.gui.control.IntInputControl;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
@@ -12,9 +13,10 @@ import net.minecraft.text.Text;
 public class IntStepButtonWidget extends IconButtonWidget<IntInputControl> {
   private boolean increment;
 
-  public IntStepButtonWidget(IntInputControl parent, boolean increment, int top, int left) {
+  public IntStepButtonWidget(IntInputControl parent, ModConfig config, boolean increment, int top, int left) {
     super(
         parent,
+        config,
         top,
         left,
         false,

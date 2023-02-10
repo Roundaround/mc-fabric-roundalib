@@ -53,42 +53,42 @@ public class RoundaLibTestConfig extends ModConfig {
     super(RoundaLibTestMod.MOD_ID);
 
     EXAMPLE_POSITION = registerConfigOption(PositionConfigOption
-        .builder("examplePosition", "roundalib-testmod.example_position", new Position(2, 4))
+        .builder(this, "examplePosition", "roundalib-testmod.example_position", new Position(2, 4))
         .build());
 
     GUI_ALIGNMENT = registerConfigOption(OptionListConfigOption
-        .defaultInstance("guiAlignment", "roundalib-testmod.gui_alignment", GuiAlignment.TOP_LEFT));
+        .defaultInstance(this, "guiAlignment", "roundalib-testmod.gui_alignment", GuiAlignment.TOP_LEFT));
 
     SOME_INTEGER = registerConfigOption(IntConfigOption
-        .builder("someInteger", "roundalib-testmod.some_integer")
+        .builder(this, "someInteger", "roundalib-testmod.some_integer")
         .setDefaultValue(5)
         .build());
     STEP_BY_TWO = registerConfigOption(IntConfigOption
-        .builder("stepByTwo", "roundalib-testmod.step_by_two")
+        .builder(this, "stepByTwo", "roundalib-testmod.step_by_two")
         .setDefaultValue(10)
         .setStep(2)
         .build());
     WITHIN_ONE_HUNDRED = registerConfigOption(IntConfigOption
-        .builder("withinOneHundred", "roundalib-testmod.within_one_hundred")
+        .builder(this, "withinOneHundred", "roundalib-testmod.within_one_hundred")
         .setDefaultValue(10)
         .setMinValue(-100)
         .setMaxValue(100)
         .build());
     WITHIN_ONE_HUNDRED_BIG_STEP = registerConfigOption(IntConfigOption
-        .builder("withinOneHundredBigStep", "roundalib-testmod.within_one_hundred_big_step")
+        .builder(this, "withinOneHundredBigStep", "roundalib-testmod.within_one_hundred_big_step")
         .setDefaultValue(10)
         .setMinValue(-100)
         .setMaxValue(100)
         .setStep(33)
         .build());
     INT_SLIDER = registerConfigOption(IntConfigOption
-        .sliderBuilder("intSlider", "roundalib-testmod.int_slider")
+        .sliderBuilder(this, "intSlider", "roundalib-testmod.int_slider")
         .setDefaultValue(10)
         .setMinValue(0)
         .setMaxValue(100)
         .build());
     INT_SLIDER_WEIRD_RANGE = registerConfigOption(IntConfigOption
-        .sliderBuilder("intSliderWeirdRange", "roundalib-testmod.int_slider_weird_range")
+        .sliderBuilder(this, "intSliderWeirdRange", "roundalib-testmod.int_slider_weird_range")
         .setDefaultValue(10)
         .setMinValue(-17)
         .setMaxValue(33)
@@ -96,67 +96,67 @@ public class RoundaLibTestConfig extends ModConfig {
         .build());
 
     SOME_FLOAT = registerConfigOption(FloatConfigOption
-        .builder("someFloat", "roundalib-testmod.some_float")
+        .builder(this, "someFloat", "roundalib-testmod.some_float")
         .setDefaultValue(5.5f)
         .build());
     UP_TO_PI = registerConfigOption(FloatConfigOption
-        .builder("upToPi", "roundalib-testmod.up_to_pi")
+        .builder(this, "upToPi", "roundalib-testmod.up_to_pi")
         .setDefaultValue(2)
         .setMinValue(0)
         .setMaxValue((float) Math.PI)
         .build());
     SLIDER = registerConfigOption(FloatConfigOption
-        .sliderBuilder("slider", "roundalib-testmod.slider")
+        .sliderBuilder(this, "slider", "roundalib-testmod.slider")
         .setDefaultValue(0.5f)
         .setMinValue(0)
         .setMaxValue(1)
         .build());
 
     PLAIN_STRING = registerConfigOption(StringConfigOption
-        .defaultInstance("plainString", "roundalib-testmod.plain_string", "Roundalib"));
+        .defaultInstance(this, "plainString", "roundalib-testmod.plain_string", "Roundalib"));
     RESTRICTED_LENGTH = registerConfigOption(StringConfigOption
-        .builder("restrictedLength", "roundalib-testmod.restricted_length")
+        .builder(this, "restrictedLength", "roundalib-testmod.restricted_length")
         .setDefaultValue("3 to 6")
         .setMinLength(3)
         .setMaxLength(6)
         .build());
     REGEX = registerConfigOption(StringConfigOption
-        .builder("regex", "roundalib-testmod.regex")
+        .builder(this, "regex", "roundalib-testmod.regex")
         .setDefaultValue("alpha_numeric")
         .setRegex(Pattern.compile("^[a-zA-Z0-9_]"))
         .build());
     WITH_COMMENT = registerConfigOption(StringConfigOption
-        .builder("withComment", "roundalib-testmod.with_comment")
+        .builder(this, "withComment", "roundalib-testmod.with_comment")
         .setDefaultValue("Roundalib")
         .setComment("Custom comment")
         .build());
 
     BASIC_TOGGLE = registerConfigOption(BooleanConfigOption
-        .builder("basicToggle", "roundalib-testmod.basic_toggle")
+        .builder(this, "basicToggle", "roundalib-testmod.basic_toggle")
         .build());
     DEFAULT_FALSE = registerConfigOption(BooleanConfigOption
-        .builder("defaultFalse", "roundalib-testmod.default_false")
+        .builder(this, "defaultFalse", "roundalib-testmod.default_false")
         .setDefaultValue(false)
         .build());
     ON_OFF = registerConfigOption(BooleanConfigOption
-        .onOffBuilder("onOff", "roundalib-testmod.on_off")
+        .onOffBuilder(this, "onOff", "roundalib-testmod.on_off")
         .build());
     YES_NO = registerConfigOption(BooleanConfigOption
-        .yesNoBuilder("yesNo", "roundalib-testmod.yes_no")
+        .yesNoBuilder(this, "yesNo", "roundalib-testmod.yes_no")
         .build());
 
     DIFFICULTY = registerConfigOption(OptionListConfigOption
-        .defaultInstance("difficulty", "roundalib-testmod.difficulty", Difficulty.getDefault()));
+        .defaultInstance(this, "difficulty", "roundalib-testmod.difficulty", Difficulty.getDefault()));
     GAME_MODE = registerConfigOption(OptionListConfigOption
-        .defaultInstance("gameMode", "roundalib-testmod.game_mode", GameMode.getDefault()));
+        .defaultInstance(this, "gameMode", "roundalib-testmod.game_mode", GameMode.getDefault()));
 
     GROUP_ITEM_1 = registerConfigOption("group", StringConfigOption
-        .defaultInstance("item1", "roundalib-testmod.group.item1", "Item 1"));
+        .defaultInstance(this, "item1", "roundalib-testmod.group.item1", "Item 1"));
     GROUP_ITEM_2 = registerConfigOption("group", StringConfigOption
-        .defaultInstance("item2", "roundalib-testmod.group.item2", "Item 2"));
+        .defaultInstance(this, "item2", "roundalib-testmod.group.item2", "Item 2"));
     GROUP_ITEM_3 = registerConfigOption("group", StringConfigOption
-        .defaultInstance("item3", "roundalib-testmod.group.item3", "Item 3"));
+        .defaultInstance(this, "item3", "roundalib-testmod.group.item3", "Item 3"));
     GROUP_ITEM_4 = registerConfigOption("group", StringConfigOption
-        .defaultInstance("item4", "roundalib-testmod.group.item4", "Item 4"));
+        .defaultInstance(this, "item4", "roundalib-testmod.group.item4", "Item 4"));
   }
 }

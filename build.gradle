@@ -38,13 +38,14 @@ sourceSets {
 }
 
 dependencies {
-  // To change the versions see the gradle.properties file
   minecraft "com.mojang:minecraft:${project.minecraft_version}"
   mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
   modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-  // TODO: Implement custom keybind API and re-remove this dependency
-  modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+  // Fabric API
+  // Only necessary for test mod
+  modCompileOnly "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+  modRuntimeOnly "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
   // ModMenu integration
   // Only necessary for test mod

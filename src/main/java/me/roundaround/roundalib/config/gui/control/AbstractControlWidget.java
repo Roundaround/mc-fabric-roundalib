@@ -12,8 +12,14 @@ public abstract class AbstractControlWidget<O extends ConfigOption<?, ?>>
   protected O configOption;
   protected boolean valid = true;
 
-  protected AbstractControlWidget(O configOption, OptionRowWidget parent, int top, int left, int height, int width) {
-    super(parent, top, left, height, width);
+  protected AbstractControlWidget(
+      O configOption,
+      OptionRowWidget parent,
+      int top,
+      int left,
+      int height,
+      int width) {
+    super(parent, configOption.getConfig(), top, left, height, width);
     this.configOption = configOption;
   }
 

@@ -57,6 +57,7 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
   protected void init() {
     doneButton = IconButtonWidget.large(
         this,
+        this.configOption.getConfig(),
         height - 4 - IconButtonWidget.HEIGHT_LG,
         width - 4 - IconButtonWidget.WIDTH_LG,
         IconButtonWidget.UV_LG_CONFIRM,
@@ -67,6 +68,7 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
 
     cancelButton = IconButtonWidget.large(
         this,
+        this.configOption.getConfig(),
         height - 4 - IconButtonWidget.HEIGHT_LG,
         doneButton.getLeft() - 4 - IconButtonWidget.WIDTH_LG,
         IconButtonWidget.UV_LG_CANCEL,
@@ -77,6 +79,7 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
 
     resetButton = new ResetButtonWidget<ConfigOptionSubScreen<D, C>>(
         this,
+        this.configOption.getConfig(),
         height - 4 - IconButtonWidget.HEIGHT_LG,
         cancelButton.getLeft() - 4 - IconButtonWidget.WIDTH_LG) {
       @Override

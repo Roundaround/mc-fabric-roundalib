@@ -4,6 +4,7 @@ import org.joml.Matrix4f;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.gui.GuiUtil;
 import me.roundaround.roundalib.config.gui.screen.ConfigScreen;
 import net.fabricmc.api.EnvType;
@@ -28,12 +29,13 @@ public class GroupTitleWidget extends AbstractWidget<ConfigListWidget> {
 
   public GroupTitleWidget(
       ConfigListWidget parent,
+      ModConfig config,
       Text label,
       int index,
       int top,
       int left,
       int width) {
-    super(parent, top, left, HEIGHT, width);
+    super(parent, config, top, left, HEIGHT, width);
 
     this.label = label;
     this.index = index;

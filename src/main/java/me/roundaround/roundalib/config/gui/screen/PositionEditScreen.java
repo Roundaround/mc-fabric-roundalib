@@ -8,6 +8,8 @@ import org.lwjgl.glfw.GLFW;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import me.roundaround.roundalib.config.ModConfig;
+import me.roundaround.roundalib.config.gui.GuiUtil;
 import me.roundaround.roundalib.config.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.config.option.PositionConfigOption;
 import me.roundaround.roundalib.config.value.Position;
@@ -17,13 +19,13 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
 public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position, PositionConfigOption> {
-  protected static final Identifier TEXTURE = new Identifier("roundalib", "textures/gui.png");
   protected static final Position CROSSHAIR_UV = new Position(247, 0);
   protected static final int CROSSHAIR_SIZE = 9;
+
+  private final ModConfig config;
 
   private boolean inverseX = false;
   private boolean inverseY = false;
@@ -47,6 +49,7 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
       boolean inverseX,
       boolean inverseY) {
     super(title, parent, configOption);
+    this.config = configOption.getConfig();
     this.inverseX = inverseX;
     this.inverseY = inverseY;
   }
@@ -58,6 +61,7 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
 
     upButton = IconButtonWidget.large(
         this,
+        this.config,
         startY - 3 * IconButtonWidget.HEIGHT_LG - 2 * 4,
         startX - 2 * IconButtonWidget.WIDTH_LG - 4,
         IconButtonWidget.UV_LG_ARROW_UP,
@@ -68,6 +72,7 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
 
     leftButton = IconButtonWidget.large(
         this,
+        this.config,
         startY - 2 * IconButtonWidget.HEIGHT_LG - 4,
         startX - 3 * IconButtonWidget.WIDTH_LG - 2 * 4,
         IconButtonWidget.UV_LG_ARROW_LEFT,
@@ -78,6 +83,7 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
 
     rightButton = IconButtonWidget.large(
         this,
+        this.config,
         startY - 2 * IconButtonWidget.HEIGHT_LG - 4,
         startX - IconButtonWidget.WIDTH_LG,
         IconButtonWidget.UV_LG_ARROW_RIGHT,
@@ -88,6 +94,7 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
 
     downButton = IconButtonWidget.large(
         this,
+        this.config,
         startY - IconButtonWidget.HEIGHT_LG,
         startX - 2 * IconButtonWidget.WIDTH_LG - 4,
         IconButtonWidget.UV_LG_ARROW_DOWN,
@@ -143,11 +150,11 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
 
     int left = upButton.getLeft() + 2;
     int top = leftButton.getTop() + 2;
-    
+
     RenderSystem.setShaderColor(1, 1, 1, 0.4f);
     RenderSystem.enableBlend();
     RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
-    RenderSystem.setShaderTexture(0, TEXTURE);
+    RenderSystem.setShaderTexture(0, GuiUtil.getTexture(this.config));
     RenderSystem.setShader(GameRenderer::getPositionColorTexProgram);
     RenderSystem.applyModelViewMatrix();
 

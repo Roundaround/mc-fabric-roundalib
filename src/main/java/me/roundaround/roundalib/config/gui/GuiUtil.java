@@ -1,17 +1,23 @@
 package me.roundaround.roundalib.config.gui;
 
+import me.roundaround.roundalib.config.ModConfig;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.sound.SoundManager;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.Identifier;
 
 public class GuiUtil {
   public static int LABEL_COLOR = 0xFFFFFFFF;
   public static int ERROR_COLOR = 0xFFFF0000;
 
   private static final MinecraftClient MINECRAFT = MinecraftClient.getInstance();
+
+  public static Identifier getTexture(ModConfig config) {
+    return new Identifier(config.getModId(), "textures/config.png");
+  }
 
   public static int getScaledWindowWidth() {
     return MINECRAFT.getWindow().getScaledWidth();

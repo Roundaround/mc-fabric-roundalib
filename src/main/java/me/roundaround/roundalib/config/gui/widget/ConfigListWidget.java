@@ -10,6 +10,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import me.roundaround.roundalib.RoundaLibMod;
+import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.gui.Scrollable;
 import me.roundaround.roundalib.config.gui.SelectableElement;
 import me.roundaround.roundalib.config.gui.control.ControlFactoryRegistry;
@@ -44,8 +45,8 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
   private final int elementWidth;
   private double scrollAmount = 0;
 
-  public ConfigListWidget(ConfigScreen parent, int top, int left, int height, int width) {
-    super(parent, top, left, height, width);
+  public ConfigListWidget(ConfigScreen parent, ModConfig config, int top, int left, int height, int width) {
+    super(parent, config, top, left, height, width);
     this.parent = parent;
 
     elementStartX = left + PADDING_X;
@@ -55,6 +56,7 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
 
     scrollbar = new ScrollbarWidget(
         this,
+        this.config,
         (OptionRowWidget.HEIGHT + ROW_PADDING) / 2d,
         top,
         right - SCROLLBAR_WIDTH + 1,
@@ -68,17 +70,18 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
 
     int currentOffset = elementStartY;
     int index = 0;
-    for (var entry : parent.getModConfig().getConfigOptions().entrySet()) {
+    for (var entry : this.config.getConfigOptions().entrySet()) {
       if (entry.getValue().stream().noneMatch(ConfigOption::shouldShowInConfigScreen)) {
         continue;
       }
 
-      String modId = parent.getModConfig().getModId();
+      String modId = this.config.getModId();
       String groupId = entry.getKey();
-      if (parent.getModConfig().getShowGroupTitles() && !groupId.equals(modId)) {
+      if (this.config.getShowGroupTitles() && !groupId.equals(modId)) {
         String groupI18nKey = entry.getKey() + ".title";
         GroupTitleWidget groupTitle = new GroupTitleWidget(
             this,
+            this.config,
             Text.translatable(groupI18nKey),
             index++,
             currentOffset,

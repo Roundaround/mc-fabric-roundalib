@@ -7,6 +7,7 @@ import org.lwjgl.glfw.GLFW;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.gui.GuiUtil;
 import me.roundaround.roundalib.config.value.Position;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
@@ -15,7 +16,6 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 
 public class IconButtonWidget<T> extends AbstractClickableWidget<T> {
   public static final int HEIGHT_LG = 13;
@@ -39,21 +39,20 @@ public class IconButtonWidget<T> extends AbstractClickableWidget<T> {
   public static final Position UV_SM_ARROW_LEFT = new Position(SMALL_TEX_START_X, 5 * HEIGHT_SM);
   public static final Position UV_SM_ARROW_RIGHT = new Position(SMALL_TEX_START_X, 6 * HEIGHT_SM);
 
-  protected static final Identifier TEXTURE = new Identifier("roundalib", "textures/gui.png");
-
   private final Position texUV;
   private final Text hoverTooltip;
   private final PressAction<T> pressAction;
 
   protected IconButtonWidget(
       T parent,
+      ModConfig config,
       int top,
       int left,
       boolean large,
       Position texUV,
       Text hoverTooltip,
       PressAction<T> pressAction) {
-    super(parent, top, left, large ? HEIGHT_LG : HEIGHT_SM, large ? WIDTH_LG : WIDTH_SM);
+    super(parent, config, top, left, large ? HEIGHT_LG : HEIGHT_SM, large ? WIDTH_LG : WIDTH_SM);
     this.texUV = texUV;
     this.hoverTooltip = hoverTooltip;
     this.pressAction = pressAction;
@@ -61,22 +60,24 @@ public class IconButtonWidget<T> extends AbstractClickableWidget<T> {
 
   public static <T> IconButtonWidget<T> small(
       T parent,
+      ModConfig config,
       int top,
       int left,
       Position texUV,
       Text hoverTooltip,
       PressAction<T> pressAction) {
-    return new IconButtonWidget<>(parent, top, left, false, texUV, hoverTooltip, pressAction);
+    return new IconButtonWidget<>(parent, config, top, left, false, texUV, hoverTooltip, pressAction);
   }
 
   public static <T> IconButtonWidget<T> large(
       T parent,
+      ModConfig config,
       int top,
       int left,
       Position texUV,
       Text hoverTooltip,
       PressAction<T> pressAction) {
-    return new IconButtonWidget<>(parent, top, left, true, texUV, hoverTooltip, pressAction);
+    return new IconButtonWidget<>(parent, config, top, left, true, texUV, hoverTooltip, pressAction);
   }
 
   @Override
@@ -86,7 +87,7 @@ public class IconButtonWidget<T> extends AbstractClickableWidget<T> {
     RenderSystem.setShaderColor(1, 1, 1, 1);
     RenderSystem.enableBlend();
     RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
-    RenderSystem.setShaderTexture(0, TEXTURE);
+    RenderSystem.setShaderTexture(0, GuiUtil.getTexture(this.config));
     RenderSystem.setShader(GameRenderer::getPositionTexProgram);
     RenderSystem.applyModelViewMatrix();
 

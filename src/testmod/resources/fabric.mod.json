@@ -12,7 +12,7 @@
     "sources": ""
   },
   "license": "MIT",
-  "icon": "assets/roundalib-test/icon.png",
+  "icon": "assets/roundalib-testmod/icon.png",
   "environment": "*",
   "entrypoints": {
     "client": [
