@@ -2,6 +2,7 @@ package me.roundaround.roundalib.config.value;
 
 import java.util.Arrays;
 
+import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.gui.GuiUtil;
 
 public enum GuiAlignmentWithCenter implements ListOptionValue<GuiAlignmentWithCenter> {
@@ -31,8 +32,8 @@ public enum GuiAlignmentWithCenter implements ListOptionValue<GuiAlignmentWithCe
   }
 
   @Override
-  public String getI18nKey() {
-    return "roundalib.gui_alignment." + this.id;
+  public String getI18nKey(ModConfig config) {
+    return config.getModId() + ".roundalib.gui_alignment." + this.id;
   }
 
   @Override

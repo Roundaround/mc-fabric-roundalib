@@ -87,7 +87,7 @@ public class IconButtonWidget<T> extends AbstractClickableWidget<T> {
     RenderSystem.setShaderColor(1, 1, 1, 1);
     RenderSystem.enableBlend();
     RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
-    RenderSystem.setShaderTexture(0, GuiUtil.getTexture(this.config));
+    RenderSystem.setShaderTexture(0, GuiUtil.getWidgetsTexture(this.config));
     RenderSystem.setShader(GameRenderer::getPositionTexProgram);
     RenderSystem.applyModelViewMatrix();
 

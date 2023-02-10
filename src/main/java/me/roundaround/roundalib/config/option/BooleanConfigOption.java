@@ -66,8 +66,8 @@ public class BooleanConfigOption extends ConfigOption<Boolean, BooleanConfigOpti
   }
 
   public static class Builder extends ConfigOption.AbstractBuilder<Boolean, Builder> {
-    private Text enabledLabel = Text.translatable("roundalib.toggle.enabled");
-    private Text disabledLabel = Text.translatable("roundalib.toggle.disabled");
+    private Text enabledLabel = Text.translatable(this.config.getModId() + ".roundalib.toggle.enabled");
+    private Text disabledLabel = Text.translatable(this.config.getModId() + ".roundalib.toggle.disabled");
 
     private Builder(ModConfig config, String id, String labelI18nKey) {
       super(config, id, labelI18nKey, true);

@@ -21,8 +21,8 @@ public class OptionListControl<S extends ListOptionValue<S>, T extends OptionLis
       int width) {
     super(configOption, parent, top, left, height, width);
 
-    configOption.subscribeToValueChanges(this::onConfigValueChange);
-    cachedText = Text.translatable(configOption.getValue().getI18nKey());
+    this.configOption.subscribeToValueChanges(this::onConfigValueChange);
+    this.cachedText = Text.translatable(this.configOption.getValue().getI18nKey(this.config));
   }
 
   @Override
@@ -33,24 +33,24 @@ public class OptionListControl<S extends ListOptionValue<S>, T extends OptionLis
   @Override
   protected void onPress(int button) {
     if (button == 0) {
-      configOption.setNext();
+      this.configOption.setNext();
     } else {
-      configOption.setPrev();
+      this.configOption.setPrev();
     }
     super.onPress(button);
   }
 
   private void onConfigValueChange(S prev, S curr) {
-    cachedText = Text.translatable(curr.getI18nKey());
+    this.cachedText = Text.translatable(curr.getI18nKey(this.config));
   }
 
   private Text composeLabelText() {
-    return ScreenTexts.composeGenericOptionText(configOption.getLabel(), cachedText);
+    return ScreenTexts.composeGenericOptionText(this.configOption.getLabel(), this.cachedText);
   }
 
   private Text composeUsageText() {
-    return ScreenTexts.composeGenericOptionText(configOption.getLabel(),
-        Text.translatable(configOption.getValue().getNext().getI18nKey()));
+    return ScreenTexts.composeGenericOptionText(this.configOption.getLabel(),
+        Text.translatable(this.configOption.getValue().getNext().getI18nKey(this.config)));
   }
 
   @Override

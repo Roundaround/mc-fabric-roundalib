@@ -65,7 +65,7 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
         startY - 3 * IconButtonWidget.HEIGHT_LG - 2 * 4,
         startX - 2 * IconButtonWidget.WIDTH_LG - 4,
         IconButtonWidget.UV_LG_ARROW_UP,
-        Text.translatable("roundalib.move.up"),
+        Text.translatable(this.config.getModId() + ".roundalib.move.up"),
         (button) -> {
           moveUp();
         });
@@ -76,7 +76,7 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
         startY - 2 * IconButtonWidget.HEIGHT_LG - 4,
         startX - 3 * IconButtonWidget.WIDTH_LG - 2 * 4,
         IconButtonWidget.UV_LG_ARROW_LEFT,
-        Text.translatable("roundalib.move.left"),
+        Text.translatable(this.config.getModId() + ".roundalib.move.left"),
         (button) -> {
           moveLeft();
         });
@@ -87,7 +87,7 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
         startY - 2 * IconButtonWidget.HEIGHT_LG - 4,
         startX - IconButtonWidget.WIDTH_LG,
         IconButtonWidget.UV_LG_ARROW_RIGHT,
-        Text.translatable("roundalib.move.right"),
+        Text.translatable(this.config.getModId() + ".roundalib.move.right"),
         (button) -> {
           moveRight();
         });
@@ -98,7 +98,7 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
         startY - IconButtonWidget.HEIGHT_LG,
         startX - 2 * IconButtonWidget.WIDTH_LG - 4,
         IconButtonWidget.UV_LG_ARROW_DOWN,
-        Text.translatable("roundalib.move.down"),
+        Text.translatable(this.config.getModId() + ".roundalib.move.down"),
         (button) -> {
           moveDown();
         });
@@ -138,8 +138,8 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
   @Override
   protected List<Text> getHelpLong(int mouseX, int mouseY, float partialTicks) {
     ArrayList<Text> full = new ArrayList<>();
-    full.add(Text.translatable("roundalib.help.position.single"));
-    full.add(Text.translatable("roundalib.help.position.multi"));
+    full.add(Text.translatable(this.config.getModId() + ".roundalib.help.position.single"));
+    full.add(Text.translatable(this.config.getModId() + ".roundalib.help.position.multi"));
     full.addAll(super.getHelpLong(mouseX, mouseY, partialTicks));
     return full;
   }
@@ -154,7 +154,7 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
     RenderSystem.setShaderColor(1, 1, 1, 0.4f);
     RenderSystem.enableBlend();
     RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
-    RenderSystem.setShaderTexture(0, GuiUtil.getTexture(this.config));
+    RenderSystem.setShaderTexture(0, GuiUtil.getWidgetsTexture(this.config));
     RenderSystem.setShader(GameRenderer::getPositionColorTexProgram);
     RenderSystem.applyModelViewMatrix();
 

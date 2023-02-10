@@ -15,8 +15,8 @@ public class GuiUtil {
 
   private static final MinecraftClient MINECRAFT = MinecraftClient.getInstance();
 
-  public static Identifier getTexture(ModConfig config) {
-    return new Identifier(config.getModId(), "textures/config.png");
+  public static Identifier getWidgetsTexture(ModConfig config) {
+    return new Identifier(config.getModId(), "textures/roundalib.png");
   }
 
   public static int getScaledWindowWidth() {

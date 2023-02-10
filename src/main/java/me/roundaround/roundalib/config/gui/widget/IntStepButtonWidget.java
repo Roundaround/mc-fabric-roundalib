@@ -21,7 +21,8 @@ public class IntStepButtonWidget extends IconButtonWidget<IntInputControl> {
         left,
         false,
         increment ? IconButtonWidget.UV_SM_PLUS : IconButtonWidget.UV_SM_MINUS,
-        Text.translatable(increment ? "roundalib.step_up.tooltip" : "roundalib.step_down.tooltip",
+        Text.translatable(
+            config.getModId() + (increment ? ".roundalib.step_up.tooltip" : ".roundalib.step_down.tooltip"),
             parent.getConfigOption().getStep()),
         IntStepButtonWidget::onPress);
     this.increment = increment;
@@ -51,7 +52,7 @@ public class IntStepButtonWidget extends IconButtonWidget<IntInputControl> {
   @Override
   protected void appendTitleNarration(NarrationMessageBuilder builder) {
     builder.put(NarrationPart.TITLE,
-        Text.translatable("roundalib.step.narration", parent.getConfigOption().getLabel()));
+        Text.translatable(this.config.getModId() + ".roundalib.step.narration", parent.getConfigOption().getLabel()));
   }
 
   public OptionRowWidget getOptionRow() {

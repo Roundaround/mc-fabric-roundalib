@@ -2,6 +2,8 @@ package me.roundaround.roundalib.config.value;
 
 import java.util.Arrays;
 
+import me.roundaround.roundalib.config.ModConfig;
+
 public enum GameMode implements ListOptionValue<GameMode> {
   SURVIVAL(net.minecraft.world.GameMode.SURVIVAL),
   CREATIVE(net.minecraft.world.GameMode.CREATIVE),
@@ -22,7 +24,7 @@ public enum GameMode implements ListOptionValue<GameMode> {
   }
 
   @Override
-  public String getI18nKey() {
+  public String getI18nKey(ModConfig config) {
     return "selectWorld.gameMode." + id;
   }
 

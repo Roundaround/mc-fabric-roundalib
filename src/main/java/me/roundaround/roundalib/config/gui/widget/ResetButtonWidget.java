@@ -7,8 +7,6 @@ import net.minecraft.client.gui.screen.narration.NarrationPart;
 import net.minecraft.text.Text;
 
 public abstract class ResetButtonWidget<T> extends IconButtonWidget<T> {
-  protected static final Text TOOLTIP = Text.translatable("roundalib.reset.tooltip");
-
   public ResetButtonWidget(T parent, ModConfig config, int top, int left) {
     this(parent, config, top, left, (button) -> {
       ((ResetButtonWidget<T>) button).performReset();
@@ -16,7 +14,8 @@ public abstract class ResetButtonWidget<T> extends IconButtonWidget<T> {
   }
 
   public ResetButtonWidget(T parent, ModConfig config, int top, int left, PressAction<T> pressAction) {
-    super(parent, config, top, left, true, IconButtonWidget.UV_LG_UNDO, TOOLTIP, pressAction);
+    super(parent, config, top, left, true, IconButtonWidget.UV_LG_UNDO,
+        Text.translatable(config.getModId() + ".roundalib.reset.tooltip"), pressAction);
   }
 
   protected void performReset() {
