@@ -9,7 +9,7 @@ import java.util.stream.IntStream;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import me.roundaround.roundalib.RoundaLibMod;
+import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.gui.Scrollable;
 import me.roundaround.roundalib.config.gui.SelectableElement;
@@ -317,7 +317,7 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
           .apply(configOption, optionRow, top, left, height, width);
     } catch (ControlFactoryRegistry.NotRegisteredException e) {
       String message = "Unable to instantiate a GUI control for config option '" + configOption.getId() + "'";
-      RoundaLibMod.LOGGER.error(message, e);
+      RoundaLib.LOGGER.error(message, e);
       System.exit(0);
       return null;
     }

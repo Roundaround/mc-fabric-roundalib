@@ -9,7 +9,7 @@ import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 
-import me.roundaround.roundalib.RoundaLibMod;
+import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.fabricmc.loader.api.FabricLoader;
 
@@ -86,7 +86,7 @@ public abstract class ModConfig {
 
   public void saveToFile() {
     if (version == configVersion && !isDirty()) {
-      RoundaLibMod.LOGGER.info("Skipping saving config to file because nothing has changed.");
+      RoundaLib.LOGGER.info("Skipping saving config to file because nothing has changed.");
       return;
     }
 
@@ -140,7 +140,7 @@ public abstract class ModConfig {
     File dir = FabricLoader.getInstance().getConfigDir().toFile();
 
     if (!dir.exists() && !dir.mkdirs()) {
-      RoundaLibMod.LOGGER.warn("Failed to create config directory '{}'", dir.getAbsolutePath());
+      RoundaLib.LOGGER.warn("Failed to create config directory '{}'", dir.getAbsolutePath());
     }
 
     return dir;
