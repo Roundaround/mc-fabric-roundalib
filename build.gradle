@@ -1,56 +1,20 @@
 plugins {
-  id 'fabric-loom' version '1.0-SNAPSHOT'
-  id 'maven-publish'
-  id 'com.github.johnrengelman.shadow' version '7.1.2'
+  id "fabric-loom" version "1.0-SNAPSHOT"
+  id "maven-publish"
+  id "com.github.johnrengelman.shadow" version "7.1.2"
 }
-
-import net.fabricmc.loom.task.RemapJarTask
 
 def targetJavaVersion = 17
+def fullVersion = project.mod_version + "+" + project.minecraft_version
 
-archivesBaseName = project.archives_base_name
-version = project.mod_version
-group = project.maven_group
-
-repositories {
-  maven {
-    name = "ModMenu"
-    url = "https://maven.terraformersmc.com/releases/"
-  }
-}
-
-configurations {
-  shadow
-  api.extendsFrom shadow
-}
-
-configurations.all {
-	resolutionStrategy {
-		failOnNonReproducibleResolution()
-	}
-}
-
-sourceSets {
-  testmod {
-    compileClasspath += main.compileClasspath
-    runtimeClasspath += main.runtimeClasspath
-  }
+configurations.configureEach {
+  version = project.mod_version
 }
 
 dependencies {
   minecraft "com.mojang:minecraft:${project.minecraft_version}"
   mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
   modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
-  // Fabric API
-  // Only necessary for test mod
-  modCompileOnly "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-  modRuntimeOnly "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-
-  // ModMenu integration
-  // Only necessary for test mod
-  modCompileOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
-  modRuntimeOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
 
   shadow "com.electronwill.night-config:core:3.6.5"
   shadow "com.electronwill.night-config:toml:3.6.5"
@@ -67,7 +31,7 @@ processResources {
 java {
   sourceCompatibility = JavaVersion.toVersion(targetJavaVersion)
   targetCompatibility = JavaVersion.toVersion(targetJavaVersion)
-    
+
   withSourcesJar()
 }
 
@@ -78,63 +42,33 @@ tasks.withType(JavaCompile).configureEach {
 
 jar {
   from("LICENSE") {
-    rename { "${it}_${archivesBaseName}"}
+    rename { "${it}_${project.property("archive_base_name")}"}
   }
+}
+
+sourcesJar {
+  archiveBaseName.set(project.property("archive_base_name").toString())
+  archiveVersion.set(fullVersion)
+  archiveClassifier.set("sources")
 }
 
 shadowJar {
-  dependsOn jar
-  
-  relocate 'com.electronwill.nightconfig', 'me.roundaround.roundalib.shadow.nightconfig'
-
   configurations = [project.configurations.shadow]
-  classifier "shadow"
+
+  archiveBaseName.set(project.property("archive_base_name").toString())
+  archiveVersion.set(fullVersion)
+  archiveClassifier.set("shaded")
+
+  relocate("com.electronwill.nightconfig", "me.roundaround.roundalib.shadow.nightconfig")
 }
 
 remapJar {
-  dependsOn shadowJar
-  input.set(shadowJar.archiveFile)
-}
+  dependsOn(shadowJar)
+  inputFile.set(tasks.shadowJar.archiveFile)
 
-task shadowRemapJar(type: RemapJarTask) {
-  dependsOn shadowJar
+  archiveBaseName.set(project.property("archive_base_name").toString())
+  archiveVersion.set(fullVersion)
+  archiveClassifier.set("")
 
-  input.set(shadowJar.archiveFile)
-  archiveFileName = "${archivesBaseName}-${project.version}.jar"
   addNestedDependencies.set(true)
-}
-
-build {
-  dependsOn shadowRemapJar
-}
-
-tasks.publish.dependsOn build
-
-publishing {
-  publications {
-    mavenJava(MavenPublication) {
-      artifactId archivesBaseName
-      version = project.mod_version + "+" + project.minecraft_version
-
-      artifact(shadowRemapJar) {
-        builtBy shadowRemapJar
-      }
-      
-			from components.java
-    }
-  }
-
-  repositories {
-    maven {
-      allowInsecureProtocol = true
-      url = selfHostedMavenUrl + "/releases"
-      credentials {
-        username = selfHostedMavenUser
-        password = selfHostedMavenPass
-      }
-      authentication {
-        basic(BasicAuthentication)
-      }
-    }
-  }
 }
