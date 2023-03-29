@@ -46,12 +46,6 @@ jar {
   }
 }
 
-sourcesJar {
-  archiveBaseName.set(project.property("archive_base_name").toString())
-  archiveVersion.set(fullVersion)
-  archiveClassifier.set("sources")
-}
-
 shadowJar {
   configurations = [project.configurations.shadow]
 
@@ -71,4 +65,10 @@ remapJar {
   archiveClassifier.set("")
 
   addNestedDependencies.set(true)
+}
+
+remapSourcesJar {
+  archiveBaseName.set(project.property("archive_base_name").toString())
+  archiveVersion.set(fullVersion)
+  archiveClassifier.set("sources")
 }
