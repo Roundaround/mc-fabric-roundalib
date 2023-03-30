@@ -9,6 +9,7 @@ val fullVersion = project.property("mod_version").toString() + "+" + project.pro
 
 configurations.configureEach {
   version = project.property("mod_version").toString()
+  group = project.property("maven_group").toString()
 }
 
 dependencies {
@@ -34,7 +35,7 @@ tasks.withType<JavaCompile> {
 
 tasks.jar {
   from("LICENSE") {
-    rename { "${it}_${project.property("archive_base_name")}"}
+    rename { "${it}_${project.property("archive_base_name")}" }
   }
 }
 
@@ -63,4 +64,25 @@ tasks.remapSourcesJar {
   archiveBaseName.set(project.property("archive_base_name").toString())
   archiveVersion.set(fullVersion)
   archiveClassifier.set("sources")
+}
+
+publishing {
+  publications {
+    create<MavenPublication>("maven") {
+      from(components["java"])
+
+      artifactId = tasks.remapJar.get().archiveBaseName.get()
+      version = tasks.remapJar.get().archiveVersion.get()
+
+      repositories {
+        maven {
+          url = uri(property("selfHostedMavenUrl").toString() + "/releases")
+          credentials(PasswordCredentials::class) {
+            username = property("selfHostedMavenUser").toString()
+            password = property("selfHostedMavenPass").toString()
+          }
+        }
+      }
+    }
+  }
 }
