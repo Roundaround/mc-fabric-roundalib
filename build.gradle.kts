@@ -20,14 +20,6 @@ dependencies {
   shadow("com.electronwill.night-config:toml:3.6.5")
 }
 
-tasks.processResources {
-  inputs.property("version", project.version)
-
-  filesMatching("fabric.mod.json") {
-    expand("version" to project.version)
-  }
-}
-
 java {
   sourceCompatibility = JavaVersion.toVersion(targetJavaVersion)
   targetCompatibility = JavaVersion.toVersion(targetJavaVersion)
