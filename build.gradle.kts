@@ -13,7 +13,7 @@ version = project.property("mod_version").toString()
 dependencies {
   minecraft("com.mojang:minecraft:${project.property("minecraft_version")}")
   mappings("net.fabricmc:yarn:${project.property("yarn_mappings")}:v2")
-  modImplementation("net.fabricmc:fabric-loader:${project.property("loader_version")}")
+  modApi("net.fabricmc:fabric-loader:${project.property("loader_version")}")
 
   shadow("com.electronwill.night-config:core:3.6.5")
   shadow("com.electronwill.night-config:toml:3.6.5")
@@ -84,7 +84,7 @@ publishing {
 
       repositories {
         maven {
-          url = uri(property("selfHostedMavenUrl").toString() + "/releases")
+          url = uri("https://maven.rnda.dev/releases/")
           credentials(PasswordCredentials::class) {
             username = property("selfHostedMavenUser").toString()
             password = property("selfHostedMavenPass").toString()
