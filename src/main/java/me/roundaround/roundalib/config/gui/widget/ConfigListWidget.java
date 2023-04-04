@@ -96,7 +96,7 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
           .getValue()
           .stream()
           .filter(ConfigOption::shouldShowInConfigScreen)
-          .collect(Collectors.toList());
+          .toList();
 
       for (ConfigOption<?, ?> configOption : configOptions) {
         OptionRowWidget optionRow = new OptionRowWidget(
@@ -117,30 +117,18 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
 
   @Override
   public boolean mouseClicked(double mouseX, double mouseY, int button) {
-    if (scrollbar.mouseClicked(mouseX, mouseY, button)) {
-      return true;
-    }
-
-    return false;
+    return scrollbar.mouseClicked(mouseX, mouseY, button);
   }
 
   @Override
   public boolean mouseReleased(double mouseX, double mouseY, int button) {
-    if (scrollbar.mouseReleased(mouseX, mouseY, button)) {
-      return true;
-    }
-
-    return false;
+    return scrollbar.mouseReleased(mouseX, mouseY, button);
   }
 
   @Override
   public boolean mouseDragged(
       double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-    if (scrollbar.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)) {
-      return true;
-    }
-
-    return false;
+    return scrollbar.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
   }
 
   @Override
@@ -215,7 +203,6 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
         GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA,
         GlStateManager.SrcFactor.ZERO,
         GlStateManager.DstFactor.ONE);
-    RenderSystem.disableTexture();
     RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
@@ -229,7 +216,6 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
     bufferBuilder.vertex(0, bottom - PADDING_Y, 0).color(0, 0, 0, 0).next();
     tessellator.draw();
 
-    RenderSystem.enableTexture();
     RenderSystem.disableBlend();
   }
 
