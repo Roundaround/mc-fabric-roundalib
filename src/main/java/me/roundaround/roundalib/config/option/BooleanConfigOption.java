@@ -1,5 +1,6 @@
 package me.roundaround.roundalib.config.option;
 
+import me.roundaround.roundalib.config.ModConfig;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 
@@ -9,22 +10,22 @@ public class BooleanConfigOption extends ConfigOption<Boolean, BooleanConfigOpti
 
   protected BooleanConfigOption(Builder builder) {
     super(builder);
-    enabledLabel = builder.enabledLabel;
-    disabledLabel = builder.disabledLabel;
+    this.enabledLabel = builder.enabledLabel;
+    this.disabledLabel = builder.disabledLabel;
   }
 
   protected BooleanConfigOption(BooleanConfigOption other) {
     super(other);
-    enabledLabel = other.enabledLabel;
-    disabledLabel = other.disabledLabel;
+    this.enabledLabel = other.enabledLabel;
+    this.disabledLabel = other.disabledLabel;
   }
 
   public Text getEnabledLabel() {
-    return enabledLabel;
+    return this.enabledLabel;
   }
 
   public Text getDisabledLabel() {
-    return disabledLabel;
+    return this.disabledLabel;
   }
 
   @Override
@@ -32,48 +33,48 @@ public class BooleanConfigOption extends ConfigOption<Boolean, BooleanConfigOpti
     return new BooleanConfigOption(this);
   }
 
-  public static Builder builder(String id, String labelI18nKey) {
-    return new Builder(id, labelI18nKey);
+  public static Builder builder(ModConfig config, String id, String labelI18nKey) {
+    return new Builder(config, id, labelI18nKey);
   }
 
-  public static Builder builder(String id, Text label) {
-    return new Builder(id, label);
+  public static Builder builder(ModConfig config, String id, Text label) {
+    return new Builder(config, id, label);
   }
 
-  public static Builder onOffBuilder(String id, String labelI18nKey) {
-    return new Builder(id, labelI18nKey)
+  public static Builder onOffBuilder(ModConfig config, String id, String labelI18nKey) {
+    return new Builder(config, id, labelI18nKey)
         .setEnabledLabel(ScreenTexts.ON)
         .setDisabledLabel(ScreenTexts.OFF);
   }
 
-  public static Builder onOffBuilder(String id, Text label) {
-    return new Builder(id, label)
+  public static Builder onOffBuilder(ModConfig config, String id, Text label) {
+    return new Builder(config, id, label)
         .setEnabledLabel(ScreenTexts.ON)
         .setDisabledLabel(ScreenTexts.OFF);
   }
 
-  public static Builder yesNoBuilder(String id, String labelI18nKey) {
-    return new Builder(id, labelI18nKey)
+  public static Builder yesNoBuilder(ModConfig config, String id, String labelI18nKey) {
+    return new Builder(config, id, labelI18nKey)
         .setEnabledLabel(ScreenTexts.YES)
         .setDisabledLabel(ScreenTexts.NO);
   }
 
-  public static Builder yesNoBuilder(String id, Text label) {
-    return new Builder(id, label)
+  public static Builder yesNoBuilder(ModConfig config, String id, Text label) {
+    return new Builder(config, id, label)
         .setEnabledLabel(ScreenTexts.YES)
         .setDisabledLabel(ScreenTexts.NO);
   }
 
-  public static class Builder extends ConfigOption.Builder<Boolean, Builder> {
-    private Text enabledLabel = Text.translatable("roundalib.toggle.enabled");
-    private Text disabledLabel = Text.translatable("roundalib.toggle.disabled");
+  public static class Builder extends ConfigOption.AbstractBuilder<Boolean, Builder> {
+    private Text enabledLabel = Text.translatable(this.config.getModId() + ".roundalib.toggle.enabled");
+    private Text disabledLabel = Text.translatable(this.config.getModId() + ".roundalib.toggle.disabled");
 
-    private Builder(String id, String labelI18nKey) {
-      super(id, labelI18nKey, true);
+    private Builder(ModConfig config, String id, String labelI18nKey) {
+      super(config, id, labelI18nKey, true);
     }
 
-    private Builder(String id, Text label) {
-      super(id, label, true);
+    private Builder(ModConfig config, String id, Text label) {
+      super(config, id, label, true);
     }
 
     public Builder setDefaultValue(Boolean defaultValue) {
@@ -82,22 +83,22 @@ public class BooleanConfigOption extends ConfigOption<Boolean, BooleanConfigOpti
     }
 
     public Builder setEnabledLabel(String i18nKey) {
-      enabledLabel = Text.translatable(i18nKey);
+      this.enabledLabel = Text.translatable(i18nKey);
       return this;
     }
 
     public Builder setEnabledLabel(Text label) {
-      enabledLabel = label;
+      this.enabledLabel = label;
       return this;
     }
 
     public Builder setDisabledLabel(String i18nKey) {
-      disabledLabel = Text.translatable(i18nKey);
+      this.disabledLabel = Text.translatable(i18nKey);
       return this;
     }
 
     public Builder setDisabledLabel(Text label) {
-      disabledLabel = label;
+      this.disabledLabel = label;
       return this;
     }
 

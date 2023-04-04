@@ -3,18 +3,21 @@ package me.roundaround.roundalib.config.gui.widget;
 import java.util.function.Consumer;
 
 import me.roundaround.roundalib.config.gui.SelectableElement;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.text.Text;
 
 public class ButtonWidget extends net.minecraft.client.gui.widget.ButtonWidget implements SelectableElement {
   protected Consumer<Boolean> focusChangeListener;
-  
+
   public ButtonWidget(int top, int left, int height, int width, Text message, PressAction onPress) {
-    this(top, left, height, width, message, onPress, EMPTY);
+    this(top, left, height, width, message, onPress, null);
   }
 
-  public ButtonWidget(int top, int left, int height, int width, Text message, PressAction onPress,
-      TooltipSupplier tooltipSupplier) {
-    super(left, top, width, height, message, onPress, tooltipSupplier);
+  public ButtonWidget(int top, int left, int height, int width, Text message, PressAction onPress, Text tooltip) {
+    super(left, top, width, height, message, onPress, DEFAULT_NARRATION_SUPPLIER);
+    if (tooltip != null && tooltip != Text.EMPTY) {
+      setTooltip(Tooltip.of(tooltip));
+    }
   }
 
   @Override
@@ -35,21 +38,5 @@ public class ButtonWidget extends net.minecraft.client.gui.widget.ButtonWidget i
   @Override
   public void setFocusChangedListener(Consumer<Boolean> listener) {
     focusChangeListener = listener;
-  }
-
-  public int getTop() {
-    return y;
-  }
-
-  public int getBottom() {
-    return y + height;
-  }
-
-  public int getLeft() {
-    return x;
-  }
-
-  public int getRight() {
-    return x + width;
   }
 }

@@ -3,7 +3,7 @@ package me.roundaround.roundalib.config.gui.control;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.roundaround.roundalib.RoundaLibMod;
+import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.config.gui.widget.OptionRowWidget;
 import me.roundaround.roundalib.config.option.BooleanConfigOption;
 import me.roundaround.roundalib.config.option.ConfigOption;
@@ -43,7 +43,7 @@ public class ControlFactoryRegistry {
       registerOptionList(Difficulty.class, OptionListControl::new);
       registerOptionList(GameMode.class, OptionListControl::new);
     } catch (RegistrationException e) {
-      RoundaLibMod.LOGGER.error("There was an error registering the built-in control factories!", e);
+      RoundaLib.LOGGER.error("There was an error registering the built-in control factories!", e);
       System.exit(0);
     }
 

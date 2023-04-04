@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import me.roundaround.roundalib.config.ModConfig;
 import net.minecraft.text.Text;
 
 public class StringConfigOption extends ConfigOption<String, StringConfigOption.Builder> {
@@ -16,37 +17,37 @@ public class StringConfigOption extends ConfigOption<String, StringConfigOption.
   protected StringConfigOption(Builder builder) {
     super(builder);
 
-    minLength = builder.minLength;
-    maxLength = builder.maxLength;
-    regex = builder.regex;
+    this.minLength = builder.minLength;
+    this.maxLength = builder.maxLength;
+    this.regex = builder.regex;
 
     List<Validator> allValidators = new ArrayList<>();
-    if (minLength.isPresent()) {
-      allValidators.add((String prev, String curr) -> curr != null && curr.length() >= minLength.get());
+    if (this.minLength.isPresent()) {
+      allValidators.add((String prev, String curr) -> curr != null && curr.length() >= this.minLength.get());
     }
     if (maxLength.isPresent()) {
-      allValidators.add((String prev, String curr) -> curr != null && curr.length() <= maxLength.get());
+      allValidators.add((String prev, String curr) -> curr != null && curr.length() <= this.maxLength.get());
     }
-    if (regex.isPresent()) {
-      allValidators.add((String prev, String curr) -> curr != null && regex.get().matcher(curr).find());
+    if (this.regex.isPresent()) {
+      allValidators.add((String prev, String curr) -> curr != null && this.regex.get().matcher(curr).find());
     }
     if (!builder.customValidators.isEmpty()) {
       allValidators.addAll(builder.customValidators);
     }
-    validators = List.copyOf(allValidators);
+    this.validators = List.copyOf(allValidators);
   }
 
   private StringConfigOption(StringConfigOption other) {
     super(other);
 
-    minLength = other.minLength;
-    maxLength = other.maxLength;
-    regex = other.regex;
-    validators = other.validators;
+    this.minLength = other.minLength;
+    this.maxLength = other.maxLength;
+    this.regex = other.regex;
+    this.validators = other.validators;
   }
 
   public boolean validateInput(String newValue) {
-    return validators.stream().allMatch((validator) -> {
+    return this.validators.stream().allMatch((validator) -> {
       return validator.apply(getValue(), newValue);
     });
   }
@@ -56,34 +57,42 @@ public class StringConfigOption extends ConfigOption<String, StringConfigOption.
     return new StringConfigOption(this);
   }
 
-  public static StringConfigOption defaultInstance(String id, String labelI18nKey, String defaultValue) {
-    return builder(id, labelI18nKey).setDefaultValue(defaultValue).build();
+  public static StringConfigOption defaultInstance(
+      ModConfig config,
+      String id,
+      String labelI18nKey,
+      String defaultValue) {
+    return builder(config, id, labelI18nKey).setDefaultValue(defaultValue).build();
   }
 
-  public static StringConfigOption defaultInstance(String id, Text label, String defaultValue) {
-    return builder(id, label).setDefaultValue(defaultValue).build();
+  public static StringConfigOption defaultInstance(
+      ModConfig config,
+      String id,
+      Text label,
+      String defaultValue) {
+    return builder(config, id, label).setDefaultValue(defaultValue).build();
   }
 
-  public static Builder builder(String id, String labelI18nKey) {
-    return new Builder(id, labelI18nKey);
+  public static Builder builder(ModConfig config, String id, String labelI18nKey) {
+    return new Builder(config, id, labelI18nKey);
   }
 
-  public static Builder builder(String id, Text label) {
-    return new Builder(id, label);
+  public static Builder builder(ModConfig config, String id, Text label) {
+    return new Builder(config, id, label);
   }
 
-  public static class Builder extends ConfigOption.Builder<String, Builder> {
+  public static class Builder extends ConfigOption.AbstractBuilder<String, Builder> {
     private Optional<Integer> minLength = Optional.empty();
     private Optional<Integer> maxLength = Optional.empty();
     private Optional<Pattern> regex = Optional.empty();
     private List<Validator> customValidators = new ArrayList<>();
 
-    private Builder(String id, String labelI18nKey) {
-      super(id, labelI18nKey, "");
+    private Builder(ModConfig config, String id, String labelI18nKey) {
+      super(config, id, labelI18nKey, "");
     }
 
-    private Builder(String id, Text label) {
-      super(id, label, "");
+    private Builder(ModConfig config, String id, Text label) {
+      super(config, id, label, "");
     }
 
     public Builder setDefaultValue(String defaultValue) {
@@ -107,7 +116,7 @@ public class StringConfigOption extends ConfigOption<String, StringConfigOption.
     }
 
     public Builder addCustomValidator(Validator validator) {
-      customValidators.add(validator);
+      this.customValidators.add(validator);
       return this;
     }
 

@@ -59,7 +59,7 @@ public class IntSliderControl extends AbstractClickableControlWidget<IntConfigOp
     RenderSystem.enableBlend();
     RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
     RenderSystem.setShaderTexture(0, WIDGETS_TEXTURE);
-    RenderSystem.setShader(GameRenderer::getPositionTexShader);
+    RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
     RenderSystem.applyModelViewMatrix();
 
     // Top left

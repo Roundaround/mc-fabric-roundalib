@@ -8,6 +8,8 @@ import org.lwjgl.glfw.GLFW;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import me.roundaround.roundalib.config.ModConfig;
+import me.roundaround.roundalib.config.gui.GuiUtil;
 import me.roundaround.roundalib.config.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.config.option.PositionConfigOption;
 import me.roundaround.roundalib.config.value.Position;
@@ -17,13 +19,13 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
 public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position, PositionConfigOption> {
-  protected static final Identifier TEXTURE = new Identifier("roundalib", "textures/gui.png");
   protected static final Position CROSSHAIR_UV = new Position(247, 0);
   protected static final int CROSSHAIR_SIZE = 9;
+
+  private final ModConfig config;
 
   private boolean inverseX = false;
   private boolean inverseY = false;
@@ -47,6 +49,7 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
       boolean inverseX,
       boolean inverseY) {
     super(title, parent, configOption);
+    this.config = configOption.getConfig();
     this.inverseX = inverseX;
     this.inverseY = inverseY;
   }
@@ -58,40 +61,44 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
 
     upButton = IconButtonWidget.large(
         this,
+        this.config,
         startY - 3 * IconButtonWidget.HEIGHT_LG - 2 * 4,
         startX - 2 * IconButtonWidget.WIDTH_LG - 4,
         IconButtonWidget.UV_LG_ARROW_UP,
-        Text.translatable("roundalib.move.up"),
+        Text.translatable(this.config.getModId() + ".roundalib.move.up"),
         (button) -> {
           moveUp();
         });
 
     leftButton = IconButtonWidget.large(
         this,
+        this.config,
         startY - 2 * IconButtonWidget.HEIGHT_LG - 4,
         startX - 3 * IconButtonWidget.WIDTH_LG - 2 * 4,
         IconButtonWidget.UV_LG_ARROW_LEFT,
-        Text.translatable("roundalib.move.left"),
+        Text.translatable(this.config.getModId() + ".roundalib.move.left"),
         (button) -> {
           moveLeft();
         });
 
     rightButton = IconButtonWidget.large(
         this,
+        this.config,
         startY - 2 * IconButtonWidget.HEIGHT_LG - 4,
         startX - IconButtonWidget.WIDTH_LG,
         IconButtonWidget.UV_LG_ARROW_RIGHT,
-        Text.translatable("roundalib.move.right"),
+        Text.translatable(this.config.getModId() + ".roundalib.move.right"),
         (button) -> {
           moveRight();
         });
 
     downButton = IconButtonWidget.large(
         this,
+        this.config,
         startY - IconButtonWidget.HEIGHT_LG,
         startX - 2 * IconButtonWidget.WIDTH_LG - 4,
         IconButtonWidget.UV_LG_ARROW_DOWN,
-        Text.translatable("roundalib.move.down"),
+        Text.translatable(this.config.getModId() + ".roundalib.move.down"),
         (button) -> {
           moveDown();
         });
@@ -131,8 +138,8 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
   @Override
   protected List<Text> getHelpLong(int mouseX, int mouseY, float partialTicks) {
     ArrayList<Text> full = new ArrayList<>();
-    full.add(Text.translatable("roundalib.help.position.single"));
-    full.add(Text.translatable("roundalib.help.position.multi"));
+    full.add(Text.translatable(this.config.getModId() + ".roundalib.help.position.single"));
+    full.add(Text.translatable(this.config.getModId() + ".roundalib.help.position.multi"));
     full.addAll(super.getHelpLong(mouseX, mouseY, partialTicks));
     return full;
   }
@@ -143,12 +150,12 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
 
     int left = upButton.getLeft() + 2;
     int top = leftButton.getTop() + 2;
-    
+
     RenderSystem.setShaderColor(1, 1, 1, 0.4f);
     RenderSystem.enableBlend();
     RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
-    RenderSystem.setShaderTexture(0, TEXTURE);
-    RenderSystem.setShader(GameRenderer::getPositionTexShader);
+    RenderSystem.setShaderTexture(0, GuiUtil.getWidgetsTexture(this.config));
+    RenderSystem.setShader(GameRenderer::getPositionColorTexProgram);
     RenderSystem.applyModelViewMatrix();
 
     matrixStack.push();

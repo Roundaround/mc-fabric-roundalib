@@ -2,6 +2,8 @@ package me.roundaround.roundalib.config.value;
 
 import java.util.Arrays;
 
+import me.roundaround.roundalib.config.ModConfig;
+
 public enum Difficulty implements ListOptionValue<Difficulty> {
   PEACEFUL(net.minecraft.world.Difficulty.PEACEFUL),
   EASY(net.minecraft.world.Difficulty.EASY),
@@ -22,7 +24,7 @@ public enum Difficulty implements ListOptionValue<Difficulty> {
   }
 
   @Override
-  public String getI18nKey() {
+  public String getI18nKey(ModConfig config) {
     return "options.difficulty." + id;
   }
 

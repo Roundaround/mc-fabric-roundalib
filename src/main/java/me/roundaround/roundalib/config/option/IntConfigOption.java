@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+import me.roundaround.roundalib.config.ModConfig;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 
@@ -19,47 +20,47 @@ public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Build
   protected IntConfigOption(Builder builder) {
     super(builder);
 
-    minValue = builder.minValue;
-    maxValue = builder.maxValue;
-    step = builder.step;
+    this.minValue = builder.minValue;
+    this.maxValue = builder.maxValue;
+    this.step = builder.step;
 
     List<Validator> allValidators = new ArrayList<>();
-    if (minValue.isPresent()) {
-      allValidators.add((int prev, int curr) -> curr >= minValue.get());
+    if (this.minValue.isPresent()) {
+      allValidators.add((int prev, int curr) -> curr >= this.minValue.get());
     }
-    if (maxValue.isPresent()) {
-      allValidators.add((int prev, int curr) -> curr <= maxValue.get());
+    if (this.maxValue.isPresent()) {
+      allValidators.add((int prev, int curr) -> curr <= this.maxValue.get());
     }
     if (!builder.customValidators.isEmpty()) {
       allValidators.addAll(builder.customValidators);
     }
-    validators = List.copyOf(allValidators);
+    this.validators = List.copyOf(allValidators);
 
-    slider = builder.slider;
-    valueDisplayFunction = builder.valueDisplayFunction;
+    this.slider = builder.slider;
+    this.valueDisplayFunction = builder.valueDisplayFunction;
   }
 
   private IntConfigOption(IntConfigOption other) {
     super(other);
 
-    minValue = other.minValue;
-    maxValue = other.maxValue;
-    step = other.step;
-    validators = other.validators;
-    slider = other.slider;
-    valueDisplayFunction = other.valueDisplayFunction;
+    this.minValue = other.minValue;
+    this.maxValue = other.maxValue;
+    this.step = other.step;
+    this.validators = other.validators;
+    this.slider = other.slider;
+    this.valueDisplayFunction = other.valueDisplayFunction;
   }
 
   public Optional<Integer> getMinValue() {
-    return minValue;
+    return this.minValue;
   }
 
   public Optional<Integer> getMaxValue() {
-    return maxValue;
+    return this.maxValue;
   }
 
   public int getStep() {
-    return step.isEmpty() ? 1 : step.get();
+    return this.step.isEmpty() ? 1 : this.step.get();
   }
 
   public boolean increment() {
@@ -71,7 +72,7 @@ public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Build
   }
 
   public boolean canIncrement() {
-    if (step.isEmpty()) {
+    if (this.step.isEmpty()) {
       return false;
     }
 
@@ -79,29 +80,29 @@ public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Build
   }
 
   public boolean canDecrement() {
-    if (step.isEmpty()) {
+    if (this.step.isEmpty()) {
       return false;
     }
 
-    return getValue() > minValue.orElse(Integer.MIN_VALUE);
+    return getValue() > this.minValue.orElse(Integer.MIN_VALUE);
   }
 
   public boolean showStepButtons() {
-    return step.isPresent();
+    return this.step.isPresent();
   }
 
   public boolean useSlider() {
-    return slider;
+    return this.slider;
   }
 
   private boolean step(int mult) {
-    if (step.isEmpty()) {
+    if (this.step.isEmpty()) {
       return false;
     }
 
-    int newValue = MathHelper.clamp(getValue() + step.get() * mult,
-        minValue.orElse(Integer.MIN_VALUE),
-        maxValue.orElse(Integer.MAX_VALUE));
+    int newValue = MathHelper.clamp(getValue() + this.step.get() * mult,
+        this.minValue.orElse(Integer.MIN_VALUE),
+        this.maxValue.orElse(Integer.MAX_VALUE));
 
     if (newValue == getValue()) {
       return false;
@@ -112,11 +113,11 @@ public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Build
   }
 
   public String getValueAsString() {
-    return valueDisplayFunction.apply(getValue());
+    return this.valueDisplayFunction.apply(getValue());
   }
 
   public boolean validateInput(int newValue) {
-    return validators.stream().allMatch((validator) -> {
+    return this.validators.stream().allMatch((validator) -> {
       return validator.apply(getValue(), newValue);
     });
   }
@@ -126,23 +127,23 @@ public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Build
     return new IntConfigOption(this);
   }
 
-  public static Builder builder(String id, String labelI18nKey) {
-    return new Builder(id, labelI18nKey);
+  public static Builder builder(ModConfig config, String id, String labelI18nKey) {
+    return new Builder(config, id, labelI18nKey);
   }
 
-  public static Builder builder(String id, Text label) {
-    return new Builder(id, label);
+  public static Builder builder(ModConfig config, String id, Text label) {
+    return new Builder(config, id, label);
   }
 
-  public static Builder sliderBuilder(String id, String labelI18nKey) {
-    return builder(id, labelI18nKey).setUseSlider(true);
+  public static Builder sliderBuilder(ModConfig config, String id, String labelI18nKey) {
+    return builder(config, id, labelI18nKey).setUseSlider(true);
   }
 
-  public static Builder sliderBuilder(String id, Text label) {
-    return builder(id, label).setUseSlider(true);
+  public static Builder sliderBuilder(ModConfig config, String id, Text label) {
+    return builder(config, id, label).setUseSlider(true);
   }
 
-  public static class Builder extends ConfigOption.Builder<Integer, Builder> {
+  public static class Builder extends ConfigOption.AbstractBuilder<Integer, Builder> {
     private Optional<Integer> minValue = Optional.empty();
     private Optional<Integer> maxValue = Optional.empty();
     private Optional<Integer> step = Optional.of(1);
@@ -150,12 +151,12 @@ public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Build
     private boolean slider = false;
     private Function<Integer, String> valueDisplayFunction = (Integer value) -> value.toString();
 
-    private Builder(String id, String labelI18nKey) {
-      super(id, labelI18nKey, 0);
+    private Builder(ModConfig config, String id, String labelI18nKey) {
+      super(config, id, labelI18nKey, 0);
     }
 
-    private Builder(String id, Text label) {
-      super(id, label, 0);
+    private Builder(ModConfig config, String id, Text label) {
+      super(config, id, label, 0);
     }
 
     public Builder setDefaultValue(int defaultValue) {
@@ -195,7 +196,7 @@ public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Build
 
     @Override
     public IntConfigOption build() {
-      if (slider && (minValue.isEmpty() || maxValue.isEmpty())) {
+      if (this.slider && (this.minValue.isEmpty() || this.maxValue.isEmpty())) {
         throw new IllegalStateException();
       }
       return new IntConfigOption(this);

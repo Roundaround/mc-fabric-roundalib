@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.joml.Matrix4f;
+
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -22,7 +24,6 @@ import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.Matrix4f;
 
 @Environment(EnvType.CLIENT)
 public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
@@ -48,7 +49,7 @@ public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
       int top,
       int left,
       int width) {
-    super(parent, top, left, HEIGHT, width);
+    super(parent, configOption.getConfig(), top, left, HEIGHT, width);
 
     int controlWidth = Math.max(CONTROL_MIN_WIDTH, Math.round(width * 0.3f));
 
@@ -63,6 +64,7 @@ public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
         controlWidth);
     resetButton = new ResetButtonWidget<OptionRowWidget>(
         this,
+        this.config,
         top + (HEIGHT - ResetButtonWidget.HEIGHT_LG) / 2,
         right - PADDING - ResetButtonWidget.WIDTH_LG) {
       @Override
@@ -127,7 +129,7 @@ public class OptionRowWidget extends AbstractWidget<ConfigListWidget> {
       RenderSystem.disableTexture();
       RenderSystem.enableBlend();
       RenderSystem.defaultBlendFunc();
-      RenderSystem.setShader(GameRenderer::getPositionColorShader);
+      RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 
       Tessellator tessellator = Tessellator.getInstance();
       BufferBuilder bufferBuilder = tessellator.getBuffer();

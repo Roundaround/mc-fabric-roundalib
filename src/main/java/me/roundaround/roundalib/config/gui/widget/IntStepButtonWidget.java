@@ -1,5 +1,6 @@
 package me.roundaround.roundalib.config.gui.widget;
 
+import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.gui.control.IntInputControl;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
@@ -12,14 +13,16 @@ import net.minecraft.text.Text;
 public class IntStepButtonWidget extends IconButtonWidget<IntInputControl> {
   private boolean increment;
 
-  public IntStepButtonWidget(IntInputControl parent, boolean increment, int top, int left) {
+  public IntStepButtonWidget(IntInputControl parent, ModConfig config, boolean increment, int top, int left) {
     super(
         parent,
+        config,
         top,
         left,
         false,
         increment ? IconButtonWidget.UV_SM_PLUS : IconButtonWidget.UV_SM_MINUS,
-        Text.translatable(increment ? "roundalib.step_up.tooltip" : "roundalib.step_down.tooltip",
+        Text.translatable(
+            config.getModId() + (increment ? ".roundalib.step_up.tooltip" : ".roundalib.step_down.tooltip"),
             parent.getConfigOption().getStep()),
         IntStepButtonWidget::onPress);
     this.increment = increment;
@@ -49,7 +52,7 @@ public class IntStepButtonWidget extends IconButtonWidget<IntInputControl> {
   @Override
   protected void appendTitleNarration(NarrationMessageBuilder builder) {
     builder.put(NarrationPart.TITLE,
-        Text.translatable("roundalib.step.narration", parent.getConfigOption().getLabel()));
+        Text.translatable(this.config.getModId() + ".roundalib.step.narration", parent.getConfigOption().getLabel()));
   }
 
   public OptionRowWidget getOptionRow() {

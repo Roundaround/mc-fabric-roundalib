@@ -48,7 +48,7 @@ public class SubScreenControl<D, C extends ConfigOption<D, ?>> extends ButtonCon
 
   @Override
   protected Text getCurrentText() {
-    return Text.translatable("roundalib.subscreen.label");
+    return Text.translatable(this.config.getModId() + ".roundalib.subscreen.label");
   }
 
   @Override

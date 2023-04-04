@@ -64,7 +64,7 @@ public abstract class ButtonControl<O extends ConfigOption<?, ?>> extends Abstra
     RenderSystem.blendFunc(
         GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
     RenderSystem.setShaderTexture(0, BUTTON_TEXTURES);
-    RenderSystem.setShader(GameRenderer::getPositionTexShader);
+    RenderSystem.setShader(GameRenderer::getPositionColorTexProgram);
     RenderSystem.applyModelViewMatrix();
 
     int imageOffset = getImageOffset();

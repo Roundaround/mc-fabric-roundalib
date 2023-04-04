@@ -2,14 +2,15 @@ package me.roundaround.roundalib.config.gui.widget;
 
 import java.util.function.Consumer;
 
+import me.roundaround.roundalib.config.ModConfig;
 import net.minecraft.client.gui.Selectable;
 
 public abstract class AbstractClickableWidget<T> extends AbstractWidget<T> implements ClickableWidget {
   protected boolean focused;
   protected Consumer<Boolean> focusChangeListener;
 
-  protected AbstractClickableWidget(T parent, int top, int left, int height, int width) {
-    super(parent, top, left, height, width);
+  protected AbstractClickableWidget(T parent, ModConfig config, int top, int left, int height, int width) {
+    super(parent, config, top, left, height, width);
   }
 
   @Override

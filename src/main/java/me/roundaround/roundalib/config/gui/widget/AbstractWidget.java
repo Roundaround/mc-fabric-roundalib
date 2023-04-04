@@ -1,11 +1,13 @@
 package me.roundaround.roundalib.config.gui.widget;
 
+import me.roundaround.roundalib.config.ModConfig;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.util.math.MatrixStack;
 
 public abstract class AbstractWidget<T> extends DrawableHelper implements Widget {
   protected final int initialTop;
   protected T parent;
+  protected ModConfig config;
   protected int width;
   protected int height;
   protected int top;
@@ -14,8 +16,9 @@ public abstract class AbstractWidget<T> extends DrawableHelper implements Widget
   protected int right;
   protected boolean hovered;
 
-  protected AbstractWidget(T parent, int top, int left, int height, int width) {
+  protected AbstractWidget(T parent, ModConfig config, int top, int left, int height, int width) {
     this.parent = parent;
+    this.config = config;
     this.top = top;
     this.bottom = top + height - 1;
     this.left = left;
@@ -64,6 +67,10 @@ public abstract class AbstractWidget<T> extends DrawableHelper implements Widget
 
   public T getParent() {
     return parent;
+  }
+
+  public ModConfig getConfig() {
+    return config;
   }
 
   public int getWidth() {

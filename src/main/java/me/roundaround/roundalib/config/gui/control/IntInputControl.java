@@ -51,8 +51,17 @@ public class IntInputControl extends AbstractControlWidget<IntConfigOption> {
     });
 
     if (configOption.showStepButtons()) {
-      incrementButton = new IntStepButtonWidget(this, true, top, right - IconButtonWidget.WIDTH_SM + 1);
-      decrementButton = new IntStepButtonWidget(this, false, bottom - IconButtonWidget.HEIGHT_SM + 1,
+      incrementButton = new IntStepButtonWidget(
+          this,
+          this.config,
+          true,
+          top,
+          right - IconButtonWidget.WIDTH_SM + 1);
+      decrementButton = new IntStepButtonWidget(
+          this,
+          this.config,
+          false,
+          bottom - IconButtonWidget.HEIGHT_SM + 1,
           right - IconButtonWidget.WIDTH_SM + 1);
     }
 
@@ -170,7 +179,7 @@ public class IntInputControl extends AbstractControlWidget<IntConfigOption> {
   @Override
   public void moveTop(int top) {
     super.moveTop(top);
-    textBox.y = top + 1;
+    textBox.setY(top + 1);
 
     if (configOption.showStepButtons()) {
       incrementButton.moveTop(top);

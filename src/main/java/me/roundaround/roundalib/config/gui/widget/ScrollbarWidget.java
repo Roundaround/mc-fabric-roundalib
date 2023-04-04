@@ -2,6 +2,7 @@ package me.roundaround.roundalib.config.gui.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.gui.Scrollable;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.GameRenderer;
@@ -19,8 +20,14 @@ public class ScrollbarWidget extends AbstractWidget<Scrollable> {
   private int maxPosition;
 
   public ScrollbarWidget(
-      Scrollable parent, double scrollSpeed, int top, int left, int height, int width) {
-    super(parent, top, left, height, width);
+      Scrollable parent,
+      ModConfig config,
+      double scrollSpeed,
+      int top,
+      int left,
+      int height,
+      int width) {
+    super(parent, config, top, left, height, width);
     this.scrollSpeed = scrollSpeed;
   }
 
@@ -32,7 +39,7 @@ public class ScrollbarWidget extends AbstractWidget<Scrollable> {
     }
 
     RenderSystem.disableTexture();
-    RenderSystem.setShader(GameRenderer::getPositionColorShader);
+    RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 
     int handleHeight = (int) ((float) height * height / maxPosition);
     handleHeight = MathHelper.clamp(handleHeight, 32, height - 8);

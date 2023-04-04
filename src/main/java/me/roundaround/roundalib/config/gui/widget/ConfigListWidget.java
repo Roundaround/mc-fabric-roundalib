@@ -9,7 +9,8 @@ import java.util.stream.IntStream;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import me.roundaround.roundalib.RoundaLibMod;
+import me.roundaround.roundalib.RoundaLib;
+import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.gui.Scrollable;
 import me.roundaround.roundalib.config.gui.SelectableElement;
 import me.roundaround.roundalib.config.gui.control.ControlFactoryRegistry;
@@ -44,8 +45,8 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
   private final int elementWidth;
   private double scrollAmount = 0;
 
-  public ConfigListWidget(ConfigScreen parent, int top, int left, int height, int width) {
-    super(parent, top, left, height, width);
+  public ConfigListWidget(ConfigScreen parent, ModConfig config, int top, int left, int height, int width) {
+    super(parent, config, top, left, height, width);
     this.parent = parent;
 
     elementStartX = left + PADDING_X;
@@ -55,6 +56,7 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
 
     scrollbar = new ScrollbarWidget(
         this,
+        this.config,
         (OptionRowWidget.HEIGHT + ROW_PADDING) / 2d,
         top,
         right - SCROLLBAR_WIDTH + 1,
@@ -68,17 +70,18 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
 
     int currentOffset = elementStartY;
     int index = 0;
-    for (var entry : parent.getModConfig().getConfigOptions().entrySet()) {
+    for (var entry : this.config.getConfigOptions().entrySet()) {
       if (entry.getValue().stream().noneMatch(ConfigOption::shouldShowInConfigScreen)) {
         continue;
       }
 
-      String modId = parent.getModConfig().getModId();
+      String modId = this.config.getModId();
       String groupId = entry.getKey();
-      if (parent.getModConfig().getShowGroupTitles() && !groupId.equals(modId)) {
+      if (this.config.getShowGroupTitles() && !groupId.equals(modId)) {
         String groupI18nKey = entry.getKey() + ".title";
         GroupTitleWidget groupTitle = new GroupTitleWidget(
             this,
+            this.config,
             Text.translatable(groupI18nKey),
             index++,
             currentOffset,
@@ -177,7 +180,7 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
     Tessellator tessellator = Tessellator.getInstance();
     BufferBuilder bufferBuilder = tessellator.getBuffer();
 
-    RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+    RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
     RenderSystem.setShaderTexture(0, DrawableHelper.OPTIONS_BACKGROUND_TEXTURE);
     RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 
@@ -213,7 +216,7 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
         GlStateManager.SrcFactor.ZERO,
         GlStateManager.DstFactor.ONE);
     RenderSystem.disableTexture();
-    RenderSystem.setShader(GameRenderer::getPositionColorShader);
+    RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
     bufferBuilder.vertex(0, top + PADDING_Y, 0).color(0, 0, 0, 0).next();
@@ -314,7 +317,7 @@ public class ConfigListWidget extends AbstractWidget<ConfigScreen> implements Sc
           .apply(configOption, optionRow, top, left, height, width);
     } catch (ControlFactoryRegistry.NotRegisteredException e) {
       String message = "Unable to instantiate a GUI control for config option '" + configOption.getId() + "'";
-      RoundaLibMod.LOGGER.error(message, e);
+      RoundaLib.LOGGER.error(message, e);
       System.exit(0);
       return null;
     }

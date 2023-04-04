@@ -9,6 +9,7 @@ import org.lwjgl.glfw.GLFW;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.gui.GuiUtil;
 import me.roundaround.roundalib.config.gui.SelectableElement;
 import me.roundaround.roundalib.config.gui.widget.IconButtonWidget;
@@ -36,6 +37,7 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
 
   protected final Screen parent;
   protected final C configOption;
+  protected final ModConfig config;
 
   private final List<SelectableElement> selectableElements = new ArrayList<>();
 
@@ -50,6 +52,7 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
     super(title);
     this.parent = parent;
     this.configOption = configOption;
+    this.config = configOption.getConfig();
     intermediateValue = (C) configOption.copy();
   }
 
@@ -57,26 +60,29 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
   protected void init() {
     doneButton = IconButtonWidget.large(
         this,
+        this.config,
         height - 4 - IconButtonWidget.HEIGHT_LG,
         width - 4 - IconButtonWidget.WIDTH_LG,
         IconButtonWidget.UV_LG_CONFIRM,
-        Text.translatable("roundalib.save.tooltip"),
+        Text.translatable(this.config.getModId() + ".roundalib.save.tooltip"),
         (button) -> {
           saveAndExit();
         });
 
     cancelButton = IconButtonWidget.large(
         this,
+        this.config,
         height - 4 - IconButtonWidget.HEIGHT_LG,
         doneButton.getLeft() - 4 - IconButtonWidget.WIDTH_LG,
         IconButtonWidget.UV_LG_CANCEL,
-        Text.translatable("roundalib.discard.tooltip"),
+        Text.translatable(this.config.getModId() + ".roundalib.discard.tooltip"),
         (button) -> {
           discardAndExit();
         });
 
     resetButton = new ResetButtonWidget<ConfigOptionSubScreen<D, C>>(
         this,
+        this.config,
         height - 4 - IconButtonWidget.HEIGHT_LG,
         cancelButton.getLeft() - 4 - IconButtonWidget.WIDTH_LG) {
       @Override
@@ -224,7 +230,7 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
   protected void renderTextureBackground(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
     Tessellator tessellator = Tessellator.getInstance();
     BufferBuilder bufferBuilder = tessellator.getBuffer();
-    RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+    RenderSystem.setShader(GameRenderer::getPositionColorTexProgram);
     RenderSystem.setShaderTexture(0, OPTIONS_BACKGROUND_TEXTURE);
     RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 
@@ -260,7 +266,7 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
     RenderSystem.defaultBlendFunc();
     RenderSystem.disableDepthTest();
     RenderSystem.colorMask(true, true, true, false);
-    RenderSystem.setShader(GameRenderer::getPositionColorShader);
+    RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
 
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
     bufferBuilder
@@ -335,18 +341,18 @@ public abstract class ConfigOptionSubScreen<D, C extends ConfigOption<D, ?>> ext
   }
 
   protected List<Text> getHelpShort(int mouseX, int mouseY, float partialTicks) {
-    return List.of(Text.translatable("roundalib.help.short"));
+    return List.of(Text.translatable(this.config.getModId() + ".roundalib.help.short"));
   }
 
   protected List<Text> getHelpLong(int mouseX, int mouseY, float partialTicks) {
     return List.of(
-        Text.translatable("roundalib.help.cancel"),
+        Text.translatable(this.config.getModId() + ".roundalib.help.cancel"),
         (MinecraftClient.IS_SYSTEM_MAC
-            ? Text.translatable("roundalib.help.save.mac")
-            : Text.translatable("roundalib.help.save.win")),
+            ? Text.translatable(this.config.getModId() + ".roundalib.help.save.mac")
+            : Text.translatable(this.config.getModId() + ".roundalib.help.save.win")),
         (MinecraftClient.IS_SYSTEM_MAC
-            ? Text.translatable("roundalib.help.reset.mac")
-            : Text.translatable("roundalib.help.reset.win")));
+            ? Text.translatable(this.config.getModId() + ".roundalib.help.reset.mac")
+            : Text.translatable(this.config.getModId() + ".roundalib.help.reset.win")));
   }
 
   protected void renderOverlay(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
