@@ -190,7 +190,6 @@ public class VariableHeightListWidget<E extends VariableHeightListWidget.Entry<E
 
     public E getEntryAtPosition(double y) {
       if (this.cachedAtY != null) {
-        // Check if we're within the cached element first
         if (y >= this.cachedAtY.top && y <= this.cachedAtY.top + this.cachedAtY.height) {
           return this.cachedAtY;
         }
