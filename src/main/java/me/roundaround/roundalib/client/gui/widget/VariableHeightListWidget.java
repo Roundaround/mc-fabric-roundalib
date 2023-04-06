@@ -1,12 +1,10 @@
 package me.roundaround.roundalib.client.gui.widget;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.AbstractParentElement;
-import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.Selectable;
+import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.MathHelper;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -17,43 +15,71 @@ public class VariableHeightListWidget<E extends VariableHeightListWidget.Entry<E
   protected static final int SCROLLBAR_WIDTH = 6;
 
   protected final MinecraftClient client;
-  protected final int left;
-  protected final int top;
-  protected final int width;
-  protected final int height;
   protected final CachingPositionalLinkedList<E> entries = new CachingPositionalLinkedList<>();
 
-  protected E selectedEntry;
+  protected int left;
+  protected int top;
+  protected int right;
+  protected int bottom;
+  protected int width;
+  protected int height;
   protected E hoveredEntry;
   protected int contentPadding = 4;
-  protected int contentHeight;
+  protected double scrollUnit;
+  protected boolean autoCalculateScrollUnit = true;
 
-  private E cachedElementAtY;
+  private double scrollAmount;
+  private boolean scrolling;
 
   public VariableHeightListWidget(
       MinecraftClient client, int left, int top, int width, int height) {
     this.client = client;
     this.left = left;
+    this.right = left + width;
     this.top = top;
+    this.bottom = top + height;
     this.width = width;
     this.height = height;
   }
 
   @Override
   public void render(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
-    enableScissor(this.left, this.top, this.left + this.width, this.top + this.height);
+    this.hoveredEntry =
+        this.isMouseOver(mouseX, mouseY) ? this.getEntryAtPosition(mouseX, mouseY) : null;
 
+    enableScissor(this.left, this.top, this.right, this.bottom);
     this.renderList(matrixStack, mouseX, mouseY, delta);
-
+    this.renderScrollBar(matrixStack, mouseX, mouseY, delta);
     disableScissor();
   }
 
   protected void renderList(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
   }
 
+  protected void renderScrollBar(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
+    int i = this.getMaxScroll();
+    if (i > 0) {
+      int j = (this.height) * (this.height) / this.entries.totalHeight;
+      j = MathHelper.clamp(j, 32, this.bottom - this.top - 8);
+      int k = (int) this.getScrollAmount() * (this.bottom - this.top - j) / i + this.top;
+      if (k < this.top) {
+        k = this.top;
+      }
+
+      fill(matrixStack, i, this.top, j, this.bottom, -16777216);
+      fill(matrixStack, i, k, j, k + j, -8355712);
+      fill(matrixStack, i, k, j - 1, k + j - 1, -4144960);
+    }
+  }
+
   @Override
   public void appendNarrations(NarrationMessageBuilder builder) {
 
+  }
+
+  @Override
+  public E getFocused() {
+    return (E) super.getFocused();
   }
 
   @Override
@@ -70,8 +96,74 @@ public class VariableHeightListWidget<E extends VariableHeightListWidget.Entry<E
     }
   }
 
-  public double getScrollAmount() {
-    return 0;
+  @Override
+  public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    this.updateScrollingState(mouseX, mouseY, button);
+    if (!this.isMouseOver(mouseX, mouseY)) {
+      return false;
+    }
+
+    E entry = this.getEntryAtPosition(mouseX, mouseY);
+    if (entry != null) {
+      if (entry.mouseClicked(mouseX, mouseY, button)) {
+        E focused = this.getFocused();
+        if (focused != entry && focused != null) {
+          focused.setFocused(null);
+        }
+
+        this.setFocused(entry);
+        this.setDragging(true);
+        return true;
+      }
+    }
+
+    return this.scrolling;
+  }
+
+  @Override
+  public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    if (this.getFocused() != null) {
+      this.getFocused().mouseReleased(mouseX, mouseY, button);
+    }
+
+    return false;
+  }
+
+  @Override
+  public boolean mouseDragged(
+      double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+    if (super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)) {
+      return true;
+    } else if (button == 0 && this.scrolling) {
+      if (mouseY < this.top) {
+        this.setScrollAmount(0);
+      } else if (mouseY > this.bottom) {
+        this.setScrollAmount(this.getMaxScroll());
+      } else {
+        double d = Math.max(1, this.getMaxScroll());
+        int i = this.height;
+        int j = MathHelper.clamp((int) ((float) (i * i) / this.entries.totalHeight), 32, i - 8);
+        double e = Math.max(1.0, d / (double) (i - j));
+        this.setScrollAmount(this.getScrollAmount() + deltaY * e);
+      }
+
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  @Override
+  public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+    this.setScrollAmount(this.getScrollAmount() - amount * this.scrollUnit);
+    return true;
+  }
+
+  public void updateSize(int left, int top, int width, int height) {
+    this.left = left;
+    this.top = top;
+    this.width = width;
+    this.height = height;
   }
 
   protected E getEntryAtPosition(double x, double y) {
@@ -79,7 +171,7 @@ public class VariableHeightListWidget<E extends VariableHeightListWidget.Entry<E
       return null;
     }
 
-    if (x < this.top || x > this.top + this.height) {
+    if (y < this.top || y > this.bottom) {
       return null;
     }
 
@@ -92,7 +184,7 @@ public class VariableHeightListWidget<E extends VariableHeightListWidget.Entry<E
   }
 
   protected int getContentHeight() {
-    return this.contentHeight + this.contentPadding * 2;
+    return this.entries.totalHeight + this.contentPadding * 2;
   }
 
   protected int getContentWidth() {
@@ -105,8 +197,32 @@ public class VariableHeightListWidget<E extends VariableHeightListWidget.Entry<E
   }
 
   protected int getContentRight() {
-    return this.left + this.width - this.contentPadding -
-        (this.shouldShowScrollbar() ? SCROLLBAR_WIDTH : 0);
+    return this.right - this.contentPadding - (this.shouldShowScrollbar() ? SCROLLBAR_WIDTH : 0);
+  }
+
+  protected int getScrollbarPositionX() {
+    return this.right - SCROLLBAR_WIDTH;
+  }
+
+  private void scroll(int amount) {
+    this.setScrollAmount(this.getScrollAmount() + (double) amount);
+  }
+
+  public double getScrollAmount() {
+    return this.scrollAmount;
+  }
+
+  public void setScrollAmount(double amount) {
+    this.scrollAmount = MathHelper.clamp(amount, 0.0, this.getMaxScroll());
+  }
+
+  public int getMaxScroll() {
+    return Math.max(0, this.entries.totalHeight - (this.height - 4));
+  }
+
+  protected void updateScrollingState(double mouseX, double mouseY, int button) {
+    this.scrolling = button == 0 && mouseX >= (double) this.getScrollbarPositionX() &&
+        mouseX < (this.getScrollbarPositionX() + SCROLLBAR_WIDTH);
   }
 
   public abstract static class Entry<E extends Entry<E>> extends AbstractParentElement
@@ -125,19 +241,15 @@ public class VariableHeightListWidget<E extends VariableHeightListWidget.Entry<E
     }
 
     public void render(
-        MatrixStack matrixStack,
-        int top,
-        int left,
-        int width,
-        int mouseX,
-        int mouseY,
-        float delta) {
+        MatrixStack matrixStack, int left, int width, int mouseX, int mouseY, float delta) {
 
     }
   }
 
   protected static class CachingPositionalLinkedList<E extends VariableHeightListWidget.Entry<E>> {
     private final LinkedList<E> entries = new LinkedList<>();
+    private int totalHeight;
+    private double averageItemHeight;
     private E cachedAtY;
     private int cachedAtYIndex;
 
@@ -150,10 +262,20 @@ public class VariableHeightListWidget<E extends VariableHeightListWidget.Entry<E
       entry.top = last != null ? last.top + last.height : 0;
 
       this.entries.add(entry);
+      this.totalHeight += entry.height;
+      this.averageItemHeight = (double) this.totalHeight / (double) this.entries.size();
+    }
+
+    public void prepend(E entry) {
+      entry.top = 0;
+
+      this.entries.addFirst(entry);
+      this.reflow();
     }
 
     public void remove(E entry) {
       this.entries.remove(entry);
+      this.reflow();
     }
 
     public E get(int index) {
@@ -166,26 +288,22 @@ public class VariableHeightListWidget<E extends VariableHeightListWidget.Entry<E
 
     public void clear() {
       this.entries.clear();
+      this.reflow();
     }
 
-    public void reflow(int startingIndex) {
-      ListIterator<E> iterator = this.entries.listIterator(startingIndex);
+    public void reflow() {
+      this.cachedAtY = null;
+      this.cachedAtYIndex = 0;
 
-      if (iterator.hasPrevious()) {
-        E previous = iterator.previous();
-        iterator.next();
+      int top = 0;
 
-        iterator.next().top = previous.top + previous.height;
-      } else {
-        iterator.next().top = 0;
+      for (E entry : this.entries) {
+        entry.top = top;
+        top += entry.height;
       }
 
-      while (iterator.hasNext()) {
-        E previous = iterator.previous();
-        iterator.next();
-
-        iterator.next().top = previous.top + previous.height;
-      }
+      this.totalHeight = top;
+      this.averageItemHeight = (double) this.totalHeight / (double) this.entries.size();
     }
 
     public E getEntryAtPosition(double y) {
