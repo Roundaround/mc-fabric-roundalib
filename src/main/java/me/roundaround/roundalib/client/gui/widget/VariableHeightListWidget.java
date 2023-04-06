@@ -156,7 +156,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
   @Override
   public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-    this.setScrollAmount(this.getScrollAmount() - amount * this.scrollUnit);
+    this.setScrollAmount(this.getScrollAmount() - amount * this.getScrollUnit());
     return true;
   }
 
@@ -224,6 +224,10 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   protected void updateScrollingState(double mouseX, double mouseY, int button) {
     this.scrolling = button == 0 && mouseX >= (double) this.getScrollbarPositionX() &&
         mouseX < (this.getScrollbarPositionX() + SCROLLBAR_WIDTH);
+  }
+
+  protected double getScrollUnit() {
+    return this.autoCalculateScrollUnit ? this.entries.averageItemHeight / 2f : this.scrollUnit;
   }
 
   public abstract static class Entry<E extends Entry<E>> extends AbstractParentElement {
