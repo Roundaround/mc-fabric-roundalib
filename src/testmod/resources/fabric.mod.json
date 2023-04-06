@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "testmod",
+  "version": "1.0.0",
+  "name": "RoundaLib Testing Mod",
+  "description": "Test mod for RoundaLib",
+  "authors": [
+    "Roundaround"
+  ],
+  "contact": {
+    "homepage": "",
+    "sources": ""
+  },
+  "license": "MIT",
+  "icon": "assets/testmod/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "me.roundaround.testmod.TestMod"
+    ],
+    "modmenu": [
+      "me.roundaround.testmod.compat.modmenu.ModMenuImpl"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.13.3",
+    "minecraft": "1.19.4",
+    "java": ">=17"
+  }
+}

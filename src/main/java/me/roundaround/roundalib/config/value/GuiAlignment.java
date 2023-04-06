@@ -1,9 +1,9 @@
 package me.roundaround.roundalib.config.value;
 
-import java.util.Arrays;
-
+import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.config.ModConfig;
-import me.roundaround.roundalib.config.gui.GuiUtil;
+
+import java.util.Arrays;
 
 public enum GuiAlignment implements ListOptionValue<GuiAlignment> {
   TOP_LEFT(AlignmentY.TOP, AlignmentX.LEFT),
