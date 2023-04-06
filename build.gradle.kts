@@ -10,24 +10,10 @@ val fullVersion = project.property("mod_version").toString() + "+" + project.pro
 group = project.property("maven_group").toString()
 version = project.property("mod_version").toString()
 
-sourceSets {
-  create("testmod") {
-    compileClasspath += sourceSets.named("main").get().compileClasspath
-    runtimeClasspath += sourceSets.named("main").get().runtimeClasspath
-  }
-}
-
-repositories {
-  maven("https://maven.terraformersmc.com/releases/")
-}
-
 dependencies {
   minecraft("com.mojang:minecraft:${project.property("minecraft_version")}")
   mappings("net.fabricmc:yarn:${project.property("yarn_mappings")}:v2")
   modApi("net.fabricmc:fabric-loader:${project.property("loader_version")}")
-
-  modCompileOnly("com.terraformersmc:modmenu:${project.property("mod_menu_version")}")
-  modRuntimeOnly("com.terraformersmc:modmenu:${project.property("mod_menu_version")}")
 
   shadow("com.electronwill.night-config:core:3.6.5")
   shadow("com.electronwill.night-config:toml:3.6.5")
@@ -85,19 +71,6 @@ tasks.remapSourcesJar {
 
   manifest {
     attributes["Fabric-Loom-Remap"] = "true"
-  }
-}
-
-loom {
-  runs {
-    create("testmodClient") {
-      client()
-      source(sourceSets.named("testmod").get())
-    }
-    create("testmodServer") {
-      server()
-      source(sourceSets.named("testmod").get())
-    }
   }
 }
 

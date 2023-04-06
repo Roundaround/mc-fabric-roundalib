@@ -22,6 +22,7 @@ public class GuiUtil {
   public static int LABEL_COLOR = genColorInt(1f, 1f, 1f);
   public static int ERROR_COLOR = genColorInt(1f, 0.15f, 0.15f);
   public static int BACKGROUND_COLOR = genColorInt(0f, 0f, 0f, 0.5f);
+  public static int PADDING = 4;
 
   private static final MinecraftClient CLIENT = MinecraftClient.getInstance();
 

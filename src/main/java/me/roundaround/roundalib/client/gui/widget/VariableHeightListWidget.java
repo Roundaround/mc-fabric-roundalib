@@ -1,5 +1,6 @@
 package me.roundaround.roundalib.client.gui.widget;
 
+import me.roundaround.roundalib.client.gui.GuiUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
@@ -10,7 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-public class VariableHeightListWidget<E extends VariableHeightListWidget.Entry<E>>
+public abstract class VariableHeightListWidget<E extends VariableHeightListWidget.Entry<E>>
     extends AbstractParentElement implements Drawable, Selectable {
   protected static final int SCROLLBAR_WIDTH = 6;
 
@@ -24,7 +25,7 @@ public class VariableHeightListWidget<E extends VariableHeightListWidget.Entry<E
   protected int width;
   protected int height;
   protected E hoveredEntry;
-  protected int contentPadding = 4;
+  protected int contentPadding = GuiUtil.PADDING;
   protected double scrollUnit;
   protected boolean autoCalculateScrollUnit = true;
 
@@ -225,8 +226,7 @@ public class VariableHeightListWidget<E extends VariableHeightListWidget.Entry<E
         mouseX < (this.getScrollbarPositionX() + SCROLLBAR_WIDTH);
   }
 
-  public abstract static class Entry<E extends Entry<E>> extends AbstractParentElement
-      implements Element {
+  public abstract static class Entry<E extends Entry<E>> extends AbstractParentElement {
     protected final MinecraftClient client;
     protected final VariableHeightListWidget<E> parent;
     protected final int height;

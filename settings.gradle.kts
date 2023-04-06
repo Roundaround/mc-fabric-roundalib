@@ -5,3 +5,5 @@ pluginManagement {
     maven("https://maven.rnda.dev/releases/")
   }
 }
+
+include("testmod")
