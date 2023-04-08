@@ -1,14 +1,19 @@
 package me.roundaround.roundalib.client.gui.widget;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.AbstractParentElement;
-import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.Selectable;
+import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormats;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -17,6 +22,8 @@ import java.util.ListIterator;
 public abstract class VariableHeightListWidget<E extends VariableHeightListWidget.Entry<E>>
     extends AbstractParentElement implements Drawable, Selectable {
   protected static final int SCROLLBAR_WIDTH = 6;
+  protected static final int PADDING_X = 4;
+  protected static final int PADDING_Y = 4;
 
   protected final MinecraftClient client;
   protected final CachingPositionalLinkedList<E> entries = new CachingPositionalLinkedList<>();
@@ -71,6 +78,8 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     this.hoveredEntry =
         this.isMouseOver(mouseX, mouseY) ? this.getEntryAtPosition(mouseX, mouseY) : null;
 
+    this.renderBackground(matrixStack, delta);
+
     enableScissor(this.left, this.top, this.right, this.bottom);
     this.renderList(matrixStack, mouseX, mouseY, delta);
     this.renderScrollBar(matrixStack, mouseX, mouseY, delta);
@@ -100,6 +109,64 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
   protected void renderScrollBar(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
 
+  }
+
+  protected void renderBackground(MatrixStack matrixStack, float delta) {
+    Screen parent = this.client.currentScreen;
+    int screenWidth = parent != null ? parent.width : this.width;
+
+    Tessellator tessellator = Tessellator.getInstance();
+    BufferBuilder bufferBuilder = tessellator.getBuffer();
+
+    RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
+    RenderSystem.setShaderTexture(0, DrawableHelper.OPTIONS_BACKGROUND_TEXTURE);
+    RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+
+    bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
+    bufferBuilder
+        .vertex(0, this.bottom, 0)
+        .texture(0, (float) (this.bottom + Math.round(this.scrollAmount)) / 32f)
+        .color(32, 32, 32, 255)
+        .next();
+    bufferBuilder
+        .vertex(screenWidth, this.bottom, 0)
+        .texture(screenWidth / 32f, (float) (this.bottom + Math.round(this.scrollAmount)) / 32f)
+        .color(32, 32, 32, 255)
+        .next();
+    bufferBuilder
+        .vertex(screenWidth, this.top, 0)
+        .texture(screenWidth / 32f, (float) (this.top + Math.round(this.scrollAmount)) / 32f)
+        .color(32, 32, 32, 255)
+        .next();
+    bufferBuilder
+        .vertex(0, this.top, 0)
+        .texture(0, (float) (this.top + Math.round(this.scrollAmount)) / 32f)
+        .color(32, 32, 32, 255)
+        .next();
+    tessellator.draw();
+
+    RenderSystem.depthFunc(515);
+    RenderSystem.disableDepthTest();
+    RenderSystem.enableBlend();
+    RenderSystem.blendFuncSeparate(
+        GlStateManager.SrcFactor.SRC_ALPHA,
+        GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA,
+        GlStateManager.SrcFactor.ZERO,
+        GlStateManager.DstFactor.ONE);
+    RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+
+    bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+    bufferBuilder.vertex(0, this.top + PADDING_Y, 0).color(0, 0, 0, 0).next();
+    bufferBuilder.vertex(screenWidth, this.top + PADDING_Y, 0).color(0, 0, 0, 0).next();
+    bufferBuilder.vertex(screenWidth, this.top, 0).color(0, 0, 0, 255).next();
+    bufferBuilder.vertex(0, this.top, 0).color(0, 0, 0, 255).next();
+    bufferBuilder.vertex(0, this.bottom, 0).color(0, 0, 0, 255).next();
+    bufferBuilder.vertex(screenWidth, this.bottom, 0).color(0, 0, 0, 255).next();
+    bufferBuilder.vertex(screenWidth, this.bottom - PADDING_Y, 0).color(0, 0, 0, 0).next();
+    bufferBuilder.vertex(0, this.bottom - PADDING_Y, 0).color(0, 0, 0, 0).next();
+    tessellator.draw();
+
+    RenderSystem.disableBlend();
   }
 
   @Override
