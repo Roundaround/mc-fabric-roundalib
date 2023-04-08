@@ -4,16 +4,15 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.AbstractParentElement;
+import net.minecraft.client.gui.Drawable;
+import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -121,76 +120,58 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     int handleHeight = (int) ((float) this.height * this.height / this.getMaxScroll());
     handleHeight = MathHelper.clamp(handleHeight, 32, this.height - 8);
 
-    int handleTop = (int) Math.round(this.scrollAmount) * (this.height - handleHeight) / maxScroll + this.top;
+    int handleTop =
+        (int) Math.round(this.scrollAmount) * (this.height - handleHeight) / maxScroll + this.top;
     if (handleTop < this.top) {
       handleTop = this.top;
     }
 
-    Tessellator tessellator = Tessellator.getInstance();
-    BufferBuilder bufferBuilder = tessellator.getBuffer();
-
-    bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-
-    // Shadow
-    bufferBuilder.vertex(scrollbarLeft, handleTop + handleHeight - 1, 0).color(128, 128, 128, 255).next();
-    bufferBuilder.vertex(scrollbarRight, handleTop + handleHeight - 1, 0).color(128, 128, 128, 255).next();
-    bufferBuilder.vertex(scrollbarRight, handleTop, 0).color(128, 128, 128, 255).next();
-    bufferBuilder.vertex(scrollbarLeft, handleTop, 0).color(128, 128, 128, 255).next();
-
-    // Main face
-    bufferBuilder
-        .vertex(scrollbarLeft, handleTop + handleHeight - 2, 0)
-        .color(192, 192, 192, 255)
-        .next();
-    bufferBuilder
-        .vertex(scrollbarRight - 1, handleTop + handleHeight - 2, 0)
-        .color(192, 192, 192, 255)
-        .next();
-    bufferBuilder.vertex(scrollbarRight - 1, handleTop, 0).color(192, 192, 192, 255).next();
-    bufferBuilder.vertex(scrollbarLeft, handleTop, 0).color(192, 192, 192, 255).next();
-
-    tessellator.draw();
+    fill(matrixStack,
+        scrollbarLeft,
+        this.top,
+        scrollbarRight,
+        this.bottom,
+        GuiUtil.genColorInt(0, 0, 0));
+    fill(matrixStack,
+        scrollbarLeft,
+        handleTop,
+        scrollbarRight,
+        handleTop + handleHeight,
+        GuiUtil.genColorInt(0.5f, 0.5f, 0.5f));
+    fill(matrixStack,
+        scrollbarLeft,
+        handleTop,
+        scrollbarRight - 1,
+        handleTop + handleHeight - 2,
+        GuiUtil.genColorInt(0.75f, 0.75f, 0.75f));
   }
 
   protected void renderBackground(MatrixStack matrixStack, float delta) {
     Screen parent = this.client.currentScreen;
     int screenWidth = parent != null ? parent.width : this.width;
 
+    GuiUtil.renderBackgroundInRegion(32,
+        this.top,
+        this.bottom,
+        0,
+        screenWidth,
+        0,
+        this.scrollAmount);
+
+    this.renderHorizontalShadows(matrixStack, delta);
+  }
+
+  protected void renderHorizontalShadows(MatrixStack matrixStack, float delta) {
+    Screen parent = this.client.currentScreen;
+    int screenWidth = parent != null ? parent.width : this.width;
+
     Tessellator tessellator = Tessellator.getInstance();
     BufferBuilder bufferBuilder = tessellator.getBuffer();
-
-    RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
-    RenderSystem.setShaderTexture(0, DrawableHelper.OPTIONS_BACKGROUND_TEXTURE);
-    RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-
-    bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-    bufferBuilder
-        .vertex(0, this.bottom, 0)
-        .texture(0, (float) (this.bottom + Math.round(this.scrollAmount)) / 32f)
-        .color(32, 32, 32, 255)
-        .next();
-    bufferBuilder
-        .vertex(screenWidth, this.bottom, 0)
-        .texture(screenWidth / 32f, (float) (this.bottom + Math.round(this.scrollAmount)) / 32f)
-        .color(32, 32, 32, 255)
-        .next();
-    bufferBuilder
-        .vertex(screenWidth, this.top, 0)
-        .texture(screenWidth / 32f, (float) (this.top + Math.round(this.scrollAmount)) / 32f)
-        .color(32, 32, 32, 255)
-        .next();
-    bufferBuilder
-        .vertex(0, this.top, 0)
-        .texture(0, (float) (this.top + Math.round(this.scrollAmount)) / 32f)
-        .color(32, 32, 32, 255)
-        .next();
-    tessellator.draw();
 
     RenderSystem.depthFunc(515);
     RenderSystem.disableDepthTest();
     RenderSystem.enableBlend();
-    RenderSystem.blendFuncSeparate(
-        GlStateManager.SrcFactor.SRC_ALPHA,
+    RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA,
         GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA,
         GlStateManager.SrcFactor.ZERO,
         GlStateManager.DstFactor.ONE);
@@ -216,7 +197,9 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public E getFocused() {
+    // Suppress warning because we know that the focused element will only ever be an entry
     return (E) super.getFocused();
   }
 

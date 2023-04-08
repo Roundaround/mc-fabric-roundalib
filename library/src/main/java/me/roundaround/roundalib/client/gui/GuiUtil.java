@@ -6,6 +6,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.render.*;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.sound.SoundEvent;
@@ -17,6 +18,8 @@ import net.minecraft.util.Language;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.List;
+
+import static net.minecraft.client.gui.DrawableHelper.OPTIONS_BACKGROUND_TEXTURE;
 
 public class GuiUtil {
   public static int LABEL_COLOR = genColorInt(1f, 1f, 1f);
@@ -179,6 +182,41 @@ public class GuiUtil {
           color);
       yCursor += textRenderer.fontHeight;
     }
+  }
+
+  public static void renderBackgroundInRegion(int brightness, int top, int bottom, int left, int right) {
+    renderBackgroundInRegion(brightness, top, bottom, left, right, 0, 0);
+  }
+
+  public static void renderBackgroundInRegion(int brightness, int top, int bottom, int left, int right, double offsetX, double offsetY) {
+    Tessellator tessellator = Tessellator.getInstance();
+    BufferBuilder bufferBuilder = tessellator.getBuffer();
+    RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
+    RenderSystem.setShaderTexture(0, OPTIONS_BACKGROUND_TEXTURE);
+    RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+
+    bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
+    bufferBuilder
+        .vertex(left, bottom, 0)
+        .texture((float) (left + Math.round(offsetX)) / 32f, (float) (bottom + Math.round(offsetY)) / 32f)
+        .color(brightness, brightness, brightness, 255)
+        .next();
+    bufferBuilder
+        .vertex(right, bottom, 0)
+        .texture((float) (right + Math.round(offsetX)) / 32f, (float) (bottom + Math.round(offsetY)) / 32f)
+        .color(brightness, brightness, brightness, 255)
+        .next();
+    bufferBuilder
+        .vertex(right, top, 0)
+        .texture((float) (right + Math.round(offsetX)) / 32f, (float) (top + Math.round(offsetY)) / 32f)
+        .color(brightness, brightness, brightness, 255)
+        .next();
+    bufferBuilder
+        .vertex(left, top, 0)
+        .texture((float) (left + Math.round(offsetX)) / 32f, (float) (top + Math.round(offsetY)) / 32f)
+        .color(brightness, brightness, brightness, 255)
+        .next();
+    tessellator.draw();
   }
 
   public static int genColorInt(float r, float g, float b) {
