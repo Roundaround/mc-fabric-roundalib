@@ -1,5 +1,6 @@
 package me.roundaround.testmod.client.gui.screen;
 
+import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
@@ -81,7 +82,7 @@ public class ConfigScreen extends Screen {
         this.title,
         this.width / 2,
         20,
-        16777215);
+        GuiUtil.LABEL_COLOR);
     super.render(matrixStack, mouseX, mouseY, delta);
   }
 }
