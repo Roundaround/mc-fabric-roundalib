@@ -56,7 +56,11 @@ public class ConfigScreen extends Screen {
 
   @Override
   public void close() {
-    this.client.setScreen(parent);
+    if (this.client == null) {
+      super.close();
+      return;
+    }
+    this.client.setScreen(this.parent);
   }
 
   @Override
