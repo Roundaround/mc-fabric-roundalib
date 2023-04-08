@@ -2,7 +2,10 @@ package me.roundaround.roundalib.client.gui.widget;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.AbstractParentElement;
+import net.minecraft.client.gui.Drawable;
+import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.MathHelper;
@@ -43,6 +46,26 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     this.height = height;
   }
 
+  public void addEntry(E entry) {
+    this.entries.add(entry);
+  }
+
+  public void prependEntry(E entry) {
+    this.entries.prepend(entry);
+  }
+
+  public void insertEntry(int index, E entry) {
+    this.entries.insert(index, entry);
+  }
+
+  public void removeEntry(E entry) {
+    this.entries.remove(entry);
+  }
+
+  public void clearEntries() {
+    this.entries.clear();
+  }
+
   @Override
   public void render(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
     this.hoveredEntry =
@@ -55,22 +78,28 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   protected void renderList(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
+    for (int i = 0; i < this.entries.size(); i++) {
+      this.renderEntry(matrixStack, i, mouseX, mouseY, delta);
+    }
+  }
+
+  protected void renderEntry(
+      MatrixStack matrixStack, int index, int mouseX, int mouseY, float delta) {
+    E entry = this.entries.get(index);
+    double scrolledTop = this.top + entry.top - this.getScrollAmount();
+    double scrolledBottom = this.top + entry.top + entry.height - this.getScrollAmount();
+    if (scrolledBottom < this.top || scrolledTop > this.bottom) {
+      return;
+    }
+
+    matrixStack.push();
+    matrixStack.translate(0, -getScrollAmount(), 0);
+    entry.render(matrixStack, this.getContentLeft(), this.getContentWidth(), mouseX, mouseY, delta);
+    matrixStack.pop();
   }
 
   protected void renderScrollBar(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
-    int i = this.getMaxScroll();
-    if (i > 0) {
-      int j = (this.height) * (this.height) / this.entries.totalHeight;
-      j = MathHelper.clamp(j, 32, this.bottom - this.top - 8);
-      int k = (int) this.getScrollAmount() * (this.bottom - this.top - j) / i + this.top;
-      if (k < this.top) {
-        k = this.top;
-      }
 
-      fill(matrixStack, i, this.top, j, this.bottom, -16777216);
-      fill(matrixStack, i, k, j, k + j, -8355712);
-      fill(matrixStack, i, k, j - 1, k + j - 1, -4144960);
-    }
   }
 
   @Override
@@ -271,9 +300,17 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     }
 
     public void prepend(E entry) {
-      entry.top = 0;
-
       this.entries.addFirst(entry);
+      this.reflow();
+    }
+
+    public void insert(int index, E entry) {
+      if (index == 0) {
+        this.prepend(entry);
+        return;
+      }
+
+      this.entries.add(index, entry);
       this.reflow();
     }
 
