@@ -20,8 +20,6 @@ import java.util.ListIterator;
 
 public abstract class VariableHeightListWidget<E extends VariableHeightListWidget.Entry<E>>
     extends AbstractParentElement implements Drawable, Selectable {
-  protected static final int SCROLLBAR_WIDTH = 6;
-
   protected final MinecraftClient client;
   protected final CachingPositionalLinkedList<E> entries = new CachingPositionalLinkedList<>();
 
@@ -113,7 +111,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     }
 
     int scrollbarLeft = this.getScrollbarPositionX();
-    int scrollbarRight = scrollbarLeft + SCROLLBAR_WIDTH;
+    int scrollbarRight = scrollbarLeft + GuiUtil.SCROLLBAR_WIDTH;
 
     RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 
@@ -321,7 +319,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   protected int getContentWidth() {
-    return this.width - (this.shouldShowScrollbar() ? SCROLLBAR_WIDTH : 0) -
+    return this.width - (this.shouldShowScrollbar() ? GuiUtil.SCROLLBAR_WIDTH : 0) -
         this.contentPadding * 2;
   }
 
@@ -330,11 +328,12 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   protected int getContentRight() {
-    return this.right - this.contentPadding - (this.shouldShowScrollbar() ? SCROLLBAR_WIDTH : 0);
+    return this.right - this.contentPadding -
+        (this.shouldShowScrollbar() ? GuiUtil.SCROLLBAR_WIDTH : 0);
   }
 
   protected int getScrollbarPositionX() {
-    return this.right - SCROLLBAR_WIDTH;
+    return this.right - GuiUtil.SCROLLBAR_WIDTH;
   }
 
   private void scroll(int amount) {
@@ -355,7 +354,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
   protected void updateScrollingState(double mouseX, double mouseY, int button) {
     this.scrolling = button == 0 && mouseX >= (double) this.getScrollbarPositionX() &&
-        mouseX < (this.getScrollbarPositionX() + SCROLLBAR_WIDTH);
+        mouseX < (this.getScrollbarPositionX() + GuiUtil.SCROLLBAR_WIDTH);
   }
 
   protected double getScrollUnit() {
