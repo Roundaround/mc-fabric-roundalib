@@ -7,6 +7,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 
 public class ConfigScreen extends Screen {
+  private static final int LIST_MIN_WIDTH = 400;
   private final Screen parent;
   private ConfigListWidget configListWidget;
 
@@ -17,11 +18,16 @@ public class ConfigScreen extends Screen {
 
   @Override
   public void init() {
+    int listWidth = (int) Math.max(LIST_MIN_WIDTH, width / 1.5f);
+    int listLeft = (int) ((width / 2f) - (listWidth / 2f));
+    int listHeight = this.height - 64;
+    int listTop = 32;
+
     this.configListWidget = addDrawableChild(new ConfigListWidget(this.client,
-        this.width / 2 - 100,
-        32,
-        200,
-        this.height - 64));
+        listLeft,
+        listTop,
+        listWidth,
+        listHeight));
     this.configListWidget.addCategory(Text.literal("Category 1"));
     this.configListWidget.addCategory(Text.literal("Category 2"));
     this.configListWidget.addCategory(Text.literal("Category 3"));

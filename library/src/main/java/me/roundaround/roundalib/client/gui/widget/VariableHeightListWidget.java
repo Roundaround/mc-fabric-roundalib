@@ -93,7 +93,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     }
 
     matrixStack.push();
-    matrixStack.translate(0, -getScrollAmount(), 0);
+    matrixStack.translate(0, this.top - getScrollAmount(), 0);
     entry.render(matrixStack, this.getContentLeft(), this.getContentWidth(), mouseX, mouseY, delta);
     matrixStack.pop();
   }
