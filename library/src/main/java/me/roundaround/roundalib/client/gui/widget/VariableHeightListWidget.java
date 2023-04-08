@@ -108,7 +108,48 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   protected void renderScrollBar(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
+    int maxScroll = getMaxScroll();
+    if (maxScroll <= 0) {
+      return;
+    }
 
+    int scrollbarLeft = this.getScrollbarPositionX();
+    int scrollbarRight = scrollbarLeft + SCROLLBAR_WIDTH;
+
+    RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+
+    int handleHeight = (int) ((float) this.height * this.height / this.getMaxScroll());
+    handleHeight = MathHelper.clamp(handleHeight, 32, this.height - 8);
+
+    int handleTop = (int) Math.round(this.scrollAmount) * (this.height - handleHeight) / maxScroll + this.top;
+    if (handleTop < this.top) {
+      handleTop = this.top;
+    }
+
+    Tessellator tessellator = Tessellator.getInstance();
+    BufferBuilder bufferBuilder = tessellator.getBuffer();
+
+    bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+
+    // Shadow
+    bufferBuilder.vertex(scrollbarLeft, handleTop + handleHeight - 1, 0).color(128, 128, 128, 255).next();
+    bufferBuilder.vertex(scrollbarRight, handleTop + handleHeight - 1, 0).color(128, 128, 128, 255).next();
+    bufferBuilder.vertex(scrollbarRight, handleTop, 0).color(128, 128, 128, 255).next();
+    bufferBuilder.vertex(scrollbarLeft, handleTop, 0).color(128, 128, 128, 255).next();
+
+    // Main face
+    bufferBuilder
+        .vertex(scrollbarLeft, handleTop + handleHeight - 2, 0)
+        .color(192, 192, 192, 255)
+        .next();
+    bufferBuilder
+        .vertex(scrollbarRight - 1, handleTop + handleHeight - 2, 0)
+        .color(192, 192, 192, 255)
+        .next();
+    bufferBuilder.vertex(scrollbarRight - 1, handleTop, 0).color(192, 192, 192, 255).next();
+    bufferBuilder.vertex(scrollbarLeft, handleTop, 0).color(192, 192, 192, 255).next();
+
+    tessellator.draw();
   }
 
   protected void renderBackground(MatrixStack matrixStack, float delta) {
