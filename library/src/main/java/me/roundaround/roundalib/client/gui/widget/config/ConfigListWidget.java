@@ -8,19 +8,28 @@ import net.minecraft.client.gui.Element;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.Entry> {
+  private final ArrayList<CategoryEntry> categories = new ArrayList<>();
+  private int currentCategory = 0;
+
   public ConfigListWidget(MinecraftClient client, int left, int top, int width, int height) {
     super(client, left, top, width, height);
   }
 
   public void addCategory(Text label) {
-    this.addEntry(new CategoryEntry(this.client, this, this.top, label));
+    this.categories.add(this.addEntry(new CategoryEntry(this.client, this, this.top, label)));
   }
 
   public void addOption(Text label) {
     this.addEntry(new OptionEntry(this.client, this, this.top, label));
+  }
+
+  public void nextCategory() {
+    this.currentCategory = (this.currentCategory + 1) % this.categories.size();
+    this.ensureVisible(this.categories.get(this.currentCategory));
   }
 
   protected abstract static class Entry extends VariableHeightListWidget.Entry<Entry> {

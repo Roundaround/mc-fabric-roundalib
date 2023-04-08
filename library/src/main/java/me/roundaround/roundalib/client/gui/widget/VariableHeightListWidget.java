@@ -21,8 +21,6 @@ import java.util.ListIterator;
 public abstract class VariableHeightListWidget<E extends VariableHeightListWidget.Entry<E>>
     extends AbstractParentElement implements Drawable, Selectable {
   protected static final int SCROLLBAR_WIDTH = 6;
-  protected static final int PADDING_X = 4;
-  protected static final int PADDING_Y = 4;
 
   protected final MinecraftClient client;
   protected final CachingPositionalLinkedList<E> entries = new CachingPositionalLinkedList<>();
@@ -52,16 +50,19 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     this.height = height;
   }
 
-  public void addEntry(E entry) {
+  public <T extends E> T addEntry(T entry) {
     this.entries.add(entry);
+    return entry;
   }
 
-  public void prependEntry(E entry) {
+  public <T extends E> T prependEntry(T entry) {
     this.entries.prepend(entry);
+    return entry;
   }
 
-  public void insertEntry(int index, E entry) {
+  public <T extends E> T insertEntry(int index, T entry) {
     this.entries.insert(index, entry);
+    return entry;
   }
 
   public void removeEntry(E entry) {
@@ -107,8 +108,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   protected void renderScrollBar(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
-    int maxScroll = getMaxScroll();
-    if (maxScroll <= 0) {
+    if (!this.shouldShowScrollbar()) {
       return;
     }
 
@@ -121,7 +121,8 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     handleHeight = MathHelper.clamp(handleHeight, 32, this.height - 8);
 
     int handleTop =
-        (int) Math.round(this.scrollAmount) * (this.height - handleHeight) / maxScroll + this.top;
+        (int) Math.round(this.scrollAmount) * (this.height - handleHeight) / this.getMaxScroll() +
+            this.top;
     if (handleTop < this.top) {
       handleTop = this.top;
     }
@@ -178,14 +179,16 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-    bufferBuilder.vertex(0, this.top + PADDING_Y, 0).color(0, 0, 0, 0).next();
-    bufferBuilder.vertex(screenWidth, this.top + PADDING_Y, 0).color(0, 0, 0, 0).next();
+    bufferBuilder.vertex(0, this.top + this.contentPadding, 0).color(0, 0, 0, 0).next();
+    bufferBuilder.vertex(screenWidth, this.top + this.contentPadding, 0).color(0, 0, 0, 0).next();
     bufferBuilder.vertex(screenWidth, this.top, 0).color(0, 0, 0, 255).next();
     bufferBuilder.vertex(0, this.top, 0).color(0, 0, 0, 255).next();
     bufferBuilder.vertex(0, this.bottom, 0).color(0, 0, 0, 255).next();
     bufferBuilder.vertex(screenWidth, this.bottom, 0).color(0, 0, 0, 255).next();
-    bufferBuilder.vertex(screenWidth, this.bottom - PADDING_Y, 0).color(0, 0, 0, 0).next();
-    bufferBuilder.vertex(0, this.bottom - PADDING_Y, 0).color(0, 0, 0, 0).next();
+    bufferBuilder.vertex(screenWidth, this.bottom - this.contentPadding, 0)
+        .color(0, 0, 0, 0)
+        .next();
+    bufferBuilder.vertex(0, this.bottom - this.contentPadding, 0).color(0, 0, 0, 0).next();
     tessellator.draw();
 
     RenderSystem.disableBlend();
@@ -300,8 +303,17 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     return this.entries.getEntryAtPosition(adjustedY);
   }
 
-  protected boolean shouldShowScrollbar() {
-    return this.getContentHeight() > this.height;
+  protected void ensureVisible(E entry) {
+    int scrolledTop = entry.top - (int) this.scrollAmount;
+    if (scrolledTop < this.contentPadding) {
+      this.scroll(scrolledTop - this.contentPadding);
+      return;
+    }
+
+    int scrolledBottom = entry.top + entry.height - (int) this.scrollAmount;
+    if (scrolledBottom > this.height - this.contentPadding) {
+      this.scroll(scrolledBottom - this.height + this.contentPadding);
+    }
   }
 
   protected int getContentHeight() {
@@ -338,7 +350,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   public int getMaxScroll() {
-    return Math.max(0, this.entries.totalHeight - (this.height - 4));
+    return Math.max(0, this.getContentHeight() - this.height);
   }
 
   protected void updateScrollingState(double mouseX, double mouseY, int button) {
@@ -348,6 +360,10 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
   protected double getScrollUnit() {
     return this.autoCalculateScrollUnit ? this.entries.averageItemHeight / 2f : this.scrollUnit;
+  }
+
+  protected boolean shouldShowScrollbar() {
+    return this.getMaxScroll() > 0;
   }
 
   public abstract static class Entry<E extends Entry<E>> extends AbstractParentElement {

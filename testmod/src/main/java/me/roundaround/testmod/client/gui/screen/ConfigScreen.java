@@ -5,6 +5,7 @@ import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
+import org.lwjgl.glfw.GLFW;
 
 public class ConfigScreen extends Screen {
   private static final int LIST_MIN_WIDTH = 400;
@@ -61,6 +62,17 @@ public class ConfigScreen extends Screen {
       return;
     }
     this.client.setScreen(this.parent);
+  }
+
+  @Override
+  public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    if (keyCode == GLFW.GLFW_KEY_K) {
+      this.configListWidget.nextCategory();
+      return true;
+    }
+
+    return this.configListWidget.keyPressed(keyCode, scanCode, modifiers) ||
+        super.keyPressed(keyCode, scanCode, modifiers);
   }
 
   @Override
