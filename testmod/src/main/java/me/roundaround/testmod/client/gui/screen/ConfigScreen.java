@@ -29,25 +29,29 @@ public class ConfigScreen extends Screen {
         listWidth,
         listHeight));
     this.configListWidget.addCategory(Text.literal("Category 1"));
+    this.configListWidget.addOption(Text.literal("Option 1"));
+    this.configListWidget.addOption(Text.literal("Option 2"));
+    this.configListWidget.addOption(Text.literal("Option 3"));
+
     this.configListWidget.addCategory(Text.literal("Category 2"));
+    this.configListWidget.addOption(Text.literal("Option 4"));
+    this.configListWidget.addOption(Text.literal("Option 5"));
+    this.configListWidget.addOption(Text.literal("Option 6"));
+
     this.configListWidget.addCategory(Text.literal("Category 3"));
+    this.configListWidget.addOption(Text.literal("Option 7"));
+    this.configListWidget.addOption(Text.literal("Option 8"));
+    this.configListWidget.addOption(Text.literal("Option 9"));
+
     this.configListWidget.addCategory(Text.literal("Category 4"));
+    this.configListWidget.addOption(Text.literal("Option 10"));
+    this.configListWidget.addOption(Text.literal("Option 11"));
+    this.configListWidget.addOption(Text.literal("Option 12"));
+
     this.configListWidget.addCategory(Text.literal("Category 5"));
-    this.configListWidget.addCategory(Text.literal("Category 6"));
-    this.configListWidget.addCategory(Text.literal("Category 7"));
-    this.configListWidget.addCategory(Text.literal("Category 8"));
-    this.configListWidget.addCategory(Text.literal("Category 9"));
-    this.configListWidget.addCategory(Text.literal("Category 10"));
-    this.configListWidget.addCategory(Text.literal("Category 11"));
-    this.configListWidget.addCategory(Text.literal("Category 12"));
-    this.configListWidget.addCategory(Text.literal("Category 13"));
-    this.configListWidget.addCategory(Text.literal("Category 14"));
-    this.configListWidget.addCategory(Text.literal("Category 15"));
-    this.configListWidget.addCategory(Text.literal("Category 16"));
-    this.configListWidget.addCategory(Text.literal("Category 17"));
-    this.configListWidget.addCategory(Text.literal("Category 18"));
-    this.configListWidget.addCategory(Text.literal("Category 19"));
-    this.configListWidget.addCategory(Text.literal("Category 20"));
+    this.configListWidget.addOption(Text.literal("Option 13"));
+    this.configListWidget.addOption(Text.literal("Option 14"));
+    this.configListWidget.addOption(Text.literal("Option 15"));
   }
 
   @Override
