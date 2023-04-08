@@ -62,8 +62,8 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     }
 
     @Override
-    public void render(
-        MatrixStack matrixStack, int left, int width, int mouseX, int mouseY, float delta) {
+    public void renderContent(
+        MatrixStack matrixStack, int index, int left, int width, int mouseX, int mouseY, float delta) {
       this.labelWidget.setPosX(left + GuiUtil.PADDING);
       this.labelWidget.setPosY(this.top + this.height / 2);
       this.labelWidget.render(matrixStack, mouseX, mouseY, delta);
@@ -93,8 +93,8 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     }
 
     @Override
-    public void render(
-        MatrixStack matrixStack, int left, int width, int mouseX, int mouseY, float delta) {
+    public void renderContent(
+        MatrixStack matrixStack, int index, int left, int width, int mouseX, int mouseY, float delta) {
       this.labelWidget.setPosX(left + GuiUtil.PADDING);
       this.labelWidget.setPosY(this.top + this.height / 2);
       this.labelWidget.render(matrixStack, mouseX, mouseY, delta);

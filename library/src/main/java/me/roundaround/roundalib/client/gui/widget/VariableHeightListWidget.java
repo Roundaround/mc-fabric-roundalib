@@ -13,6 +13,7 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.MathHelper;
+import org.joml.Matrix4f;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -101,7 +102,13 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
     matrixStack.push();
     matrixStack.translate(0, this.top - getScrollAmount(), 0);
-    entry.render(matrixStack, this.getContentLeft(), this.getContentWidth(), mouseX, mouseY, delta);
+    entry.render(matrixStack,
+        index,
+        this.getContentLeft(),
+        this.getContentWidth(),
+        mouseX,
+        mouseY,
+        delta);
     matrixStack.pop();
   }
 
@@ -366,6 +373,10 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   public abstract static class Entry<E extends Entry<E>> extends AbstractParentElement {
+    protected static final int ROW_SHADE_STRENGTH = 85;
+    protected static final int ROW_SHADE_FADE_WIDTH = 10;
+    protected static final int ROW_SHADE_FADE_OVERFLOW = 10;
+
     protected final MinecraftClient client;
     protected final VariableHeightListWidget<E> parent;
     protected final int height;
@@ -380,7 +391,97 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     }
 
     public void render(
-        MatrixStack matrixStack, int left, int width, int mouseX, int mouseY, float delta) {
+        MatrixStack matrixStack,
+        int index,
+        int left,
+        int width,
+        int mouseX,
+        int mouseY,
+        float delta) {
+      this.renderBackground(matrixStack, index, left, width, mouseX, mouseY, delta);
+      this.renderContent(matrixStack, index, left, width, mouseX, mouseY, delta);
+      this.renderDecorations(matrixStack, index, left, width, mouseX, mouseY, delta);
+    }
+
+    public void renderBackground(
+        MatrixStack matrixStack,
+        int index,
+        int left,
+        int width,
+        int mouseX,
+        int mouseY,
+        float delta) {
+      if (index % 2 == 0) {
+        int top = this.top;
+        int bottom = this.top + this.height;
+
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferBuilder = tessellator.getBuffer();
+        Matrix4f matrix4f = matrixStack.peek().getPositionMatrix();
+
+        int bgLeft = left - ROW_SHADE_FADE_OVERFLOW;
+        int bgRight = left + width + ROW_SHADE_FADE_OVERFLOW;
+
+        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+        bufferBuilder.vertex(matrix4f, bgLeft - 1 + ROW_SHADE_FADE_WIDTH, top - 1, 0)
+            .color(0, 0, 0, ROW_SHADE_STRENGTH)
+            .next();
+        bufferBuilder.vertex(matrix4f, bgLeft - 1, top - 1, 0).color(0, 0, 0, 0).next();
+        bufferBuilder.vertex(matrix4f, bgLeft - 1, bottom + 2, 0).color(0, 0, 0, 0).next();
+        bufferBuilder.vertex(matrix4f, bgLeft - 1 + ROW_SHADE_FADE_WIDTH, bottom + 2, 0)
+            .color(0, 0, 0, ROW_SHADE_STRENGTH)
+            .next();
+
+        bufferBuilder.vertex(matrix4f, bgRight + 2 - ROW_SHADE_FADE_WIDTH, top - 1, 0)
+            .color(0, 0, 0, ROW_SHADE_STRENGTH)
+            .next();
+        bufferBuilder.vertex(matrix4f, bgLeft - 1 + ROW_SHADE_FADE_WIDTH, top - 1, 0)
+            .color(0, 0, 0, ROW_SHADE_STRENGTH)
+            .next();
+        bufferBuilder.vertex(matrix4f, bgLeft - 1 + ROW_SHADE_FADE_WIDTH, bottom + 2, 0)
+            .color(0, 0, 0, ROW_SHADE_STRENGTH)
+            .next();
+        bufferBuilder.vertex(matrix4f, bgRight + 2 - ROW_SHADE_FADE_WIDTH, bottom + 2, 0)
+            .color(0, 0, 0, ROW_SHADE_STRENGTH)
+            .next();
+
+        bufferBuilder.vertex(matrix4f, bgRight + 2, top - 1, 0).color(0, 0, 0, 0).next();
+        bufferBuilder.vertex(matrix4f, bgRight + 2 - ROW_SHADE_FADE_WIDTH, top - 1, 0)
+            .color(0, 0, 0, ROW_SHADE_STRENGTH)
+            .next();
+        bufferBuilder.vertex(matrix4f, bgRight + 2 - ROW_SHADE_FADE_WIDTH, bottom + 2, 0)
+            .color(0, 0, 0, ROW_SHADE_STRENGTH)
+            .next();
+        bufferBuilder.vertex(matrix4f, bgRight + 2, bottom + 2, 0).color(0, 0, 0, 0).next();
+        tessellator.draw();
+
+        RenderSystem.disableBlend();
+      }
+    }
+
+    public void renderContent(
+        MatrixStack matrixStack,
+        int index,
+        int left,
+        int width,
+        int mouseX,
+        int mouseY,
+        float delta) {
+
+    }
+
+    public void renderDecorations(
+        MatrixStack matrixStack,
+        int index,
+        int left,
+        int width,
+        int mouseX,
+        int mouseY,
+        float delta) {
 
     }
   }
