@@ -3,6 +3,7 @@ package me.roundaround.roundalib.client.gui.widget.config;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.VariableHeightListWidget;
+import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.util.math.MatrixStack;
@@ -20,11 +21,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
   }
 
   public void addCategory(Text label) {
-    this.categories.add(this.addEntry(new CategoryEntry(this.client, this, this.top, label)));
-  }
-
-  public void addOption(Text label) {
-    this.addEntry(new OptionEntry(this.client, this, this.top, label));
+    this.categories.add(this.addEntry(new CategoryEntry(this.client, this, label)));
   }
 
   public void nextCategory() {
@@ -34,20 +31,24 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
   protected abstract static class Entry extends VariableHeightListWidget.Entry<Entry> {
     protected Entry(
-        MinecraftClient client, VariableHeightListWidget<Entry> parent, int top, int height) {
-      super(client, parent, top, height);
+        MinecraftClient client, VariableHeightListWidget<Entry> parent, int height) {
+      super(client, parent, height);
     }
   }
 
   protected static class CategoryEntry extends Entry {
-    private static final int HEIGHT = 20;
-    private final LabelWidget labelWidget;
+    protected static final int HEIGHT = 20;
+
+    protected final LabelWidget labelWidget;
 
     protected CategoryEntry(
-        MinecraftClient client, VariableHeightListWidget<Entry> parent, int top, Text label) {
-      super(client, parent, top, HEIGHT);
+        MinecraftClient client, VariableHeightListWidget<Entry> parent, Text label) {
+      super(client, parent, HEIGHT);
 
-      this.labelWidget = LabelWidget.builder(client, label, 0, this.height / 2)
+      this.labelWidget = LabelWidget.builder(client,
+              label,
+              this.left + GuiUtil.PADDING,
+              this.top + this.height / 2)
           .justifiedLeft()
           .alignedMiddle()
           .shiftForPadding()
@@ -62,23 +63,38 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     }
 
     @Override
-    public void renderContent(
-        MatrixStack matrixStack, int index, int left, int width, int mouseX, int mouseY, float delta) {
-      this.labelWidget.setPosX(left + GuiUtil.PADDING);
+    public void setTop(int top) {
+      super.setTop(top);
       this.labelWidget.setPosY(this.top + this.height / 2);
+    }
+
+    @Override
+    public void renderContent(
+        MatrixStack matrixStack, int index, int mouseX, int mouseY, float delta) {
       this.labelWidget.render(matrixStack, mouseX, mouseY, delta);
     }
   }
 
   protected static class OptionEntry extends Entry {
-    private static final int HEIGHT = 36;
-    private final LabelWidget labelWidget;
+    protected static final int HEIGHT = 20;
+    protected static final int PADDING = 4;
+    protected static final int CONTROL_MIN_WIDTH = 100;
+    protected static final int HIGHLIGHT_COLOR = 0x30FFFFFF;
+
+    protected final ConfigOption<?, ?> configOption;
+    protected final LabelWidget labelWidget;
 
     protected OptionEntry(
-        MinecraftClient client, VariableHeightListWidget<Entry> parent, int top, Text label) {
-      super(client, parent, top, HEIGHT);
+        MinecraftClient client,
+        VariableHeightListWidget<Entry> parent,
+        ConfigOption<?, ?> configOption) {
+      super(client, parent, HEIGHT);
 
-      this.labelWidget = LabelWidget.builder(client, label, 0, this.height / 2)
+      this.configOption = configOption;
+      this.labelWidget = LabelWidget.builder(client,
+              configOption.getLabel(),
+              this.left + GuiUtil.PADDING,
+              this.top + this.height / 2)
           .justifiedLeft()
           .alignedMiddle()
           .shiftForPadding()
@@ -93,10 +109,14 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     }
 
     @Override
-    public void renderContent(
-        MatrixStack matrixStack, int index, int left, int width, int mouseX, int mouseY, float delta) {
-      this.labelWidget.setPosX(left + GuiUtil.PADDING);
+    public void setTop(int top) {
+      super.setTop(top);
       this.labelWidget.setPosY(this.top + this.height / 2);
+    }
+
+    @Override
+    public void renderContent(
+        MatrixStack matrixStack, int index, int mouseX, int mouseY, float delta) {
       this.labelWidget.render(matrixStack, mouseX, mouseY, delta);
     }
   }

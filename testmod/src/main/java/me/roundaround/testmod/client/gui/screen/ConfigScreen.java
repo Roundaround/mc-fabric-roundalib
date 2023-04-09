@@ -30,29 +30,14 @@ public class ConfigScreen extends Screen {
         listWidth,
         listHeight));
     this.configListWidget.addCategory(Text.literal("Category 1"));
-    this.configListWidget.addOption(Text.literal("Option 1"));
-    this.configListWidget.addOption(Text.literal("Option 2"));
-    this.configListWidget.addOption(Text.literal("Option 3"));
 
     this.configListWidget.addCategory(Text.literal("Category 2"));
-    this.configListWidget.addOption(Text.literal("Option 4"));
-    this.configListWidget.addOption(Text.literal("Option 5"));
-    this.configListWidget.addOption(Text.literal("Option 6"));
 
     this.configListWidget.addCategory(Text.literal("Category 3"));
-    this.configListWidget.addOption(Text.literal("Option 7"));
-    this.configListWidget.addOption(Text.literal("Option 8"));
-    this.configListWidget.addOption(Text.literal("Option 9"));
 
     this.configListWidget.addCategory(Text.literal("Category 4"));
-    this.configListWidget.addOption(Text.literal("Option 10"));
-    this.configListWidget.addOption(Text.literal("Option 11"));
-    this.configListWidget.addOption(Text.literal("Option 12"));
 
     this.configListWidget.addCategory(Text.literal("Category 5"));
-    this.configListWidget.addOption(Text.literal("Option 13"));
-    this.configListWidget.addOption(Text.literal("Option 14"));
-    this.configListWidget.addOption(Text.literal("Option 15"));
   }
 
   @Override
