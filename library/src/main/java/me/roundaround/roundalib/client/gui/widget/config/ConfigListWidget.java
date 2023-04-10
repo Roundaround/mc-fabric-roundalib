@@ -1,8 +1,10 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
+import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.VariableHeightListWidget;
+import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Element;
@@ -16,8 +18,32 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
   private final ArrayList<CategoryEntry> categories = new ArrayList<>();
   private int currentCategory = 0;
 
-  public ConfigListWidget(MinecraftClient client, int left, int top, int width, int height) {
+  public ConfigListWidget(MinecraftClient client, ModConfig modConfig, int left, int top, int width, int height) {
     super(client, left, top, width, height);
+
+    for (var entry : modConfig.getConfigOptions().entrySet()) {
+      if (entry.getValue().stream().noneMatch(ConfigOption::shouldShowInConfigScreen)) {
+        continue;
+      }
+
+      String modId = modConfig.getModId();
+      String category = entry.getKey();
+      if (modConfig.getShowGroupTitles() && !category.equals(modId)) {
+        addCategory(Text.translatable(entry.getKey() + ".title"));
+      }
+
+      for (var option : entry.getValue()) {
+        if (!option.shouldShowInConfigScreen()) {
+          continue;
+        }
+
+        try {
+          this.addEntry(new OptionEntry<>(this.client, this, option));
+        } catch (ControlRegistry.NotRegisteredException e) {
+          RoundaLib.LOGGER.error("Failed to create control for config option: " + option, e);
+        }
+      }
+    }
   }
 
   public void addCategory(Text label) {
@@ -80,17 +106,17 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
   protected static class OptionEntry<O extends ConfigOption<?, ?>> extends Entry {
     protected static final int HEIGHT = 20;
-    protected static final int PADDING = 4;
-    protected static final int CONTROL_MIN_WIDTH = 100;
-    protected static final int HIGHLIGHT_COLOR = 0x30FFFFFF;
 
+    protected final O option;
     protected final Control<O> control;
     protected final LabelWidget labelWidget;
 
-    protected OptionEntry(MinecraftClient client, ConfigListWidget parent, O configOption) {
+    protected OptionEntry(MinecraftClient client, ConfigListWidget parent, O configOption) throws
+        ControlRegistry.NotRegisteredException {
       super(client, parent, HEIGHT);
 
-      this.control = ControlRegistry.create(parent, configOption);
+      this.option = configOption;
+      this.control = ControlRegistry.getControlFactory(configOption).create(this);
       this.labelWidget = LabelWidget.builder(client,
               configOption.getLabel(),
               this.getLeft() + GuiUtil.PADDING,
@@ -104,7 +130,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     }
 
     public O getOption() {
-      return this.control.getOption();
+      return this.option;
     }
 
     @Override
@@ -127,6 +153,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     public void renderContent(
         MatrixStack matrixStack, int index, int mouseX, int mouseY, float delta) {
       this.labelWidget.render(matrixStack, mouseX, mouseY, delta);
+      this.control.renderWidget(matrixStack, mouseX, mouseY, delta);
     }
   }
 }

@@ -28,6 +28,15 @@ public class BooleanConfigOption extends ConfigOption<Boolean, BooleanConfigOpti
     return this.disabledLabel;
   }
 
+  public Text getValueLabel() {
+    return this.getValue() ? this.enabledLabel : this.disabledLabel;
+  }
+
+  public boolean toggle() {
+    this.setValue(!this.getValue());
+    return this.getValue();
+  }
+
   @Override
   public BooleanConfigOption copy() {
     return new BooleanConfigOption(this);
@@ -42,32 +51,30 @@ public class BooleanConfigOption extends ConfigOption<Boolean, BooleanConfigOpti
   }
 
   public static Builder onOffBuilder(ModConfig config, String id, String labelI18nKey) {
-    return new Builder(config, id, labelI18nKey)
-        .setEnabledLabel(ScreenTexts.ON)
+    return new Builder(config, id, labelI18nKey).setEnabledLabel(ScreenTexts.ON)
         .setDisabledLabel(ScreenTexts.OFF);
   }
 
   public static Builder onOffBuilder(ModConfig config, String id, Text label) {
-    return new Builder(config, id, label)
-        .setEnabledLabel(ScreenTexts.ON)
+    return new Builder(config, id, label).setEnabledLabel(ScreenTexts.ON)
         .setDisabledLabel(ScreenTexts.OFF);
   }
 
   public static Builder yesNoBuilder(ModConfig config, String id, String labelI18nKey) {
-    return new Builder(config, id, labelI18nKey)
-        .setEnabledLabel(ScreenTexts.YES)
+    return new Builder(config, id, labelI18nKey).setEnabledLabel(ScreenTexts.YES)
         .setDisabledLabel(ScreenTexts.NO);
   }
 
   public static Builder yesNoBuilder(ModConfig config, String id, Text label) {
-    return new Builder(config, id, label)
-        .setEnabledLabel(ScreenTexts.YES)
+    return new Builder(config, id, label).setEnabledLabel(ScreenTexts.YES)
         .setDisabledLabel(ScreenTexts.NO);
   }
 
   public static class Builder extends ConfigOption.AbstractBuilder<Boolean, Builder> {
-    private Text enabledLabel = Text.translatable(this.config.getModId() + ".roundalib.toggle.enabled");
-    private Text disabledLabel = Text.translatable(this.config.getModId() + ".roundalib.toggle.disabled");
+    private Text enabledLabel =
+        Text.translatable(this.config.getModId() + ".roundalib.toggle.enabled");
+    private Text disabledLabel =
+        Text.translatable(this.config.getModId() + ".roundalib.toggle.disabled");
 
     private Builder(ModConfig config, String id, String labelI18nKey) {
       super(config, id, labelI18nKey, true);

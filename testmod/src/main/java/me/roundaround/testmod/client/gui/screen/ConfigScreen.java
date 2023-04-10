@@ -2,6 +2,7 @@ package me.roundaround.testmod.client.gui.screen;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
+import me.roundaround.roundalib.config.ModConfig;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
@@ -10,11 +11,13 @@ import org.lwjgl.glfw.GLFW;
 public class ConfigScreen extends Screen {
   private static final int LIST_MIN_WIDTH = 400;
   private final Screen parent;
+  private final ModConfig modConfig;
   private ConfigListWidget configListWidget;
 
-  public ConfigScreen(Screen parent) {
-    super(Text.literal("RoundaLib Test Mod Config"));
+  public ConfigScreen(Screen parent, ModConfig modConfig) {
+    super(Text.translatable(modConfig.getConfigScreenI18nKey()));
     this.parent = parent;
+    this.modConfig = modConfig;
   }
 
   @Override
@@ -25,19 +28,11 @@ public class ConfigScreen extends Screen {
     int listTop = 32;
 
     this.configListWidget = addDrawableChild(new ConfigListWidget(this.client,
+        this.modConfig,
         listLeft,
         listTop,
         listWidth,
         listHeight));
-    this.configListWidget.addCategory(Text.literal("Category 1"));
-
-    this.configListWidget.addCategory(Text.literal("Category 2"));
-
-    this.configListWidget.addCategory(Text.literal("Category 3"));
-
-    this.configListWidget.addCategory(Text.literal("Category 4"));
-
-    this.configListWidget.addCategory(Text.literal("Category 5"));
   }
 
   @Override
