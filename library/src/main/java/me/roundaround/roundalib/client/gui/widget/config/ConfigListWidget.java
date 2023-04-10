@@ -30,8 +30,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
   }
 
   protected abstract static class Entry extends VariableHeightListWidget.Entry<Entry> {
-    protected Entry(
-        MinecraftClient client, VariableHeightListWidget<Entry> parent, int height) {
+    protected Entry(MinecraftClient client, ConfigListWidget parent, int height) {
       super(client, parent, height);
     }
   }
@@ -41,14 +40,13 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
     protected final LabelWidget labelWidget;
 
-    protected CategoryEntry(
-        MinecraftClient client, VariableHeightListWidget<Entry> parent, Text label) {
+    protected CategoryEntry(MinecraftClient client, ConfigListWidget parent, Text label) {
       super(client, parent, HEIGHT);
 
       this.labelWidget = LabelWidget.builder(client,
               label,
-              this.left + GuiUtil.PADDING,
-              this.top + this.height / 2)
+              this.getLeft() + GuiUtil.PADDING,
+              this.getTop() + this.getHeight() / 2)
           .justifiedLeft()
           .alignedMiddle()
           .shiftForPadding()
@@ -63,9 +61,14 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     }
 
     @Override
+    public ConfigListWidget getParent() {
+      return super.getParent();
+    }
+
+    @Override
     public void setTop(int top) {
       super.setTop(top);
-      this.labelWidget.setPosY(this.top + this.height / 2);
+      this.labelWidget.setPosY(this.getTop() + this.getHeight() / 2);
     }
 
     @Override
@@ -75,26 +78,23 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     }
   }
 
-  protected static class OptionEntry extends Entry {
+  protected static class OptionEntry<O extends ConfigOption<?, ?>> extends Entry {
     protected static final int HEIGHT = 20;
     protected static final int PADDING = 4;
     protected static final int CONTROL_MIN_WIDTH = 100;
     protected static final int HIGHLIGHT_COLOR = 0x30FFFFFF;
 
-    protected final ConfigOption<?, ?> configOption;
+    protected final Control<O> control;
     protected final LabelWidget labelWidget;
 
-    protected OptionEntry(
-        MinecraftClient client,
-        VariableHeightListWidget<Entry> parent,
-        ConfigOption<?, ?> configOption) {
+    protected OptionEntry(MinecraftClient client, ConfigListWidget parent, O configOption) {
       super(client, parent, HEIGHT);
 
-      this.configOption = configOption;
+      this.control = ControlRegistry.create(parent, configOption);
       this.labelWidget = LabelWidget.builder(client,
               configOption.getLabel(),
-              this.left + GuiUtil.PADDING,
-              this.top + this.height / 2)
+              this.getLeft() + GuiUtil.PADDING,
+              this.getTop() + this.getHeight() / 2)
           .justifiedLeft()
           .alignedMiddle()
           .shiftForPadding()
@@ -103,15 +103,24 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
           .build();
     }
 
+    public O getOption() {
+      return this.control.getOption();
+    }
+
     @Override
     public List<? extends Element> children() {
-      return List.of();
+      return this.control.children();
+    }
+
+    @Override
+    public ConfigListWidget getParent() {
+      return super.getParent();
     }
 
     @Override
     public void setTop(int top) {
       super.setTop(top);
-      this.labelWidget.setPosY(this.top + this.height / 2);
+      this.labelWidget.setPosY(this.getTop() + this.getHeight() / 2);
     }
 
     @Override

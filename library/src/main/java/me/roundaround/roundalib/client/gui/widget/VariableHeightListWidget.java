@@ -3,6 +3,7 @@ package me.roundaround.roundalib.client.gui.widget;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.AbstractParentElement;
 import net.minecraft.client.gui.Drawable;
@@ -22,7 +23,8 @@ import java.util.ListIterator;
 public abstract class VariableHeightListWidget<E extends VariableHeightListWidget.Entry<E>>
     extends AbstractParentElement implements Drawable, Selectable {
   protected final MinecraftClient client;
-  protected final CachingPositionalLinkedList<E> entries = new CachingPositionalLinkedList<>(this.rowPadding);
+  protected final CachingPositionalLinkedList<E> entries =
+      new CachingPositionalLinkedList<>(this.rowPadding);
 
   protected int left;
   protected int top;
@@ -95,19 +97,15 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   protected void renderEntry(
       MatrixStack matrixStack, int index, int mouseX, int mouseY, float delta) {
     E entry = this.entries.get(index);
-    double scrolledTop = this.top + entry.top - this.getScrollAmount();
-    double scrolledBottom = this.top + entry.top + entry.height - this.getScrollAmount();
+    double scrolledTop = this.top + entry.getTop() - this.getScrollAmount();
+    double scrolledBottom = this.top + entry.getTop() + entry.getHeight() - this.getScrollAmount();
     if (scrolledBottom < this.top || scrolledTop > this.bottom) {
       return;
     }
 
     matrixStack.push();
     matrixStack.translate(0, this.top - getScrollAmount(), 0);
-    entry.render(matrixStack,
-        index,
-        mouseX,
-        mouseY,
-        delta);
+    entry.render(matrixStack, index, mouseX, mouseY, delta);
     matrixStack.pop();
   }
 
@@ -301,13 +299,13 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   protected void ensureVisible(E entry) {
-    int scrolledTop = entry.top - (int) this.scrollAmount;
+    int scrolledTop = entry.getTop() - (int) this.scrollAmount;
     if (scrolledTop < this.contentPadding) {
       this.scroll(scrolledTop - this.contentPadding);
       return;
     }
 
-    int scrolledBottom = entry.top + entry.height - (int) this.scrollAmount;
+    int scrolledBottom = entry.getTop() + entry.getHeight() - (int) this.scrollAmount;
     if (scrolledBottom > this.height - this.contentPadding) {
       this.scroll(scrolledBottom - this.height + this.contentPadding);
     }
@@ -372,10 +370,11 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     protected final MinecraftClient client;
     protected final VariableHeightListWidget<E> parent;
 
-    protected int left;
-    protected int top;
-    protected int width;
-    protected int height;
+    private final int left;
+    private final int width;
+    private final int height;
+
+    private int top;
 
     public Entry(MinecraftClient client, VariableHeightListWidget<E> parent, int height) {
       this.client = client;
@@ -386,27 +385,47 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       this.height = height;
     }
 
+    public ConfigListWidget getParent() {
+      return (ConfigListWidget) this.parent;
+    }
+
+    public int getTop() {
+      return this.top;
+    }
+
+    public int getBottom() {
+      return this.top + this.height;
+    }
+
+    public int getLeft() {
+      return this.left;
+    }
+
+    public int getRight() {
+      return this.left + this.width;
+    }
+
+    public int getHeight() {
+      return this.height;
+    }
+
+    public int getWidth() {
+      return this.width;
+    }
+
     public void setTop(int top) {
       this.top = top;
     }
 
     public void render(
-        MatrixStack matrixStack,
-        int index,
-        int mouseX,
-        int mouseY,
-        float delta) {
+        MatrixStack matrixStack, int index, int mouseX, int mouseY, float delta) {
       this.renderBackground(matrixStack, index, mouseX, mouseY, delta);
       this.renderContent(matrixStack, index, mouseX, mouseY, delta);
       this.renderDecorations(matrixStack, index, mouseX, mouseY, delta);
     }
 
     public void renderBackground(
-        MatrixStack matrixStack,
-        int index,
-        int mouseX,
-        int mouseY,
-        float delta) {
+        MatrixStack matrixStack, int index, int mouseX, int mouseY, float delta) {
       if (index % 2 == 0) {
 
         RenderSystem.enableBlend();
@@ -460,20 +479,12 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     }
 
     public void renderContent(
-        MatrixStack matrixStack,
-        int index,
-        int mouseX,
-        int mouseY,
-        float delta) {
+        MatrixStack matrixStack, int index, int mouseX, int mouseY, float delta) {
 
     }
 
     public void renderDecorations(
-        MatrixStack matrixStack,
-        int index,
-        int mouseX,
-        int mouseY,
-        float delta) {
+        MatrixStack matrixStack, int index, int mouseX, int mouseY, float delta) {
 
     }
   }
@@ -496,10 +507,10 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
     public void add(E entry) {
       E last = this.entries.peekLast();
-      entry.setTop(last != null ? last.top + last.height + rowPadding : 0);
+      entry.setTop(last != null ? last.getTop() + last.getHeight() + rowPadding : 0);
 
       this.entries.add(entry);
-      this.totalHeight += entry.height + (last != null ? rowPadding : 0);
+      this.totalHeight += entry.getHeight() + (last != null ? rowPadding : 0);
       this.averageItemHeight = (double) this.totalHeight / (double) this.entries.size();
     }
 
@@ -544,7 +555,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
       for (E entry : this.entries) {
         entry.setTop(top);
-        top += entry.height + rowPadding;
+        top += entry.getHeight() + rowPadding;
       }
 
       this.totalHeight = top - (this.entries.size() <= 1 ? 0 : rowPadding);
@@ -553,11 +564,12 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
     public E getEntryAtPosition(double y) {
       if (this.cachedAtY != null) {
-        if (y >= this.cachedAtY.top && y <= this.cachedAtY.top + this.cachedAtY.height) {
+        if (y >= this.cachedAtY.getTop() &&
+            y <= this.cachedAtY.getTop() + this.cachedAtY.getHeight()) {
           return this.cachedAtY;
         }
 
-        if (y < this.cachedAtY.top) {
+        if (y < this.cachedAtY.getTop()) {
           return this.getEntryAtPositionLookBackward(y, this.cachedAtYIndex);
         } else {
           return this.getEntryAtPositionLookForward(y, this.cachedAtYIndex);
@@ -573,7 +585,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       while (iterator.hasPrevious()) {
         E previous = iterator.previous();
 
-        if (y >= previous.top && y <= previous.top + previous.height) {
+        if (y >= previous.getTop() && y <= previous.getTop() + previous.getHeight()) {
           this.cachedAtY = previous;
           this.cachedAtYIndex = iterator.nextIndex();
 
@@ -590,7 +602,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       while (iterator.hasNext()) {
         E next = iterator.next();
 
-        if (y >= next.top && y <= next.top + next.height) {
+        if (y >= next.getTop() && y <= next.getTop() + next.getHeight()) {
           this.cachedAtY = next;
           this.cachedAtYIndex = iterator.nextIndex();
 
