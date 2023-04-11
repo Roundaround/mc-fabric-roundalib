@@ -413,8 +413,11 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       return this.width;
     }
 
-    public void setTop(int top) {
+    public final void setTop(int top) {
       this.top = top;
+    }
+
+    protected void onTopChanged() {
     }
 
     public void render(

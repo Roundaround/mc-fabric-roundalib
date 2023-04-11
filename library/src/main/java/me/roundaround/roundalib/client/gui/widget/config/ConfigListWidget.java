@@ -92,15 +92,14 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     }
 
     @Override
-    public void setTop(int top) {
-      super.setTop(top);
-      this.labelWidget.setPosY(this.getTop() + this.getHeight() / 2);
-    }
-
-    @Override
     public void renderContent(
         MatrixStack matrixStack, int index, int mouseX, int mouseY, float delta) {
       this.labelWidget.render(matrixStack, mouseX, mouseY, delta);
+    }
+
+    @Override
+    protected void onTopChanged() {
+      this.labelWidget.setPosY(this.getTop() + this.getHeight() / 2);
     }
   }
 
@@ -144,16 +143,16 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     }
 
     @Override
-    public void setTop(int top) {
-      super.setTop(top);
-      this.labelWidget.setPosY(this.getTop() + this.getHeight() / 2);
-    }
-
-    @Override
     public void renderContent(
         MatrixStack matrixStack, int index, int mouseX, int mouseY, float delta) {
       this.labelWidget.render(matrixStack, mouseX, mouseY, delta);
       this.control.renderWidget(matrixStack, mouseX, mouseY, delta);
+    }
+
+    @Override
+    protected void onTopChanged() {
+      this.labelWidget.setPosY(this.getTop() + this.getHeight() / 2);
+      this.control.onTopChanged();
     }
   }
 }

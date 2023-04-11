@@ -25,6 +25,12 @@ public class ToggleControl extends Control<BooleanConfigOption> {
   }
 
   @Override
+  public void onTopChanged() {
+    super.onTopChanged();
+    this.button.setY(this.widgetTop);
+  }
+
+  @Override
   public List<? extends Element> children() {
     return List.of(this.button);
   }

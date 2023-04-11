@@ -11,7 +11,7 @@ public class TestModConfig extends ModConfig {
     super(TestMod.MOD_ID);
 
     this.TEST_OPTION =
-        registerConfigOption(BooleanConfigOption.builder(this, "test_option", "Test Option")
+        registerConfigOption(BooleanConfigOption.builder(this, "test_option", "test_option")
             .setDefaultValue(true)
             .build());
   }
