@@ -145,7 +145,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
         0,
         screenWidth,
         0,
-        this.scrollAmount);
+        (int) this.scrollAmount);
 
     this.renderHorizontalShadows(matrixStack, delta);
   }
@@ -420,7 +420,6 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
         int mouseY,
         float delta) {
       if (index % 2 == 0) {
-
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getPositionColorProgram);
@@ -431,8 +430,8 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
         int bgLeft = this.left - ROW_SHADE_FADE_OVERFLOW;
         int bgRight = this.left + this.width + ROW_SHADE_FADE_OVERFLOW;
-        int bgTop = this.top;
-        int bgBottom = this.top + this.height;
+        int bgTop = this.top - (int) scrollAmount;
+        int bgBottom = bgTop + this.height;
 
         bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
         bufferBuilder.vertex(matrix4f, bgLeft - 1 + ROW_SHADE_FADE_WIDTH, bgTop - 1, 0)
