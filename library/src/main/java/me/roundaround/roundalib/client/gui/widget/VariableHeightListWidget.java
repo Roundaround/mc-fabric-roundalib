@@ -2,6 +2,7 @@ package me.roundaround.roundalib.client.gui.widget;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
 import net.minecraft.client.MinecraftClient;
@@ -209,6 +210,12 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   @Override
+  public boolean isMouseOver(double mouseX, double mouseY) {
+    return mouseX >= this.left && mouseX <= this.right && mouseY >= this.top &&
+        mouseY <= this.bottom;
+  }
+
+  @Override
   public boolean mouseClicked(double mouseX, double mouseY, int button) {
     this.updateScrollingState(mouseX, mouseY, button);
     if (!this.isMouseOver(mouseX, mouseY)) {
@@ -280,8 +287,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       return null;
     }
 
-    double adjustedY = y - this.top - this.getScrollAmount();
-    return this.entries.getEntryAtPosition(adjustedY);
+    return this.entries.getEntryAtPosition(y);
   }
 
   protected void ensureVisible(E entry) {
