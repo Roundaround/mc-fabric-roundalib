@@ -18,7 +18,8 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
   private final ArrayList<CategoryEntry> categories = new ArrayList<>();
   private int currentCategory = 0;
 
-  public ConfigListWidget(MinecraftClient client, ModConfig modConfig, int left, int top, int width, int height) {
+  public ConfigListWidget(
+      MinecraftClient client, ModConfig modConfig, int left, int top, int width, int height) {
     super(client, left, top, width, height);
 
     for (var entry : modConfig.getConfigOptions().entrySet()) {
@@ -93,13 +94,14 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
     @Override
     public void renderContent(
-        MatrixStack matrixStack, int index, int mouseX, int mouseY, float delta) {
+        MatrixStack matrixStack,
+        int index,
+        double scrollAmount,
+        int mouseX,
+        int mouseY,
+        float delta) {
+      this.labelWidget.setPosY(this.getTop() + this.getHeight() / 2 - (int) scrollAmount);
       this.labelWidget.render(matrixStack, mouseX, mouseY, delta);
-    }
-
-    @Override
-    protected void onTopChanged() {
-      this.labelWidget.setPosY(this.getTop() + this.getHeight() / 2);
     }
   }
 
@@ -110,8 +112,8 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     protected final Control<O> control;
     protected final LabelWidget labelWidget;
 
-    protected OptionEntry(MinecraftClient client, ConfigListWidget parent, O configOption) throws
-        ControlRegistry.NotRegisteredException {
+    protected OptionEntry(MinecraftClient client, ConfigListWidget parent, O configOption)
+        throws ControlRegistry.NotRegisteredException {
       super(client, parent, HEIGHT);
 
       this.option = configOption;
@@ -144,15 +146,12 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
     @Override
     public void renderContent(
-        MatrixStack matrixStack, int index, int mouseX, int mouseY, float delta) {
+        MatrixStack matrixStack, int index, double scrollAmount, int mouseX, int mouseY, float delta) {
+      this.labelWidget.setPosY(this.getTop() + this.getHeight() / 2 - (int) scrollAmount);
       this.labelWidget.render(matrixStack, mouseX, mouseY, delta);
-      this.control.renderWidget(matrixStack, mouseX, mouseY, delta);
-    }
 
-    @Override
-    protected void onTopChanged() {
-      this.labelWidget.setPosY(this.getTop() + this.getHeight() / 2);
-      this.control.onTopChanged();
+      this.control.setScrollAmount(scrollAmount);
+      this.control.renderWidget(matrixStack, mouseX, mouseY, delta);
     }
   }
 }

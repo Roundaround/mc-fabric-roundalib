@@ -57,20 +57,6 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     return entry;
   }
 
-  public <T extends E> T prependEntry(T entry) {
-    this.entries.prepend(entry);
-    return entry;
-  }
-
-  public <T extends E> T insertEntry(int index, T entry) {
-    this.entries.insert(index, entry);
-    return entry;
-  }
-
-  public void removeEntry(E entry) {
-    this.entries.remove(entry);
-  }
-
   public void clearEntries() {
     this.entries.clear();
   }
@@ -97,16 +83,16 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   protected void renderEntry(
       MatrixStack matrixStack, int index, int mouseX, int mouseY, float delta) {
     E entry = this.entries.get(index);
-    double scrolledTop = this.top + entry.getTop() - this.getScrollAmount();
-    double scrolledBottom = this.top + entry.getTop() + entry.getHeight() - this.getScrollAmount();
+    double scrollAmount = this.getScrollAmount();
+
+    double scrolledTop = entry.getTop() - scrollAmount;
+    double scrolledBottom = entry.getTop() + entry.getHeight() - scrollAmount;
+
     if (scrolledBottom < this.top || scrolledTop > this.bottom) {
       return;
     }
 
-    matrixStack.push();
-    matrixStack.translate(0, this.top - getScrollAmount(), 0);
-    entry.render(matrixStack, index, mouseX, mouseY, delta);
-    matrixStack.pop();
+    entry.render(matrixStack, index, scrollAmount, mouseX, mouseY, delta);
   }
 
   protected void renderScrollBar(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
@@ -316,17 +302,15 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   protected int getContentWidth() {
-    return this.width - (this.shouldShowScrollbar() ? GuiUtil.SCROLLBAR_WIDTH : 0) -
-        this.contentPadding * 2;
+    return this.width - (GuiUtil.SCROLLBAR_WIDTH + this.contentPadding) * 2;
   }
 
   protected int getContentLeft() {
-    return this.left + this.contentPadding;
+    return this.left + GuiUtil.SCROLLBAR_WIDTH + this.contentPadding;
   }
 
   protected int getContentRight() {
-    return this.right - this.contentPadding -
-        (this.shouldShowScrollbar() ? GuiUtil.SCROLLBAR_WIDTH : 0);
+    return this.right - GuiUtil.SCROLLBAR_WIDTH - this.contentPadding;
   }
 
   protected int getScrollbarPositionX() {
@@ -362,6 +346,10 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     return this.getMaxScroll() > 0;
   }
 
+  public int nextTop() {
+    return this.top + this.contentPadding + this.entries.nextTop();
+  }
+
   public abstract static class Entry<E extends Entry<E>> extends AbstractParentElement {
     protected static final int ROW_SHADE_STRENGTH = 85;
     protected static final int ROW_SHADE_FADE_WIDTH = 10;
@@ -371,17 +359,16 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     protected final VariableHeightListWidget<E> parent;
 
     private final int left;
+    private final int top;
     private final int width;
     private final int height;
-
-    private int top;
 
     public Entry(MinecraftClient client, VariableHeightListWidget<E> parent, int height) {
       this.client = client;
       this.parent = parent;
       this.left = parent.getContentLeft();
       this.width = parent.getContentWidth();
-      this.top = parent.entries.totalHeight + parent.rowPadding; // TODO: Make a getter
+      this.top = parent.nextTop();
       this.height = height;
     }
 
@@ -413,22 +400,25 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       return this.width;
     }
 
-    public final void setTop(int top) {
-      this.top = top;
-    }
-
-    protected void onTopChanged() {
-    }
-
     public void render(
-        MatrixStack matrixStack, int index, int mouseX, int mouseY, float delta) {
-      this.renderBackground(matrixStack, index, mouseX, mouseY, delta);
-      this.renderContent(matrixStack, index, mouseX, mouseY, delta);
-      this.renderDecorations(matrixStack, index, mouseX, mouseY, delta);
+        MatrixStack matrixStack,
+        int index,
+        double scrollAmount,
+        int mouseX,
+        int mouseY,
+        float delta) {
+      this.renderBackground(matrixStack, index, scrollAmount, mouseX, mouseY, delta);
+      this.renderContent(matrixStack, index, scrollAmount, mouseX, mouseY, delta);
+      this.renderDecorations(matrixStack, index, scrollAmount, mouseX, mouseY, delta);
     }
 
     public void renderBackground(
-        MatrixStack matrixStack, int index, int mouseX, int mouseY, float delta) {
+        MatrixStack matrixStack,
+        int index,
+        double scrollAmount,
+        int mouseX,
+        int mouseY,
+        float delta) {
       if (index % 2 == 0) {
 
         RenderSystem.enableBlend();
@@ -482,12 +472,22 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     }
 
     public void renderContent(
-        MatrixStack matrixStack, int index, int mouseX, int mouseY, float delta) {
+        MatrixStack matrixStack,
+        int index,
+        double scrollAmount,
+        int mouseX,
+        int mouseY,
+        float delta) {
 
     }
 
     public void renderDecorations(
-        MatrixStack matrixStack, int index, int mouseX, int mouseY, float delta) {
+        MatrixStack matrixStack,
+        int index,
+        double scrollAmount,
+        int mouseX,
+        int mouseY,
+        float delta) {
 
     }
   }
@@ -509,32 +509,11 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     }
 
     public void add(E entry) {
-      E last = this.entries.peekLast();
-      entry.setTop(last != null ? last.getTop() + last.getHeight() + rowPadding : 0);
+      boolean first = this.entries.isEmpty();
 
       this.entries.add(entry);
-      this.totalHeight += entry.getHeight() + (last != null ? rowPadding : 0);
+      this.totalHeight += entry.getHeight() + (first ? 0 : rowPadding);
       this.averageItemHeight = (double) this.totalHeight / (double) this.entries.size();
-    }
-
-    public void prepend(E entry) {
-      this.entries.addFirst(entry);
-      this.reflow();
-    }
-
-    public void insert(int index, E entry) {
-      if (index == 0) {
-        this.prepend(entry);
-        return;
-      }
-
-      this.entries.add(index, entry);
-      this.reflow();
-    }
-
-    public void remove(E entry) {
-      this.entries.remove(entry);
-      this.reflow();
     }
 
     public E get(int index) {
@@ -547,22 +526,19 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
     public void clear() {
       this.entries.clear();
-      this.reflow();
-    }
 
-    public void reflow() {
       this.cachedAtY = null;
       this.cachedAtYIndex = 0;
+      this.totalHeight = 0;
+      this.averageItemHeight = 0;
+    }
 
-      int top = 0;
-
-      for (E entry : this.entries) {
-        entry.setTop(top);
-        top += entry.getHeight() + rowPadding;
+    public int nextTop() {
+      if (this.entries.isEmpty()) {
+        return 0;
       }
 
-      this.totalHeight = top - (this.entries.size() <= 1 ? 0 : rowPadding);
-      this.averageItemHeight = (double) this.totalHeight / (double) this.entries.size();
+      return this.totalHeight + this.rowPadding;
     }
 
     public E getEntryAtPosition(double y) {

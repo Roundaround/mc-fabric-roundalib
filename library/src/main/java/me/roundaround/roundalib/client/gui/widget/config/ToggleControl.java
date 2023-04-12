@@ -25,14 +25,15 @@ public class ToggleControl extends Control<BooleanConfigOption> {
   }
 
   @Override
-  public void onTopChanged() {
-    super.onTopChanged();
-    this.button.setY(this.widgetTop);
+  public List<? extends Element> children() {
+    return List.of(this.button);
   }
 
   @Override
-  public List<? extends Element> children() {
-    return List.of(this.button);
+  public void setScrollAmount(double scrollAmount) {
+    super.setScrollAmount(scrollAmount);
+
+    this.button.setY(this.scrolledTop);
   }
 
   @Override
