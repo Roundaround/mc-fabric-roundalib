@@ -1,4 +1,4 @@
-package me.roundaround.testmod.client.gui.screen;
+package me.roundaround.roundalib.client.gui.screen;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
