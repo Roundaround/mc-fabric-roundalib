@@ -1,5 +1,6 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
+import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.gui.AbstractParentElement;
 import net.minecraft.client.util.math.MatrixStack;
@@ -22,7 +23,9 @@ public abstract class Control<O extends ConfigOption<?, ?>> extends AbstractPare
     this.parent = parent;
     this.option = parent.getOption();
     this.widgetWidth = Math.max(WIDGET_MIN_WIDTH, Math.round(parent.getWidth() * 0.3f));
-    this.widgetLeft = parent.getRight() - this.widgetWidth - PADDING;
+    this.widgetLeft =
+        parent.getRight() - this.widgetWidth - PADDING - RoundaLibIconButtons.SIZE_LG -
+            2 * GuiUtil.PADDING;
     this.widgetHeight = parent.getHeight() - PADDING * 2;
     this.widgetTop = parent.getTop() + PADDING;
     this.scrolledTop = this.widgetTop;

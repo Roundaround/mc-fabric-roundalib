@@ -2,6 +2,7 @@ package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.VariableHeightListWidget;
 import me.roundaround.roundalib.config.ModConfig;
@@ -13,6 +14,7 @@ import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.Entry> {
   private final ArrayList<CategoryEntry> categories = new ArrayList<>();
@@ -111,6 +113,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     protected final O option;
     protected final Control<O> control;
     protected final LabelWidget labelWidget;
+    protected final IconButtonWidget resetButton;
 
     protected OptionEntry(MinecraftClient client, ConfigListWidget parent, O configOption)
         throws ControlRegistry.NotRegisteredException {
@@ -128,6 +131,11 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
           .showTextShadow()
           .hideBackground()
           .build();
+
+      this.resetButton = RoundaLibIconButtons.resetButton(
+          this.getRight() - RoundaLibIconButtons.SIZE_LG - GuiUtil.PADDING,
+          this.getTop() + (this.getHeight() - RoundaLibIconButtons.SIZE_LG) / 2,
+          this.option);
     }
 
     public O getOption() {
@@ -136,7 +144,9 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
     @Override
     public List<? extends Element> children() {
-      return this.control.children();
+      return Stream.of(this.control.children(), List.of(this.resetButton))
+          .flatMap(List::stream)
+          .toList();
     }
 
     @Override
@@ -146,12 +156,21 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
     @Override
     public void renderContent(
-        MatrixStack matrixStack, int index, double scrollAmount, int mouseX, int mouseY, float delta) {
+        MatrixStack matrixStack,
+        int index,
+        double scrollAmount,
+        int mouseX,
+        int mouseY,
+        float delta) {
       this.labelWidget.setPosY(this.getTop() + this.getHeight() / 2 - (int) scrollAmount);
       this.labelWidget.render(matrixStack, mouseX, mouseY, delta);
 
       this.control.setScrollAmount(scrollAmount);
       this.control.renderWidget(matrixStack, mouseX, mouseY, delta);
+
+      this.resetButton.setY(this.getTop() + (this.getHeight() - RoundaLibIconButtons.SIZE_LG) / 2 -
+          (int) scrollAmount);
+      this.resetButton.render(matrixStack, mouseX, mouseY, delta);
     }
   }
 }
