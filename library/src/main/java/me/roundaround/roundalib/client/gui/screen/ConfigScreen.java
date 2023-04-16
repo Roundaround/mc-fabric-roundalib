@@ -3,12 +3,15 @@ package me.roundaround.roundalib.client.gui.screen;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
 import me.roundaround.roundalib.config.ModConfig;
+import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
+
+import java.util.Collection;
 
 public class ConfigScreen extends Screen {
   private static final int LIST_MIN_WIDTH = 400;
@@ -31,6 +34,8 @@ public class ConfigScreen extends Screen {
 
   @Override
   public void init() {
+    this.clearConfigOptionListeners();
+
     int listWidth = (int) Math.max(LIST_MIN_WIDTH, width / 1.5f);
     int listLeft = (int) ((width / 2f) - (listWidth / 2f));
     int listHeight = this.height - 64;
@@ -42,7 +47,6 @@ public class ConfigScreen extends Screen {
         listTop,
         listWidth,
         listHeight));
-
 
     int cancelButtonLeft = (width - FOOTER_BUTTON_SPACING) / 2 - FOOTER_BUTTON_WIDTH;
     int cancelButtonTop = height - FOOTER_BUTTON_POS_Y;
@@ -57,6 +61,14 @@ public class ConfigScreen extends Screen {
         .position(doneButtonLeft, doneButtonTop)
         .size(FOOTER_BUTTON_WIDTH, FOOTER_BUTTON_HEIGHT)
         .build());
+  }
+
+  private void clearConfigOptionListeners() {
+    this.modConfig.getConfigOptions()
+        .values()
+        .stream()
+        .flatMap(Collection::stream)
+        .forEach(ConfigOption::clearValueChangeListeners);
   }
 
   private void cancel(ButtonWidget button) {
@@ -76,6 +88,8 @@ public class ConfigScreen extends Screen {
     } else {
       this.modConfig.loadFromFile();
     }
+
+    this.clearConfigOptionListeners();
 
     if (this.client == null) {
       return;

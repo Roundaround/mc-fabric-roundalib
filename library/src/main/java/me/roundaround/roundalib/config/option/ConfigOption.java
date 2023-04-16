@@ -119,6 +119,10 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
     this.valueChangeListeners.add(listener);
   }
 
+  public final void clearValueChangeListeners() {
+    this.valueChangeListeners.clear();
+  }
+
   public abstract ConfigOption<D, B> copy();
 
   public static abstract class AbstractBuilder<D, B extends AbstractBuilder<D, B>> {
