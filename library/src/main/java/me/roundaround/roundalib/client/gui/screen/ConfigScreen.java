@@ -4,15 +4,24 @@ import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
 import me.roundaround.roundalib.config.ModConfig;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
 public class ConfigScreen extends Screen {
   private static final int LIST_MIN_WIDTH = 400;
+  private static final int FOOTER_BUTTON_WIDTH = 150;
+  private static final int FOOTER_BUTTON_HEIGHT = 20;
+  private static final int FOOTER_BUTTON_POS_Y = 28;
+  private static final int FOOTER_BUTTON_SPACING = 8;
   private final Screen parent;
   private final ModConfig modConfig;
   private ConfigListWidget configListWidget;
+  private ButtonWidget cancelButton;
+  private ButtonWidget doneButton;
+  private boolean shouldSave = false;
 
   public ConfigScreen(Screen parent, ModConfig modConfig) {
     super(Text.translatable(modConfig.getConfigScreenI18nKey()));
@@ -33,14 +42,45 @@ public class ConfigScreen extends Screen {
         listTop,
         listWidth,
         listHeight));
+
+
+    int cancelButtonLeft = (width - FOOTER_BUTTON_SPACING) / 2 - FOOTER_BUTTON_WIDTH;
+    int cancelButtonTop = height - FOOTER_BUTTON_POS_Y;
+    this.cancelButton = addDrawableChild(ButtonWidget.builder(ScreenTexts.CANCEL, this::cancel)
+        .position(cancelButtonLeft, cancelButtonTop)
+        .size(FOOTER_BUTTON_WIDTH, FOOTER_BUTTON_HEIGHT)
+        .build());
+
+    int doneButtonLeft = (width + FOOTER_BUTTON_SPACING) / 2;
+    int doneButtonTop = height - FOOTER_BUTTON_POS_Y;
+    this.doneButton = addDrawableChild(ButtonWidget.builder(ScreenTexts.DONE, this::done)
+        .position(doneButtonLeft, doneButtonTop)
+        .size(FOOTER_BUTTON_WIDTH, FOOTER_BUTTON_HEIGHT)
+        .build());
+  }
+
+  private void cancel(ButtonWidget button) {
+    this.shouldSave = false;
+    this.close();
+  }
+
+  private void done(ButtonWidget button) {
+    this.shouldSave = true;
+    this.close();
   }
 
   @Override
   public void close() {
+    if (this.shouldSave) {
+      this.modConfig.saveToFile();
+    } else {
+      this.modConfig.loadFromFile();
+    }
+
     if (this.client == null) {
-      super.close();
       return;
     }
+
     this.client.setScreen(this.parent);
   }
 
