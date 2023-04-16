@@ -2,7 +2,6 @@ package me.roundaround.roundalib.client.gui.widget;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
 import net.minecraft.client.MinecraftClient;
@@ -19,13 +18,12 @@ import org.joml.Matrix4f;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 
 public abstract class VariableHeightListWidget<E extends VariableHeightListWidget.Entry<E>>
     extends AbstractParentElement implements Drawable, Selectable {
   protected final MinecraftClient client;
-  protected final CachingPositionalLinkedList<E> entries =
-      new CachingPositionalLinkedList<>(this.rowPadding);
+  protected final PositionalLinkedList<E> entries =
+      new PositionalLinkedList<>(this.rowPadding);
 
   protected int left;
   protected int top;
@@ -64,8 +62,8 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
   @Override
   public void render(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
-    this.hoveredEntry =
-        this.isMouseOver(mouseX, mouseY) ? this.getEntryAtPosition(mouseX, mouseY) : null;
+//    this.hoveredEntry =
+//        this.isMouseOver(mouseX, mouseY) ? this.getEntryAtPosition(mouseX, mouseY) : null;
 
     this.renderBackground(matrixStack, delta);
 
@@ -97,7 +95,8 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   protected void renderScrollBar(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
-    if (!this.shouldShowScrollbar()) {
+    int maxScroll = this.getMaxScroll();
+    if (maxScroll <= 0) {
       return;
     }
 
@@ -106,12 +105,11 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
     RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 
-    int handleHeight = (int) ((float) this.height * this.height / this.getMaxScroll());
+
+    int handleHeight = (int) ((float) this.height * this.height / this.getContentHeight());
     handleHeight = MathHelper.clamp(handleHeight, 32, this.height - 8);
 
-    int handleTop =
-        (int) Math.round(this.scrollAmount) * (this.height - handleHeight) / this.getMaxScroll() +
-            this.top;
+    int handleTop = (int) this.scrollAmount * (this.height - handleHeight) / maxScroll + this.top;
     if (handleTop < this.top) {
       handleTop = this.top;
     }
@@ -287,7 +285,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       return null;
     }
 
-    return this.entries.getEntryAtPosition(y);
+    return this.entries.getEntryAtPosition(y + this.scrollAmount);
   }
 
   protected void ensureVisible(E entry) {
@@ -346,10 +344,6 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
   protected double getScrollUnit() {
     return this.autoCalculateScrollUnit ? this.entries.averageItemHeight / 2f : this.scrollUnit;
-  }
-
-  protected boolean shouldShowScrollbar() {
-    return this.getMaxScroll() > 0;
   }
 
   public int nextTop() {
@@ -495,17 +489,25 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
         float delta) {
 
     }
+
+    @Override
+    public boolean isMouseOver(double mouseX, double mouseY) {
+      if (!this.parent.isMouseOver(mouseX, mouseY)) {
+        return false;
+      }
+
+      return mouseX >= this.getLeft() && mouseX <= this.getRight()
+          && mouseY >= this.getTop() && mouseY <= this.getBottom();
+    }
   }
 
-  protected static class CachingPositionalLinkedList<E extends VariableHeightListWidget.Entry<E>> {
+  protected static class PositionalLinkedList<E extends VariableHeightListWidget.Entry<E>> {
     private final LinkedList<E> entries = new LinkedList<>();
     private final int rowPadding;
     private int totalHeight;
     private double averageItemHeight;
-    private E cachedAtY;
-    private int cachedAtYIndex;
 
-    protected CachingPositionalLinkedList(int rowPadding) {
+    protected PositionalLinkedList(int rowPadding) {
       this.rowPadding = rowPadding;
     }
 
@@ -532,8 +534,6 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     public void clear() {
       this.entries.clear();
 
-      this.cachedAtY = null;
-      this.cachedAtYIndex = 0;
       this.totalHeight = 0;
       this.averageItemHeight = 0;
     }
@@ -547,50 +547,9 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     }
 
     public E getEntryAtPosition(double y) {
-      if (this.cachedAtY != null) {
-        if (y >= this.cachedAtY.getTop() &&
-            y <= this.cachedAtY.getTop() + this.cachedAtY.getHeight()) {
-          return this.cachedAtY;
-        }
-
-        if (y < this.cachedAtY.getTop()) {
-          return this.getEntryAtPositionLookBackward(y, this.cachedAtYIndex);
-        } else {
-          return this.getEntryAtPositionLookForward(y, this.cachedAtYIndex);
-        }
-      }
-
-      return this.getEntryAtPositionLookForward(y, 0);
-    }
-
-    private E getEntryAtPositionLookBackward(double y, int startingIndex) {
-      ListIterator<E> iterator = this.entries.listIterator(startingIndex);
-
-      while (iterator.hasPrevious()) {
-        E previous = iterator.previous();
-
-        if (y >= previous.getTop() && y <= previous.getTop() + previous.getHeight()) {
-          this.cachedAtY = previous;
-          this.cachedAtYIndex = iterator.nextIndex();
-
-          return previous;
-        }
-      }
-
-      return null;
-    }
-
-    private E getEntryAtPositionLookForward(double y, int startingIndex) {
-      ListIterator<E> iterator = this.entries.listIterator(startingIndex);
-
-      while (iterator.hasNext()) {
-        E next = iterator.next();
-
-        if (y >= next.getTop() && y <= next.getTop() + next.getHeight()) {
-          this.cachedAtY = next;
-          this.cachedAtYIndex = iterator.nextIndex();
-
-          return next;
+      for (E entry : this.entries) {
+        if (y >= entry.getTop() && y <= entry.getBottom()) {
+          return entry;
         }
       }
 
