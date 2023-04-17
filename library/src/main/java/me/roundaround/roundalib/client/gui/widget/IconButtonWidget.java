@@ -42,7 +42,10 @@ public class IconButtonWidget extends ButtonWidget {
   public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
     super.renderButton(matrixStack, mouseX, mouseY, delta);
 
+    float brightness = this.active ? 1f : 0.6f;
+
     RenderSystem.setShaderTexture(0, this.texture);
+    RenderSystem.setShaderColor(brightness, brightness, brightness, 1f);
     drawTexture(matrixStack,
         getX(),
         getY(),
@@ -52,6 +55,7 @@ public class IconButtonWidget extends ButtonWidget {
         this.height,
         this.textureSize,
         this.textureSize);
+    RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
   }
 
   public static Builder builder(Identifier texture, PressAction onPress) {
