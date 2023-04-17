@@ -22,8 +22,9 @@ import java.util.List;
 public abstract class VariableHeightListWidget<E extends VariableHeightListWidget.Entry<E>>
     extends AbstractParentElement implements Drawable, Selectable {
   protected final MinecraftClient client;
-  protected final PositionalLinkedList<E> entries =
-      new PositionalLinkedList<>(this.rowPadding);
+  protected final PositionalLinkedList<E> entries;
+  protected final int contentPadding;
+  protected final int rowPadding;
 
   protected int left;
   protected int top;
@@ -32,8 +33,6 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   protected int width;
   protected int height;
   protected E hoveredEntry;
-  protected int contentPadding = GuiUtil.PADDING;
-  protected int rowPadding = GuiUtil.PADDING; // TODO: make changeable
   protected double scrollUnit;
   protected boolean autoCalculateScrollUnit = true;
 
@@ -42,6 +41,17 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
   public VariableHeightListWidget(
       MinecraftClient client, int left, int top, int width, int height) {
+    this(client, left, top, width, height, GuiUtil.PADDING, GuiUtil.PADDING);
+  }
+
+  public VariableHeightListWidget(
+      MinecraftClient client,
+      int left,
+      int top,
+      int width,
+      int height,
+      int contentPadding,
+      int rowPadding) {
     this.client = client;
     this.left = left;
     this.right = left + width;
@@ -49,6 +59,9 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     this.bottom = top + height;
     this.width = width;
     this.height = height;
+    this.contentPadding = contentPadding;
+    this.rowPadding = rowPadding;
+    this.entries = new PositionalLinkedList<>(this.rowPadding);
   }
 
   public <T extends E> T addEntry(T entry) {
@@ -62,8 +75,8 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
   @Override
   public void render(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
-//    this.hoveredEntry =
-//        this.isMouseOver(mouseX, mouseY) ? this.getEntryAtPosition(mouseX, mouseY) : null;
+    this.hoveredEntry =
+        this.isMouseOver(mouseX, mouseY) ? this.getEntryAtPosition(mouseX, mouseY) : null;
 
     this.renderBackground(matrixStack, delta);
 
@@ -428,42 +441,43 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
         BufferBuilder bufferBuilder = tessellator.getBuffer();
         Matrix4f matrix4f = matrixStack.peek().getPositionMatrix();
 
-        int bgLeft = this.left - ROW_SHADE_FADE_OVERFLOW;
-        int bgRight = this.left + this.width + ROW_SHADE_FADE_OVERFLOW;
-        int bgTop = this.top - (int) scrollAmount;
-        int bgBottom = bgTop + this.height;
+        int left = this.left - ROW_SHADE_FADE_OVERFLOW - this.parent.contentPadding / 2;
+        int right =
+            this.left + this.width + ROW_SHADE_FADE_OVERFLOW + this.parent.contentPadding / 2 + 1;
+        int top = this.top - (int) scrollAmount - this.parent.rowPadding / 2;
+        int bottom = this.top + this.height - (int) scrollAmount + this.parent.rowPadding / 2 + 1;
 
         bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-        bufferBuilder.vertex(matrix4f, bgLeft - 1 + ROW_SHADE_FADE_WIDTH, bgTop - 1, 0)
+        bufferBuilder.vertex(matrix4f, left + ROW_SHADE_FADE_WIDTH, top, 0)
             .color(0, 0, 0, ROW_SHADE_STRENGTH)
             .next();
-        bufferBuilder.vertex(matrix4f, bgLeft - 1, bgTop - 1, 0).color(0, 0, 0, 0).next();
-        bufferBuilder.vertex(matrix4f, bgLeft - 1, bgBottom + 2, 0).color(0, 0, 0, 0).next();
-        bufferBuilder.vertex(matrix4f, bgLeft - 1 + ROW_SHADE_FADE_WIDTH, bgBottom + 2, 0)
-            .color(0, 0, 0, ROW_SHADE_STRENGTH)
-            .next();
-
-        bufferBuilder.vertex(matrix4f, bgRight + 2 - ROW_SHADE_FADE_WIDTH, bgTop - 1, 0)
-            .color(0, 0, 0, ROW_SHADE_STRENGTH)
-            .next();
-        bufferBuilder.vertex(matrix4f, bgLeft - 1 + ROW_SHADE_FADE_WIDTH, bgTop - 1, 0)
-            .color(0, 0, 0, ROW_SHADE_STRENGTH)
-            .next();
-        bufferBuilder.vertex(matrix4f, bgLeft - 1 + ROW_SHADE_FADE_WIDTH, bgBottom + 2, 0)
-            .color(0, 0, 0, ROW_SHADE_STRENGTH)
-            .next();
-        bufferBuilder.vertex(matrix4f, bgRight + 2 - ROW_SHADE_FADE_WIDTH, bgBottom + 2, 0)
+        bufferBuilder.vertex(matrix4f, left, top, 0).color(0, 0, 0, 0).next();
+        bufferBuilder.vertex(matrix4f, left, bottom, 0).color(0, 0, 0, 0).next();
+        bufferBuilder.vertex(matrix4f, left + ROW_SHADE_FADE_WIDTH, bottom, 0)
             .color(0, 0, 0, ROW_SHADE_STRENGTH)
             .next();
 
-        bufferBuilder.vertex(matrix4f, bgRight + 2, bgTop - 1, 0).color(0, 0, 0, 0).next();
-        bufferBuilder.vertex(matrix4f, bgRight + 2 - ROW_SHADE_FADE_WIDTH, bgTop - 1, 0)
+        bufferBuilder.vertex(matrix4f, right - ROW_SHADE_FADE_WIDTH, top, 0)
             .color(0, 0, 0, ROW_SHADE_STRENGTH)
             .next();
-        bufferBuilder.vertex(matrix4f, bgRight + 2 - ROW_SHADE_FADE_WIDTH, bgBottom + 2, 0)
+        bufferBuilder.vertex(matrix4f, left + ROW_SHADE_FADE_WIDTH, top, 0)
             .color(0, 0, 0, ROW_SHADE_STRENGTH)
             .next();
-        bufferBuilder.vertex(matrix4f, bgRight + 2, bgBottom + 2, 0).color(0, 0, 0, 0).next();
+        bufferBuilder.vertex(matrix4f, left + ROW_SHADE_FADE_WIDTH, bottom, 0)
+            .color(0, 0, 0, ROW_SHADE_STRENGTH)
+            .next();
+        bufferBuilder.vertex(matrix4f, right - ROW_SHADE_FADE_WIDTH, bottom, 0)
+            .color(0, 0, 0, ROW_SHADE_STRENGTH)
+            .next();
+
+        bufferBuilder.vertex(matrix4f, right, top, 0).color(0, 0, 0, 0).next();
+        bufferBuilder.vertex(matrix4f, right - ROW_SHADE_FADE_WIDTH, top, 0)
+            .color(0, 0, 0, ROW_SHADE_STRENGTH)
+            .next();
+        bufferBuilder.vertex(matrix4f, right - ROW_SHADE_FADE_WIDTH, bottom, 0)
+            .color(0, 0, 0, ROW_SHADE_STRENGTH)
+            .next();
+        bufferBuilder.vertex(matrix4f, right, bottom, 0).color(0, 0, 0, 0).next();
         tessellator.draw();
 
         RenderSystem.disableBlend();
@@ -496,8 +510,8 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
         return false;
       }
 
-      return mouseX >= this.getLeft() && mouseX <= this.getRight()
-          && mouseY >= this.getTop() && mouseY <= this.getBottom();
+      return mouseX >= this.getLeft() && mouseX <= this.getRight() && mouseY >= this.getTop() &&
+          mouseY <= this.getBottom();
     }
   }
 

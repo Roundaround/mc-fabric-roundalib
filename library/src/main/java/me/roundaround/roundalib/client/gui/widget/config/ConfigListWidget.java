@@ -120,7 +120,9 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
       super(client, parent, HEIGHT);
 
       this.option = configOption;
+
       this.control = ControlRegistry.getControlFactory(configOption).create(this);
+
       this.labelWidget = LabelWidget.builder(client,
               configOption.getLabel(),
               this.getLeft() + GuiUtil.PADDING,
@@ -132,14 +134,18 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
           .hideBackground()
           .build();
 
-      this.resetButton = RoundaLibIconButtons.resetButton(
-          this.getRight() - RoundaLibIconButtons.SIZE_LG - GuiUtil.PADDING,
-          this.getTop() + (this.getHeight() - RoundaLibIconButtons.SIZE_LG) / 2,
-          this.option);
+      this.resetButton = RoundaLibIconButtons.resetButton(this.getControlRight() + GuiUtil.PADDING,
+          this.getTop() + (this.getHeight() - RoundaLibIconButtons.SIZE_L) / 2,
+          this.option,
+          RoundaLibIconButtons.SIZE_L);
     }
 
     public O getOption() {
       return this.option;
+    }
+
+    public int getControlRight() {
+      return this.getRight() - RoundaLibIconButtons.SIZE_L - 2 * GuiUtil.PADDING;
     }
 
     @Override
@@ -168,7 +174,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
       this.control.setScrollAmount(scrollAmount);
       this.control.renderWidget(matrixStack, mouseX, mouseY, delta);
 
-      this.resetButton.setY(this.getTop() + (this.getHeight() - RoundaLibIconButtons.SIZE_LG) / 2 -
+      this.resetButton.setY(this.getTop() + (this.getHeight() - RoundaLibIconButtons.SIZE_L) / 2 -
           (int) scrollAmount);
       this.resetButton.render(matrixStack, mouseX, mouseY, delta);
     }
