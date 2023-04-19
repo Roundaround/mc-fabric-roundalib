@@ -4,11 +4,11 @@ import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.gui.AbstractParentElement;
 import net.minecraft.client.util.math.MatrixStack;
 
-public abstract class Control<O extends ConfigOption<?, ?>> extends AbstractParentElement {
+public abstract class Control<D, O extends ConfigOption<D, ?>> extends AbstractParentElement {
   protected static final int PADDING = 1;
   protected static final int WIDGET_MIN_WIDTH = 100;
 
-  protected final ConfigListWidget.OptionEntry<O> parent;
+  protected final ConfigListWidget.OptionEntry<D, O> parent;
   protected final O option;
   protected final int widgetLeft;
   protected final int widgetTop;
@@ -18,9 +18,11 @@ public abstract class Control<O extends ConfigOption<?, ?>> extends AbstractPare
   protected int scrolledTop;
   protected boolean valid;
 
-  protected Control(ConfigListWidget.OptionEntry<O> parent) {
+  protected Control(ConfigListWidget.OptionEntry<D, O> parent) {
     this.parent = parent;
     this.option = parent.getOption();
+    this.option.subscribeToValueChanges(this::onConfigValueChange);
+
     this.widgetWidth = Math.max(WIDGET_MIN_WIDTH, Math.round(parent.getWidth() * 0.3f));
     this.widgetLeft = parent.getControlRight() - this.widgetWidth;
     this.widgetHeight = parent.getHeight() - PADDING * 2;
@@ -53,5 +55,8 @@ public abstract class Control<O extends ConfigOption<?, ?>> extends AbstractPare
 
   public void setScrollAmount(double amount) {
     this.scrolledTop = this.widgetTop - (int) amount;
+  }
+
+  protected void onConfigValueChange(D prev, D curr) {
   }
 }

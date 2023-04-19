@@ -7,21 +7,17 @@ import net.minecraft.client.util.math.MatrixStack;
 
 import java.util.List;
 
-public class ToggleControl extends Control<BooleanConfigOption> {
-  private final BooleanConfigOption configOption;
+public class ToggleControl extends Control<Boolean, BooleanConfigOption> {
   private final ButtonWidget button;
 
-  public ToggleControl(ConfigListWidget.OptionEntry<BooleanConfigOption> parent) {
+  public ToggleControl(ConfigListWidget.OptionEntry<Boolean, BooleanConfigOption> parent) {
     super(parent);
 
-    this.configOption = parent.getOption();
-    this.configOption.subscribeToValueChanges(this::onConfigValueChange);
-
-    this.button = ButtonWidget.builder(this.configOption.getValueLabel(),
-            (button) -> this.configOption.toggle())
-        .position(this.widgetLeft, this.widgetTop)
-        .size(this.widgetWidth, this.widgetHeight)
-        .build();
+    this.button =
+        ButtonWidget.builder(this.option.getValueLabel(), (button) -> this.option.toggle())
+            .position(this.widgetLeft, this.widgetTop)
+            .size(this.widgetWidth, this.widgetHeight)
+            .build();
   }
 
   @Override
@@ -41,7 +37,8 @@ public class ToggleControl extends Control<BooleanConfigOption> {
     this.button.render(matrixStack, mouseX, mouseY, delta);
   }
 
-  private void onConfigValueChange(Boolean prev, Boolean curr) {
-    this.button.setMessage(this.configOption.getValueLabel());
+  @Override
+  protected void onConfigValueChange(Boolean prev, Boolean curr) {
+    this.button.setMessage(this.option.getValueLabel());
   }
 }
