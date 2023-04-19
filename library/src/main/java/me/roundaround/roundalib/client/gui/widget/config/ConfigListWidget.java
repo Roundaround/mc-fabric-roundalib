@@ -58,9 +58,34 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     this.ensureVisible(this.categories.get(this.currentCategory));
   }
 
+  public void tick() {
+    this.entries.forEach(Entry::tick);
+  }
+
+  public void clearFocus() {
+    this.entries.forEach(Entry::removeFocus);
+  }
+
+  @Override
+  public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    this.clearFocus();
+    return super.mouseClicked(mouseX, mouseY, button);
+  }
+
   protected abstract static class Entry extends VariableHeightListWidget.Entry<Entry> {
     protected Entry(MinecraftClient client, ConfigListWidget parent, int height) {
       super(client, parent, height);
+    }
+
+    public void tick() {
+    }
+
+    public void removeFocus() {
+    }
+
+    @Override
+    public ConfigListWidget getParent() {
+      return super.getParent();
     }
   }
 
@@ -87,11 +112,6 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     @Override
     public List<? extends Element> children() {
       return List.of();
-    }
-
-    @Override
-    public ConfigListWidget getParent() {
-      return super.getParent();
     }
 
     @Override
@@ -156,8 +176,13 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     }
 
     @Override
-    public ConfigListWidget getParent() {
-      return super.getParent();
+    public void removeFocus() {
+      this.control.removeFocus();
+    }
+
+    @Override
+    public void tick() {
+      this.control.tick();
     }
 
     @Override

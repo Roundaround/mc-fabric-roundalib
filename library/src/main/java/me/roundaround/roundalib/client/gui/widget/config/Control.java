@@ -50,6 +50,12 @@ public abstract class Control<D, O extends ConfigOption<D, ?>> extends AbstractP
     return this.option.isDisabled();
   }
 
+  public void removeFocus() {
+  }
+
+  public void tick() {
+  }
+
   public void renderWidget(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
   }
 

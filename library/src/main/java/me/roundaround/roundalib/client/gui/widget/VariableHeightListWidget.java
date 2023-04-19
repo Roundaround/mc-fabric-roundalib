@@ -5,6 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.AbstractParentElement;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
@@ -16,6 +17,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.MathHelper;
 import org.joml.Matrix4f;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -389,6 +391,14 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       return (ConfigListWidget) this.parent;
     }
 
+    public MinecraftClient getClient() {
+      return this.client;
+    }
+
+    public TextRenderer getTextRenderer() {
+      return this.client.textRenderer;
+    }
+
     public int getTop() {
       return this.top;
     }
@@ -515,7 +525,8 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     }
   }
 
-  protected static class PositionalLinkedList<E extends VariableHeightListWidget.Entry<E>> {
+  protected static class PositionalLinkedList<E extends VariableHeightListWidget.Entry<E>>
+      implements Iterable<E> {
     private final LinkedList<E> entries = new LinkedList<>();
     private final int rowPadding;
     private int totalHeight;
@@ -568,6 +579,11 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       }
 
       return null;
+    }
+
+    @Override
+    public Iterator<E> iterator() {
+      return this.entries.iterator();
     }
   }
 }

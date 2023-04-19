@@ -4,6 +4,7 @@ import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.config.option.BooleanConfigOption;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.option.OptionListConfigOption;
+import me.roundaround.roundalib.config.option.StringConfigOption;
 import me.roundaround.roundalib.config.value.*;
 
 import java.util.HashMap;
@@ -23,6 +24,7 @@ public class ControlRegistry {
   private static void registerDefaults() {
     try {
       register(BooleanConfigOption.class, ToggleControl::new);
+      register(StringConfigOption.class, TextControl::new);
       registerOptionList(Difficulty.class);
       registerOptionList(GameMode.class);
       registerOptionList(GuiAlignment.class);

@@ -135,6 +135,11 @@ public class ConfigScreen extends Screen {
   }
 
   @Override
+  public void tick() {
+    this.configListWidget.tick();
+  }
+
+  @Override
   public void render(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
     renderBackground(matrixStack);
     drawCenteredTextWithShadow(matrixStack,

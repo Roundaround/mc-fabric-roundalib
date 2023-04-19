@@ -3,6 +3,7 @@ package me.roundaround.testmod.config;
 import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.option.BooleanConfigOption;
 import me.roundaround.roundalib.config.option.OptionListConfigOption;
+import me.roundaround.roundalib.config.option.StringConfigOption;
 import me.roundaround.roundalib.config.value.Difficulty;
 import me.roundaround.testmod.TestMod;
 
@@ -23,5 +24,10 @@ public class TestModConfig extends ModConfig {
         "testmod.testOption21.label",
         Arrays.stream(Difficulty.values()).toList(),
         Difficulty.NORMAL));
+
+    registerConfigOption(StringConfigOption.defaultInstance(this,
+        "testOption22",
+        "testmod.testOption22.label",
+        "foo"));
   }
 }

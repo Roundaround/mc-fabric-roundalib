@@ -49,7 +49,6 @@ public class OptionListControl<S extends ListOptionValue<S>>
   @Override
   protected void onConfigValueChange(S prev, S curr) {
     if (prev == curr) {
-      // Avoid infinite loop of button -> option -> button -> option -> ...
       return;
     }
     this.button.setValue(curr);
