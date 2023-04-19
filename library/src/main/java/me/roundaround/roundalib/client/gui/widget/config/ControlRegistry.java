@@ -4,8 +4,7 @@ import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.config.option.BooleanConfigOption;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.option.OptionListConfigOption;
-import me.roundaround.roundalib.config.value.Difficulty;
-import me.roundaround.roundalib.config.value.ListOptionValue;
+import me.roundaround.roundalib.config.value.*;
 
 import java.util.HashMap;
 
@@ -25,6 +24,10 @@ public class ControlRegistry {
     try {
       register(BooleanConfigOption.class, ToggleControl::new);
       registerOptionList(Difficulty.class);
+      registerOptionList(GameMode.class);
+      registerOptionList(GuiAlignment.class);
+      registerOptionList(GuiAlignmentWithCenter.class);
+      registerOptionList(GuiTheme.class);
     } catch (RegistrationException e) {
       RoundaLib.LOGGER.error("There was an error registering the built-in control factories!", e);
       System.exit(0);
