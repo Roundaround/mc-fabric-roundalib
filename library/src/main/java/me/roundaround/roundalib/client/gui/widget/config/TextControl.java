@@ -1,5 +1,6 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
+import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.config.option.StringConfigOption;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -31,10 +32,34 @@ public class TextControl extends Control<String, StringConfigOption> {
   }
 
   @Override
+  public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    if (this.isMouseOver(mouseX, mouseY)) {
+      int x = this.textField.getX() + 1;
+      int y = this.textField.getY() + 1;
+      if (this.textField.mouseClicked(x, y, button)) {
+        return true;
+      }
+    }
+    return super.mouseClicked(mouseX, mouseY, button);
+  }
+
+  @Override
   public void setScrollAmount(double scrollAmount) {
     super.setScrollAmount(scrollAmount);
 
     this.textField.setY(this.scrolledTop);
+  }
+
+  @Override
+  public void markInvalid() {
+    this.textField.setEditableColor(GuiUtil.ERROR_COLOR);
+    super.markInvalid();
+  }
+
+  @Override
+  public void markValid() {
+    this.textField.setEditableColor(GuiUtil.LABEL_COLOR);
+    super.markValid();
   }
 
   @Override
@@ -54,13 +79,19 @@ public class TextControl extends Control<String, StringConfigOption> {
 
   @Override
   protected void onConfigValueChange(String prev, String curr) {
-    if (Objects.equals(prev, curr)) {
+    if (Objects.equals(curr, this.textField.getText())) {
       return;
     }
     this.textField.setText(curr);
   }
 
   private void onTextChanged(String text) {
+    if (!this.option.validateInput(text)) {
+      this.markInvalid();
+      return;
+    }
+
     this.option.setValue(text);
+    this.markValid();
   }
 }

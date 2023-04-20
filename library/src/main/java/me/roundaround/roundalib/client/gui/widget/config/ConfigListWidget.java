@@ -2,6 +2,7 @@ package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.screen.ConfigScreen;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.VariableHeightListWidget;
@@ -17,12 +18,21 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.Entry> {
+  private final ConfigScreen screen;
   private final ArrayList<CategoryEntry> categories = new ArrayList<>();
   private int currentCategory = 0;
 
   public ConfigListWidget(
-      MinecraftClient client, ModConfig modConfig, int left, int top, int width, int height) {
+      MinecraftClient client,
+      ConfigScreen screen,
+      ModConfig modConfig,
+      int left,
+      int top,
+      int width,
+      int height) {
     super(client, left, top, width, height);
+
+    this.screen = screen;
 
     for (var entry : modConfig.getConfigOptions().entrySet()) {
       if (entry.getValue().stream().noneMatch(ConfigOption::shouldShowInConfigScreen)) {
@@ -63,6 +73,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
   }
 
   public void clearFocus() {
+    this.screen.setFocused(null);
     this.entries.forEach(Entry::removeFocus);
   }
 
