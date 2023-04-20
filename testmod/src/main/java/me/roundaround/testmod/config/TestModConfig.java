@@ -25,9 +25,12 @@ public class TestModConfig extends ModConfig {
         Arrays.stream(Difficulty.values()).toList(),
         Difficulty.NORMAL));
 
-    registerConfigOption(StringConfigOption.defaultInstance(this,
-        "testOption22",
-        "testmod.testOption22.label",
-        "foo"));
+    registerConfigOption(StringConfigOption.builder(this,
+            "testOption22",
+            "testmod.testOption22.label")
+        .setDefaultValue("foo")
+        .setMinLength(3)
+        .setMaxLength(12)
+        .build());
   }
 }
