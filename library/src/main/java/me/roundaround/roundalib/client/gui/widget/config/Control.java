@@ -50,9 +50,6 @@ public abstract class Control<D, O extends ConfigOption<D, ?>> extends AbstractP
     return this.option.isDisabled();
   }
 
-  public void removeFocus() {
-  }
-
   public void tick() {
   }
 

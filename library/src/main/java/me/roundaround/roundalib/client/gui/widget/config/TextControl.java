@@ -32,18 +32,6 @@ public class TextControl extends Control<String, StringConfigOption> {
   }
 
   @Override
-  public boolean mouseClicked(double mouseX, double mouseY, int button) {
-    if (this.isMouseOver(mouseX, mouseY)) {
-      int x = this.textField.getX() + 1;
-      int y = this.textField.getY() + 1;
-      if (this.textField.mouseClicked(x, y, button)) {
-        return true;
-      }
-    }
-    return super.mouseClicked(mouseX, mouseY, button);
-  }
-
-  @Override
   public void setScrollAmount(double scrollAmount) {
     super.setScrollAmount(scrollAmount);
 
@@ -60,11 +48,6 @@ public class TextControl extends Control<String, StringConfigOption> {
   public void markValid() {
     this.textField.setEditableColor(GuiUtil.LABEL_COLOR);
     super.markValid();
-  }
-
-  @Override
-  public void removeFocus() {
-    this.textField.setFocused(false);
   }
 
   @Override

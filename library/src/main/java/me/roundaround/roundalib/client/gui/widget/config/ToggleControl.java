@@ -33,11 +33,6 @@ public class ToggleControl extends Control<Boolean, BooleanConfigOption> {
   }
 
   @Override
-  public void removeFocus() {
-    this.button.setFocused(false);
-  }
-
-  @Override
   public void renderWidget(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
     this.button.render(matrixStack, mouseX, mouseY, delta);
   }

@@ -209,6 +209,20 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   @Override
+  public void setFocused(Element focused) {
+    super.setFocused(focused);
+
+    E entry = this.getFocused();
+    if (entry == null) {
+      return;
+    }
+
+    if (this.client.getNavigationType().isKeyboard()) {
+      this.ensureVisible(entry);
+    }
+  }
+
+  @Override
   public List<? extends Element> children() {
     return this.entries.copy();
   }
@@ -231,6 +245,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   @Override
   public boolean mouseClicked(double mouseX, double mouseY, int button) {
     this.updateScrollingState(mouseX, mouseY, button);
+
     if (!this.isMouseOver(mouseX, mouseY)) {
       return false;
     }
@@ -305,14 +320,14 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
   protected void ensureVisible(E entry) {
     int scrolledTop = entry.getTop() - (int) this.scrollAmount;
-    if (scrolledTop < this.contentPadding) {
-      this.scroll(scrolledTop - this.contentPadding);
+    if (scrolledTop < this.top + this.contentPadding) {
+      this.scroll(scrolledTop - this.top - this.contentPadding);
       return;
     }
 
     int scrolledBottom = entry.getTop() + entry.getHeight() - (int) this.scrollAmount;
-    if (scrolledBottom > this.height - this.contentPadding) {
-      this.scroll(scrolledBottom - this.height + this.contentPadding);
+    if (scrolledBottom > this.bottom - this.contentPadding) {
+      this.scroll(scrolledBottom - this.bottom + this.contentPadding);
     }
   }
 
@@ -579,6 +594,10 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       }
 
       return null;
+    }
+
+    public int indexOf(E entry) {
+      return this.entries.indexOf(entry);
     }
 
     @Override

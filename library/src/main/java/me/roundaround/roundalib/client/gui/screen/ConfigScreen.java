@@ -4,6 +4,10 @@ import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
 import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.option.ConfigOption;
+import net.minecraft.client.gui.AbstractParentElement;
+import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.ParentElement;
+import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
@@ -42,6 +46,7 @@ public class ConfigScreen extends Screen {
     int listTop = 32;
 
     this.configListWidget = addDrawableChild(new ConfigListWidget(this.client,
+        this,
         this.modConfig,
         listLeft,
         listTop,
@@ -148,6 +153,7 @@ public class ConfigScreen extends Screen {
         this.width / 2,
         20,
         GuiUtil.LABEL_COLOR);
+
     super.render(matrixStack, mouseX, mouseY, delta);
   }
 }

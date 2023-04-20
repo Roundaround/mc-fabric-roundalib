@@ -42,11 +42,6 @@ public class OptionListControl<S extends ListOptionValue<S>>
   }
 
   @Override
-  public void removeFocus() {
-    this.button.setFocused(false);
-  }
-
-  @Override
   public void renderWidget(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
     this.button.render(matrixStack, mouseX, mouseY, delta);
   }
