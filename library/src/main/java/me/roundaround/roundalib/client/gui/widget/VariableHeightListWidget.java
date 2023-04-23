@@ -224,7 +224,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
   @Override
   public List<? extends Element> children() {
-    return this.entries.copy();
+    return this.entries.asList();
   }
 
   @Override
@@ -281,7 +281,9 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       double mouseX, double mouseY, int button, double deltaX, double deltaY) {
     if (super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)) {
       return true;
-    } else if (button == 0 && this.scrolling) {
+    }
+
+    if (button == 0 && this.scrolling) {
       if (mouseY < this.top) {
         this.setScrollAmount(0);
       } else if (mouseY > this.bottom) {
@@ -295,9 +297,9 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       }
 
       return true;
-    } else {
-      return false;
     }
+
+    return false;
   }
 
   @Override
@@ -551,7 +553,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       this.rowPadding = rowPadding;
     }
 
-    public List<E> copy() {
+    public List<E> asList() {
       return List.copyOf(this.entries);
     }
 
