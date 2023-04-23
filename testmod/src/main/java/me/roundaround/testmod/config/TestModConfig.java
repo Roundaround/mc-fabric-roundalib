@@ -2,6 +2,7 @@ package me.roundaround.testmod.config;
 
 import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.option.BooleanConfigOption;
+import me.roundaround.roundalib.config.option.IntConfigOption;
 import me.roundaround.roundalib.config.option.OptionListConfigOption;
 import me.roundaround.roundalib.config.option.StringConfigOption;
 import me.roundaround.roundalib.config.value.Difficulty;
@@ -31,6 +32,16 @@ public class TestModConfig extends ModConfig {
         .setDefaultValue("foo")
         .setMinLength(3)
         .setMaxLength(12)
+        .build());
+
+    registerConfigOption(IntConfigOption.builder(this,
+            "testOption23",
+            "testmod.testOption23.label")
+        .setDefaultValue(5)
+        .setMinValue(0)
+        .setMaxValue(100)
+        .setStep(5)
+        .addCustomValidator((option, value) -> value % 25 != 0)
         .build());
   }
 }

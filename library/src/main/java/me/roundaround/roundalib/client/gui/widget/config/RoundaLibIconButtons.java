@@ -2,6 +2,7 @@ package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.config.option.ConfigOption;
+import me.roundaround.roundalib.config.option.IntConfigOption;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -43,6 +44,34 @@ public final class RoundaLibIconButtons {
     button.active = option.isModified();
     option.subscribeToValueChanges((oldValue, newValue) -> {
       button.active = option.isModified();
+    });
+
+    return button;
+  }
+
+  public static IconButtonWidget intStepButton(
+      int x, int y, IntConfigOption option, boolean increment) {
+    String modId = option.getConfig().getModId();
+    Identifier texture = new Identifier(modId, "textures/roundalib.png");
+
+    IconButtonWidget button = IconButtonWidget.builder(texture, (buttonWidget) -> {
+          if (increment) {
+            option.increment();
+          } else {
+            option.decrement();
+          }
+        })
+        .size(SIZE_S)
+        .position(x, y)
+        .autoCalculateUV(increment ? INDEX_PLUS : INDEX_MINUS, 0, ORIGIN_S)
+        .tooltip(Text.translatable(
+            modId + ".roundalib." + (increment ? "step_up" : "step_down") + ".tooltip",
+            option.getStep()))
+        .build();
+
+    button.active = increment ? option.canIncrement() : option.canDecrement();
+    option.subscribeToValueChanges((oldValue, newValue) -> {
+      button.active = increment ? option.canIncrement() : option.canDecrement();
     });
 
     return button;

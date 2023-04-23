@@ -1,10 +1,7 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.RoundaLib;
-import me.roundaround.roundalib.config.option.BooleanConfigOption;
-import me.roundaround.roundalib.config.option.ConfigOption;
-import me.roundaround.roundalib.config.option.OptionListConfigOption;
-import me.roundaround.roundalib.config.option.StringConfigOption;
+import me.roundaround.roundalib.config.option.*;
 import me.roundaround.roundalib.config.value.*;
 
 import java.util.HashMap;
@@ -25,6 +22,7 @@ public class ControlRegistry {
     try {
       register(BooleanConfigOption.class, ToggleControl::new);
       register(StringConfigOption.class, TextControl::new);
+      register(IntConfigOption.class, ControlRegistry::intControlFactory);
       registerOptionList(Difficulty.class);
       registerOptionList(GameMode.class);
       registerOptionList(GuiAlignment.class);
@@ -92,6 +90,14 @@ public class ControlRegistry {
   }
 
   public static class NotRegisteredException extends Exception {
+  }
+
+  private static Control<Integer, IntConfigOption> intControlFactory(ConfigListWidget.OptionEntry<Integer, IntConfigOption> parent) {
+//      ControlFactory<Integer, IntConfigOption> constructor = parent.getOption().useSlider()
+//          ? IntSliderControl::new
+//          : IntTextControl::new;
+    ControlFactory<Integer, IntConfigOption> constructor = IntTextControl::new;
+    return constructor.create(parent);
   }
 
   @FunctionalInterface

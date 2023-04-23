@@ -16,13 +16,13 @@ public class TextControl extends Control<String, StringConfigOption> {
     super(parent);
 
     this.textField = new TextFieldWidget(parent.getTextRenderer(),
-        this.widgetLeft,
-        this.widgetTop,
-        this.widgetWidth,
-        this.widgetHeight,
-        option.getLabel());
+        this.widgetLeft + 1,
+        this.widgetTop + 1,
+        this.widgetWidth - 2,
+        this.widgetHeight - 2,
+        this.option.getLabel());
 
-    this.textField.setText(option.getValue());
+    this.textField.setText(this.option.getValue());
     this.textField.setChangedListener(this::onTextChanged);
   }
 
@@ -35,7 +35,7 @@ public class TextControl extends Control<String, StringConfigOption> {
   public void setScrollAmount(double scrollAmount) {
     super.setScrollAmount(scrollAmount);
 
-    this.textField.setY(this.scrolledTop);
+    this.textField.setY(this.scrolledTop + 1);
   }
 
   @Override
