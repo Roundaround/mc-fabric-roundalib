@@ -1,5 +1,5 @@
 plugins {
-  id("roundalib") version "0.1.3"
+  id("roundalib") version "0.2.2"
 }
 
 dependencies {
