@@ -115,31 +115,6 @@ public class ConfigScreen extends Screen {
   }
 
   @Override
-  public boolean mouseClicked(double mouseX, double mouseY, int button) {
-    return this.configListWidget.mouseClicked(mouseX, mouseY, button) ||
-        super.mouseClicked(mouseX, mouseY, button);
-  }
-
-  @Override
-  public boolean mouseReleased(double mouseX, double mouseY, int button) {
-    return this.configListWidget.mouseReleased(mouseX, mouseY, button) ||
-        super.mouseReleased(mouseX, mouseY, button);
-  }
-
-  @Override
-  public boolean mouseDragged(
-      double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-    return this.configListWidget.mouseDragged(mouseX, mouseY, button, deltaX, deltaY) ||
-        super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
-  }
-
-  @Override
-  public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-    return this.configListWidget.mouseScrolled(mouseX, mouseY, amount) ||
-        super.mouseScrolled(mouseX, mouseY, amount);
-  }
-
-  @Override
   public void tick() {
     this.configListWidget.tick();
   }
