@@ -113,7 +113,11 @@ public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Build
   }
 
   public String getValueAsString() {
-    return this.valueDisplayFunction.apply(getValue());
+    return this.getValueAsString(this.getValue());
+  }
+
+  public String getValueAsString(int value) {
+    return this.valueDisplayFunction.apply(value);
   }
 
   public boolean validateInput(int newValue) {

@@ -43,5 +43,15 @@ public class TestModConfig extends ModConfig {
         .setStep(5)
         .addCustomValidator((option, value) -> value % 25 != 0)
         .build());
+
+    registerConfigOption(IntConfigOption.builder(this,
+            "testOption24",
+            "testmod.testOption24.label")
+        .setDefaultValue(5)
+        .setMinValue(0)
+        .setMaxValue(100)
+        .setStep(5)
+        .setUseSlider(true)
+        .build());
   }
 }

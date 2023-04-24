@@ -93,10 +93,8 @@ public class ControlRegistry {
   }
 
   private static Control<Integer, IntConfigOption> intControlFactory(ConfigListWidget.OptionEntry<Integer, IntConfigOption> parent) {
-//      ControlFactory<Integer, IntConfigOption> constructor = parent.getOption().useSlider()
-//          ? IntSliderControl::new
-//          : IntTextControl::new;
-    ControlFactory<Integer, IntConfigOption> constructor = IntTextControl::new;
+    ControlFactory<Integer, IntConfigOption> constructor =
+        parent.getOption().useSlider() ? IntSliderControl::new : IntTextControl::new;
     return constructor.create(parent);
   }
 
