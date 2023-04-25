@@ -1,10 +1,7 @@
 package me.roundaround.testmod.config;
 
 import me.roundaround.roundalib.config.ModConfig;
-import me.roundaround.roundalib.config.option.BooleanConfigOption;
-import me.roundaround.roundalib.config.option.IntConfigOption;
-import me.roundaround.roundalib.config.option.OptionListConfigOption;
-import me.roundaround.roundalib.config.option.StringConfigOption;
+import me.roundaround.roundalib.config.option.*;
 import me.roundaround.roundalib.config.value.Difficulty;
 import me.roundaround.testmod.TestMod;
 
@@ -52,6 +49,14 @@ public class TestModConfig extends ModConfig {
         .setMaxValue(100)
         .setStep(5)
         .setUseSlider(true)
+        .build());
+
+    registerConfigOption(FloatConfigOption.builder(this,
+            "testOption25",
+            "testmod.testOption25.label")
+        .setDefaultValue(5)
+        .setMinValue(0)
+        .setMaxValue(100)
         .build());
   }
 }

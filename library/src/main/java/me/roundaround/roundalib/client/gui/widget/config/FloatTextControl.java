@@ -1,21 +1,22 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
-import me.roundaround.roundalib.config.option.IntConfigOption;
+import me.roundaround.roundalib.config.option.FloatConfigOption;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.MathHelper;
 
+import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.util.List;
-import java.util.Objects;
 
-public class IntTextControl extends Control<Integer, IntConfigOption> {
+public class FloatTextControl extends Control<Float, FloatConfigOption> {
+  private static final List<Character> ALLOWED_SPECIAL_CHARS = List.of('.', ',');
+
   private final TextFieldWidget textField;
-  private final IconButtonWidget plusButton;
-  private final IconButtonWidget minusButton;
 
-  public IntTextControl(ConfigListWidget.OptionEntry<Integer, IntConfigOption> parent) {
+  public FloatTextControl(ConfigListWidget.OptionEntry<Float, FloatConfigOption> parent) {
     super(parent);
 
     this.textField = new TextFieldWidget(parent.getTextRenderer(),
@@ -29,6 +30,11 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
         if (chr == '-' && this.getCursor() > 0) {
           return false;
         }
+
+        if (!isCharAllowed(chr)) {
+          return false;
+        }
+
         return super.charTyped(chr, keyCode);
       }
     };
@@ -36,34 +42,11 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
     this.textField.setText(this.option.getValue().toString());
     this.textField.setMaxLength(12);
     this.textField.setChangedListener(this::onTextChanged);
-
-    if (this.option.showStepButtons()) {
-      this.textField.setWidth(this.widgetWidth - RoundaLibIconButtons.SIZE_S - 4);
-
-      this.plusButton = RoundaLibIconButtons.intStepButton(
-          this.widgetLeft + this.widgetWidth - RoundaLibIconButtons.SIZE_S,
-          this.widgetTop,
-          this.option,
-          true);
-
-      this.minusButton = RoundaLibIconButtons.intStepButton(
-          this.widgetLeft + this.widgetWidth - RoundaLibIconButtons.SIZE_S,
-          this.widgetTop + this.widgetHeight - RoundaLibIconButtons.SIZE_S,
-          this.option,
-          false);
-    } else {
-      this.plusButton = null;
-      this.minusButton = null;
-    }
   }
 
   @Override
   public List<? extends Element> children() {
-    if (this.option.showStepButtons()) {
-      return List.of(this.textField, this.plusButton, this.minusButton);
-    } else {
-      return List.of(this.textField);
-    }
+    return List.of(this.textField);
   }
 
   @Override
@@ -71,11 +54,6 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
     super.setScrollAmount(scrollAmount);
 
     this.textField.setY(this.scrolledTop + 1);
-
-    if (this.option.showStepButtons()) {
-      this.plusButton.setY(this.scrolledTop);
-      this.minusButton.setY(this.scrolledTop + this.widgetHeight - RoundaLibIconButtons.SIZE_S);
-    }
   }
 
   @Override
@@ -98,26 +76,24 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
   @Override
   public void renderWidget(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
     this.textField.render(matrixStack, mouseX, mouseY, delta);
-    if (this.option.showStepButtons()) {
-      this.plusButton.render(matrixStack, mouseX, mouseY, delta);
-      this.minusButton.render(matrixStack, mouseX, mouseY, delta);
-    }
   }
 
   @Override
-  protected void onConfigValueChange(Integer prev, Integer curr) {
-    String currStr = String.valueOf(curr);
-
-    if (Objects.equals(currStr, this.textField.getText())) {
-      return;
+  protected void onConfigValueChange(Float prev, Float curr) {
+    try {
+      float parsed = this.parseFloat(this.textField.getText());
+      if (Math.abs(curr - parsed) < MathHelper.EPSILON) {
+        return;
+      }
+      this.textField.setText(curr.toString());
+    } catch (Exception e) {
+      this.textField.setText(curr.toString());
     }
-
-    this.textField.setText(currStr);
   }
 
   private void onTextChanged(String value) {
     try {
-      int parsed = Integer.parseInt(value);
+      float parsed = this.parseFloat(value);
       if (this.option.validateInput(parsed)) {
         this.option.setValue(parsed);
         markValid();
@@ -127,5 +103,14 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
     } catch (Exception e) {
       markInvalid();
     }
+  }
+
+  private float parseFloat(String value) throws ParseException {
+    DecimalFormat format = new DecimalFormat("#");
+    return format.parse(value).floatValue();
+  }
+
+  private static boolean isCharAllowed(char chr) {
+    return Character.isDigit(chr) || ALLOWED_SPECIAL_CHARS.contains(chr);
   }
 }

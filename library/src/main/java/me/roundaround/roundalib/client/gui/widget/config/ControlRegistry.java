@@ -23,6 +23,7 @@ public class ControlRegistry {
       register(BooleanConfigOption.class, ToggleControl::new);
       register(StringConfigOption.class, TextControl::new);
       register(IntConfigOption.class, ControlRegistry::intControlFactory);
+      register(FloatConfigOption.class, FloatTextControl::new);
       registerOptionList(Difficulty.class);
       registerOptionList(GameMode.class);
       registerOptionList(GuiAlignment.class);
