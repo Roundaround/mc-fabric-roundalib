@@ -1,10 +1,8 @@
-import net.fabricmc.loom.task.RemapJarTask
-
 plugins {
-  id("roundalib") version "0.2.2"
+  id("roundalib") version "0.2.5"
 }
 
-val testModId = project.properties.get("mod_id").toString()
+val testModId = project.properties["mod_id"].toString()
 
 val roundaLibConfig = configurations.create("roundaLibConfig")
 
@@ -25,7 +23,7 @@ tasks.mergeAssets {
 }
 
 tasks.importMixins {
-  roundaLibPackage.set("me.roundaround.roundalib.mixin")
+  roundaLibPackage.set("me.roundaround.testmod.roundalib.mixin")
   roundaLibConfiguration.set(roundaLibConfig)
 
   from(project.sourceSets.main.get().resources.asFileTree)
