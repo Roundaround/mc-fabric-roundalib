@@ -23,7 +23,7 @@ public class ControlRegistry {
       register(BooleanConfigOption.class, ToggleControl::new);
       register(StringConfigOption.class, TextControl::new);
       register(IntConfigOption.class, ControlRegistry::intControlFactory);
-      register(FloatConfigOption.class, FloatTextControl::new);
+      register(FloatConfigOption.class, ControlRegistry::floatControlFactory);
       registerOptionList(Difficulty.class);
       registerOptionList(GameMode.class);
       registerOptionList(GuiAlignment.class);
@@ -96,6 +96,12 @@ public class ControlRegistry {
   private static Control<Integer, IntConfigOption> intControlFactory(ConfigListWidget.OptionEntry<Integer, IntConfigOption> parent) {
     ControlFactory<Integer, IntConfigOption> constructor =
         parent.getOption().useSlider() ? IntSliderControl::new : IntTextControl::new;
+    return constructor.create(parent);
+  }
+
+  private static Control<Float, FloatConfigOption> floatControlFactory(ConfigListWidget.OptionEntry<Float, FloatConfigOption> parent) {
+    ControlFactory<Float, FloatConfigOption> constructor =
+        parent.getOption().useSlider() ? FloatSliderControl::new : FloatTextControl::new;
     return constructor.create(parent);
   }
 

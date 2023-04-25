@@ -58,5 +58,14 @@ public class TestModConfig extends ModConfig {
         .setMinValue(0)
         .setMaxValue(100)
         .build());
+
+    registerConfigOption(FloatConfigOption.builder(this,
+            "testOption26",
+            "testmod.testOption26.label")
+        .setDefaultValue(5)
+        .setMinValue(0)
+        .setMaxValue(100)
+        .setUseSlider(true)
+        .build());
   }
 }

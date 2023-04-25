@@ -79,6 +79,10 @@ public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Bui
   }
 
   public String getValueAsString() {
+    return this.getValueAsString(this.getValue());
+  }
+
+  public String getValueAsString(float value) {
     return this.valueDisplayFunction.apply(getValue());
   }
 
