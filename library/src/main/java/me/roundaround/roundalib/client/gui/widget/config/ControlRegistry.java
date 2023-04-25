@@ -87,6 +87,11 @@ public class ControlRegistry {
     throw new NotRegisteredException();
   }
 
+  public static <D, O extends ConfigOption<D, ?>> ControlFactory<D, O> createSubScreenControlFactory(
+      SubScreenControl.SubScreenFactory<D, O> subScreenFactory) {
+    return parent -> new SubScreenControl<>(parent, subScreenFactory);
+  }
+
   public static class RegistrationException extends Exception {
   }
 
