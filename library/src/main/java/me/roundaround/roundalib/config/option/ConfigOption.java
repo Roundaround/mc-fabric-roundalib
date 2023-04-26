@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import me.roundaround.roundalib.config.ModConfig;
@@ -14,13 +15,13 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
   private final ModConfig config;
   private final String id;
   private final Text label;
-  private final D defaultValue;
   private final boolean showInConfigScreen;
   private final List<String> comment;
   private final boolean useLabelAsCommentFallback;
   private final Supplier<Boolean> disabledSupplier;
   private final Queue<BiConsumer<D, D>> valueChangeListeners = new LinkedList<>();
 
+  private D defaultValue;
   private D value;
   private D lastSavedValue;
 
@@ -86,8 +87,12 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
     return this.defaultValue;
   }
 
+  public void setDefault(D defaultValue) {
+    this.defaultValue = defaultValue;
+  }
+
   public void resetToDefault() {
-    setValue(this.defaultValue);
+    this.setValue(this.defaultValue);
   }
 
   public void markValueAsSaved() {
@@ -124,6 +129,12 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
   }
 
   public abstract ConfigOption<D, B> copy();
+
+  public final ConfigOption<D, B> createWorkingCopy() {
+    ConfigOption<D, B> workingCopy = this.copy();
+    workingCopy.setDefault(this.value);
+    return workingCopy;
+  }
 
   public static abstract class AbstractBuilder<D, B extends AbstractBuilder<D, B>> {
     protected final ModConfig config;

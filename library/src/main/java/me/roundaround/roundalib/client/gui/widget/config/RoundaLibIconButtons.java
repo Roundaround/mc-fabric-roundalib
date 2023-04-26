@@ -3,6 +3,7 @@ package me.roundaround.roundalib.client.gui.widget.config;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.option.IntConfigOption;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -15,7 +16,7 @@ public final class RoundaLibIconButtons {
   public static final int ORIGIN_S = ORIGIN_M + 2 * SIZE_M;
   public static final int INDEX_RESET = 0;
   public static final int INDEX_CANCEL = 1;
-  public static final int INDEX_DONE = 2;
+  public static final int INDEX_CONFIRM = 2;
   public static final int INDEX_HELP = 3;
   public static final int INDEX_CLOSE = 4;
   public static final int INDEX_UP = 5;
@@ -31,15 +32,9 @@ public final class RoundaLibIconButtons {
 
   public static IconButtonWidget resetButton(int x, int y, ConfigOption<?, ?> option, int size) {
     String modId = option.getConfig().getModId();
-    Identifier texture = new Identifier(modId, "textures/roundalib.png");
 
     IconButtonWidget button =
-        IconButtonWidget.builder(texture, (buttonWidget) -> option.resetToDefault())
-            .size(size)
-            .position(x, y)
-            .autoCalculateUV(INDEX_RESET, 0, getOriginForSize(size))
-            .tooltip(Text.translatable(modId + ".roundalib.reset.tooltip"))
-            .build();
+        resetButton(x, y, size, modId, (buttonWidget) -> option.resetToDefault());
 
     button.active = option.isModified();
     option.subscribeToValueChanges((oldValue, newValue) -> {
@@ -47,6 +42,18 @@ public final class RoundaLibIconButtons {
     });
 
     return button;
+  }
+
+  public static IconButtonWidget resetButton(
+      int x, int y, int size, String modId, PressAction onPress) {
+    Identifier texture = new Identifier(modId, "textures/roundalib.png");
+
+    return IconButtonWidget.builder(texture, castPressAction(onPress))
+        .size(size)
+        .position(x, y)
+        .autoCalculateUV(INDEX_RESET, 0, getOriginForSize(size))
+        .tooltip(Text.translatable(modId + ".roundalib.reset.tooltip"))
+        .build();
   }
 
   public static IconButtonWidget intStepButton(
@@ -77,6 +84,38 @@ public final class RoundaLibIconButtons {
     return button;
   }
 
+  public static IconButtonWidget saveButton(int x, int y, String modId, PressAction onPress) {
+    return saveButton(x, y, modId, onPress, SIZE_M);
+  }
+
+  public static IconButtonWidget saveButton(
+      int x, int y, String modId, PressAction onPress, int size) {
+    Identifier texture = new Identifier(modId, "textures/roundalib.png");
+
+    return IconButtonWidget.builder(texture, castPressAction(onPress))
+        .size(size)
+        .position(x, y)
+        .autoCalculateUV(INDEX_CONFIRM, 0, getOriginForSize(size))
+        .tooltip(Text.translatable(modId + ".roundalib.save.tooltip"))
+        .build();
+  }
+
+  public static IconButtonWidget discardButton(int x, int y, String modId, PressAction onPress) {
+    return discardButton(x, y, modId, onPress, SIZE_M);
+  }
+
+  public static IconButtonWidget discardButton(
+      int x, int y, String modId, PressAction onPress, int size) {
+    Identifier texture = new Identifier(modId, "textures/roundalib.png");
+
+    return IconButtonWidget.builder(texture, castPressAction(onPress))
+        .size(size)
+        .position(x, y)
+        .autoCalculateUV(INDEX_CANCEL, 0, getOriginForSize(size))
+        .tooltip(Text.translatable(modId + ".roundalib.discard.tooltip"))
+        .build();
+  }
+
   private static int getOriginForSize(int size) {
     return switch (size) {
       case SIZE_L -> ORIGIN_L;
@@ -84,5 +123,14 @@ public final class RoundaLibIconButtons {
       case SIZE_S -> ORIGIN_S;
       default -> throw new IllegalArgumentException("Invalid size: " + size);
     };
+  }
+
+  private static ButtonWidget.PressAction castPressAction(PressAction onPress) {
+    return (buttonWidget) -> onPress.onPress((IconButtonWidget) buttonWidget);
+  }
+
+  @FunctionalInterface
+  public interface PressAction {
+    void onPress(IconButtonWidget button);
   }
 }
