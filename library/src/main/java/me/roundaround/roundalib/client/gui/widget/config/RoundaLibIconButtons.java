@@ -115,6 +115,66 @@ public final class RoundaLibIconButtons {
         .tooltip(Text.translatable(modId + ".roundalib.discard.tooltip"))
         .build();
   }
+  
+  public static IconButtonWidget upButton(int x, int y, String modId, PressAction onPress) {
+    return upButton(x, y, modId, onPress, SIZE_M);
+  }
+  
+  public static IconButtonWidget upButton(int x, int y, String modId, PressAction onPress, int size) {
+    Identifier texture = new Identifier(modId, "textures/roundalib.png");
+    
+    return IconButtonWidget.builder(texture, castPressAction(onPress))
+        .size(size)
+        .position(x, y)
+        .autoCalculateUV(INDEX_UP, 0, getOriginForSize(size))
+        .tooltip(Text.translatable(modId + ".roundalib.up.tooltip"))
+        .build();
+  }
+
+  public static IconButtonWidget downButton(int x, int y, String modId, PressAction onPress) {
+    return downButton(x, y, modId, onPress, SIZE_M);
+  }
+
+  public static IconButtonWidget downButton(int x, int y, String modId, PressAction onPress, int size) {
+    Identifier texture = new Identifier(modId, "textures/roundalib.png");
+
+    return IconButtonWidget.builder(texture, castPressAction(onPress))
+        .size(size)
+        .position(x, y)
+        .autoCalculateUV(INDEX_DOWN, 0, getOriginForSize(size))
+        .tooltip(Text.translatable(modId + ".roundalib.down.tooltip"))
+        .build();
+  }
+
+  public static IconButtonWidget leftButton(int x, int y, String modId, PressAction onPress) {
+    return leftButton(x, y, modId, onPress, SIZE_M);
+  }
+
+  public static IconButtonWidget leftButton(int x, int y, String modId, PressAction onPress, int size) {
+    Identifier texture = new Identifier(modId, "textures/roundalib.png");
+
+    return IconButtonWidget.builder(texture, castPressAction(onPress))
+        .size(size)
+        .position(x, y)
+        .autoCalculateUV(INDEX_LEFT, 0, getOriginForSize(size))
+        .tooltip(Text.translatable(modId + ".roundalib.left.tooltip"))
+        .build();
+  }
+
+  public static IconButtonWidget rightButton(int x, int y, String modId, PressAction onPress) {
+    return rightButton(x, y, modId, onPress, SIZE_M);
+  }
+
+  public static IconButtonWidget rightButton(int x, int y, String modId, PressAction onPress, int size) {
+    Identifier texture = new Identifier(modId, "textures/roundalib.png");
+
+    return IconButtonWidget.builder(texture, castPressAction(onPress))
+        .size(size)
+        .position(x, y)
+        .autoCalculateUV(INDEX_RIGHT, 0, getOriginForSize(size))
+        .tooltip(Text.translatable(modId + ".roundalib.right.tooltip"))
+        .build();
+  }
 
   private static int getOriginForSize(int size) {
     return switch (size) {

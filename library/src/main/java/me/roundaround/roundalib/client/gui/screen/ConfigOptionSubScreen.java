@@ -20,8 +20,7 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D, ?>> ext
   protected final Screen parent;
   protected final O configOption;
   protected final O workingCopy;
-
-  private final String modId;
+  protected final String modId;
 
   @SuppressWarnings("unchecked")
   protected ConfigOptionSubScreen(Text title, Screen parent, O configOption) {
