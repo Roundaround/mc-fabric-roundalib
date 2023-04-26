@@ -4,11 +4,15 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.config.RoundaLibIconButtons;
 import me.roundaround.roundalib.config.option.ConfigOption;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
+import org.lwjgl.glfw.GLFW;
+
+import java.util.List;
 
 public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D, ?>> extends Screen {
   protected static final int DARKEN_STRENGTH = 120;
@@ -17,12 +21,15 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D, ?>> ext
   protected final O configOption;
   protected final O workingCopy;
 
+  private final String modId;
+
   @SuppressWarnings("unchecked")
   protected ConfigOptionSubScreen(Text title, Screen parent, O configOption) {
     super(title);
     this.parent = parent;
     this.configOption = configOption;
     this.workingCopy = (O) configOption.createWorkingCopy();
+    this.modId = configOption.getConfig().getModId();
   }
 
   @Override
@@ -46,17 +53,47 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D, ?>> ext
   }
 
   @Override
+  public void close() {
+    if (this.client == null) {
+      return;
+    }
+    this.client.setScreen(this.parent);
+  }
+
+  @Override
+  public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    switch (keyCode) {
+      case GLFW.GLFW_KEY_ESCAPE:
+        this.discardAndExit();
+        return true;
+      case GLFW.GLFW_KEY_S:
+        if (Screen.hasControlDown()) {
+          this.saveAndExit();
+          return true;
+        }
+      case GLFW.GLFW_KEY_R:
+        if (Screen.hasControlDown()) {
+          this.resetToDefault();
+          return true;
+        }
+    }
+
+    return super.keyPressed(keyCode, scanCode, modifiers);
+  }
+
+  @Override
   public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-    renderBackground(matrixStack, mouseX, mouseY, partialTicks);
-    renderContent(matrixStack, mouseX, mouseY, partialTicks);
+    this.renderBackground(matrixStack, mouseX, mouseY, partialTicks);
+    this.renderContent(matrixStack, mouseX, mouseY, partialTicks);
+    this.renderHelp(matrixStack, mouseX, mouseY, partialTicks);
   }
 
   protected void renderBackground(
       MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
     if (parent == null) {
-      renderTextureBackground(matrixStack, mouseX, mouseY, partialTicks);
+      this.renderTextureBackground(matrixStack, mouseX, mouseY, partialTicks);
     } else {
-      renderDarkenBackground(matrixStack, mouseX, mouseY, partialTicks);
+      this.renderDarkenBackground(matrixStack, mouseX, mouseY, partialTicks);
     }
   }
 
@@ -115,6 +152,56 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D, ?>> ext
         ((Drawable) child).render(matrixStack, mouseX, mouseY, partialTicks);
       }
     });
+  }
+
+  protected void renderHelp(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    if (hasShiftDown()) {
+      this.renderHelpExpanded(matrixStack, mouseX, mouseY, partialTicks);
+    } else {
+      this.renderHelpPrompt(matrixStack, mouseX, mouseY, partialTicks);
+    }
+  }
+
+  protected void renderHelpPrompt(
+      MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    this.renderHelpLines(matrixStack, getHelpShort(mouseX, mouseY, partialTicks));
+  }
+
+  protected void renderHelpExpanded(
+      MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    this.renderHelpLines(matrixStack, getHelpLong(mouseX, mouseY, partialTicks));
+  }
+
+  private void renderHelpLines(MatrixStack matrixStack, List<Text> lines) {
+    this.renderHelpLines(matrixStack, lines, false);
+  }
+
+  private void renderHelpLines(MatrixStack matrixStack, List<Text> lines, boolean offsetForIcon) {
+    int startingOffset =
+        height - 4 - textRenderer.fontHeight - (lines.size() - 1) * (textRenderer.fontHeight + 2);
+
+    for (int i = 0; i < lines.size(); i++) {
+      drawTextWithShadow(matrixStack,
+          textRenderer,
+          lines.get(i),
+          4,
+          startingOffset + i * (textRenderer.fontHeight + 2),
+          GuiUtil.LABEL_COLOR);
+    }
+  }
+
+  protected List<Text> getHelpShort(int mouseX, int mouseY, float partialTicks) {
+    return List.of(Text.translatable(this.modId + ".roundalib.help.short"));
+  }
+
+  protected List<Text> getHelpLong(int mouseX, int mouseY, float partialTicks) {
+    return List.of(Text.translatable(this.modId + ".roundalib.help.cancel"),
+        (MinecraftClient.IS_SYSTEM_MAC
+            ? Text.translatable(this.modId + ".roundalib.help.save.mac")
+            : Text.translatable(this.modId + ".roundalib.help.save.win")),
+        (MinecraftClient.IS_SYSTEM_MAC
+            ? Text.translatable(this.modId + ".roundalib.help.reset.mac")
+            : Text.translatable(this.modId + ".roundalib.help.reset.win")));
   }
 
   protected void setValue(D value) {
