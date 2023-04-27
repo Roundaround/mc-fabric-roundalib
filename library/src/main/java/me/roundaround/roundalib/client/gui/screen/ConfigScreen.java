@@ -13,7 +13,6 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.Collection;
 
@@ -101,17 +100,6 @@ public class ConfigScreen extends Screen {
     }
 
     this.client.setScreen(this.parent);
-  }
-
-  @Override
-  public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-    if (keyCode == GLFW.GLFW_KEY_K) {
-      this.configListWidget.nextCategory();
-      return true;
-    }
-
-    return this.configListWidget.keyPressed(keyCode, scanCode, modifiers) ||
-        super.keyPressed(keyCode, scanCode, modifiers);
   }
 
   @Override
