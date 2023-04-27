@@ -13,14 +13,11 @@ import net.minecraft.client.gui.Element;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
 public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.Entry> {
   private final ConfigScreen screen;
-  private final ArrayList<CategoryEntry> categories = new ArrayList<>();
-  private int currentCategory = 0;
 
   public ConfigListWidget(
       MinecraftClient client,
@@ -42,7 +39,9 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
       String modId = modConfig.getModId();
       String category = entry.getKey();
       if (modConfig.getShowGroupTitles() && !category.equals(modId)) {
-        addCategory(Text.translatable(entry.getKey() + ".title"));
+        this.addEntry(new CategoryEntry(this.client,
+            this,
+            Text.translatable(entry.getKey() + ".title")));
       }
 
       for (var option : entry.getValue()) {
@@ -57,15 +56,6 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
         }
       }
     }
-  }
-
-  public void addCategory(Text label) {
-    this.categories.add(this.addEntry(new CategoryEntry(this.client, this, label)));
-  }
-
-  public void nextCategory() {
-    this.currentCategory = (this.currentCategory + 1) % this.categories.size();
-    this.ensureVisible(this.categories.get(this.currentCategory));
   }
 
   public void tick() {
