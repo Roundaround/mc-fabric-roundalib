@@ -132,9 +132,9 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
       this.labelWidget = LabelWidget.builder(client,
               configOption.getLabel(),
-              this.getLeft() + GuiUtil.PADDING,
+              this.getLeft() + this.getWidth() / 2,
               this.getTop() + this.getHeight() / 2)
-          .justifiedLeft()
+          .justifiedCenter()
           .alignedMiddle()
           .shiftForPadding()
           .showTextShadow()
