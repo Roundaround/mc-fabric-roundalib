@@ -6,10 +6,11 @@ import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.AbstractParentElement;
-import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.Selectable;
+import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.navigation.GuiNavigation;
+import net.minecraft.client.gui.navigation.GuiNavigationPath;
+import net.minecraft.client.gui.navigation.NavigationAxis;
+import net.minecraft.client.gui.navigation.NavigationDirection;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.render.*;
@@ -20,6 +21,7 @@ import org.joml.Matrix4f;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Predicate;
 
 public abstract class VariableHeightListWidget<E extends VariableHeightListWidget.Entry<E>>
     extends AbstractParentElement implements Drawable, Selectable {
@@ -202,6 +204,11 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   @Override
+  public ScreenRect getNavigationFocus() {
+    return new ScreenRect(this.left, this.top, this.width, this.height);
+  }
+
+  @Override
   @SuppressWarnings("unchecked")
   public E getFocused() {
     // Suppress warning because we know that the focused element will only ever be an entry
@@ -220,6 +227,96 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     if (this.client.getNavigationType().isKeyboard()) {
       this.ensureVisible(entry);
     }
+  }
+
+  @Override
+  public GuiNavigationPath getNavigationPath(GuiNavigation navigation) {
+    if (this.entries.isEmpty()) {
+      return null;
+    }
+
+    if (!(navigation instanceof GuiNavigation.Arrow arrow)) {
+      return super.getNavigationPath(navigation);
+    }
+
+    E entry = this.getFocused();
+
+    if (arrow.direction().getAxis() == NavigationAxis.HORIZONTAL && entry != null) {
+      return GuiNavigationPath.of(this, entry.getNavigationPath(navigation));
+    }
+
+    int index = -1;
+    NavigationDirection direction = arrow.direction();
+
+    if (entry != null) {
+      index = entry.children().indexOf(entry.getFocused());
+    }
+
+    if (index == -1) {
+      switch (direction) {
+        case LEFT -> {
+          index = Integer.MAX_VALUE;
+          direction = NavigationDirection.DOWN;
+        }
+        case RIGHT -> {
+          index = 0;
+          direction = NavigationDirection.DOWN;
+        }
+        default -> index = 0;
+      }
+    }
+
+    GuiNavigationPath path;
+    do {
+      entry = this.getNeighboringEntry(direction, (element) -> !element.children().isEmpty());
+      if (entry == null) {
+        return null;
+      }
+      path = entry.getNavigationPath(arrow, index);
+    } while (path == null);
+
+    return GuiNavigationPath.of(this, path);
+  }
+
+  protected E getNeighboringEntry(NavigationDirection direction) {
+    return this.getNeighboringEntry(direction, (entry) -> true);
+  }
+
+  protected E getNeighboringEntry(NavigationDirection direction, Predicate<E> predicate) {
+    return this.getNeighboringEntry(direction, predicate, this.getFocused());
+  }
+
+  protected E getNeighboringEntry(
+      NavigationDirection direction, Predicate<E> predicate, E focused) {
+    if (this.entries.isEmpty()) {
+      return null;
+    }
+
+    int delta = switch (direction) {
+      case UP -> -1;
+      case DOWN -> 1;
+      default -> 0;
+    };
+
+    if (delta == 0) {
+      return null;
+    }
+
+    int index;
+    if (focused == null) {
+      index = delta > 0 ? 0 : this.entries.size() - 1;
+    } else {
+      index = this.entries.indexOf(focused) + delta;
+    }
+
+    for (int i = index; i >= 0 && i < this.entries.size(); i += delta) {
+      E entry = this.entries.get(i);
+      if (predicate.test(entry)) {
+        return entry;
+      }
+    }
+
+    return null;
   }
 
   @Override
@@ -395,6 +492,8 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     private final int width;
     private final int height;
 
+    private Element focused;
+
     public Entry(MinecraftClient client, VariableHeightListWidget<E> parent, int height) {
       this.client = client;
       this.parent = parent;
@@ -540,6 +639,64 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       return mouseX >= this.getLeft() && mouseX <= this.getRight() && mouseY >= this.getTop() &&
           mouseY <= this.getBottom();
     }
+
+    @Override
+    public void setFocused(Element focused) {
+      if (this.focused != null) {
+        this.focused.setFocused(false);
+      }
+
+      if (focused != null) {
+        focused.setFocused(true);
+      }
+
+      this.focused = focused;
+    }
+
+    @Override
+    public Element getFocused() {
+      return this.focused;
+    }
+
+    public GuiNavigationPath getNavigationPath(GuiNavigation navigation, int index) {
+      if (this.children().isEmpty()) {
+        return null;
+      }
+
+      Element child = this.children().get(Math.min(index, this.children().size() - 1));
+      GuiNavigationPath path = child.getNavigationPath(navigation);
+      return GuiNavigationPath.of(this, path);
+    }
+
+    @Override
+    public GuiNavigationPath getNavigationPath(GuiNavigation navigation) {
+      if (!(navigation instanceof GuiNavigation.Arrow arrow)) {
+        return super.getNavigationPath(navigation);
+      }
+
+      int delta = switch (arrow.direction()) {
+        case LEFT -> -1;
+        case RIGHT -> 1;
+        default -> 0;
+      };
+
+      if (delta == 0) {
+        return null;
+      }
+
+      int index = MathHelper.clamp(delta + this.children().indexOf(this.getFocused()),
+          0,
+          this.children().size() - 1);
+
+      for (int i = index; i >= 0 && i < this.children().size(); i += delta) {
+        GuiNavigationPath path = this.children().get(i).getNavigationPath(navigation);
+        if (path != null) {
+          return GuiNavigationPath.of(this, path);
+        }
+      }
+
+      return super.getNavigationPath(navigation);
+    }
   }
 
   protected static class PositionalLinkedList<E extends VariableHeightListWidget.Entry<E>>
@@ -571,6 +728,10 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
     public int size() {
       return this.entries.size();
+    }
+
+    public boolean isEmpty() {
+      return this.entries.isEmpty();
     }
 
     public void clear() {

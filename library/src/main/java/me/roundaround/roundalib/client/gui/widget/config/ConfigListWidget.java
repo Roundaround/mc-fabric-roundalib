@@ -10,6 +10,9 @@ import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.navigation.GuiNavigation;
+import net.minecraft.client.gui.navigation.GuiNavigationPath;
+import net.minecraft.client.gui.widget.PressableWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 
@@ -160,6 +163,29 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
       return Stream.of(this.control.children(), List.of(this.resetButton))
           .flatMap(List::stream)
           .toList();
+    }
+
+    protected List<? extends Element> navigableChildren() {
+      return this.children().stream()
+          .filter(element -> {
+            if (element instanceof PressableWidget pressable) {
+              return pressable.active;
+            }
+            return true;
+          })
+          .toList();
+    }
+
+    @Override
+    public GuiNavigationPath getNavigationPath(GuiNavigation navigation, int index) {
+      List<? extends Element> navigableChildren = this.navigableChildren();
+      if (navigableChildren.isEmpty()) {
+        return null;
+      }
+
+      Element child = navigableChildren.get(Math.min(index, navigableChildren.size() - 1));
+      GuiNavigationPath path = child.getNavigationPath(navigation);
+      return GuiNavigationPath.of(this, path);
     }
 
     @Override
