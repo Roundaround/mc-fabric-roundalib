@@ -10,6 +10,7 @@ import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.navigation.GuiNavigation;
 import net.minecraft.client.gui.navigation.GuiNavigationPath;
 import net.minecraft.client.gui.widget.PressableWidget;
@@ -166,14 +167,12 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     }
 
     protected List<? extends Element> navigableChildren() {
-      return this.children().stream()
-          .filter(element -> {
-            if (element instanceof PressableWidget pressable) {
-              return pressable.active;
-            }
-            return true;
-          })
-          .toList();
+      return this.children().stream().filter(element -> {
+        if (element instanceof PressableWidget pressable) {
+          return pressable.active;
+        }
+        return true;
+      }).toList();
     }
 
     @Override

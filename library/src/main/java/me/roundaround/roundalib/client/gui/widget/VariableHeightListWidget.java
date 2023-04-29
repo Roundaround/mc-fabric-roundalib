@@ -13,8 +13,11 @@ import net.minecraft.client.gui.navigation.NavigationAxis;
 import net.minecraft.client.gui.navigation.NavigationDirection;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.screen.narration.NarrationPart;
+import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import org.joml.Matrix4f;
 
@@ -199,11 +202,6 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   @Override
-  public void appendNarrations(NarrationMessageBuilder builder) {
-
-  }
-
-  @Override
   public ScreenRect getNavigationFocus() {
     return new ScreenRect(this.left, this.top, this.width, this.height);
   }
@@ -331,6 +329,38 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     } else {
       return this.hoveredEntry != null ? SelectionType.HOVERED : SelectionType.NONE;
     }
+  }
+
+  protected E getHoveredEntry() {
+    return this.hoveredEntry;
+  }
+
+  protected void appendNarrations(NarrationMessageBuilder builder, E entry) {
+    List<E> list = this.entries.asList();
+    if (list.size() > 1) {
+      int i = list.indexOf(entry);
+      if (i != -1) {
+        builder.put(NarrationPart.POSITION,
+            Text.translatable("narrator.position.list", i + 1, list.size()));
+      }
+    }
+  }
+
+  @Override
+  public void appendNarrations(NarrationMessageBuilder builder) {
+    E hovered = this.getHoveredEntry();
+    if (hovered != null) {
+      hovered.appendNarrations(builder.nextMessage());
+      this.appendNarrations(builder, hovered);
+    } else {
+      E focused = this.getFocused();
+      if (focused != null) {
+        focused.appendNarrations(builder.nextMessage());
+        this.appendNarrations(builder, focused);
+      }
+    }
+
+    builder.put(NarrationPart.USAGE, Text.translatable("narration.component_list.usage"));
   }
 
   @Override
@@ -493,6 +523,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     private final int height;
 
     private Element focused;
+    private Selectable focusedSelectable;
 
     public Entry(MinecraftClient client, VariableHeightListWidget<E> parent, int height) {
       this.client = client;
@@ -630,6 +661,14 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
     }
 
+    public List<? extends Selectable> selectableChildren() {
+      return this.children()
+          .stream()
+          .filter(Selectable.class::isInstance)
+          .map(Selectable.class::cast)
+          .toList();
+    }
+
     @Override
     public boolean isMouseOver(double mouseX, double mouseY) {
       if (!this.parent.isMouseOver(mouseX, mouseY)) {
@@ -696,6 +735,28 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       }
 
       return super.getNavigationPath(navigation);
+    }
+
+    void appendNarrations(NarrationMessageBuilder builder) {
+      List<? extends Selectable> list = this.selectableChildren();
+      Screen.SelectedElementNarrationData data =
+          Screen.findSelectedElementData(list, this.focusedSelectable);
+
+      if (data != null) {
+        if (data.selectType.isFocused()) {
+          this.focusedSelectable = data.selectable;
+        }
+
+        if (list.size() > 1) {
+          builder.put(NarrationPart.POSITION,
+              Text.translatable("narrator.position.object_list", data.index + 1, list.size()));
+          if (data.selectType == Selectable.SelectionType.FOCUSED) {
+            builder.put(NarrationPart.USAGE, Text.translatable("narration.component_list.usage"));
+          }
+        }
+
+        data.selectable.appendNarrations(builder.nextMessage());
+      }
     }
   }
 
