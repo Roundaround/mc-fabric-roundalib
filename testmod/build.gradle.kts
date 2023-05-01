@@ -1,10 +1,10 @@
 plugins {
-  id("roundalib") version "0.2.15"
+  id("roundalib") version "0.2.26"
 }
 
 val testModId = project.properties["mod_id"].toString()
 
-val roundaLibConfig = configurations.create("roundaLibConfig")
+val roundaLibConfig: Configuration = configurations.create("roundaLibConfig")
 
 dependencies {
   implementation(project(path = ":library", configuration = "namedElements"))
@@ -15,22 +15,26 @@ dependencies {
 }
 
 tasks.mergeAssets {
-  modId.set(testModId)
-  roundaLibConfiguration.set(roundaLibConfig)
+  dependsOn(tasks.compileJava)
 
-  from(project.sourceSets.main.get().resources.asFileTree)
+  modId.set(testModId)
+  roundaLibConfiguration.set(project.files(roundaLibConfig))
+
+  from(tasks.processResources.get().destinationDir)
   into(project.buildDir.resolve("roundalib"))
 }
 
 tasks.importMixins {
-  roundaLibPackage.set("me.roundaround.testmod.roundalib.mixin")
-  roundaLibConfiguration.set(roundaLibConfig)
+  dependsOn(tasks.compileJava)
 
-  from(project.sourceSets.main.get().resources.asFileTree)
+  roundaLibPackage.set("me.roundaround.testmod.roundalib.mixin")
+  roundaLibConfiguration.set(project.files(roundaLibConfig))
+
+  from(tasks.processResources.get().destinationDir)
   into(project.buildDir.resolve("roundalib"))
 }
 
 tasks.processResources {
-  dependsOn(tasks.mergeAssets, tasks.importMixins)
-  from(tasks.mergeAssets.get().destinationDir, tasks.importMixins.get().destinationDir)
+  dependsOn(tasks.mergeAssets)
+  from(tasks.mergeAssets.get().destinationDir)
 }
