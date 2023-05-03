@@ -1,15 +1,13 @@
 package me.roundaround.roundalib.client.gui.screen;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
 import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.option.ConfigOption;
-import net.minecraft.client.gui.AbstractParentElement;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.ParentElement;
-import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
@@ -17,6 +15,7 @@ import net.minecraft.text.Text;
 import java.util.Collection;
 
 public class ConfigScreen extends Screen {
+  private static final int DARKEN_STRENGTH = 120;
   private static final int LIST_MIN_WIDTH = 400;
   private static final int FOOTER_BUTTON_WIDTH = 150;
   private static final int FOOTER_BUTTON_HEIGHT = 20;
@@ -25,8 +24,6 @@ public class ConfigScreen extends Screen {
   private final Screen parent;
   private final ModConfig modConfig;
   private ConfigListWidget configListWidget;
-  private ButtonWidget cancelButton;
-  private ButtonWidget doneButton;
   private boolean shouldSave = false;
 
   public ConfigScreen(Screen parent, ModConfig modConfig) {
@@ -54,14 +51,14 @@ public class ConfigScreen extends Screen {
 
     int cancelButtonLeft = (width - FOOTER_BUTTON_SPACING) / 2 - FOOTER_BUTTON_WIDTH;
     int cancelButtonTop = height - FOOTER_BUTTON_POS_Y;
-    this.cancelButton = addDrawableChild(ButtonWidget.builder(ScreenTexts.CANCEL, this::cancel)
+    addDrawableChild(ButtonWidget.builder(ScreenTexts.CANCEL, this::cancel)
         .position(cancelButtonLeft, cancelButtonTop)
         .size(FOOTER_BUTTON_WIDTH, FOOTER_BUTTON_HEIGHT)
         .build());
 
     int doneButtonLeft = (width + FOOTER_BUTTON_SPACING) / 2;
     int doneButtonTop = height - FOOTER_BUTTON_POS_Y;
-    this.doneButton = addDrawableChild(ButtonWidget.builder(ScreenTexts.DONE, this::done)
+    addDrawableChild(ButtonWidget.builder(ScreenTexts.DONE, this::done)
         .position(doneButtonLeft, doneButtonTop)
         .size(FOOTER_BUTTON_WIDTH, FOOTER_BUTTON_HEIGHT)
         .build());
@@ -109,7 +106,8 @@ public class ConfigScreen extends Screen {
 
   @Override
   public void render(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
-    renderBackground(matrixStack);
+    GuiUtil.renderBackgroundInRegion(64, 0, this.height, 0, this.width);
+
     drawCenteredTextWithShadow(matrixStack,
         this.textRenderer,
         this.title,

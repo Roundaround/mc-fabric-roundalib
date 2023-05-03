@@ -1,7 +1,8 @@
 plugins {
-  id("roundalib") version "0.2.26"
+  id("roundalib") version "0.2.65"
 }
 
+val testGroupId = project.properties["group_id"].toString()
 val testModId = project.properties["mod_id"].toString()
 
 val roundaLibConfig: Configuration = configurations.create("roundaLibConfig")
@@ -14,27 +15,23 @@ dependencies {
   implementation("com.electronwill.night-config:toml:3.6.5")
 }
 
-tasks.mergeAssets {
-  dependsOn(tasks.compileJava)
-
+tasks.mergeLanguageFiles {
   modId.set(testModId)
-  roundaLibConfiguration.set(project.files(roundaLibConfig))
-
-  from(tasks.processResources.get().destinationDir)
-  into(project.buildDir.resolve("roundalib"))
+  roundaLibSource.from(roundaLibConfig)
 }
 
 tasks.importMixins {
-  dependsOn(tasks.compileJava)
+  modId.set(testModId)
+  roundaLibSource.from(roundaLibConfig)
+  roundaLibPackage.set("$testGroupId.$testModId.roundalib.mixin")
+}
 
-  roundaLibPackage.set("me.roundaround.testmod.roundalib.mixin")
-  roundaLibConfiguration.set(project.files(roundaLibConfig))
-
-  from(tasks.processResources.get().destinationDir)
-  into(project.buildDir.resolve("roundalib"))
+tasks.copyTextures {
+  modId.set(testModId)
+  roundaLibSource.from(roundaLibConfig)
 }
 
 tasks.processResources {
-  dependsOn(tasks.mergeAssets)
-  from(tasks.mergeAssets.get().destinationDir)
+  dependsOn(tasks.mergeLanguageFiles, tasks.importMixins, tasks.copyTextures)
+  from(tasks.mergeLanguageFiles.get().outputDir, tasks.importMixins.get().outputDir, tasks.copyTextures.get().outputDir)
 }
