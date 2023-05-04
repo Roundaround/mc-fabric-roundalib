@@ -3,6 +3,7 @@ package me.roundaround.testmod.config;
 import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.option.*;
 import me.roundaround.roundalib.config.value.Difficulty;
+import me.roundaround.roundalib.config.value.Position;
 import me.roundaround.testmod.TestMod;
 
 import java.util.Arrays;
@@ -31,9 +32,7 @@ public class TestModConfig extends ModConfig {
         .setMaxLength(12)
         .build());
 
-    registerConfigOption(IntConfigOption.builder(this,
-            "testOption23",
-            "testmod.testOption23.label")
+    registerConfigOption(IntConfigOption.builder(this, "testOption23", "testmod.testOption23.label")
         .setDefaultValue(5)
         .setMinValue(0)
         .setMaxValue(100)
@@ -41,9 +40,7 @@ public class TestModConfig extends ModConfig {
         .addCustomValidator((option, value) -> value % 25 != 0)
         .build());
 
-    registerConfigOption(IntConfigOption.builder(this,
-            "testOption24",
-            "testmod.testOption24.label")
+    registerConfigOption(IntConfigOption.builder(this, "testOption24", "testmod.testOption24.label")
         .setDefaultValue(5)
         .setMinValue(0)
         .setMaxValue(100)
@@ -52,12 +49,8 @@ public class TestModConfig extends ModConfig {
         .build());
 
     registerConfigOption(FloatConfigOption.builder(this,
-            "testOption25",
-            "testmod.testOption25.label")
-        .setDefaultValue(5)
-        .setMinValue(0)
-        .setMaxValue(100)
-        .build());
+        "testOption25",
+        "testmod.testOption25.label").setDefaultValue(5).setMinValue(0).setMaxValue(100).build());
 
     registerConfigOption(FloatConfigOption.builder(this,
             "testOption26",
@@ -67,5 +60,10 @@ public class TestModConfig extends ModConfig {
         .setMaxValue(100)
         .setUseSlider(true)
         .build());
+
+    registerConfigOption(PositionConfigOption.builder(this,
+        "testOption27",
+        "testmod.testOption27.label",
+        new Position(0, 0)).build());
   }
 }

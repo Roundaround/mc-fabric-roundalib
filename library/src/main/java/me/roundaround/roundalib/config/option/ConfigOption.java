@@ -131,9 +131,7 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
   public abstract ConfigOption<D, B> copy();
 
   public final ConfigOption<D, B> createWorkingCopy() {
-    ConfigOption<D, B> workingCopy = this.copy();
-    workingCopy.setDefault(this.value);
-    return workingCopy;
+    return this.copy();
   }
 
   public static abstract class AbstractBuilder<D, B extends AbstractBuilder<D, B>> {

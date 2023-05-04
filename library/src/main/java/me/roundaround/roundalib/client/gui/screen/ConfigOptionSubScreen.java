@@ -34,19 +34,19 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D, ?>> ext
   @Override
   protected void init() {
     this.addSelectableChild(RoundaLibIconButtons.resetButton(
+        this.width - 3 * (GuiUtil.PADDING + RoundaLibIconButtons.SIZE_M),
         this.height - GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M,
-        this.width - 3 * (GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M),
         this.workingCopy));
 
     this.addSelectableChild(RoundaLibIconButtons.discardButton(
+        this.width - 2 * (GuiUtil.PADDING + RoundaLibIconButtons.SIZE_M),
         this.height - GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M,
-        this.width - 2 * (GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M),
         this.configOption.getConfig().getModId(),
         (button) -> this.discardAndExit()));
 
     this.addSelectableChild(RoundaLibIconButtons.saveButton(
-        this.height - GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M,
         this.width - GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M,
+        this.height - GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M,
         this.configOption.getConfig().getModId(),
         (button) -> this.saveAndExit()));
   }

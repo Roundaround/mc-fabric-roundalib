@@ -79,10 +79,6 @@ public abstract class PositionEditScreen
 
   @Override
   public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-    if (super.keyPressed(keyCode, scanCode, modifiers)) {
-      return true;
-    }
-
     switch (keyCode) {
       case GLFW.GLFW_KEY_UP -> {
         moveUp();
@@ -102,7 +98,7 @@ public abstract class PositionEditScreen
       }
     }
 
-    return false;
+    return super.keyPressed(keyCode, scanCode, modifiers);
   }
 
   @Override
