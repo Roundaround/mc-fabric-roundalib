@@ -66,7 +66,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     this.entries.forEach(Entry::tick);
   }
 
-  protected abstract static class Entry extends VariableHeightListWidget.Entry<Entry> {
+  public abstract static class Entry extends VariableHeightListWidget.Entry<Entry> {
     protected Entry(MinecraftClient client, ConfigListWidget parent, int height) {
       super(client, parent, height);
     }
@@ -80,7 +80,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     }
   }
 
-  protected static class CategoryEntry extends Entry {
+  public static class CategoryEntry extends Entry {
     protected static final int HEIGHT = 20;
 
     protected final LabelWidget labelWidget;
@@ -118,7 +118,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     }
   }
 
-  protected static class OptionEntry<D, O extends ConfigOption<D, ?>> extends Entry {
+  public static class OptionEntry<D, O extends ConfigOption<D, ?>> extends Entry {
     protected static final int HEIGHT = 20;
 
     protected final O option;
