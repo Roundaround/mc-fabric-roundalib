@@ -41,4 +41,9 @@ public class ToggleControl extends Control<Boolean, BooleanConfigOption> {
   protected void onConfigValueChange(Boolean prev, Boolean curr) {
     this.button.setMessage(this.option.getValueLabel());
   }
+
+  @Override
+  protected void onDisabledChange(boolean prev, boolean curr) {
+    this.button.active = !disabled;
+  }
 }

@@ -54,6 +54,11 @@ public class OptionListControl<S extends ListOptionValue<S>>
     this.button.setValue(curr);
   }
 
+  @Override
+  protected void onDisabledChange(boolean prev, boolean curr) {
+    this.button.active = !disabled;
+  }
+
   private void buttonClicked(CyclingButtonWidget<S> button, S value) {
     this.option.setValue(value);
   }

@@ -45,6 +45,11 @@ public class SubScreenControl<D, O extends ConfigOption<D, ?>> extends Control<D
     this.button.render(matrixStack, mouseX, mouseY, delta);
   }
 
+  @Override
+  protected void onDisabledChange(boolean prev, boolean curr) {
+    this.button.active = !disabled;
+  }
+
   @FunctionalInterface
   public interface SubScreenFactory<D, C extends ConfigOption<D, ?>> {
     Screen create(Screen parent, C configOption);

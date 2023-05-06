@@ -1,15 +1,12 @@
 package me.roundaround.roundalib.config.option;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 import me.roundaround.roundalib.config.ModConfig;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
+
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, B>> {
   private final ModConfig config;
@@ -19,7 +16,8 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
   private final List<String> comment;
   private final boolean useLabelAsCommentFallback;
   private final Supplier<Boolean> disabledSupplier;
-  private final Queue<BiConsumer<D, D>> valueChangeListeners = new LinkedList<>();
+  private final HashMap<Screen, Queue<BiConsumer<D, D>>> valueChangeListeners = new HashMap<>();
+  private final List<ConfigOption<?, ?>> dependencies;
 
   private D defaultValue;
   private D value;
@@ -34,6 +32,7 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
     this.comment = builder.comment;
     this.useLabelAsCommentFallback = builder.useLabelAsCommentFallback;
     this.disabledSupplier = builder.disabledSupplier;
+    this.dependencies = builder.dependencies;
     this.value = defaultValue;
   }
 
@@ -46,7 +45,9 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
     this.comment = other.comment;
     this.useLabelAsCommentFallback = other.useLabelAsCommentFallback;
     this.disabledSupplier = other.disabledSupplier;
+    this.dependencies = other.dependencies;
     this.value = other.value;
+    this.lastSavedValue = other.lastSavedValue;
   }
 
   public ModConfig getConfig() {
@@ -80,7 +81,8 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
   public void setValue(D value) {
     D prev = this.value;
     this.value = value;
-    this.valueChangeListeners.forEach((listener) -> listener.accept(prev, value));
+    this.valueChangeListeners.values()
+        .forEach((list) -> list.forEach((listener) -> listener.accept(prev, value)));
   }
 
   public D getDefault() {
@@ -121,7 +123,11 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
   }
 
   public final void subscribeToValueChanges(BiConsumer<D, D> listener) {
-    this.valueChangeListeners.add(listener);
+    subscribeToValueChanges(null, listener);
+  }
+
+  public final void subscribeToValueChanges(Screen screen, BiConsumer<D, D> listener) {
+    this.valueChangeListeners.add(screen, listener);
   }
 
   public final void clearValueChangeListeners() {
@@ -143,6 +149,7 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
     protected List<String> comment = List.of();
     protected boolean useLabelAsCommentFallback = true;
     protected Supplier<Boolean> disabledSupplier = () -> false;
+    protected List<ConfigOption<?, ?>> dependencies = List.of();
 
     protected AbstractBuilder(ModConfig config, String id, String labelI18nKey, D defaultValue) {
       this(config, id, Text.translatable(labelI18nKey), defaultValue);
@@ -191,6 +198,23 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
       return (B) this;
     }
 
+    @SuppressWarnings("unchecked")
+    public B dependsOn(ConfigOption<?, ?>... dependencies) {
+      this.dependencies = List.of(dependencies);
+      return (B) this;
+    }
+
     public abstract ConfigOption<D, B> build();
+  }
+
+  private static class ValueChangeListeners {
+    private final HashMap<Screen, Queue<BiConsumer<D, D>>> listeners = new HashMap<>();
+
+    public void add(Screen screen, BiConsumer<D, D> listener) {
+      if (!this.listeners.containsKey(screen)) {
+        this.listeners.put(screen, new LinkedList<>());
+      }
+      this.listeners.get(screen).add(listener);
+    }
   }
 }

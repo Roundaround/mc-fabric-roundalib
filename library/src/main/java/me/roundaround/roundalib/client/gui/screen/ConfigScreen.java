@@ -1,13 +1,11 @@
 package me.roundaround.roundalib.client.gui.screen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
 import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
@@ -15,7 +13,6 @@ import net.minecraft.text.Text;
 import java.util.Collection;
 
 public class ConfigScreen extends Screen {
-  private static final int DARKEN_STRENGTH = 120;
   private static final int LIST_MIN_WIDTH = 400;
   private static final int FOOTER_BUTTON_WIDTH = 150;
   private static final int FOOTER_BUTTON_HEIGHT = 20;
@@ -42,7 +39,6 @@ public class ConfigScreen extends Screen {
     int listTop = 32;
 
     this.configListWidget = addDrawableChild(new ConfigListWidget(this.client,
-        this,
         this.modConfig,
         listLeft,
         listTop,

@@ -12,35 +12,35 @@ public class TestModConfig extends ModConfig {
   public TestModConfig() {
     super(TestMod.MOD_ID);
 
-    for (int i = 1; i <= 20; i++) {
-      registerConfigOption(BooleanConfigOption.builder(this,
-          "testOption" + i,
-          "testmod.testOption" + i + ".label").setDefaultValue(true).build());
-    }
+    BooleanConfigOption first = registerConfigOption(BooleanConfigOption.builder(this,
+        "testOption1",
+        "testmod.testOption1.label").setDefaultValue(true).build());
 
     registerConfigOption(OptionListConfigOption.defaultInstance(this,
-        "testOption21",
-        "testmod.testOption21.label",
+        "testOption2",
+        "testmod.testOption2.label",
         Arrays.stream(Difficulty.values()).toList(),
         Difficulty.NORMAL));
 
     registerConfigOption(StringConfigOption.builder(this,
-            "testOption22",
-            "testmod.testOption22.label")
+            "testOption3",
+            "testmod.testOption3.label")
         .setDefaultValue("foo")
         .setMinLength(3)
         .setMaxLength(12)
+        .setDisabledSupplier(() -> !first.getValue())
         .build());
 
-    registerConfigOption(IntConfigOption.builder(this, "testOption23", "testmod.testOption23.label")
+    registerConfigOption(IntConfigOption.builder(this, "testOption4", "testmod.testOption4.label")
         .setDefaultValue(5)
         .setMinValue(0)
         .setMaxValue(100)
         .setStep(5)
         .addCustomValidator((option, value) -> value % 25 != 0)
+        .setDisabledSupplier(() -> !first.getValue())
         .build());
 
-    registerConfigOption(IntConfigOption.builder(this, "testOption24", "testmod.testOption24.label")
+    registerConfigOption(IntConfigOption.builder(this, "testOption5", "testmod.testOption5.label")
         .setDefaultValue(5)
         .setMinValue(0)
         .setMaxValue(100)
@@ -48,13 +48,13 @@ public class TestModConfig extends ModConfig {
         .setUseSlider(true)
         .build());
 
-    registerConfigOption(FloatConfigOption.builder(this,
-        "testOption25",
-        "testmod.testOption25.label").setDefaultValue(5).setMinValue(0).setMaxValue(100).build());
+    registerConfigOption(FloatConfigOption.builder(this, "testOption6", "testmod.testOption6.label")
+        .setDefaultValue(5)
+        .setMinValue(0)
+        .setMaxValue(100)
+        .build());
 
-    registerConfigOption(FloatConfigOption.builder(this,
-            "testOption26",
-            "testmod.testOption26.label")
+    registerConfigOption(FloatConfigOption.builder(this, "testOption7", "testmod.testOption7.label")
         .setDefaultValue(5)
         .setMinValue(0)
         .setMaxValue(100)
@@ -62,8 +62,21 @@ public class TestModConfig extends ModConfig {
         .build());
 
     registerConfigOption(PositionConfigOption.builder(this,
-        "testOption27",
-        "testmod.testOption27.label",
+        "testOption8",
+        "testmod.testOption8.label",
         new Position(0, 0)).build());
+
+    registerConfigOption(PositionConfigOption.builder(this,
+        "testOption9",
+        "testmod.testOption9.label",
+        new Position(0, 0)).build());
+
+    registerConfigOption(IntConfigOption.builder(this, "testOption10", "testmod.testOption10.label")
+        .setDefaultValue(5)
+        .setMinValue(0)
+        .setMaxValue(100)
+        .setStep(5)
+        .setUseSlider(true)
+        .build());
   }
 }

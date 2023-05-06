@@ -42,6 +42,7 @@ public class FloatTextControl extends Control<Float, FloatConfigOption> {
     this.textField.setText(this.option.getValue().toString());
     this.textField.setMaxLength(12);
     this.textField.setChangedListener(this::onTextChanged);
+    this.textField.active = this.disabled;
   }
 
   @Override
@@ -70,6 +71,7 @@ public class FloatTextControl extends Control<Float, FloatConfigOption> {
 
   @Override
   public void tick() {
+    super.tick();
     this.textField.tick();
   }
 
@@ -89,6 +91,11 @@ public class FloatTextControl extends Control<Float, FloatConfigOption> {
     } catch (Exception e) {
       this.textField.setText(curr.toString());
     }
+  }
+
+  @Override
+  protected void onDisabledChange(boolean prev, boolean curr) {
+    this.textField.active = !disabled;
   }
 
   private void onTextChanged(String value) {

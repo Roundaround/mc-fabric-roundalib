@@ -38,7 +38,7 @@ public final class RoundaLibIconButtons {
 
     button.active = option.isModified();
     option.subscribeToValueChanges((oldValue, newValue) -> {
-      button.active = option.isModified();
+      button.active = option.isModified() && !option.isDisabled();
     });
 
     return button;

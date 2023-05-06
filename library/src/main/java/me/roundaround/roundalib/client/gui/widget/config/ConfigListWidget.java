@@ -2,7 +2,6 @@ package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.screen.ConfigScreen;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.VariableHeightListWidget;
@@ -10,7 +9,6 @@ import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.navigation.GuiNavigation;
 import net.minecraft.client.gui.navigation.GuiNavigationPath;
 import net.minecraft.client.gui.widget.PressableWidget;
@@ -21,19 +19,10 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.Entry> {
-  private final ConfigScreen screen;
 
   public ConfigListWidget(
-      MinecraftClient client,
-      ConfigScreen screen,
-      ModConfig modConfig,
-      int left,
-      int top,
-      int width,
-      int height) {
+      MinecraftClient client, ModConfig modConfig, int left, int top, int width, int height) {
     super(client, left, top, width, height);
-
-    this.screen = screen;
 
     for (var entry : modConfig.getConfigOptions().entrySet()) {
       if (entry.getValue().stream().noneMatch(ConfigOption::shouldShowInConfigScreen)) {

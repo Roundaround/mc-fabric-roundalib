@@ -58,6 +58,11 @@ public class FloatSliderControl extends Control<Float, FloatConfigOption> {
     this.slider.setFloatValue(curr);
   }
 
+  @Override
+  protected void onDisabledChange(boolean prev, boolean curr) {
+    this.slider.active = !disabled;
+  }
+
   private void onSliderChanged(float value) {
     this.option.setValue(value);
   }

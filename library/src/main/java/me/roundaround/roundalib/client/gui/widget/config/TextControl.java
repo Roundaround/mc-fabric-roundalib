@@ -52,6 +52,7 @@ public class TextControl extends Control<String, StringConfigOption> {
 
   @Override
   public void tick() {
+    super.tick();
     this.textField.tick();
   }
 
@@ -66,6 +67,11 @@ public class TextControl extends Control<String, StringConfigOption> {
       return;
     }
     this.textField.setText(curr);
+  }
+
+  @Override
+  protected void onDisabledChange(boolean prev, boolean curr) {
+    this.textField.active = !disabled;
   }
 
   private void onTextChanged(String text) {

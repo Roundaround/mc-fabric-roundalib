@@ -58,6 +58,11 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
     this.slider.setIntValue(curr);
   }
 
+  @Override
+  protected void onDisabledChange(boolean prev, boolean curr) {
+    this.slider.active = !disabled;
+  }
+
   private void onSliderChanged(int value) {
     this.option.setValue(value);
   }

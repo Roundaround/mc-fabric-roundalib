@@ -92,6 +92,7 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
 
   @Override
   public void tick() {
+    super.tick();
     this.textField.tick();
   }
 
@@ -113,6 +114,11 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
     }
 
     this.textField.setText(currStr);
+  }
+
+  @Override
+  protected void onDisabledChange(boolean prev, boolean curr) {
+    this.textField.active = !disabled;
   }
 
   private void onTextChanged(String value) {
