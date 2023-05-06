@@ -18,6 +18,8 @@ public class ToggleControl extends Control<Boolean, BooleanConfigOption> {
             .position(this.widgetLeft, this.widgetTop)
             .size(this.widgetWidth, this.widgetHeight)
             .build();
+
+    this.onDisabledChange(this.disabled, this.disabled);
   }
 
   @Override

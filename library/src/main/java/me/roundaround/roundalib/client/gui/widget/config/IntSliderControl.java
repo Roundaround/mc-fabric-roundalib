@@ -31,6 +31,8 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
         this.option.getValue(),
         this::onSliderChanged,
         this::getValueAsText);
+
+    this.onDisabledChange(this.disabled, this.disabled);
   }
 
   @Override

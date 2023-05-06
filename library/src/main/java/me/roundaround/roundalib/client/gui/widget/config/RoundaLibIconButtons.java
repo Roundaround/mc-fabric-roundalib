@@ -39,7 +39,7 @@ public final class RoundaLibIconButtons {
     IconButtonWidget button =
         resetButton(x, y, size, modId, (buttonWidget) -> option.resetToDefault());
 
-    button.active = option.isModified();
+    button.active = option.isModified() && !option.isDisabled();
     option.subscribeToValueChanges(client.currentScreen, (oldValue, newValue) -> {
       button.active = option.isModified() && !option.isDisabled();
     });
@@ -79,9 +79,11 @@ public final class RoundaLibIconButtons {
             option.getStep()))
         .build();
 
-    button.active = increment ? option.canIncrement() : option.canDecrement();
+    button.active =
+        !option.isDisabled() && (increment ? option.canIncrement() : option.canDecrement());
     option.subscribeToValueChanges(client.currentScreen, (oldValue, newValue) -> {
-      button.active = increment ? option.canIncrement() : option.canDecrement();
+      button.active =
+          !option.isDisabled() && (increment ? option.canIncrement() : option.canDecrement());
     });
 
     return button;
@@ -118,14 +120,15 @@ public final class RoundaLibIconButtons {
         .tooltip(Text.translatable(modId + ".roundalib.discard.tooltip"))
         .build();
   }
-  
+
   public static IconButtonWidget upButton(int x, int y, String modId, PressAction onPress) {
     return upButton(x, y, modId, onPress, SIZE_M);
   }
-  
-  public static IconButtonWidget upButton(int x, int y, String modId, PressAction onPress, int size) {
+
+  public static IconButtonWidget upButton(
+      int x, int y, String modId, PressAction onPress, int size) {
     Identifier texture = new Identifier(modId, "textures/roundalib.png");
-    
+
     return IconButtonWidget.builder(texture, castPressAction(onPress))
         .size(size)
         .position(x, y)
@@ -138,7 +141,8 @@ public final class RoundaLibIconButtons {
     return downButton(x, y, modId, onPress, SIZE_M);
   }
 
-  public static IconButtonWidget downButton(int x, int y, String modId, PressAction onPress, int size) {
+  public static IconButtonWidget downButton(
+      int x, int y, String modId, PressAction onPress, int size) {
     Identifier texture = new Identifier(modId, "textures/roundalib.png");
 
     return IconButtonWidget.builder(texture, castPressAction(onPress))
@@ -153,7 +157,8 @@ public final class RoundaLibIconButtons {
     return leftButton(x, y, modId, onPress, SIZE_M);
   }
 
-  public static IconButtonWidget leftButton(int x, int y, String modId, PressAction onPress, int size) {
+  public static IconButtonWidget leftButton(
+      int x, int y, String modId, PressAction onPress, int size) {
     Identifier texture = new Identifier(modId, "textures/roundalib.png");
 
     return IconButtonWidget.builder(texture, castPressAction(onPress))
@@ -168,7 +173,8 @@ public final class RoundaLibIconButtons {
     return rightButton(x, y, modId, onPress, SIZE_M);
   }
 
-  public static IconButtonWidget rightButton(int x, int y, String modId, PressAction onPress, int size) {
+  public static IconButtonWidget rightButton(
+      int x, int y, String modId, PressAction onPress, int size) {
     Identifier texture = new Identifier(modId, "textures/roundalib.png");
 
     return IconButtonWidget.builder(texture, castPressAction(onPress))

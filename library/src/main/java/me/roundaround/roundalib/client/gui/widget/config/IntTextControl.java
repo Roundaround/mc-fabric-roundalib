@@ -55,6 +55,8 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
       this.plusButton = null;
       this.minusButton = null;
     }
+
+    this.onDisabledChange(this.disabled, this.disabled);
   }
 
   @Override
@@ -120,11 +122,6 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
   protected void onDisabledChange(boolean prev, boolean curr) {
     this.textField.active = !this.disabled;
     this.textField.setEditable(!this.disabled);
-
-    if (this.option.showStepButtons()) {
-      this.plusButton.active = !this.disabled;
-      this.minusButton.active = !this.disabled;
-    }
   }
 
   private void onTextChanged(String value) {

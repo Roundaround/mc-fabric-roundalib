@@ -26,6 +26,8 @@ public class SubScreenControl<D, O extends ConfigOption<D, ?>> extends Control<D
         .position(this.widgetLeft, this.widgetTop)
         .size(this.widgetWidth, this.widgetHeight)
         .build();
+
+    this.onDisabledChange(this.disabled, this.disabled);
   }
 
   @Override

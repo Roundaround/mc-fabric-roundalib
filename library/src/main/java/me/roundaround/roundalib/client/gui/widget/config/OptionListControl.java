@@ -27,6 +27,8 @@ public class OptionListControl<S extends ListOptionValue<S>>
                 this.widgetHeight,
                 Text.empty(),
                 this::buttonClicked);
+
+    this.onDisabledChange(this.disabled, this.disabled);
   }
 
   @Override

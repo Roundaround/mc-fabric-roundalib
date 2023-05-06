@@ -24,6 +24,8 @@ public class TextControl extends Control<String, StringConfigOption> {
 
     this.textField.setText(this.option.getValue());
     this.textField.setChangedListener(this::onTextChanged);
+
+    this.onDisabledChange(this.disabled, this.disabled);
   }
 
   @Override

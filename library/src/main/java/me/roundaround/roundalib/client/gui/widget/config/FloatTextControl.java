@@ -42,7 +42,8 @@ public class FloatTextControl extends Control<Float, FloatConfigOption> {
     this.textField.setText(this.option.getValue().toString());
     this.textField.setMaxLength(12);
     this.textField.setChangedListener(this::onTextChanged);
-    this.textField.active = this.disabled;
+
+    this.onDisabledChange(this.disabled, this.disabled);
   }
 
   @Override

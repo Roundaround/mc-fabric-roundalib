@@ -19,8 +19,6 @@ public abstract class Control<D, O extends ConfigOption<D, ?>> extends AbstractP
   protected boolean valid;
   protected boolean disabled;
 
-  private boolean previousDisabled;
-
   protected Control(ConfigListWidget.OptionEntry<D, O> parent) {
     this.parent = parent;
     this.option = parent.getOption();
@@ -62,11 +60,9 @@ public abstract class Control<D, O extends ConfigOption<D, ?>> extends AbstractP
   }
 
   private void valueChanged(D prev, D curr) {
+    boolean previousDisabled = this.disabled;
     this.disabled = this.option.isDisabled();
-    if (this.previousDisabled != this.disabled) {
-      this.onDisabledChange(this.previousDisabled, this.disabled);
-    }
-    this.previousDisabled = this.disabled;
+    this.onDisabledChange(previousDisabled, this.disabled);
 
     this.onConfigValueChange(prev, curr);
   }
