@@ -60,7 +60,7 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
 
   @Override
   protected void onDisabledChange(boolean prev, boolean curr) {
-    this.slider.active = !disabled;
+    this.slider.active = !this.disabled;
   }
 
   private void onSliderChanged(int value) {

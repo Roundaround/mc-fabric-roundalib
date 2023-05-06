@@ -16,7 +16,7 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
   private final List<String> comment;
   private final boolean useLabelAsCommentFallback;
   private final Supplier<Boolean> disabledSupplier;
-  private final HashMap<Screen, Queue<BiConsumer<D, D>>> valueChangeListeners = new HashMap<>();
+  private final ValueChangeListeners<D> valueChangeListeners = new ValueChangeListeners<>();
   private final List<ConfigOption<?, ?>> dependencies;
 
   private D defaultValue;
@@ -34,6 +34,9 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
     this.disabledSupplier = builder.disabledSupplier;
     this.dependencies = builder.dependencies;
     this.value = defaultValue;
+
+    this.dependencies.forEach(dependency -> dependency.valueChangeListeners.add(null,
+        this::dependencyChanged));
   }
 
   protected ConfigOption(ConfigOption<D, B> other) {
@@ -81,8 +84,7 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
   public void setValue(D value) {
     D prev = this.value;
     this.value = value;
-    this.valueChangeListeners.values()
-        .forEach((list) -> list.forEach((listener) -> listener.accept(prev, value)));
+    this.valueChangeListeners.invoke(prev, value);
   }
 
   public D getDefault() {
@@ -122,16 +124,16 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
     return value;
   }
 
-  public final void subscribeToValueChanges(BiConsumer<D, D> listener) {
-    subscribeToValueChanges(null, listener);
-  }
-
   public final void subscribeToValueChanges(Screen screen, BiConsumer<D, D> listener) {
     this.valueChangeListeners.add(screen, listener);
   }
 
-  public final void clearValueChangeListeners() {
-    this.valueChangeListeners.clear();
+  public final void clearValueChangeListeners(Screen screen) {
+    this.valueChangeListeners.clear(screen);
+  }
+
+  protected void dependencyChanged(Object prev, Object curr) {
+    this.valueChangeListeners.invoke(this.getValue(), this.getValue());
   }
 
   public abstract ConfigOption<D, B> copy();
@@ -207,7 +209,7 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
     public abstract ConfigOption<D, B> build();
   }
 
-  private static class ValueChangeListeners {
+  private static class ValueChangeListeners<D> {
     private final HashMap<Screen, Queue<BiConsumer<D, D>>> listeners = new HashMap<>();
 
     public void add(Screen screen, BiConsumer<D, D> listener) {
@@ -215,6 +217,28 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
         this.listeners.put(screen, new LinkedList<>());
       }
       this.listeners.get(screen).add(listener);
+    }
+
+    public void remove(Screen screen, BiConsumer<D, D> listener) {
+      if (!this.listeners.containsKey(screen)) {
+        return;
+      }
+      this.listeners.get(screen).remove(listener);
+    }
+
+    public void clear(Screen screen) {
+      this.listeners.remove(screen);
+    }
+
+    public void invoke(D prev, D curr) {
+      this.listeners.keySet().forEach((screen) -> invoke(screen, prev, curr));
+    }
+
+    public void invoke(Screen screen, D prev, D curr) {
+      if (!this.listeners.containsKey(screen)) {
+        return;
+      }
+      this.listeners.get(screen).forEach((listener) -> listener.accept(prev, curr));
     }
   }
 }

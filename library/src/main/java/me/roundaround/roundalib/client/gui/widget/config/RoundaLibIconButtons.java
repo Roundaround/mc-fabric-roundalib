@@ -3,11 +3,14 @@ package me.roundaround.roundalib.client.gui.widget.config;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.option.IntConfigOption;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public final class RoundaLibIconButtons {
+  private static final MinecraftClient client = MinecraftClient.getInstance();
+
   public static final int SIZE_L = 18;
   public static final int SIZE_M = 13;
   public static final int SIZE_S = 9;
@@ -37,7 +40,7 @@ public final class RoundaLibIconButtons {
         resetButton(x, y, size, modId, (buttonWidget) -> option.resetToDefault());
 
     button.active = option.isModified();
-    option.subscribeToValueChanges((oldValue, newValue) -> {
+    option.subscribeToValueChanges(client.currentScreen, (oldValue, newValue) -> {
       button.active = option.isModified() && !option.isDisabled();
     });
 
@@ -77,7 +80,7 @@ public final class RoundaLibIconButtons {
         .build();
 
     button.active = increment ? option.canIncrement() : option.canDecrement();
-    option.subscribeToValueChanges((oldValue, newValue) -> {
+    option.subscribeToValueChanges(client.currentScreen, (oldValue, newValue) -> {
       button.active = increment ? option.canIncrement() : option.canDecrement();
     });
 

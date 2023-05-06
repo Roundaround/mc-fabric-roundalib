@@ -13,8 +13,16 @@ public class TestModConfig extends ModConfig {
     super(TestMod.MOD_ID);
 
     BooleanConfigOption first = registerConfigOption(BooleanConfigOption.builder(this,
-        "testOption1",
-        "testmod.testOption1.label").setDefaultValue(true).build());
+        "testOption0",
+        "testmod.testOption0.label").setDefaultValue(true).build());
+
+    registerConfigOption(BooleanConfigOption.builder(this,
+            "testOption1",
+            "testmod.testOption1.label")
+        .setDefaultValue(true)
+        .dependsOn(first)
+        .setDisabledSupplier(() -> !first.getValue())
+        .build());
 
     registerConfigOption(OptionListConfigOption.defaultInstance(this,
         "testOption2",
@@ -28,6 +36,7 @@ public class TestModConfig extends ModConfig {
         .setDefaultValue("foo")
         .setMinLength(3)
         .setMaxLength(12)
+        .dependsOn(first)
         .setDisabledSupplier(() -> !first.getValue())
         .build());
 
@@ -37,6 +46,7 @@ public class TestModConfig extends ModConfig {
         .setMaxValue(100)
         .setStep(5)
         .addCustomValidator((option, value) -> value % 25 != 0)
+        .dependsOn(first)
         .setDisabledSupplier(() -> !first.getValue())
         .build());
 
@@ -46,6 +56,8 @@ public class TestModConfig extends ModConfig {
         .setMaxValue(100)
         .setStep(5)
         .setUseSlider(true)
+        .dependsOn(first)
+        .setDisabledSupplier(() -> !first.getValue())
         .build());
 
     registerConfigOption(FloatConfigOption.builder(this, "testOption6", "testmod.testOption6.label")

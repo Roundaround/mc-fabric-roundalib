@@ -24,7 +24,7 @@ public abstract class Control<D, O extends ConfigOption<D, ?>> extends AbstractP
   protected Control(ConfigListWidget.OptionEntry<D, O> parent) {
     this.parent = parent;
     this.option = parent.getOption();
-    this.option.subscribeToValueChanges(this::valueChanged);
+    this.option.subscribeToValueChanges(parent.getClient().currentScreen, this::valueChanged);
 
     this.widgetWidth = Math.max(WIDGET_MIN_WIDTH, Math.round(parent.getWidth() * 0.3f));
     this.widgetLeft = parent.getControlRight() - this.widgetWidth;
@@ -62,11 +62,11 @@ public abstract class Control<D, O extends ConfigOption<D, ?>> extends AbstractP
   }
 
   private void valueChanged(D prev, D curr) {
-    boolean disabled = this.option.isDisabled();
-    if (this.previousDisabled != disabled) {
-      this.onDisabledChange(this.previousDisabled, disabled);
+    this.disabled = this.option.isDisabled();
+    if (this.previousDisabled != this.disabled) {
+      this.onDisabledChange(this.previousDisabled, this.disabled);
     }
-    this.previousDisabled = disabled;
+    this.previousDisabled = this.disabled;
 
     this.onConfigValueChange(prev, curr);
   }

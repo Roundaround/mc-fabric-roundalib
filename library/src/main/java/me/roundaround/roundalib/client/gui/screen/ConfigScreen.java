@@ -3,7 +3,6 @@ package me.roundaround.roundalib.client.gui.screen;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
 import me.roundaround.roundalib.config.ModConfig;
-import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
@@ -65,7 +64,7 @@ public class ConfigScreen extends Screen {
         .values()
         .stream()
         .flatMap(Collection::stream)
-        .forEach(ConfigOption::clearValueChangeListeners);
+        .forEach((configOption) -> configOption.clearValueChangeListeners(this));
   }
 
   private void cancel(ButtonWidget button) {

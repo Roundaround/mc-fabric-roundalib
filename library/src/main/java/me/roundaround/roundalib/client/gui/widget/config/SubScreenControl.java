@@ -47,7 +47,7 @@ public class SubScreenControl<D, O extends ConfigOption<D, ?>> extends Control<D
 
   @Override
   protected void onDisabledChange(boolean prev, boolean curr) {
-    this.button.active = !disabled;
+    this.button.active = !this.disabled;
   }
 
   @FunctionalInterface

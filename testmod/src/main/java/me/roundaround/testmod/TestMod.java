@@ -18,7 +18,8 @@ public final class TestMod implements ModInitializer {
     CONFIG.init();
 
     try {
-      ControlRegistry.register("testOption27", TestMod::getSubScreenControl);
+      ControlRegistry.register("testOption8", TestMod::getSubScreenControl);
+      ControlRegistry.register("testOption9", TestMod::getSubScreenControl);
     } catch (ControlRegistry.RegistrationException e) {
       throw new RuntimeException(e);
     }

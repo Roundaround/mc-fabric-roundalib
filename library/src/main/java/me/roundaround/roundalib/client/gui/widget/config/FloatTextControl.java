@@ -95,7 +95,8 @@ public class FloatTextControl extends Control<Float, FloatConfigOption> {
 
   @Override
   protected void onDisabledChange(boolean prev, boolean curr) {
-    this.textField.active = !disabled;
+    this.textField.active = !this.disabled;
+    this.textField.setEditable(!this.disabled);
   }
 
   private void onTextChanged(String value) {

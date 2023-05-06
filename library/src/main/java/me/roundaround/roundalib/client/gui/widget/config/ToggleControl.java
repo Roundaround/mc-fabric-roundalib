@@ -44,6 +44,6 @@ public class ToggleControl extends Control<Boolean, BooleanConfigOption> {
 
   @Override
   protected void onDisabledChange(boolean prev, boolean curr) {
-    this.button.active = !disabled;
+    this.button.active = !this.disabled;
   }
 }

@@ -60,7 +60,7 @@ public class FloatSliderControl extends Control<Float, FloatConfigOption> {
 
   @Override
   protected void onDisabledChange(boolean prev, boolean curr) {
-    this.slider.active = !disabled;
+    this.slider.active = !this.disabled;
   }
 
   private void onSliderChanged(float value) {
