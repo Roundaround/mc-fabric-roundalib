@@ -2,8 +2,8 @@ package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.client.gui.widget.IntSliderWidget;
 import me.roundaround.roundalib.config.option.IntConfigOption;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 
 import java.util.List;
@@ -15,13 +15,13 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
   public IntSliderControl(ConfigListWidget.OptionEntry<Integer, IntConfigOption> parent) {
     super(parent);
 
-    if (!this.option.useSlider() || this.option.getMinValue().isEmpty() || this.option.getMaxValue().isEmpty()) {
+    if (!this.option.useSlider() || this.option.getMinValue().isEmpty() ||
+        this.option.getMaxValue().isEmpty()) {
       throw new IllegalArgumentException(
           "IntConfigOption must use slider and have min and max values to use IntSliderControl");
     }
 
-    this.slider = new IntSliderWidget(
-        this.widgetLeft,
+    this.slider = new IntSliderWidget(this.widgetLeft,
         this.widgetTop,
         this.widgetWidth,
         this.widgetHeight,
@@ -48,8 +48,8 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
   }
 
   @Override
-  public void renderWidget(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
-    this.slider.render(matrixStack, mouseX, mouseY, delta);
+  public void renderWidget(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+    this.slider.render(drawContext, mouseX, mouseY, delta);
   }
 
   @Override

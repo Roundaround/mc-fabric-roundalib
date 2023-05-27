@@ -4,11 +4,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.config.ModConfig;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.*;
 import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.StringVisitable;
@@ -19,7 +18,7 @@ import net.minecraft.util.math.MathHelper;
 
 import java.util.List;
 
-import static net.minecraft.client.gui.DrawableHelper.OPTIONS_BACKGROUND_TEXTURE;
+import static net.minecraft.client.gui.screen.Screen.OPTIONS_BACKGROUND_TEXTURE;
 
 public class GuiUtil {
   public static int LABEL_COLOR = genColorInt(1f, 1f, 1f);
@@ -80,12 +79,7 @@ public class GuiUtil {
   }
 
   public static void renderInScissor(
-      MinecraftClient client,
-      int x,
-      int y,
-      int width,
-      int height,
-      Runnable render) {
+      MinecraftClient client, int x, int y, int width, int height, Runnable render) {
     Screen currentScreen = getCurrentScreen(client);
     if (currentScreen == null) {
       render.run();
@@ -102,10 +96,7 @@ public class GuiUtil {
     scissorWidth = MathHelper.ceil(scissorWidth * scaleFactor);
     scissorHeight = MathHelper.ceil(scissorHeight * scaleFactor);
 
-    RenderSystem.enableScissor(scissorLeft,
-        scissorTop,
-        scissorWidth,
-        scissorHeight);
+    RenderSystem.enableScissor(scissorLeft, scissorTop, scissorWidth, scissorHeight);
     render.run();
     RenderSystem.disableScissor();
   }
@@ -132,8 +123,7 @@ public class GuiUtil {
 
   public static void playSoundEvent(
       MinecraftClient client, SoundEvent soundEvent) {
-    client.getSoundManager()
-        .play(PositionedSoundInstance.master(soundEvent, 1));
+    client.getSoundManager().play(PositionedSoundInstance.master(soundEvent, 1));
   }
 
   public static TextRenderer getTextRenderer() {
@@ -141,7 +131,7 @@ public class GuiUtil {
   }
 
   public static void drawTruncatedCenteredTextWithShadow(
-      MatrixStack matrixStack,
+      DrawContext drawContext,
       TextRenderer textRenderer,
       Text text,
       int x,
@@ -156,8 +146,7 @@ public class GuiUtil {
           maxWidth - textRenderer.getWidth(ellipsis)), ellipsis);
     }
 
-    DrawableHelper.drawCenteredTextWithShadow(matrixStack,
-        textRenderer,
+    drawContext.drawCenteredTextWithShadow(textRenderer,
         Language.getInstance().reorder(trimmed),
         x,
         y,
@@ -165,7 +154,7 @@ public class GuiUtil {
   }
 
   public static void drawWrappedCenteredTextWithShadow(
-      MatrixStack matrixStack,
+      DrawContext drawContext,
       TextRenderer textRenderer,
       Text text,
       int x,
@@ -175,21 +164,18 @@ public class GuiUtil {
     List<OrderedText> lines = textRenderer.wrapLines(text, maxWidth);
     int yCursor = y;
     for (OrderedText line : lines) {
-      DrawableHelper.drawCenteredTextWithShadow(matrixStack,
-          textRenderer,
-          line,
-          x,
-          yCursor,
-          color);
+      drawContext.drawCenteredTextWithShadow(textRenderer, line, x, yCursor, color);
       yCursor += textRenderer.fontHeight;
     }
   }
 
-  public static void renderBackgroundInRegion(int brightness, int top, int bottom, int left, int right) {
+  public static void renderBackgroundInRegion(
+      int brightness, int top, int bottom, int left, int right) {
     renderBackgroundInRegion(brightness, top, bottom, left, right, 0, 0);
   }
 
-  public static void renderBackgroundInRegion(int brightness, int top, int bottom, int left, int right, double offsetX, double offsetY) {
+  public static void renderBackgroundInRegion(
+      int brightness, int top, int bottom, int left, int right, double offsetX, double offsetY) {
     Tessellator tessellator = Tessellator.getInstance();
     BufferBuilder bufferBuilder = tessellator.getBuffer();
     RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
@@ -197,24 +183,24 @@ public class GuiUtil {
     RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-    bufferBuilder
-        .vertex(left, bottom, 0)
-        .texture((float) (left + Math.round(offsetX)) / 32f, (float) (bottom + Math.round(offsetY)) / 32f)
+    bufferBuilder.vertex(left, bottom, 0)
+        .texture((float) (left + Math.round(offsetX)) / 32f,
+            (float) (bottom + Math.round(offsetY)) / 32f)
         .color(brightness, brightness, brightness, 255)
         .next();
-    bufferBuilder
-        .vertex(right, bottom, 0)
-        .texture((float) (right + Math.round(offsetX)) / 32f, (float) (bottom + Math.round(offsetY)) / 32f)
+    bufferBuilder.vertex(right, bottom, 0)
+        .texture((float) (right + Math.round(offsetX)) / 32f,
+            (float) (bottom + Math.round(offsetY)) / 32f)
         .color(brightness, brightness, brightness, 255)
         .next();
-    bufferBuilder
-        .vertex(right, top, 0)
-        .texture((float) (right + Math.round(offsetX)) / 32f, (float) (top + Math.round(offsetY)) / 32f)
+    bufferBuilder.vertex(right, top, 0)
+        .texture((float) (right + Math.round(offsetX)) / 32f,
+            (float) (top + Math.round(offsetY)) / 32f)
         .color(brightness, brightness, brightness, 255)
         .next();
-    bufferBuilder
-        .vertex(left, top, 0)
-        .texture((float) (left + Math.round(offsetX)) / 32f, (float) (top + Math.round(offsetY)) / 32f)
+    bufferBuilder.vertex(left, top, 0)
+        .texture((float) (left + Math.round(offsetX)) / 32f,
+            (float) (top + Math.round(offsetY)) / 32f)
         .color(brightness, brightness, brightness, 255)
         .next();
     tessellator.draw();
@@ -225,7 +211,7 @@ public class GuiUtil {
   }
 
   public static int genColorInt(float r, float g, float b, float a) {
-    return ((int) (a * 255) << 24) | ((int) (r * 255) << 16) |
-        ((int) (g * 255) << 8) | (int) (b * 255);
+    return ((int) (a * 255) << 24) | ((int) (r * 255) << 16) | ((int) (g * 255) << 8) |
+        (int) (b * 255);
   }
 }

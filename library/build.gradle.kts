@@ -1,5 +1,5 @@
 plugins {
-  id("roundalib") version "0.3.0"
+  id("roundalib") version "0.3.5"
 }
 
 val nightConfig: Configuration by configurations.creating {

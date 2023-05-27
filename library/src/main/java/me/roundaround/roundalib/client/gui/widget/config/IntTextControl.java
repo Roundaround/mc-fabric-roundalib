@@ -3,9 +3,9 @@ package me.roundaround.roundalib.client.gui.widget.config;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.config.option.IntConfigOption;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.util.math.MatrixStack;
 
 import java.util.List;
 import java.util.Objects;
@@ -99,11 +99,11 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
   }
 
   @Override
-  public void renderWidget(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
-    this.textField.render(matrixStack, mouseX, mouseY, delta);
+  public void renderWidget(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+    this.textField.render(drawContext, mouseX, mouseY, delta);
     if (this.option.showStepButtons()) {
-      this.plusButton.render(matrixStack, mouseX, mouseY, delta);
-      this.minusButton.render(matrixStack, mouseX, mouseY, delta);
+      this.plusButton.render(drawContext, mouseX, mouseY, delta);
+      this.minusButton.render(drawContext, mouseX, mouseY, delta);
     }
   }
 

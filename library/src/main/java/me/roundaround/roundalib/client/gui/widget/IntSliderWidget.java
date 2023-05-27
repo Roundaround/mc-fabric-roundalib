@@ -1,7 +1,7 @@
 package me.roundaround.roundalib.client.gui.widget;
 
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.SliderWidget;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 
@@ -85,9 +85,9 @@ public class IntSliderWidget extends SliderWidget {
   }
 
   @Override
-  public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
+  public void renderButton(DrawContext drawContext, int mouseX, int mouseY, float delta) {
     this.hovered = this.hovered && this.active;
-    super.renderButton(matrixStack, mouseX, mouseY, delta);
+    super.renderButton(drawContext, mouseX, mouseY, delta);
   }
 
   protected static double valueToSlider(int value, int min, int max) {

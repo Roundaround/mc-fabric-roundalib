@@ -1,5 +1,5 @@
 plugins {
-  id("roundalib") version "0.3.0"
+  id("roundalib") version "0.3.5"
 }
 
 val testGroupId = project.properties["group_id"].toString()

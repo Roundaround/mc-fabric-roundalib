@@ -4,13 +4,12 @@ import me.roundaround.roundalib.client.gui.DrawableBuilder;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 
-public class LabelWidget extends DrawableHelper implements Drawable {
+public class LabelWidget implements Drawable {
   public static final int HEIGHT_WITH_PADDING = 13;
   public static final int PADDING = 2;
 
@@ -54,10 +53,9 @@ public class LabelWidget extends DrawableHelper implements Drawable {
 
   @Override
   public void render(
-      MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
+      DrawContext drawContext, int mouseX, int mouseY, float delta) {
     if (showBackground) {
-      fill(matrixStack,
-          MathHelper.floor(left) - 2,
+      drawContext.fill(MathHelper.floor(left) - 2,
           MathHelper.floor(top) - 1,
           MathHelper.ceil(right) + 2,
           MathHelper.ceil(bottom) + 1,
@@ -65,17 +63,18 @@ public class LabelWidget extends DrawableHelper implements Drawable {
     }
 
     if (showTextShadow) {
-      textRenderer.drawWithShadow(matrixStack,
+      drawContext.drawTextWithShadow(textRenderer,
           text,
-          left + 0.5f,
-          top + 1,
+          Math.round(left + 0.5f),
+          Math.round(top + 1),
           0xFFFFFFFF);
     } else {
-      textRenderer.draw(matrixStack,
+      drawContext.drawText(textRenderer,
           text,
-          left + 0.5f,
-          top + 1,
-          GuiUtil.LABEL_COLOR);
+          Math.round(left + 0.5f),
+          Math.round(top + 1),
+          GuiUtil.LABEL_COLOR,
+          false);
     }
   }
 
@@ -84,8 +83,7 @@ public class LabelWidget extends DrawableHelper implements Drawable {
     int pixelRight = MathHelper.ceil(right) + (showBackground ? 2 : 0);
     int pixelTop = MathHelper.floor(top) - (showBackground ? 1 : 0);
     int pixelBottom = MathHelper.ceil(bottom) + (showBackground ? 1 : 0);
-    return mouseX >= pixelLeft && mouseY >= pixelTop && mouseX < pixelRight &&
-        mouseY < pixelBottom;
+    return mouseX >= pixelLeft && mouseY >= pixelTop && mouseX < pixelRight && mouseY < pixelBottom;
   }
 
   public void setText(Text text) {

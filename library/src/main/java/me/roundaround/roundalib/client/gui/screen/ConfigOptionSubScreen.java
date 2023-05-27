@@ -5,10 +5,10 @@ import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.config.RoundaLibIconButtons;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.*;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
@@ -81,23 +81,23 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D, ?>> ext
   }
 
   @Override
-  public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-    this.renderBackground(matrixStack, mouseX, mouseY, partialTicks);
-    this.renderContent(matrixStack, mouseX, mouseY, partialTicks);
-    this.renderHelp(matrixStack, mouseX, mouseY, partialTicks);
+  public void render(DrawContext drawContext, int mouseX, int mouseY, float partialTicks) {
+    this.renderBackground(drawContext, mouseX, mouseY, partialTicks);
+    this.renderContent(drawContext, mouseX, mouseY, partialTicks);
+    this.renderHelp(drawContext, mouseX, mouseY, partialTicks);
   }
 
   protected void renderBackground(
-      MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+      DrawContext drawContext, int mouseX, int mouseY, float partialTicks) {
     if (parent == null) {
-      this.renderTextureBackground(matrixStack, mouseX, mouseY, partialTicks);
+      this.renderTextureBackground(drawContext, mouseX, mouseY, partialTicks);
     } else {
-      this.renderDarkenBackground(matrixStack, mouseX, mouseY, partialTicks);
+      this.renderDarkenBackground(drawContext, mouseX, mouseY, partialTicks);
     }
   }
 
   protected void renderTextureBackground(
-      MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+      DrawContext drawContext, int mouseX, int mouseY, float partialTicks) {
     Tessellator tessellator = Tessellator.getInstance();
     BufferBuilder bufferBuilder = tessellator.getBuffer();
     RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
@@ -116,7 +116,7 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D, ?>> ext
   }
 
   protected void renderDarkenBackground(
-      MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+      DrawContext drawContext, int mouseX, int mouseY, float partialTicks) {
     Tessellator tessellator = Tessellator.getInstance();
     BufferBuilder bufferBuilder = tessellator.getBuffer();
     RenderSystem.enableBlend();
@@ -138,50 +138,44 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D, ?>> ext
   }
 
   protected void renderContent(
-      MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-    drawCenteredTextWithShadow(matrixStack,
-        textRenderer,
-        title,
-        width / 2,
-        17,
-        GuiUtil.LABEL_COLOR);
+      DrawContext drawContext, int mouseX, int mouseY, float partialTicks) {
+    drawContext.drawCenteredTextWithShadow(textRenderer, title, width / 2, 17, GuiUtil.LABEL_COLOR);
 
     this.children().forEach((child) -> {
       if (child instanceof Drawable) {
-        ((Drawable) child).render(matrixStack, mouseX, mouseY, partialTicks);
+        ((Drawable) child).render(drawContext, mouseX, mouseY, partialTicks);
       }
     });
   }
 
-  protected void renderHelp(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+  protected void renderHelp(DrawContext drawContext, int mouseX, int mouseY, float partialTicks) {
     if (hasShiftDown()) {
-      this.renderHelpExpanded(matrixStack, mouseX, mouseY, partialTicks);
+      this.renderHelpExpanded(drawContext, mouseX, mouseY, partialTicks);
     } else {
-      this.renderHelpPrompt(matrixStack, mouseX, mouseY, partialTicks);
+      this.renderHelpPrompt(drawContext, mouseX, mouseY, partialTicks);
     }
   }
 
   protected void renderHelpPrompt(
-      MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-    this.renderHelpLines(matrixStack, getHelpShort(mouseX, mouseY, partialTicks));
+      DrawContext drawContext, int mouseX, int mouseY, float partialTicks) {
+    this.renderHelpLines(drawContext, getHelpShort(mouseX, mouseY, partialTicks));
   }
 
   protected void renderHelpExpanded(
-      MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-    this.renderHelpLines(matrixStack, getHelpLong(mouseX, mouseY, partialTicks));
+      DrawContext drawContext, int mouseX, int mouseY, float partialTicks) {
+    this.renderHelpLines(drawContext, getHelpLong(mouseX, mouseY, partialTicks));
   }
 
-  private void renderHelpLines(MatrixStack matrixStack, List<Text> lines) {
-    this.renderHelpLines(matrixStack, lines, false);
+  private void renderHelpLines(DrawContext drawContext, List<Text> lines) {
+    this.renderHelpLines(drawContext, lines, false);
   }
 
-  private void renderHelpLines(MatrixStack matrixStack, List<Text> lines, boolean offsetForIcon) {
+  private void renderHelpLines(DrawContext drawContext, List<Text> lines, boolean offsetForIcon) {
     int startingOffset =
         height - 4 - textRenderer.fontHeight - (lines.size() - 1) * (textRenderer.fontHeight + 2);
 
     for (int i = 0; i < lines.size(); i++) {
-      drawTextWithShadow(matrixStack,
-          textRenderer,
+      drawContext.drawTextWithShadow(textRenderer,
           lines.get(i),
           4,
           startingOffset + i * (textRenderer.fontHeight + 2),

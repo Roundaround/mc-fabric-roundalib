@@ -14,9 +14,7 @@ import net.minecraft.client.gui.navigation.NavigationDirection;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;
-import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.render.*;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import org.joml.Matrix4f;
@@ -81,26 +79,26 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   @Override
-  public void render(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
+  public void render(DrawContext drawContext, int mouseX, int mouseY, float delta) {
     this.hoveredEntry =
         this.isMouseOver(mouseX, mouseY) ? this.getEntryAtPosition(mouseX, mouseY) : null;
 
-    this.renderBackground(matrixStack, delta);
+    this.renderBackground(drawContext, delta);
 
-    enableScissor(this.left, this.top, this.right, this.bottom);
-    this.renderList(matrixStack, mouseX, mouseY, delta);
-    this.renderScrollBar(matrixStack, mouseX, mouseY, delta);
-    disableScissor();
+    drawContext.enableScissor(this.left, this.top, this.right, this.bottom);
+    this.renderList(drawContext, mouseX, mouseY, delta);
+    this.renderScrollBar(drawContext, mouseX, mouseY, delta);
+    drawContext.disableScissor();
   }
 
-  protected void renderList(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
+  protected void renderList(DrawContext drawContext, int mouseX, int mouseY, float delta) {
     for (int i = 0; i < this.entries.size(); i++) {
-      this.renderEntry(matrixStack, i, mouseX, mouseY, delta);
+      this.renderEntry(drawContext, i, mouseX, mouseY, delta);
     }
   }
 
   protected void renderEntry(
-      MatrixStack matrixStack, int index, int mouseX, int mouseY, float delta) {
+      DrawContext drawContext, int index, int mouseX, int mouseY, float delta) {
     E entry = this.entries.get(index);
     double scrollAmount = this.getScrollAmount();
 
@@ -111,10 +109,10 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       return;
     }
 
-    entry.render(matrixStack, index, scrollAmount, mouseX, mouseY, delta);
+    entry.render(drawContext, index, scrollAmount, mouseX, mouseY, delta);
   }
 
-  protected void renderScrollBar(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
+  protected void renderScrollBar(DrawContext drawContext, int mouseX, int mouseY, float delta) {
     int maxScroll = this.getMaxScroll();
     if (maxScroll <= 0) {
       return;
@@ -134,27 +132,24 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       handleTop = this.top;
     }
 
-    fill(matrixStack,
-        scrollbarLeft,
+    drawContext.fill(scrollbarLeft,
         this.top,
         scrollbarRight,
         this.bottom,
         GuiUtil.genColorInt(0, 0, 0));
-    fill(matrixStack,
-        scrollbarLeft,
+    drawContext.fill(scrollbarLeft,
         handleTop,
         scrollbarRight,
         handleTop + handleHeight,
         GuiUtil.genColorInt(0.5f, 0.5f, 0.5f));
-    fill(matrixStack,
-        scrollbarLeft,
+    drawContext.fill(scrollbarLeft,
         handleTop,
         scrollbarRight - 1,
         handleTop + handleHeight - 2,
         GuiUtil.genColorInt(0.75f, 0.75f, 0.75f));
   }
 
-  protected void renderBackground(MatrixStack matrixStack, float delta) {
+  protected void renderBackground(DrawContext drawContext, float delta) {
     Screen parent = this.client.currentScreen;
     int screenWidth = parent != null ? parent.width : this.width;
 
@@ -166,10 +161,10 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
         0,
         (int) this.scrollAmount);
 
-    this.renderHorizontalShadows(matrixStack, delta);
+    this.renderHorizontalShadows(drawContext, delta);
   }
 
-  protected void renderHorizontalShadows(MatrixStack matrixStack, float delta) {
+  protected void renderHorizontalShadows(DrawContext drawContext, float delta) {
     Screen parent = this.client.currentScreen;
     int screenWidth = parent != null ? parent.width : this.width;
 
@@ -571,19 +566,19 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     }
 
     public void render(
-        MatrixStack matrixStack,
+        DrawContext drawContext,
         int index,
         double scrollAmount,
         int mouseX,
         int mouseY,
         float delta) {
-      this.renderBackground(matrixStack, index, scrollAmount, mouseX, mouseY, delta);
-      this.renderContent(matrixStack, index, scrollAmount, mouseX, mouseY, delta);
-      this.renderDecorations(matrixStack, index, scrollAmount, mouseX, mouseY, delta);
+      this.renderBackground(drawContext, index, scrollAmount, mouseX, mouseY, delta);
+      this.renderContent(drawContext, index, scrollAmount, mouseX, mouseY, delta);
+      this.renderDecorations(drawContext, index, scrollAmount, mouseX, mouseY, delta);
     }
 
     public void renderBackground(
-        MatrixStack matrixStack,
+        DrawContext drawContext,
         int index,
         double scrollAmount,
         int mouseX,
@@ -596,7 +591,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferBuilder = tessellator.getBuffer();
-        Matrix4f matrix4f = matrixStack.peek().getPositionMatrix();
+        Matrix4f matrix4f = drawContext.getMatrices().peek().getPositionMatrix();
 
         int left = this.left - ROW_SHADE_FADE_OVERFLOW - this.parent.contentPadding / 2;
         int right =
@@ -642,7 +637,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     }
 
     public void renderContent(
-        MatrixStack matrixStack,
+        DrawContext drawContext,
         int index,
         double scrollAmount,
         int mouseX,
@@ -652,7 +647,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     }
 
     public void renderDecorations(
-        MatrixStack matrixStack,
+        DrawContext drawContext,
         int index,
         double scrollAmount,
         int mouseX,

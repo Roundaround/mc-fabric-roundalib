@@ -2,7 +2,7 @@ package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.gui.AbstractParentElement;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.gui.DrawContext;
 
 public abstract class Control<D, O extends ConfigOption<D, ?>> extends AbstractParentElement {
   protected static final int PADDING = 1;
@@ -52,7 +52,7 @@ public abstract class Control<D, O extends ConfigOption<D, ?>> extends AbstractP
   public void tick() {
   }
 
-  public void renderWidget(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
+  public void renderWidget(DrawContext drawContext, int mouseX, int mouseY, float delta) {
   }
 
   public void setScrollAmount(double amount) {

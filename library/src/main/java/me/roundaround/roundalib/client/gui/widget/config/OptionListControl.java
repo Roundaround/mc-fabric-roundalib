@@ -2,9 +2,9 @@ package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.config.option.OptionListConfigOption;
 import me.roundaround.roundalib.config.value.ListOptionValue;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 
 import java.util.List;
@@ -44,8 +44,8 @@ public class OptionListControl<S extends ListOptionValue<S>>
   }
 
   @Override
-  public void renderWidget(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
-    this.button.render(matrixStack, mouseX, mouseY, delta);
+  public void renderWidget(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+    this.button.render(drawContext, mouseX, mouseY, delta);
   }
 
   @Override

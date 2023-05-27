@@ -2,9 +2,9 @@ package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.config.option.FloatConfigOption;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.MathHelper;
 
 import java.text.DecimalFormat;
@@ -77,8 +77,8 @@ public class FloatTextControl extends Control<Float, FloatConfigOption> {
   }
 
   @Override
-  public void renderWidget(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
-    this.textField.render(matrixStack, mouseX, mouseY, delta);
+  public void renderWidget(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+    this.textField.render(drawContext, mouseX, mouseY, delta);
   }
 
   @Override

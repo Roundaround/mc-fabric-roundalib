@@ -7,8 +7,8 @@ import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.config.RoundaLibIconButtons;
 import me.roundaround.roundalib.config.option.PositionConfigOption;
 import me.roundaround.roundalib.config.value.Position;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -62,11 +62,11 @@ public abstract class PositionEditScreen
         this.modId,
         (button) -> this.moveLeft()));
 
-    this.rightButton = addSelectableChild(RoundaLibIconButtons.rightButton(
-        startX - RoundaLibIconButtons.SIZE_M ,
-        startY - 2 * RoundaLibIconButtons.SIZE_M - GuiUtil.PADDING,
-        this.modId,
-        (button) -> this.moveRight()));
+    this.rightButton =
+        addSelectableChild(RoundaLibIconButtons.rightButton(startX - RoundaLibIconButtons.SIZE_M,
+            startY - 2 * RoundaLibIconButtons.SIZE_M - GuiUtil.PADDING,
+            this.modId,
+            (button) -> this.moveRight()));
 
     this.downButton = addSelectableChild(RoundaLibIconButtons.downButton(
         startX - 2 * RoundaLibIconButtons.SIZE_M - GuiUtil.PADDING,
@@ -111,8 +111,9 @@ public abstract class PositionEditScreen
   }
 
   @Override
-  protected void renderContent(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-    super.renderContent(matrixStack, mouseX, mouseY, partialTicks);
+  protected void renderContent(
+      DrawContext drawContext, int mouseX, int mouseY, float partialTicks) {
+    super.renderContent(drawContext, mouseX, mouseY, partialTicks);
 
     Identifier texture = new Identifier(this.modId, "textures/roundalib.png");
     int left = this.upButton.getX() + GuiUtil.PADDING / 2;
@@ -120,14 +121,20 @@ public abstract class PositionEditScreen
 
     RenderSystem.setShaderColor(1, 1, 1, 0.4f);
     RenderSystem.enableBlend();
-    RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
-    RenderSystem.setShaderTexture(0, texture);
-    RenderSystem.setShader(GameRenderer::getPositionTexProgram);
+    RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA,
+        GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
     RenderSystem.applyModelViewMatrix();
 
+    MatrixStack matrixStack = drawContext.getMatrices();
     matrixStack.push();
     matrixStack.translate(0, 0, 50);
-    drawTexture(matrixStack, left, top, CROSSHAIR_UV.x(), CROSSHAIR_UV.y(), CROSSHAIR_SIZE, CROSSHAIR_SIZE);
+    drawContext.drawTexture(texture,
+        left,
+        top,
+        CROSSHAIR_UV.x(),
+        CROSSHAIR_UV.y(),
+        CROSSHAIR_SIZE,
+        CROSSHAIR_SIZE);
     matrixStack.pop();
   }
 

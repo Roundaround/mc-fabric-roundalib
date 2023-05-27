@@ -8,6 +8,7 @@ import me.roundaround.roundalib.client.gui.widget.VariableHeightListWidget;
 import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.navigation.GuiNavigation;
 import net.minecraft.client.gui.navigation.GuiNavigationPath;
@@ -96,14 +97,14 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
     @Override
     public void renderContent(
-        MatrixStack matrixStack,
+        DrawContext drawContext,
         int index,
         double scrollAmount,
         int mouseX,
         int mouseY,
         float delta) {
       this.labelWidget.setPosY(this.getTop() + this.getHeight() / 2 - (int) scrollAmount);
-      this.labelWidget.render(matrixStack, mouseX, mouseY, delta);
+      this.labelWidget.render(drawContext, mouseX, mouseY, delta);
     }
   }
 
@@ -183,21 +184,21 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
     @Override
     public void renderContent(
-        MatrixStack matrixStack,
+        DrawContext drawContext,
         int index,
         double scrollAmount,
         int mouseX,
         int mouseY,
         float delta) {
       this.labelWidget.setPosY(this.getTop() + this.getHeight() / 2 - (int) scrollAmount);
-      this.labelWidget.render(matrixStack, mouseX, mouseY, delta);
+      this.labelWidget.render(drawContext, mouseX, mouseY, delta);
 
       this.control.setScrollAmount(scrollAmount);
-      this.control.renderWidget(matrixStack, mouseX, mouseY, delta);
+      this.control.renderWidget(drawContext, mouseX, mouseY, delta);
 
       this.resetButton.setY(this.getTop() + (this.getHeight() - RoundaLibIconButtons.SIZE_L) / 2 -
           (int) scrollAmount);
-      this.resetButton.render(matrixStack, mouseX, mouseY, delta);
+      this.resetButton.render(drawContext, mouseX, mouseY, delta);
     }
   }
 }

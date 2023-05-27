@@ -5,8 +5,8 @@ import me.roundaround.roundalib.client.gui.screen.PositionEditScreen;
 import me.roundaround.roundalib.client.gui.widget.config.SubScreenControl;
 import me.roundaround.roundalib.config.option.PositionConfigOption;
 import me.roundaround.roundalib.config.value.Position;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 
 public class ExamplePositionEditScreen extends PositionEditScreen {
@@ -20,10 +20,9 @@ public class ExamplePositionEditScreen extends PositionEditScreen {
 
   @Override
   protected void renderContent(
-      MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-    super.renderContent(matrixStack, mouseX, mouseY, partialTicks);
-    drawCenteredTextWithShadow(matrixStack,
-        textRenderer,
+      DrawContext drawContext, int mouseX, int mouseY, float partialTicks) {
+    super.renderContent(drawContext, mouseX, mouseY, partialTicks);
+    drawContext.drawCenteredTextWithShadow(textRenderer,
         Text.literal(getValue().toString()).asOrderedText(),
         width / 2,
         height / 2,

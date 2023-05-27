@@ -1,9 +1,9 @@
 package me.roundaround.roundalib.client.gui.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -39,14 +39,13 @@ public class IconButtonWidget extends ButtonWidget {
   }
 
   @Override
-  public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
-    super.renderButton(matrixStack, mouseX, mouseY, delta);
+  public void renderButton(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+    super.renderButton(drawContext, mouseX, mouseY, delta);
 
     float brightness = this.active ? 1f : 0.6f;
 
-    RenderSystem.setShaderTexture(0, this.texture);
     RenderSystem.setShaderColor(brightness, brightness, brightness, 1f);
-    drawTexture(matrixStack,
+    drawContext.drawTexture(this.texture,
         getX(),
         getY(),
         this.iconU,

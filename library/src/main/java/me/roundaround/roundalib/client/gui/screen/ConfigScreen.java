@@ -3,9 +3,9 @@ package me.roundaround.roundalib.client.gui.screen;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
 import me.roundaround.roundalib.config.ModConfig;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 
@@ -100,16 +100,15 @@ public class ConfigScreen extends Screen {
   }
 
   @Override
-  public void render(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
+  public void render(DrawContext drawContext, int mouseX, int mouseY, float delta) {
     GuiUtil.renderBackgroundInRegion(64, 0, this.height, 0, this.width);
 
-    drawCenteredTextWithShadow(matrixStack,
-        this.textRenderer,
+    drawContext.drawCenteredTextWithShadow(this.textRenderer,
         this.title,
         this.width / 2,
         20,
         GuiUtil.LABEL_COLOR);
 
-    super.render(matrixStack, mouseX, mouseY, delta);
+    super.render(drawContext, mouseX, mouseY, delta);
   }
 }
