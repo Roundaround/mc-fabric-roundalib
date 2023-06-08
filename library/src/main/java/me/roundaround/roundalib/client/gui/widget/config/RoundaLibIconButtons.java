@@ -8,6 +8,8 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
+import java.util.Objects;
+
 public final class RoundaLibIconButtons {
   private static final MinecraftClient client = MinecraftClient.getInstance();
 
@@ -40,9 +42,8 @@ public final class RoundaLibIconButtons {
         resetButton(x, y, size, modId, (buttonWidget) -> option.resetToDefault());
 
     button.active = option.isModified() && !option.isDisabled();
-    option.subscribeToValueChanges(client.currentScreen, (oldValue, newValue) -> {
-      button.active = option.isModified() && !option.isDisabled();
-    });
+    option.subscribeToValueChanges(Objects.requireNonNull(client.currentScreen).hashCode(),
+        (oldValue, newValue) -> button.active = option.isModified() && !option.isDisabled());
 
     return button;
   }
@@ -81,10 +82,9 @@ public final class RoundaLibIconButtons {
 
     button.active =
         !option.isDisabled() && (increment ? option.canIncrement() : option.canDecrement());
-    option.subscribeToValueChanges(client.currentScreen, (oldValue, newValue) -> {
-      button.active =
-          !option.isDisabled() && (increment ? option.canIncrement() : option.canDecrement());
-    });
+    option.subscribeToValueChanges(Objects.requireNonNull(client.currentScreen).hashCode(),
+        (oldValue, newValue) -> button.active =
+            !option.isDisabled() && (increment ? option.canIncrement() : option.canDecrement()));
 
     return button;
   }

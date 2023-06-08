@@ -1,7 +1,6 @@
 package me.roundaround.roundalib.config.option;
 
 import me.roundaround.roundalib.config.ModConfig;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 
 import java.util.*;
@@ -124,12 +123,12 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
     return value;
   }
 
-  public final void subscribeToValueChanges(Screen screen, BiConsumer<D, D> listener) {
-    this.valueChangeListeners.add(screen, listener);
+  public final void subscribeToValueChanges(Integer hashCode, BiConsumer<D, D> listener) {
+    this.valueChangeListeners.add(hashCode, listener);
   }
 
-  public final void clearValueChangeListeners(Screen screen) {
-    this.valueChangeListeners.clear(screen);
+  public final void clearValueChangeListeners(Integer hashCode) {
+    this.valueChangeListeners.clear(hashCode);
   }
 
   protected void dependencyChanged(Object prev, Object curr) {
@@ -210,35 +209,35 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
   }
 
   private static class ValueChangeListeners<D> {
-    private final HashMap<Screen, Queue<BiConsumer<D, D>>> listeners = new HashMap<>();
+    private final HashMap<Integer, Queue<BiConsumer<D, D>>> listeners = new HashMap<>();
 
-    public void add(Screen screen, BiConsumer<D, D> listener) {
-      if (!this.listeners.containsKey(screen)) {
-        this.listeners.put(screen, new LinkedList<>());
+    public void add(Integer hashCode, BiConsumer<D, D> listener) {
+      if (!this.listeners.containsKey(hashCode)) {
+        this.listeners.put(hashCode, new LinkedList<>());
       }
-      this.listeners.get(screen).add(listener);
+      this.listeners.get(hashCode).add(listener);
     }
 
-    public void remove(Screen screen, BiConsumer<D, D> listener) {
-      if (!this.listeners.containsKey(screen)) {
+    public void remove(Integer hashCode, BiConsumer<D, D> listener) {
+      if (!this.listeners.containsKey(hashCode)) {
         return;
       }
-      this.listeners.get(screen).remove(listener);
+      this.listeners.get(hashCode).remove(listener);
     }
 
-    public void clear(Screen screen) {
-      this.listeners.remove(screen);
+    public void clear(Integer hashCode) {
+      this.listeners.remove(hashCode);
     }
 
     public void invoke(D prev, D curr) {
-      this.listeners.keySet().forEach((screen) -> invoke(screen, prev, curr));
+      this.listeners.keySet().forEach((hashCode) -> invoke(hashCode, prev, curr));
     }
 
-    public void invoke(Screen screen, D prev, D curr) {
-      if (!this.listeners.containsKey(screen)) {
+    public void invoke(Integer hashCode, D prev, D curr) {
+      if (!this.listeners.containsKey(hashCode)) {
         return;
       }
-      this.listeners.get(screen).forEach((listener) -> listener.accept(prev, curr));
+      this.listeners.get(hashCode).forEach((listener) -> listener.accept(prev, curr));
     }
   }
 }

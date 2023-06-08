@@ -64,7 +64,7 @@ public class ConfigScreen extends Screen {
         .values()
         .stream()
         .flatMap(Collection::stream)
-        .forEach((configOption) -> configOption.clearValueChangeListeners(this));
+        .forEach((configOption) -> configOption.clearValueChangeListeners(this.hashCode()));
   }
 
   private void cancel(ButtonWidget button) {

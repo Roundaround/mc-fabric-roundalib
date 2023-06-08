@@ -3,6 +3,9 @@ package me.roundaround.roundalib.client.gui.widget.config;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.gui.AbstractParentElement;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
+
+import java.util.Objects;
 
 public abstract class Control<D, O extends ConfigOption<D, ?>> extends AbstractParentElement {
   protected static final int PADDING = 1;
@@ -22,7 +25,9 @@ public abstract class Control<D, O extends ConfigOption<D, ?>> extends AbstractP
   protected Control(ConfigListWidget.OptionEntry<D, O> parent) {
     this.parent = parent;
     this.option = parent.getOption();
-    this.option.subscribeToValueChanges(parent.getClient().currentScreen, this::valueChanged);
+
+    Screen screen = Objects.requireNonNull(parent.getClient().currentScreen);
+    this.option.subscribeToValueChanges(screen.hashCode(), this::valueChanged);
 
     this.widgetWidth = Math.max(WIDGET_MIN_WIDTH, Math.round(parent.getWidth() * 0.3f));
     this.widgetLeft = parent.getControlRight() - this.widgetWidth;
