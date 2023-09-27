@@ -53,12 +53,6 @@ public class TextControl extends Control<String, StringConfigOption> {
   }
 
   @Override
-  public void tick() {
-    super.tick();
-    this.textField.tick();
-  }
-
-  @Override
   public void renderWidget(DrawContext drawContext, int mouseX, int mouseY, float delta) {
     this.textField.render(drawContext, mouseX, mouseY, delta);
   }

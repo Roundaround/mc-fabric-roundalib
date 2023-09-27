@@ -74,14 +74,15 @@ public class FloatSliderWidget extends SliderWidget {
   }
 
   @Override
-  public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+  public boolean mouseScrolled(
+      double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
     if (this.isMouseOver(mouseX, mouseY)) {
-      this.setFloatValue(this.floatValue + (int) Math.signum(amount) * this.step);
+      this.setFloatValue(this.floatValue + (int) Math.signum(verticalAmount) * this.step);
       this.applyValue();
       return true;
     }
 
-    return super.mouseScrolled(mouseX, mouseY, amount);
+    return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
   }
 
   @Override

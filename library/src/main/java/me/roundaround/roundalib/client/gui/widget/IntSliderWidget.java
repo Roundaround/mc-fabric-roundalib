@@ -74,14 +74,15 @@ public class IntSliderWidget extends SliderWidget {
   }
 
   @Override
-  public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+  public boolean mouseScrolled(
+      double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
     if (this.isMouseOver(mouseX, mouseY)) {
-      this.setIntValue(this.intValue + (int) Math.signum(amount) * this.step);
+      this.setIntValue(this.intValue + (int) Math.signum(verticalAmount) * this.step);
       this.applyValue();
       return true;
     }
 
-    return super.mouseScrolled(mouseX, mouseY, amount);
+    return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
   }
 
   @Override

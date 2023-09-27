@@ -87,7 +87,8 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D, ?>> ext
     this.renderHelp(drawContext, mouseX, mouseY, partialTicks);
   }
 
-  protected void renderBackground(
+  @Override
+  public void renderBackground(
       DrawContext drawContext, int mouseX, int mouseY, float partialTicks) {
     if (parent == null) {
       this.renderTextureBackground(drawContext, mouseX, mouseY, partialTicks);

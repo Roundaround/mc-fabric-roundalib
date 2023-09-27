@@ -425,8 +425,9 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   @Override
-  public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-    this.setScrollAmount(this.getScrollAmount() - amount * this.getScrollUnit());
+  public boolean mouseScrolled(
+      double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+    this.setScrollAmount(this.getScrollAmount() - verticalAmount * this.getScrollUnit());
     return true;
   }
 
