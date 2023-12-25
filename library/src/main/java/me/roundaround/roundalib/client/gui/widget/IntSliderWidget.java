@@ -86,9 +86,9 @@ public class IntSliderWidget extends SliderWidget {
   }
 
   @Override
-  public void renderButton(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+  public void renderWidget(DrawContext drawContext, int mouseX, int mouseY, float delta) {
     this.hovered = this.hovered && this.active;
-    super.renderButton(drawContext, mouseX, mouseY, delta);
+    super.renderWidget(drawContext, mouseX, mouseY, delta);
   }
 
   protected static double valueToSlider(int value, int min, int max) {
