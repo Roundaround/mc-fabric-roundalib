@@ -102,7 +102,7 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D, ?>> ext
     Tessellator tessellator = Tessellator.getInstance();
     BufferBuilder bufferBuilder = tessellator.getBuffer();
     RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
-    RenderSystem.setShaderTexture(0, OPTIONS_BACKGROUND_TEXTURE);
+    RenderSystem.setShaderTexture(0, MENU_BACKGROUND_TEXTURE);
     RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);

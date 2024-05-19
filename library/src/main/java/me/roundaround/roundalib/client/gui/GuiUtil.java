@@ -18,7 +18,7 @@ import net.minecraft.util.math.MathHelper;
 
 import java.util.List;
 
-import static net.minecraft.client.gui.screen.Screen.OPTIONS_BACKGROUND_TEXTURE;
+import static net.minecraft.client.gui.screen.Screen.MENU_BACKGROUND_TEXTURE;
 
 public class GuiUtil {
   public static int LABEL_COLOR = genColorInt(1f, 1f, 1f);
@@ -179,7 +179,7 @@ public class GuiUtil {
     Tessellator tessellator = Tessellator.getInstance();
     BufferBuilder bufferBuilder = tessellator.getBuffer();
     RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
-    RenderSystem.setShaderTexture(0, OPTIONS_BACKGROUND_TEXTURE);
+    RenderSystem.setShaderTexture(0, MENU_BACKGROUND_TEXTURE);
     RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);

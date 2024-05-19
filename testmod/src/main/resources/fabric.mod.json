@@ -18,6 +18,9 @@
     "main": [
       "me.roundaround.testmod.TestMod"
     ],
+    "client": [
+      "me.roundaround.testmod.client.TestModClient"
+    ],
     "modmenu": [
       "me.roundaround.testmod.compat.modmenu.ModMenuImpl"
     ]
