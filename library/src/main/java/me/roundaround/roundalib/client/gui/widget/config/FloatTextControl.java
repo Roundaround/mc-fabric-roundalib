@@ -52,8 +52,8 @@ public class FloatTextControl extends Control<Float, FloatConfigOption> {
   }
 
   @Override
-  public void setScrollAmount(double scrollAmount) {
-    super.setScrollAmount(scrollAmount);
+  public void updateBounds(double scrollAmount) {
+    super.updateBounds(scrollAmount);
 
     this.textField.setY(this.scrolledTop + 1);
   }

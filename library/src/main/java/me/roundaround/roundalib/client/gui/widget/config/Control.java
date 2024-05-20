@@ -13,11 +13,11 @@ public abstract class Control<D, O extends ConfigOption<D, ?>> extends AbstractP
 
   protected final ConfigListWidget.OptionEntry<D, O> parent;
   protected final O option;
-  protected final int widgetLeft;
-  protected final int widgetTop;
-  protected final int widgetWidth;
-  protected final int widgetHeight;
 
+  protected int widgetLeft;
+  protected int widgetTop;
+  protected int widgetWidth;
+  protected int widgetHeight;
   protected int scrolledTop;
   protected boolean valid;
   protected boolean disabled;
@@ -28,12 +28,6 @@ public abstract class Control<D, O extends ConfigOption<D, ?>> extends AbstractP
 
     Screen screen = Objects.requireNonNull(parent.getClient().currentScreen);
     this.option.subscribeToValueChanges(screen.hashCode(), this::valueChanged);
-
-    this.widgetWidth = Math.max(WIDGET_MIN_WIDTH, Math.round(parent.getWidth() * 0.3f));
-    this.widgetLeft = parent.getControlRight() - this.widgetWidth;
-    this.widgetHeight = parent.getHeight() - PADDING * 2;
-    this.widgetTop = parent.getTop() + PADDING;
-    this.scrolledTop = this.widgetTop;
 
     this.disabled = this.option.isDisabled();
   }
@@ -60,8 +54,12 @@ public abstract class Control<D, O extends ConfigOption<D, ?>> extends AbstractP
   public void renderWidget(DrawContext drawContext, int mouseX, int mouseY, float delta) {
   }
 
-  public void setScrollAmount(double amount) {
-    this.scrolledTop = this.widgetTop - (int) amount;
+  public void updateBounds(double scrollAmount) {
+    this.widgetWidth = Math.max(WIDGET_MIN_WIDTH, Math.round(parent.getParent().getWidth() * 0.3f));
+    this.widgetLeft = parent.getControlRight() - this.widgetWidth;
+    this.widgetHeight = parent.getHeight() - PADDING * 2;
+    this.widgetTop = parent.getTop() + PADDING;
+    this.scrolledTop = this.widgetTop - (int) scrollAmount;
   }
 
   private void valueChanged(D prev, D curr) {

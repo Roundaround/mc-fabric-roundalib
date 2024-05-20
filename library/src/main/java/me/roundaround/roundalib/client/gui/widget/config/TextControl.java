@@ -34,8 +34,8 @@ public class TextControl extends Control<String, StringConfigOption> {
   }
 
   @Override
-  public void setScrollAmount(double scrollAmount) {
-    super.setScrollAmount(scrollAmount);
+  public void updateBounds(double scrollAmount) {
+    super.updateBounds(scrollAmount);
 
     this.textField.setY(this.scrolledTop + 1);
   }

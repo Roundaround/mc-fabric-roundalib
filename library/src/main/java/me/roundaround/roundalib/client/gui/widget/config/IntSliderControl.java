@@ -41,8 +41,8 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
   }
 
   @Override
-  public void setScrollAmount(double scrollAmount) {
-    super.setScrollAmount(scrollAmount);
+  public void updateBounds(double scrollAmount) {
+    super.updateBounds(scrollAmount);
 
     this.slider.setY(this.scrolledTop);
   }

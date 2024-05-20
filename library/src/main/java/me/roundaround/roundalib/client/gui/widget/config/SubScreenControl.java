@@ -36,8 +36,8 @@ public class SubScreenControl<D, O extends ConfigOption<D, ?>> extends Control<D
   }
 
   @Override
-  public void setScrollAmount(double scrollAmount) {
-    super.setScrollAmount(scrollAmount);
+  public void updateBounds(double scrollAmount) {
+    super.updateBounds(scrollAmount);
 
     this.button.setY(this.scrolledTop);
   }

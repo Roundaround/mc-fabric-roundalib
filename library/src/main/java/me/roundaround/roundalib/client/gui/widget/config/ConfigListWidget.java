@@ -13,7 +13,6 @@ import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.navigation.GuiNavigation;
 import net.minecraft.client.gui.navigation.GuiNavigationPath;
 import net.minecraft.client.gui.widget.PressableWidget;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 
 import java.util.List;
@@ -21,10 +20,10 @@ import java.util.stream.Stream;
 
 public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.Entry> {
 
-  public ConfigListWidget(
-      MinecraftClient client, ModConfig modConfig, int left, int top, int width, int height) {
+  public ConfigListWidget(MinecraftClient client, ModConfig modConfig, int left, int top, int width, int height) {
     super(client, left, top, width, height);
 
+    int i = 0;
     for (var entry : modConfig.getConfigOptions().entrySet()) {
       if (entry.getValue().stream().noneMatch(ConfigOption::shouldShowInConfigScreen)) {
         continue;
@@ -33,9 +32,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
       String modId = modConfig.getModId();
       String category = entry.getKey();
       if (modConfig.getShowGroupTitles() && !category.equals(modId)) {
-        this.addEntry(new CategoryEntry(this.client,
-            this,
-            Text.translatable(entry.getKey() + ".title")));
+        this.addEntry(new CategoryEntry(this.client, this, Text.translatable(entry.getKey() + ".title"), i++));
       }
 
       for (var option : entry.getValue()) {
@@ -44,21 +41,21 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
         }
 
         try {
-          this.addEntry(new OptionEntry<>(this.client, this, option));
+          this.addEntry(new OptionEntry<>(this.client, this, option, i++));
         } catch (ControlRegistry.NotRegisteredException e) {
-          RoundaLib.LOGGER.error("Failed to create control for config option: " + option, e);
+          RoundaLib.LOGGER.error("Failed to create control for config option: {}", option, e);
         }
       }
     }
   }
 
   public void tick() {
-    this.entries.forEach(Entry::tick);
+    this.forEachEntry(Entry::tick);
   }
 
   public abstract static class Entry extends VariableHeightListWidget.Entry<Entry> {
-    protected Entry(MinecraftClient client, ConfigListWidget parent, int height) {
-      super(client, parent, height);
+    protected Entry(MinecraftClient client, ConfigListWidget parent, int index, int height) {
+      super(client, parent, index, height);
     }
 
     public void tick() {
@@ -75,19 +72,10 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
     protected final LabelWidget labelWidget;
 
-    protected CategoryEntry(MinecraftClient client, ConfigListWidget parent, Text label) {
-      super(client, parent, HEIGHT);
+    protected CategoryEntry(MinecraftClient client, ConfigListWidget parent, Text label, int index) {
+      super(client, parent, index, HEIGHT);
 
-      this.labelWidget = LabelWidget.builder(client,
-              label,
-              this.getLeft() + this.getWidth() / 2,
-              this.getTop() + this.getHeight() / 2)
-          .justifiedCenter()
-          .alignedMiddle()
-          .shiftForPadding()
-          .showTextShadow()
-          .hideBackground()
-          .build();
+      this.labelWidget = LabelWidget.builder(client, label, (this.getParent().getEntriesLeft() + this.getParent().getEntriesRight()) / 2, this.getTop() + this.getHeight() / 2).justifiedCenter().alignedMiddle().shiftForPadding().showTextShadow().hideBackground().build();
     }
 
     @Override
@@ -96,13 +84,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     }
 
     @Override
-    public void renderContent(
-        DrawContext drawContext,
-        int index,
-        double scrollAmount,
-        int mouseX,
-        int mouseY,
-        float delta) {
+    public void renderContent(DrawContext drawContext, int index, double scrollAmount, int mouseX, int mouseY, float delta) {
       this.labelWidget.setPosY(this.getTop() + this.getHeight() / 2 - (int) scrollAmount);
       this.labelWidget.render(drawContext, mouseX, mouseY, delta);
     }
@@ -116,29 +98,16 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     protected final LabelWidget labelWidget;
     protected final IconButtonWidget resetButton;
 
-    protected OptionEntry(MinecraftClient client, ConfigListWidget parent, O configOption)
-        throws ControlRegistry.NotRegisteredException {
-      super(client, parent, HEIGHT);
+    protected OptionEntry(MinecraftClient client, ConfigListWidget parent, O configOption, int index) throws ControlRegistry.NotRegisteredException {
+      super(client, parent, index, HEIGHT);
 
       this.option = configOption;
 
       this.control = ControlRegistry.getControlFactory(configOption).create(this);
 
-      this.labelWidget = LabelWidget.builder(client,
-              configOption.getLabel(),
-              this.getLeft() + GuiUtil.PADDING,
-              this.getTop() + this.getHeight() / 2)
-          .justifiedLeft()
-          .alignedMiddle()
-          .shiftForPadding()
-          .showTextShadow()
-          .hideBackground()
-          .build();
+      this.labelWidget = LabelWidget.builder(client, configOption.getLabel(), this.getParent().getEntriesLeft() + GuiUtil.PADDING, this.getTop() + this.getHeight() / 2).justifiedLeft().alignedMiddle().shiftForPadding().showTextShadow().hideBackground().build();
 
-      this.resetButton = RoundaLibIconButtons.resetButton(this.getControlRight() + GuiUtil.PADDING,
-          this.getTop() + (this.getHeight() - RoundaLibIconButtons.SIZE_L) / 2,
-          this.option,
-          RoundaLibIconButtons.SIZE_L);
+      this.resetButton = RoundaLibIconButtons.resetButton(this.getControlRight() + GuiUtil.PADDING, this.getTop() + (this.getHeight() - RoundaLibIconButtons.SIZE_L) / 2, this.option, RoundaLibIconButtons.SIZE_L);
     }
 
     public O getOption() {
@@ -146,14 +115,12 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     }
 
     public int getControlRight() {
-      return this.getRight() - RoundaLibIconButtons.SIZE_L - 2 * GuiUtil.PADDING;
+      return this.getParent().getEntriesRight() - RoundaLibIconButtons.SIZE_L - 2 * GuiUtil.PADDING;
     }
 
     @Override
     public List<? extends Element> children() {
-      return Stream.of(this.control.children(), List.of(this.resetButton))
-          .flatMap(List::stream)
-          .toList();
+      return Stream.of(this.control.children(), List.of(this.resetButton)).flatMap(List::stream).toList();
     }
 
     protected List<? extends Element> navigableChildren() {
@@ -183,21 +150,14 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     }
 
     @Override
-    public void renderContent(
-        DrawContext drawContext,
-        int index,
-        double scrollAmount,
-        int mouseX,
-        int mouseY,
-        float delta) {
+    public void renderContent(DrawContext drawContext, int index, double scrollAmount, int mouseX, int mouseY, float delta) {
       this.labelWidget.setPosY(this.getTop() + this.getHeight() / 2 - (int) scrollAmount);
       this.labelWidget.render(drawContext, mouseX, mouseY, delta);
 
-      this.control.setScrollAmount(scrollAmount);
+      this.control.updateBounds(scrollAmount);
       this.control.renderWidget(drawContext, mouseX, mouseY, delta);
 
-      this.resetButton.setY(this.getTop() + (this.getHeight() - RoundaLibIconButtons.SIZE_L) / 2 -
-          (int) scrollAmount);
+      this.resetButton.setY(this.getTop() + (this.getHeight() - RoundaLibIconButtons.SIZE_L) / 2 - (int) scrollAmount);
       this.resetButton.render(drawContext, mouseX, mouseY, delta);
     }
   }

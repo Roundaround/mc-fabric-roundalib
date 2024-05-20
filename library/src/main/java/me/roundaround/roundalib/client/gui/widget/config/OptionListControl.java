@@ -37,8 +37,8 @@ public class OptionListControl<S extends ListOptionValue<S>>
   }
 
   @Override
-  public void setScrollAmount(double scrollAmount) {
-    super.setScrollAmount(scrollAmount);
+  public void updateBounds(double scrollAmount) {
+    super.updateBounds(scrollAmount);
 
     this.button.setY(this.scrolledTop);
   }

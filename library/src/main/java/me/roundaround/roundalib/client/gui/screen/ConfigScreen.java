@@ -6,16 +6,19 @@ import me.roundaround.roundalib.config.ModConfig;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.DirectionalLayoutWidget;
+import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 
 import java.util.Collection;
 
 public class ConfigScreen extends Screen {
+  protected final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this);
+
   private static final int LIST_MIN_WIDTH = 400;
   private static final int FOOTER_BUTTON_WIDTH = 150;
   private static final int FOOTER_BUTTON_HEIGHT = 20;
-  private static final int FOOTER_BUTTON_POS_Y = 28;
   private static final int FOOTER_BUTTON_SPACING = 8;
   private final Screen parent;
   private final ModConfig modConfig;
@@ -29,32 +32,71 @@ public class ConfigScreen extends Screen {
   }
 
   @Override
-  public void init() {
+  protected void init() {
     this.clearConfigOptionListeners();
 
-    int listWidth = (int) Math.max(LIST_MIN_WIDTH, width / 1.5f);
-    int listLeft = (int) ((width / 2f) - (listWidth / 2f));
-    int listHeight = this.height - 64;
-    int listTop = 32;
+    this.initHeader();
+    this.initFooter();
 
-    this.configListWidget = addDrawableChild(new ConfigListWidget(this.client,
+    this.initBody();
+
+    this.layout.forEachChild(this::addDrawableChild);
+    this.initTabNavigation();
+  }
+
+  @Override
+  protected void initTabNavigation() {
+    this.layout.refreshPositions();
+  }
+
+  @Override
+  public void close() {
+    assert this.client != null;
+    this.client.setScreen(this.parent);
+  }
+
+  @Override
+  public void removed() {
+    if (this.shouldSave) {
+      this.modConfig.saveToFile();
+    } else {
+      this.modConfig.loadFromFile();
+    }
+
+    this.clearConfigOptionListeners();
+  }
+
+  @Override
+  public void tick() {
+    this.configListWidget.tick();
+  }
+
+  protected void initHeader() {
+    this.layout.addHeader(this.title, this.textRenderer);
+  }
+
+  protected void initBody() {
+    int listWidth = Math.round(Math.min(Math.max(LIST_MIN_WIDTH, width / 1.5f), this.width));
+    int listLeft = Math.round((width - listWidth) / 2f);
+    int listHeight = this.layout.getContentHeight();
+    int listTop = this.layout.getHeaderHeight();
+
+    this.configListWidget = this.addDrawableChild(new ConfigListWidget(this.client,
         this.modConfig,
         listLeft,
         listTop,
         listWidth,
         listHeight));
+  }
 
-    int cancelButtonLeft = (width - FOOTER_BUTTON_SPACING) / 2 - FOOTER_BUTTON_WIDTH;
-    int cancelButtonTop = height - FOOTER_BUTTON_POS_Y;
-    addDrawableChild(ButtonWidget.builder(ScreenTexts.CANCEL, this::cancel)
-        .position(cancelButtonLeft, cancelButtonTop)
+  protected void initFooter() {
+    DirectionalLayoutWidget row = DirectionalLayoutWidget.horizontal().spacing(FOOTER_BUTTON_SPACING);
+    this.layout.addFooter(row);
+
+    row.add(ButtonWidget.builder(ScreenTexts.CANCEL, this::cancel)
         .size(FOOTER_BUTTON_WIDTH, FOOTER_BUTTON_HEIGHT)
         .build());
-
-    int doneButtonLeft = (width + FOOTER_BUTTON_SPACING) / 2;
-    int doneButtonTop = height - FOOTER_BUTTON_POS_Y;
-    addDrawableChild(ButtonWidget.builder(ScreenTexts.DONE, this::done)
-        .position(doneButtonLeft, doneButtonTop)
+    row.add(ButtonWidget.builder(ScreenTexts.DONE, this::done)
         .size(FOOTER_BUTTON_WIDTH, FOOTER_BUTTON_HEIGHT)
         .build());
   }
@@ -75,40 +117,5 @@ public class ConfigScreen extends Screen {
   private void done(ButtonWidget button) {
     this.shouldSave = true;
     this.close();
-  }
-
-  @Override
-  public void close() {
-    if (this.shouldSave) {
-      this.modConfig.saveToFile();
-    } else {
-      this.modConfig.loadFromFile();
-    }
-
-    this.clearConfigOptionListeners();
-
-    if (this.client == null) {
-      return;
-    }
-
-    this.client.setScreen(this.parent);
-  }
-
-  @Override
-  public void tick() {
-    this.configListWidget.tick();
-  }
-
-  @Override
-  public void render(DrawContext drawContext, int mouseX, int mouseY, float delta) {
-    GuiUtil.renderBackgroundInRegion(64, 0, this.height, 0, this.width);
-
-    drawContext.drawCenteredTextWithShadow(this.textRenderer,
-        this.title,
-        this.width / 2,
-        20,
-        GuiUtil.LABEL_COLOR);
-
-    super.render(drawContext, mouseX, mouseY, delta);
   }
 }
