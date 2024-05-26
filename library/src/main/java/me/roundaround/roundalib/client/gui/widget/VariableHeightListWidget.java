@@ -16,6 +16,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;
 import net.minecraft.client.gui.widget.ContainerWidget;
+import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.client.render.*;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
@@ -41,38 +42,24 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
   private final PositionalLinkedList<E> entries = new PositionalLinkedList<>();
 
-  private int contentPadding;
   private int rowPadding;
   private int contentWidth;
-  private int left;
-  private int top;
-  private int right;
-  private int bottom;
-  private int contentLeft;
-  private int contentRight;
   private int contentHeight;
   private double scrollAmount;
   private boolean scrolling;
 
   protected VariableHeightListWidget(MinecraftClient client, int x, int y, int width, int height) {
-    this(client, x, y, width, height, GuiUtil.PADDING, GuiUtil.PADDING);
+    this(client, x, y, width, height, GuiUtil.PADDING);
   }
 
-  protected VariableHeightListWidget(MinecraftClient client, int x, int y, int width, int height, int contentPadding, int rowPadding) {
+  protected VariableHeightListWidget(MinecraftClient client, int x, int y, int width, int height, int rowPadding) {
     super(x, y, width, height, ScreenTexts.EMPTY);
 
     this.client = client;
 
-    this.contentPadding = contentPadding;
     this.rowPadding = rowPadding;
     this.contentWidth = width;
 
-    this.left = x;
-    this.right = x + width;
-    this.top = y;
-    this.bottom = y + height;
-    this.contentLeft = this.left;
-    this.contentRight = this.right;
     this.contentHeight = 0;
   }
 
@@ -92,35 +79,19 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   @Override
-  public void setX(int x) {
-    super.setX(x);
-    this.left = x;
-    this.right = x + this.width;
-  }
-
-  @Override
-  public void setY(int y) {
-    super.setY(y);
-    this.top = y;
-    this.bottom = y + this.height;
-  }
-
-  @Override
   public void setWidth(int width) {
     super.setWidth(width);
-    this.right = this.left + width;
     this.setContentWidth(this.contentWidth);
   }
 
-  @Override
-  public void setHeight(int height) {
-    super.setHeight(height);
-    this.bottom = this.top + height;
+  public void updatePosition(int x, int y, int width, int height) {
+    this.updatePosition(x, y, width, height, this.contentWidth);
   }
 
-  public void setContentPadding(int contentPadding) {
-    this.contentPadding = contentPadding;
-    this.recalculateContentHeight();
+  public void updatePosition(int x, int y, int width, int height, int contentWidth) {
+    this.setPosition(x, y);
+    this.setDimensions(width, height);
+    this.setContentWidth(contentWidth);
   }
 
   public void setRowPadding(int rowPadding) {
@@ -129,13 +100,23 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   public void setContentWidth(int contentWidth) {
-    this.contentWidth = Math.min(contentWidth, this.width);
-    this.contentLeft = this.left + (this.width - this.contentWidth) / 2;
-    this.contentRight = this.contentLeft + this.contentWidth;
+    this.contentWidth = Math.min(contentWidth, this.getWidth());
+  }
+
+  public int getContentWidth() {
+    return this.contentWidth;
+  }
+
+  public int getContentLeft() {
+    return this.getX() + (this.getWidth() - this.getContentWidth()) / 2;
+  }
+
+  public int getContentRight() {
+    return this.getX() + (this.getWidth() + this.getContentWidth()) / 2;
   }
 
   private void recalculateContentHeight() {
-    this.contentHeight = this.entries.getTotalHeight() + (this.entries.size() * this.rowPadding) + this.contentPadding * 2;
+    this.contentHeight = this.entries.getTotalHeight() + (this.entries.size() * this.rowPadding);
   }
 
   @Override
@@ -144,7 +125,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
     this.renderListBackground(drawContext);
 
-    drawContext.enableScissor(this.left, this.top, this.right, this.bottom);
+    drawContext.enableScissor(this.getX(), this.getY(), this.getRight(), this.getBottom());
     this.renderList(drawContext, mouseX, mouseY, delta);
     this.renderScrollBar(drawContext, mouseX, mouseY, delta);
     drawContext.disableScissor();
@@ -189,22 +170,22 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     int handleHeight = (int) ((float) this.height * this.height / this.contentHeight);
     handleHeight = MathHelper.clamp(handleHeight, 32, this.height - 8);
 
-    int handleTop = (int) this.scrollAmount * (this.height - handleHeight) / this.getMaxScroll() + this.top;
-    if (handleTop < this.top) {
-      handleTop = this.top;
+    int handleTop = (int) this.scrollAmount * (this.height - handleHeight) / this.getMaxScroll() + this.getY();
+    if (handleTop < this.getY()) {
+      handleTop = this.getY();
     }
 
     RenderSystem.enableBlend();
-    drawContext.drawGuiTexture(SCROLLER_BACKGROUND_TEXTURE, scrollbarLeft, this.top, GuiUtil.SCROLLBAR_WIDTH, this.height);
+    drawContext.drawGuiTexture(SCROLLER_BACKGROUND_TEXTURE, scrollbarLeft, this.getY(), GuiUtil.SCROLLBAR_WIDTH, this.height);
     drawContext.drawGuiTexture(SCROLLER_TEXTURE, scrollbarLeft, handleTop, GuiUtil.SCROLLBAR_WIDTH, handleHeight);
     RenderSystem.disableBlend();
   }
 
   protected void renderListBorders(DrawContext drawContext) {
-    RenderSystem.enableBlend();
     Identifier headerSepTex = this.client.world == null ? Screen.HEADER_SEPARATOR_TEXTURE : Screen.INWORLD_HEADER_SEPARATOR_TEXTURE;
-    drawContext.drawTexture(headerSepTex, this.getX(), this.getY() - 2, 0.0F, 0.0F, this.getWidth(), 2, 32, 2);
     Identifier footerSepTex = this.client.world == null ? Screen.FOOTER_SEPARATOR_TEXTURE : Screen.INWORLD_FOOTER_SEPARATOR_TEXTURE;
+    RenderSystem.enableBlend();
+    drawContext.drawTexture(headerSepTex, this.getX(), this.getY() - 2, 0.0F, 0.0F, this.getWidth(), 2, 32, 2);
     drawContext.drawTexture(footerSepTex, this.getX(), this.getBottom(), 0.0F, 0.0F, this.getWidth(), 2, 32, 2);
     RenderSystem.disableBlend();
   }
@@ -444,7 +425,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       return null;
     }
 
-    if (y < this.top || y > this.bottom) {
+    if (y < this.getY() || y > this.getBottom()) {
       return null;
     }
 
@@ -459,25 +440,25 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     }
 
     int scrolledBottom = entry.getTop() + entry.getHeight() - (int) this.scrollAmount;
-    if (scrolledBottom > this.getBottom() - this.contentPadding) {
+    if (scrolledBottom > this.getBottom()) {
       this.scroll(scrolledBottom - this.getEntriesBottom());
     }
   }
 
   protected int getEntriesLeft() {
-    return this.contentLeft + this.contentPadding;
+    return this.getX();
   }
 
   protected int getEntriesTop() {
-    return this.top + this.contentPadding;
+    return this.getY();
   }
 
   protected int getEntriesRight() {
-    return this.contentRight - this.contentPadding - (this.isScrollbarVisible() ? GuiUtil.SCROLLBAR_WIDTH : 0);
+    return this.getContentRight() - (this.isScrollbarVisible() ? GuiUtil.SCROLLBAR_WIDTH : 0);
   }
 
   protected int getEntriesBottom() {
-    return this.bottom - this.contentPadding;
+    return this.getBottom();
   }
 
   protected boolean isScrollbarVisible() {
@@ -485,7 +466,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   protected int getScrollbarPositionX() {
-    return this.contentRight - GuiUtil.SCROLLBAR_WIDTH;
+    return this.getContentRight() - GuiUtil.SCROLLBAR_WIDTH;
   }
 
   private void scroll(int amount) {
@@ -501,7 +482,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   public int getMaxScroll() {
-    return Math.max(0, this.contentHeight - this.height);
+    return Math.max(0, this.contentHeight - this.getHeight());
   }
 
   protected void updateScrollingState(double mouseX, double mouseY, int button) {
@@ -532,7 +513,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       this.parent = parent;
       this.index = index;
       this.height = height;
-      this.top = parent.top + parent.entries.getTotalHeight();
+      this.top = parent.getY() + parent.entries.getTotalHeight();
     }
 
     public ConfigListWidget getParent() {
@@ -549,7 +530,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
     @Override
     public int getTop() {
-      return this.parent.contentPadding + this.top + this.index * this.parent.rowPadding;
+      return this.top + this.index * this.parent.rowPadding;
     }
 
     @Override
@@ -581,8 +562,8 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
         BufferBuilder bufferBuilder = tessellator.getBuffer();
         Matrix4f matrix4f = drawContext.getMatrices().peek().getPositionMatrix();
 
-        int left = this.parent.contentLeft - ROW_SHADE_FADE_OVERFLOW;
-        int right = this.parent.contentRight + ROW_SHADE_FADE_OVERFLOW;
+        int left = this.getLeft() - ROW_SHADE_FADE_OVERFLOW;
+        int right = this.getRight() + ROW_SHADE_FADE_OVERFLOW;
         int top = this.top - (int) scrollAmount - this.parent.rowPadding / 2;
         int bottom = this.top + this.height - (int) scrollAmount + this.parent.rowPadding / 2 + 1;
 

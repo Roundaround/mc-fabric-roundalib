@@ -47,6 +47,7 @@ public class ConfigScreen extends Screen {
   @Override
   protected void initTabNavigation() {
     this.layout.refreshPositions();
+    this.updateConfigListPosition();
   }
 
   @Override
@@ -76,21 +77,22 @@ public class ConfigScreen extends Screen {
   }
 
   protected void initBody() {
-    int listWidth = Math.round(Math.min(Math.max(LIST_MIN_WIDTH, width / 1.5f), this.width));
-    int listLeft = Math.round((width - listWidth) / 2f);
-    int listHeight = this.layout.getContentHeight();
-    int listTop = this.layout.getHeaderHeight();
+    this.configListWidget =
+        this.addDrawableChild(new ConfigListWidget(this.client, this.modConfig, 0, 0, 0, 0));
+  }
 
-    this.configListWidget = this.addDrawableChild(new ConfigListWidget(this.client,
-        this.modConfig,
-        listLeft,
-        listTop,
-        listWidth,
-        listHeight));
+  private void updateConfigListPosition() {
+    this.configListWidget.updatePosition(this.layout.getX(),
+        this.layout.getHeaderHeight(),
+        this.layout.getWidth(),
+        this.layout.getContentHeight(),
+        Math.round(Math.min(Math.max(LIST_MIN_WIDTH, this.layout.getWidth() / 1.5f),
+            this.layout.getWidth())));
   }
 
   protected void initFooter() {
-    DirectionalLayoutWidget row = DirectionalLayoutWidget.horizontal().spacing(FOOTER_BUTTON_SPACING);
+    DirectionalLayoutWidget row =
+        DirectionalLayoutWidget.horizontal().spacing(FOOTER_BUTTON_SPACING);
     this.layout.addFooter(row);
 
     row.add(ButtonWidget.builder(ScreenTexts.CANCEL, this::cancel)
