@@ -16,7 +16,6 @@ import java.util.Collection;
 public class ConfigScreen extends Screen {
   protected final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this);
 
-  private static final int LIST_MIN_WIDTH = 400;
   private static final int FOOTER_BUTTON_WIDTH = 150;
   private static final int FOOTER_BUTTON_HEIGHT = 20;
   private static final int FOOTER_BUTTON_SPACING = 8;
@@ -47,7 +46,7 @@ public class ConfigScreen extends Screen {
   @Override
   protected void initTabNavigation() {
     this.layout.refreshPositions();
-    this.updateConfigListPosition();
+    this.configListWidget.updatePosition(this.layout);
   }
 
   @Override
@@ -78,16 +77,7 @@ public class ConfigScreen extends Screen {
 
   protected void initBody() {
     this.configListWidget =
-        this.addDrawableChild(new ConfigListWidget(this.client, this.modConfig, 0, 0, 0, 0));
-  }
-
-  private void updateConfigListPosition() {
-    this.configListWidget.updatePosition(this.layout.getX(),
-        this.layout.getHeaderHeight(),
-        this.layout.getWidth(),
-        this.layout.getContentHeight(),
-        Math.round(Math.min(Math.max(LIST_MIN_WIDTH, this.layout.getWidth() / 1.5f),
-            this.layout.getWidth())));
+        this.addDrawableChild(new ConfigListWidget(this.client, this.layout, this.modConfig));
   }
 
   protected void initFooter() {
