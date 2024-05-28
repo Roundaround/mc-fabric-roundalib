@@ -20,10 +20,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.Entry> {
-  private static final int LIST_MIN_WIDTH = 400;
-
   public ConfigListWidget(MinecraftClient client, ThreePartsLayoutWidget layout, ModConfig modConfig) {
-    super(client, layout.getX(), layout.getHeaderHeight(), Math.round(Math.min(Math.max(LIST_MIN_WIDTH, layout.getWidth() / 1.5f), layout.getWidth())), layout.getContentHeight());
+    super(client, layout.getX(), layout.getHeaderHeight(), layout.getWidth(), layout.getContentHeight());
 
     for (var entry : modConfig.getConfigOptions().entrySet()) {
       if (entry.getValue().stream().noneMatch(ConfigOption::shouldShowInConfigScreen)) {
@@ -33,7 +31,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
       String modId = modConfig.getModId();
       String category = entry.getKey();
       if (modConfig.getShowGroupTitles() && !category.equals(modId)) {
-        this.addEntry(new CategoryEntry(this.client, Text.translatable(entry.getKey() + ".title"), this.getContentLeft(), this.getNextEntryY(), this.getContentWidth()));
+        this.addEntry(new CategoryEntry(this.client, Text.translatable(entry.getKey() + ".title"), this.getX(), this.getNextEntryY(), this.getContentWidth()));
       }
 
       for (var option : entry.getValue()) {
@@ -42,7 +40,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
         }
 
         try {
-          this.addEntry(new OptionEntry<>(this.client, option, this.getContentLeft(), this.getNextEntryY(), this.getContentWidth()));
+          this.addEntry(new OptionEntry<>(this.client, option, this.getX(), this.getNextEntryY(), this.getContentWidth()));
         } catch (ControlRegistry.NotRegisteredException e) {
           RoundaLib.LOGGER.error("Failed to create control for config option: {}", option, e);
         }
@@ -51,7 +49,20 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
   }
 
   public void updatePosition(ThreePartsLayoutWidget layout) {
-    super.updatePosition(layout.getX(), layout.getHeaderHeight(), Math.round(Math.min(Math.max(LIST_MIN_WIDTH, layout.getWidth() / 1.5f), layout.getWidth())), layout.getContentHeight());
+    this.updatePosition(layout.getX(), layout.getHeaderHeight(), layout.getWidth(), layout.getContentHeight());
+  }
+
+  @Override
+  public void refreshPositions() {
+    int entryY = 0;
+    this.forEachEntry((entry) -> {
+      entry.setX(this.getX());
+      entry.setY(this.getY() + entryY);
+      entry.setWidth(this.getContentWidth());
+
+      entryY += entry.getHeight() + this.getRowPadding();
+    });
+    super.refreshPositions();
   }
 
   public void tick() {

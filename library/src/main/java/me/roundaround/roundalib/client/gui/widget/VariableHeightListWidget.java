@@ -41,7 +41,6 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   private final LinkedList<E> entries = new LinkedList<>();
 
   private int rowPadding;
-  private int contentWidth;
   private int rawContentHeight = 0;
   private double scrollAmount = 0;
   private boolean scrolling = false;
@@ -54,9 +53,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     super(x, y, width, height, ScreenTexts.EMPTY);
 
     this.client = client;
-
     this.rowPadding = rowPadding;
-    this.contentWidth = width;
   }
 
   @SuppressWarnings("UnusedReturnValue")
@@ -67,7 +64,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   public int getNextEntryY() {
-    return this.rawContentHeight;
+    return this.rawContentHeight + this.entries.size() * this.rowPadding;
   }
 
   public void clearEntries() {
@@ -82,18 +79,12 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   @Override
   public void setWidth(int width) {
     super.setWidth(width);
-    this.setContentWidth(this.contentWidth);
     this.refreshPositions();
   }
 
   public void updatePosition(int x, int y, int width, int height) {
-    this.updatePosition(x, y, width, height, this.contentWidth);
-  }
-
-  public void updatePosition(int x, int y, int width, int height, int contentWidth) {
     this.setPosition(x, y);
     this.setDimensions(width, height);
-    this.setContentWidth(contentWidth);
     this.refreshPositions();
   }
 
@@ -102,20 +93,12 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     this.refreshPositions();
   }
 
-  public void setContentWidth(int contentWidth) {
-    this.contentWidth = Math.min(contentWidth, this.getWidth());
+  public int getRowPadding() {
+    return this.rowPadding;
   }
 
   public int getContentWidth() {
-    return this.contentWidth;
-  }
-
-  public int getContentLeft() {
-    return this.getX() + (this.getWidth() - this.getContentWidth()) / 2;
-  }
-
-  public int getContentRight() {
-    return this.getX() + (this.getWidth() + this.getContentWidth()) / 2;
+    return this.getWidth() - (this.isScrollbarVisible() ? GuiUtil.SCROLLBAR_WIDTH : 0);
   }
 
   public int getContentHeight() {
@@ -460,7 +443,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   protected int getScrollbarPositionX() {
-    return this.getContentRight() - GuiUtil.SCROLLBAR_WIDTH;
+    return this.getRight() - GuiUtil.SCROLLBAR_WIDTH;
   }
 
   private void scroll(int amount) {
