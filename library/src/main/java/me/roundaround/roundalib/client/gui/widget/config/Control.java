@@ -55,10 +55,10 @@ public abstract class Control<D, O extends ConfigOption<D, ?>> extends AbstractP
   }
 
   public void updateBounds(double scrollAmount) {
-    this.widgetWidth = Math.max(WIDGET_MIN_WIDTH, Math.round(parent.getParent().getWidth() * 0.3f));
+    this.widgetWidth = Math.max(WIDGET_MIN_WIDTH, Math.round(parent.getWidth() * 0.3f));
     this.widgetLeft = parent.getControlRight() - this.widgetWidth;
     this.widgetHeight = parent.getHeight() - PADDING * 2;
-    this.widgetTop = parent.getTop() + PADDING;
+    this.widgetTop = parent.getY() + PADDING;
     this.scrolledTop = this.widgetTop - (int) scrollAmount;
   }
 
