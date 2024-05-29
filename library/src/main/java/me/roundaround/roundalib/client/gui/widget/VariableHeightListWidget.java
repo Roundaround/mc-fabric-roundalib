@@ -58,8 +58,12 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
   @SuppressWarnings("UnusedReturnValue")
   public <T extends E> T addEntry(T entry) {
+    boolean wasScrollbarVisible = this.isScrollbarVisible();
     this.entries.add(entry);
     this.rawContentHeight += entry.getHeight();
+    if (!wasScrollbarVisible && this.isScrollbarVisible()) {
+      this.refreshPositions();
+    }
     return entry;
   }
 
@@ -479,6 +483,19 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     this.entries.forEach(consumer);
   }
 
+  @Override
+  public void refreshPositions() {
+    int entryY = 0;
+    for (E entry : this.entries) {
+      entry.setX(this.getX());
+      entry.setY(this.getY() + entryY);
+      entry.setWidth(this.getContentWidth());
+
+      entryY += entry.getHeight() + this.getRowPadding();
+    }
+    LayoutWidget.super.refreshPositions();
+  }
+
   public abstract static class Entry extends AbstractParentElement implements Drawable, Element, LayoutWidget {
     protected static final int ROW_SHADE_STRENGTH = 85;
     protected static final int ROW_SHADE_FADE_WIDTH = 10;
@@ -692,22 +709,12 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       this.height = height;
     }
 
-    public void setDimensions(int width, int height) {
-      this.width = width;
-      this.height = height;
-    }
-
     public int getRight() {
       return this.getX() + this.getWidth();
     }
 
     public int getBottom() {
       return this.getY() + this.getHeight();
-    }
-
-    public void setDimensionsAndPosition(int width, int height, int x, int y) {
-      this.setDimensions(width, height);
-      this.setPosition(x, y);
     }
   }
 }

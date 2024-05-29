@@ -52,19 +52,6 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     this.updatePosition(layout.getX(), layout.getHeaderHeight(), layout.getWidth(), layout.getContentHeight());
   }
 
-  @Override
-  public void refreshPositions() {
-    int entryY = 0;
-    this.forEachEntry((entry) -> {
-      entry.setX(this.getX());
-      entry.setY(this.getY() + entryY);
-      entry.setWidth(this.getContentWidth());
-
-      entryY += entry.getHeight() + this.getRowPadding();
-    });
-    super.refreshPositions();
-  }
-
   public void tick() {
     this.forEachEntry(Entry::tick);
   }
@@ -98,6 +85,12 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     public void renderContent(DrawContext drawContext, int mouseX, int mouseY, float delta) {
       this.labelWidget.setPosY(this.getY() + this.getHeight() / 2 - (int) this.getScrollAmount());
       this.labelWidget.render(drawContext, mouseX, mouseY, delta);
+    }
+
+    @Override
+    public void refreshPositions() {
+      this.labelWidget.setPosX((this.getX() + this.getRight()) / 2);
+      super.refreshPositions();
     }
   }
 
@@ -167,6 +160,13 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
       this.resetButton.setY(this.getY() + (this.getHeight() - RoundaLibIconButtons.SIZE_L) / 2 - (int) this.getScrollAmount());
       this.resetButton.render(drawContext, mouseX, mouseY, delta);
+    }
+
+    @Override
+    public void refreshPositions() {
+      this.labelWidget.setPosX(this.getX() + GuiUtil.PADDING);
+      this.resetButton.setX(this.getControlRight() + GuiUtil.PADDING);
+      super.refreshPositions();
     }
   }
 }
