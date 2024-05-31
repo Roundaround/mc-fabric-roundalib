@@ -2,6 +2,7 @@ package me.roundaround.roundalib.client.gui.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.widget.config.ControlRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.*;
@@ -40,50 +41,43 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
   private final LinkedList<E> entries = new LinkedList<>();
 
-  private int rowPadding;
-  private int rawContentHeight = 0;
+  private int contentHeight = 0;
   private double scrollAmount = 0;
   private boolean scrolling = false;
 
   protected VariableHeightListWidget(MinecraftClient client, int x, int y, int width, int height) {
-    this(client, x, y, width, height, GuiUtil.PADDING);
-  }
-
-  protected VariableHeightListWidget(MinecraftClient client, int x, int y, int width, int height, int rowPadding) {
     super(x, y, width, height, ScreenTexts.EMPTY);
 
     this.client = client;
-    this.rowPadding = rowPadding;
   }
 
   @SuppressWarnings("UnusedReturnValue")
-  public <T extends E> T addEntry(T entry) {
+  public <T extends E> T addEntry(EntryFactory<T> factory) {
+
+    T entry = factory.create(this.entries.size(), this.getX(), this.getContentHeight(), this.getContentWidth());
+    if (entry == null) {
+      return null;
+    }
+
     boolean wasScrollbarVisible = this.isScrollbarVisible();
+
     this.entries.add(entry);
-    this.rawContentHeight += entry.getHeight();
+    this.contentHeight += entry.getHeight();
+
     if (!wasScrollbarVisible && this.isScrollbarVisible()) {
       this.refreshPositions();
     }
-    return entry;
-  }
 
-  public int getNextEntryY() {
-    return this.rawContentHeight + this.entries.size() * this.rowPadding;
+    return entry;
   }
 
   public void clearEntries() {
     this.entries.clear();
-    this.rawContentHeight = 0;
+    this.contentHeight = 0;
   }
 
-  public void forEachEntry(Consumer<? super E> consumer) {
+  public void forEachEntry(Consumer<E> consumer) {
     this.entries.forEach(consumer);
-  }
-
-  @Override
-  public void setWidth(int width) {
-    super.setWidth(width);
-    this.refreshPositions();
   }
 
   public void updatePosition(int x, int y, int width, int height) {
@@ -92,25 +86,12 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     this.refreshPositions();
   }
 
-  public void setRowPadding(int rowPadding) {
-    this.rowPadding = rowPadding;
-    this.refreshPositions();
-  }
-
-  public int getRowPadding() {
-    return this.rowPadding;
-  }
-
   public int getContentWidth() {
     return this.getWidth() - (this.isScrollbarVisible() ? GuiUtil.SCROLLBAR_WIDTH : 0);
   }
 
   public int getContentHeight() {
-    if (this.entries.isEmpty()) {
-      return 0;
-    }
-
-    return this.rawContentHeight + (this.entries.size() - 1) * this.rowPadding;
+    return this.contentHeight;
   }
 
   @Override
@@ -151,7 +132,6 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       return;
     }
 
-    entry.setIndex(index);
     entry.setScrollAmount(scrollAmount);
     entry.render(drawContext, mouseX, mouseY, delta);
   }
@@ -480,7 +460,6 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
   @Override
   public void forEachElement(Consumer<Widget> consumer) {
-    this.entries.forEach(consumer);
   }
 
   @Override
@@ -491,12 +470,17 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       entry.setY(this.getY() + entryY);
       entry.setWidth(this.getContentWidth());
 
-      entryY += entry.getHeight() + this.getRowPadding();
+      entryY += entry.getHeight();
     }
     LayoutWidget.super.refreshPositions();
   }
 
-  public abstract static class Entry extends AbstractParentElement implements Drawable, Element, LayoutWidget {
+  @FunctionalInterface
+  public interface EntryFactory<E extends Entry> {
+    E create(int index, int x, int y, int width);
+  }
+
+  public abstract static class Entry extends AbstractParentElement implements Drawable {
     protected static final int ROW_SHADE_STRENGTH = 85;
     protected static final int ROW_SHADE_FADE_WIDTH = 10;
     protected static final int ROW_SHADE_FADE_OVERFLOW = 10;
@@ -504,55 +488,22 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     // TODO: This should be based on rowPadding, not constant
     protected static final int ROW_SHADE_Y_OVERFLOW = GuiUtil.PADDING / 2;
 
-    protected final MinecraftClient client;
+    private final int index;
+    private final int height;
 
     private int x;
     private int y;
     private int width;
-    private int height;
     private Selectable focusedSelectable;
-    private int index;
     private double scrollAmount;
+    private boolean focused;
 
-    public Entry(MinecraftClient client, int x, int y, int width, int height) {
-      this.client = client;
+    protected Entry(int index, int x, int y, int width, int height) {
+      this.index = index;
       this.x = x;
       this.y = y;
       this.width = width;
       this.height = height;
-    }
-
-    public MinecraftClient getClient() {
-      return this.client;
-    }
-
-    public TextRenderer getTextRenderer() {
-      return this.client.textRenderer;
-    }
-
-    protected void setIndex(int index) {
-      this.index = index;
-    }
-
-    protected int getIndex() {
-      return this.index;
-    }
-
-    protected void setScrollAmount(double scrollAmount) {
-      this.scrollAmount = scrollAmount;
-    }
-
-    protected double getScrollAmount() {
-      return this.scrollAmount;
-    }
-
-    @Override
-    public void forEachElement(Consumer<Widget> consumer) {
-      this.children().forEach((element) -> {
-        if (element instanceof Widget) {
-          consumer.accept((Widget) element);
-        }
-      });
     }
 
     @Override
@@ -604,109 +555,60 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     public void renderDecorations(DrawContext drawContext, int mouseX, int mouseY, float delta) {
     }
 
-    public List<? extends Selectable> selectableChildren() {
-      return this.children().stream().filter(Selectable.class::isInstance).map(Selectable.class::cast).toList();
-    }
-
-    public GuiNavigationPath getNavigationPath(GuiNavigation navigation, int index) {
-      if (this.children().isEmpty()) {
-        return null;
-      }
-
-      Element child = this.children().get(Math.min(index, this.children().size() - 1));
-      GuiNavigationPath path = child.getNavigationPath(navigation);
-      return GuiNavigationPath.of(this, path);
-    }
-
     @Override
-    public GuiNavigationPath getNavigationPath(GuiNavigation navigation) {
-      if (!(navigation instanceof GuiNavigation.Arrow arrow)) {
-        return super.getNavigationPath(navigation);
-      }
-
-      int delta = switch (arrow.direction()) {
-        case LEFT -> -1;
-        case RIGHT -> 1;
-        default -> 0;
-      };
-
-      if (delta == 0) {
-        return null;
-      }
-
-      int index = MathHelper.clamp(delta + this.children().indexOf(this.getFocused()), 0, this.children().size() - 1);
-
-      for (int i = index; i >= 0 && i < this.children().size(); i += delta) {
-        GuiNavigationPath path = this.children().get(i).getNavigationPath(navigation);
-        if (path != null) {
-          return GuiNavigationPath.of(this, path);
-        }
-      }
-
-      return super.getNavigationPath(navigation);
-    }
-
-    void appendNarrations(NarrationMessageBuilder builder) {
-      List<? extends Selectable> list = this.selectableChildren();
-      Screen.SelectedElementNarrationData data = Screen.findSelectedElementData(list, this.focusedSelectable);
-
-      if (data != null) {
-        if (data.selectType.isFocused()) {
-          this.focusedSelectable = data.selectable;
-        }
-
-        if (list.size() > 1) {
-          builder.put(NarrationPart.POSITION, Text.translatable("narrator.position.object_list", data.index + 1, list.size()));
-          if (data.selectType == Selectable.SelectionType.FOCUSED) {
-            builder.put(NarrationPart.USAGE, Text.translatable("narration.component_list.usage"));
-          }
-        }
-
-        data.selectable.appendNarrations(builder.nextMessage());
-      }
+    public List<? extends Element> children() {
+      return List.of();
     }
 
     @Override
     public ScreenRect getNavigationFocus() {
-      return LayoutWidget.super.getNavigationFocus();
+      return new ScreenRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
     }
 
     @Override
+    public void setFocused(boolean focused) {
+      this.focused = focused;
+    }
+
+    @Override
+    public boolean isFocused() {
+      return this.focused;
+    }
+
+    protected void setScrollAmount(double scrollAmount) {
+      this.scrollAmount = scrollAmount;
+    }
+
+    protected double getScrollAmount() {
+      return this.scrollAmount;
+    }
+
     public void setX(int x) {
       this.x = x;
     }
 
-    @Override
     public int getX() {
       return this.x;
     }
 
-    @Override
     public void setY(int y) {
       this.y = y;
     }
 
-    @Override
     public int getY() {
       return this.y;
-    }
-
-    @Override
-    public int getWidth() {
-      return this.width;
-    }
-
-    @Override
-    public int getHeight() {
-      return this.height;
     }
 
     public void setWidth(int width) {
       this.width = width;
     }
 
-    public void setHeight(int height) {
-      this.height = height;
+    public int getWidth() {
+      return this.width;
+    }
+
+    public int getHeight() {
+      return this.height;
     }
 
     public int getRight() {
