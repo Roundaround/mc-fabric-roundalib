@@ -2,6 +2,7 @@ package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.config.option.OptionListConfigOption;
 import me.roundaround.roundalib.config.value.ListOptionValue;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
@@ -9,24 +10,17 @@ import net.minecraft.text.Text;
 
 import java.util.List;
 
-public class OptionListControl<S extends ListOptionValue<S>>
-    extends Control<S, OptionListConfigOption<S>> {
+public class OptionListControl<S extends ListOptionValue<S>> extends Control<S, OptionListConfigOption<S>> {
   private final CyclingButtonWidget<S> button;
 
-  public OptionListControl(ConfigListWidget.OptionEntry<S, OptionListConfigOption<S>> parent) {
-    super(parent);
+  public OptionListControl(MinecraftClient client, OptionListConfigOption<S> option) {
+    super(client, option);
 
-    this.button =
-        new CyclingButtonWidget.Builder<S>((value) -> value.getDisplayText(this.option.getConfig())).values(
-                this.option.getValues())
-            .initially(this.option.getValue())
-            .omitKeyText()
-            .build(this.widgetLeft,
-                this.widgetTop,
-                this.widgetWidth,
-                this.widgetHeight,
-                Text.empty(),
-                this::buttonClicked);
+    this.button = new CyclingButtonWidget.Builder<S>((value) -> value.getDisplayText(option.getConfig())).values(
+            option.getValues())
+        .initially(option.getValue())
+        .omitKeyText()
+        .build(this.widgetX, this.widgetY, this.widgetWidth, this.widgetHeight, Text.empty(), this::buttonClicked);
 
     this.onDisabledChange(this.disabled, this.disabled);
   }
@@ -37,8 +31,8 @@ public class OptionListControl<S extends ListOptionValue<S>>
   }
 
   @Override
-  public void updateBounds(double scrollAmount) {
-    super.updateBounds(scrollAmount);
+  public void setBounds(int right, int y, int width, int height, double scrollAmount) {
+    super.setBounds(right, y, width, height, scrollAmount);
 
     this.button.setY(this.scrolledTop);
   }

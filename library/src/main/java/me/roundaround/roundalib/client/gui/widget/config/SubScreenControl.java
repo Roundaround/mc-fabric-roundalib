@@ -2,6 +2,7 @@ package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.config.option.ConfigOption;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.Screen;
@@ -15,17 +16,15 @@ public class SubScreenControl<D, O extends ConfigOption<D, ?>> extends Control<D
   private final ButtonWidget button;
 
   public SubScreenControl(
-      ConfigListWidget.OptionEntry<D, O> parent, SubScreenFactory<D, O> subScreenFactory) {
-    super(parent);
+      MinecraftClient client, O option, SubScreenFactory<D, O> subScreenFactory
+  ) {
+    super(client, option);
     this.subScreenFactory = subScreenFactory;
 
-    this.button = ButtonWidget.builder(Text.translatable(
-                parent.getOption().getConfig().getModId() + ".roundalib.subscreen.label"),
-            (button) -> GuiUtil.setScreen(this.subScreenFactory.create(this.parent.getClient().currentScreen,
-                this.option)))
-        .position(this.widgetLeft, this.widgetTop)
-        .size(this.widgetWidth, this.widgetHeight)
-        .build();
+    this.button = ButtonWidget.builder(
+        Text.translatable(option.getConfig().getModId() + ".roundalib.subscreen.label"),
+        (button) -> GuiUtil.setScreen(this.subScreenFactory.create(client.currentScreen, this.option))
+    ).position(this.widgetX, this.widgetY).size(this.widgetWidth, this.widgetHeight).build();
 
     this.onDisabledChange(this.disabled, this.disabled);
   }
@@ -36,8 +35,8 @@ public class SubScreenControl<D, O extends ConfigOption<D, ?>> extends Control<D
   }
 
   @Override
-  public void updateBounds(double scrollAmount) {
-    super.updateBounds(scrollAmount);
+  public void setBounds(int right, int y, int width, int height, double scrollAmount) {
+    super.setBounds(right, y, width, height, scrollAmount);
 
     this.button.setY(this.scrolledTop);
   }
@@ -53,7 +52,7 @@ public class SubScreenControl<D, O extends ConfigOption<D, ?>> extends Control<D
   }
 
   @FunctionalInterface
-  public interface SubScreenFactory<D, C extends ConfigOption<D, ?>> {
-    Screen create(Screen parent, C configOption);
+  public interface SubScreenFactory<D, O extends ConfigOption<D, ?>> {
+    Screen create(Screen screen, O option);
   }
 }

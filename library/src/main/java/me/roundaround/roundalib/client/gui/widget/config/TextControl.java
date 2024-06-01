@@ -2,6 +2,7 @@ package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.config.option.StringConfigOption;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -12,15 +13,12 @@ import java.util.Objects;
 public class TextControl extends Control<String, StringConfigOption> {
   private final TextFieldWidget textField;
 
-  public TextControl(ConfigListWidget.OptionEntry<String, StringConfigOption> parent) {
-    super(parent);
+  public TextControl(MinecraftClient client, StringConfigOption option) {
+    super(client, option);
 
-    this.textField = new TextFieldWidget(parent.getTextRenderer(),
-        this.widgetLeft + 1,
-        this.widgetTop + 1,
-        this.widgetWidth - 2,
-        this.widgetHeight - 2,
-        this.option.getLabel());
+    this.textField = new TextFieldWidget(client.textRenderer, this.widgetX + 1, this.widgetY + 1, this.widgetWidth - 2,
+        this.widgetHeight - 2, this.option.getLabel()
+    );
 
     this.textField.setText(this.option.getValue());
     this.textField.setChangedListener(this::onTextChanged);
@@ -34,8 +32,8 @@ public class TextControl extends Control<String, StringConfigOption> {
   }
 
   @Override
-  public void updateBounds(double scrollAmount) {
-    super.updateBounds(scrollAmount);
+  public void setBounds(int right, int y, int width, int height, double scrollAmount) {
+    super.setBounds(right, y, width, height, scrollAmount);
 
     this.textField.setY(this.scrolledTop + 1);
   }

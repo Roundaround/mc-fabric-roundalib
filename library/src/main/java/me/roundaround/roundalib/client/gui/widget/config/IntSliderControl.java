@@ -2,6 +2,7 @@ package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.client.gui.widget.IntSliderWidget;
 import me.roundaround.roundalib.config.option.IntConfigOption;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
 import net.minecraft.text.Text;
@@ -12,25 +13,18 @@ import java.util.Objects;
 public class IntSliderControl extends Control<Integer, IntConfigOption> {
   private final IntSliderWidget slider;
 
-  public IntSliderControl(ConfigListWidget.OptionEntry<Integer, IntConfigOption> parent) {
-    super(parent);
+  public IntSliderControl(MinecraftClient client, IntConfigOption option) {
+    super(client, option);
 
-    if (!this.option.useSlider() || this.option.getMinValue().isEmpty() ||
-        this.option.getMaxValue().isEmpty()) {
+    if (!this.option.useSlider() || this.option.getMinValue().isEmpty() || this.option.getMaxValue().isEmpty()) {
       throw new IllegalArgumentException(
           "IntConfigOption must use slider and have min and max values to use IntSliderControl");
     }
 
-    this.slider = new IntSliderWidget(this.widgetLeft,
-        this.widgetTop,
-        this.widgetWidth,
-        this.widgetHeight,
-        this.option.getMinValue().get(),
-        this.option.getMaxValue().get(),
-        this.option.getStep(),
-        this.option.getValue(),
-        this::onSliderChanged,
-        this::getValueAsText);
+    this.slider = new IntSliderWidget(this.widgetX, this.widgetY, this.widgetWidth, this.widgetHeight,
+        this.option.getMinValue().get(), this.option.getMaxValue().get(), this.option.getStep(), this.option.getValue(),
+        this::onSliderChanged, this::getValueAsText
+    );
 
     this.onDisabledChange(this.disabled, this.disabled);
   }
@@ -41,8 +35,8 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
   }
 
   @Override
-  public void updateBounds(double scrollAmount) {
-    super.updateBounds(scrollAmount);
+  public void setBounds(int right, int y, int width, int height, double scrollAmount) {
+    super.setBounds(right, y, width, height, scrollAmount);
 
     this.slider.setY(this.scrolledTop);
   }

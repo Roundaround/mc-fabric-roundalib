@@ -3,6 +3,7 @@ package me.roundaround.roundalib.client.gui.widget.config;
 import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.config.option.*;
 import me.roundaround.roundalib.config.value.*;
+import net.minecraft.client.MinecraftClient;
 
 import java.util.HashMap;
 
@@ -36,20 +37,21 @@ public class ControlRegistry {
   }
 
   public static <D, T extends ConfigOption<D, ?>> void register(
-      Class<T> clazz, ControlFactory<D, T> factory) throws RegistrationException {
+      Class<T> clazz, ControlFactory<D, T> factory
+  ) throws RegistrationException {
     if (byClazz.containsKey(clazz)) {
       throw new RegistrationException();
     }
     byClazz.put(clazz, factory);
   }
 
-  public static <S extends ListOptionValue<S>> void registerOptionList(Class<S> clazz)
-      throws RegistrationException {
+  public static <S extends ListOptionValue<S>> void registerOptionList(Class<S> clazz) throws RegistrationException {
     registerOptionList(clazz, OptionListControl::new);
   }
 
   public static <S extends ListOptionValue<S>, T extends OptionListConfigOption<S>> void registerOptionList(
-      Class<S> clazz, ControlFactory<S, T> factory) throws RegistrationException {
+      Class<S> clazz, ControlFactory<S, T> factory
+  ) throws RegistrationException {
     if (byOptionListClazz.containsKey(clazz)) {
       throw new RegistrationException();
     }
@@ -57,7 +59,8 @@ public class ControlRegistry {
   }
 
   public static <D, T extends ConfigOption<D, ?>> void register(
-      String id, ControlFactory<D, T> factory) throws RegistrationException {
+      String id, ControlFactory<D, T> factory
+  ) throws RegistrationException {
     if (byId.containsKey(id)) {
       throw new RegistrationException();
     }
@@ -87,31 +90,30 @@ public class ControlRegistry {
     throw new NotRegisteredException();
   }
 
-  public static <D, O extends ConfigOption<D, ?>> ControlFactory<D, O> createSubScreenControlFactory(
-      SubScreenControl.SubScreenFactory<D, O> subScreenFactory) {
-    return parent -> new SubScreenControl<>(parent, subScreenFactory);
-  }
-
   public static class RegistrationException extends Exception {
   }
 
   public static class NotRegisteredException extends Exception {
   }
 
-  private static Control<Integer, IntConfigOption> intControlFactory(ConfigListWidget.OptionEntry<Integer, IntConfigOption> parent) {
-    ControlFactory<Integer, IntConfigOption> constructor =
-        parent.getOption().useSlider() ? IntSliderControl::new : IntTextControl::new;
-    return constructor.create(parent);
+  private static Control<Integer, IntConfigOption> intControlFactory(MinecraftClient client, IntConfigOption option) {
+    ControlFactory<Integer, IntConfigOption> constructor = option.useSlider() ?
+        IntSliderControl::new :
+        IntTextControl::new;
+    return constructor.create(client, option);
   }
 
-  private static Control<Float, FloatConfigOption> floatControlFactory(ConfigListWidget.OptionEntry<Float, FloatConfigOption> parent) {
-    ControlFactory<Float, FloatConfigOption> constructor =
-        parent.getOption().useSlider() ? FloatSliderControl::new : FloatTextControl::new;
-    return constructor.create(parent);
+  private static Control<Float, FloatConfigOption> floatControlFactory(
+      MinecraftClient client, FloatConfigOption option
+  ) {
+    ControlFactory<Float, FloatConfigOption> constructor = option.useSlider() ?
+        FloatSliderControl::new :
+        FloatTextControl::new;
+    return constructor.create(client, option);
   }
 
   @FunctionalInterface
   public interface ControlFactory<D, O extends ConfigOption<D, ?>> {
-    Control<D, O> create(ConfigListWidget.OptionEntry<D, O> parent);
+    Control<D, O> create(MinecraftClient client, O option);
   }
 }
