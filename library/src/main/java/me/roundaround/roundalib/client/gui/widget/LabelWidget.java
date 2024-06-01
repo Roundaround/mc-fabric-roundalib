@@ -95,6 +95,10 @@ public class LabelWidget implements Drawable {
     calculateBounds();
   }
 
+  public Text getText() {
+    return this.text.copy();
+  }
+
   public void setPosX(int posX) {
     this.posX = posX;
     calculateBounds();

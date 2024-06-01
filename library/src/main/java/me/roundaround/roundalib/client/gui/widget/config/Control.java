@@ -3,9 +3,12 @@ package me.roundaround.roundalib.client.gui.widget.config;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.gui.AbstractParentElement;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public abstract class Control<D, O extends ConfigOption<D, ?>> extends AbstractParentElement {
   protected static final int PADDING = 1;
@@ -30,6 +33,14 @@ public abstract class Control<D, O extends ConfigOption<D, ?>> extends AbstractP
     this.option.subscribeToValueChanges(screen.hashCode(), this::valueChanged);
 
     this.disabled = this.option.isDisabled();
+  }
+
+  public List<? extends Selectable> selectableChildren() {
+    return this.children()
+        .stream()
+        .filter((child) -> child instanceof Selectable)
+        .map((child) -> (Selectable) child)
+        .toList();
   }
 
   public O getOption() {

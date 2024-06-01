@@ -1,5 +1,6 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
+import com.google.common.collect.ImmutableList;
 import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
@@ -10,8 +11,12 @@ import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.navigation.GuiNavigation;
 import net.minecraft.client.gui.navigation.GuiNavigationPath;
+import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.screen.narration.NarrationPart;
+import net.minecraft.client.gui.screen.option.ControlsListWidget;
 import net.minecraft.client.gui.widget.PressableWidget;
 import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.text.Text;
@@ -20,8 +25,13 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.Entry> {
-  public ConfigListWidget(MinecraftClient client, ThreePartsLayoutWidget layout, ModConfig modConfig) {
-    super(client, layout.getX(), layout.getHeaderHeight(), layout.getWidth(), layout.getContentHeight());
+  public ConfigListWidget(
+      MinecraftClient client, ThreePartsLayoutWidget layout, ModConfig modConfig) {
+    super(client,
+        layout.getX(),
+        layout.getHeaderHeight(),
+        layout.getWidth(),
+        layout.getContentHeight());
 
     for (var entry : modConfig.getConfigOptions().entrySet()) {
       if (entry.getValue().stream().noneMatch(ConfigOption::shouldShowInConfigScreen)) {
@@ -31,7 +41,12 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
       String modId = modConfig.getModId();
       String category = entry.getKey();
       if (modConfig.getShowGroupTitles() && !category.equals(modId)) {
-        this.addEntry((index, x, y, width) -> new CategoryEntry(this.client, Text.translatable(entry.getKey() + ".title"), index, x, y, width));
+        this.addEntry((index, x, y, width) -> new CategoryEntry(this.client,
+            Text.translatable(entry.getKey() + ".title"),
+            index,
+            x,
+            y,
+            width));
       }
 
       for (var option : entry.getValue()) {
@@ -52,7 +67,10 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
   }
 
   public void updatePosition(ThreePartsLayoutWidget layout) {
-    this.updatePosition(layout.getX(), layout.getHeaderHeight(), layout.getWidth(), layout.getContentHeight());
+    this.updatePosition(layout.getX(),
+        layout.getHeaderHeight(),
+        layout.getWidth(),
+        layout.getContentHeight());
   }
 
   public void tick() {
@@ -73,16 +91,39 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
     protected final LabelWidget labelWidget;
 
-    protected CategoryEntry(MinecraftClient client, Text label, int index, int x, int y, int width) {
+    protected CategoryEntry(
+        MinecraftClient client, Text label, int index, int x, int y, int width) {
       super(index, x, y, width, HEIGHT);
 
-      this.labelWidget = LabelWidget.builder(client, label, (this.getX() + this.getRight()) / 2, this.getY() + this.getHeight() / 2).justifiedCenter().alignedMiddle().shiftForPadding().showTextShadow().hideBackground().build();
+      this.labelWidget = LabelWidget.builder(client,
+              label,
+              (this.getX() + this.getRight()) / 2,
+              this.getY() + this.getHeight() / 2)
+          .justifiedCenter()
+          .alignedMiddle()
+          .shiftForPadding()
+          .showTextShadow()
+          .hideBackground()
+          .build();
     }
 
     @Override
     public void renderContent(DrawContext drawContext, int mouseX, int mouseY, float delta) {
       this.labelWidget.setPosY(this.getY() + this.getHeight() / 2 - (int) this.getScrollAmount());
       this.labelWidget.render(drawContext, mouseX, mouseY, delta);
+    }
+
+    @Override
+    public List<? extends Selectable> selectableChildren() {
+      return ImmutableList.of(new Selectable() {
+        public Selectable.SelectionType getType() {
+          return Selectable.SelectionType.HOVERED;
+        }
+
+        public void appendNarrations(NarrationMessageBuilder builder) {
+          builder.put(NarrationPart.TITLE, CategoryEntry.this.labelWidget.getText());
+        }
+      });
     }
   }
 
@@ -94,13 +135,27 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     protected final LabelWidget labelWidget;
     protected final IconButtonWidget resetButton;
 
-    protected OptionEntry(MinecraftClient client, O configOption, int index, int x, int y, int width) throws ControlRegistry.NotRegisteredException {
+    protected OptionEntry(
+        MinecraftClient client, O configOption, int index, int x, int y, int width)
+        throws ControlRegistry.NotRegisteredException {
       super(index, x, y, width, HEIGHT);
 
       this.option = configOption;
       this.control = ControlRegistry.getControlFactory(configOption).create(this);
-      this.labelWidget = LabelWidget.builder(client, configOption.getLabel(), this.getX() + GuiUtil.PADDING, this.getY() + this.getHeight() / 2).justifiedLeft().alignedMiddle().shiftForPadding().showTextShadow().hideBackground().build();
-      this.resetButton = RoundaLibIconButtons.resetButton(this.getControlRight() + GuiUtil.PADDING, this.getY() + (this.getHeight() - RoundaLibIconButtons.SIZE_L) / 2, this.option, RoundaLibIconButtons.SIZE_L);
+      this.labelWidget = LabelWidget.builder(client,
+              configOption.getLabel(),
+              this.getX() + GuiUtil.PADDING,
+              this.getY() + this.getHeight() / 2)
+          .justifiedLeft()
+          .alignedMiddle()
+          .shiftForPadding()
+          .showTextShadow()
+          .hideBackground()
+          .build();
+      this.resetButton = RoundaLibIconButtons.resetButton(this.getControlRight() + GuiUtil.PADDING,
+          this.getY() + (this.getHeight() - RoundaLibIconButtons.SIZE_L) / 2,
+          this.option,
+          RoundaLibIconButtons.SIZE_L);
     }
 
     public O getOption() {
@@ -113,7 +168,24 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
     @Override
     public List<? extends Element> children() {
-      return Stream.of(this.control.children(), List.of(this.resetButton)).flatMap(List::stream).toList();
+      return Stream.of(this.control.children(), List.of(this.resetButton))
+          .flatMap(List::stream)
+          .toList();
+    }
+
+    public List<? extends Selectable> selectableChildren() {
+      Selectable label = new Selectable() {
+        public Selectable.SelectionType getType() {
+          return Selectable.SelectionType.HOVERED;
+        }
+
+        public void appendNarrations(NarrationMessageBuilder builder) {
+          builder.put(NarrationPart.TITLE, OptionEntry.this.labelWidget.getText());
+        }
+      };
+      return Stream.of(List.of(label), this.control.selectableChildren(), List.of(this.resetButton))
+          .flatMap(List::stream)
+          .toList();
     }
 
     @Override
@@ -129,7 +201,8 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
       this.control.updateBounds(this.getScrollAmount());
       this.control.renderWidget(drawContext, mouseX, mouseY, delta);
 
-      this.resetButton.setY(this.getY() + (this.getHeight() - RoundaLibIconButtons.SIZE_L) / 2 - (int) this.getScrollAmount());
+      this.resetButton.setY(this.getY() + (this.getHeight() - RoundaLibIconButtons.SIZE_L) / 2 -
+          (int) this.getScrollAmount());
       this.resetButton.render(drawContext, mouseX, mouseY, delta);
     }
   }
