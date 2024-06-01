@@ -35,8 +35,8 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
       String category = entry.getKey();
       if (modConfig.getShowGroupTitles() && !category.equals(modId)) {
         this.addEntry(
-            (index, x, y, width) -> new CategoryEntry(this.client, Text.translatable(entry.getKey() + ".title"), index,
-                x, y, width
+            (index, left, top, width) -> new CategoryEntry(this.client, Text.translatable(entry.getKey() + ".title"),
+                index, left, top, width
             ));
       }
 
@@ -45,9 +45,9 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
           continue;
         }
 
-        this.addEntry((index, x, y, width) -> {
+        this.addEntry((index, left, top, width) -> {
           try {
-            return new OptionEntry<>(this.client, option, index, x, y, width);
+            return new OptionEntry<>(this.client, option, index, left, top, width);
           } catch (ControlRegistry.NotRegisteredException e) {
             RoundaLib.LOGGER.error("Failed to create control for config option: {}", option, e);
             return null;
@@ -122,9 +122,9 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     protected final IconButtonWidget resetButton;
 
     protected OptionEntry(
-        MinecraftClient client, O option, int index, int x, int y, int width
+        MinecraftClient client, O option, int index, int left, int top, int width
     ) throws ControlRegistry.NotRegisteredException {
-      super(index, x, y, width, HEIGHT);
+      super(index, left, top, width, HEIGHT);
 
       this.option = option;
       this.control = ControlRegistry.getControlFactory(option).create(client, option);
