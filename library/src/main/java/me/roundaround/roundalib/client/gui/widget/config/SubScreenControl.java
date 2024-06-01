@@ -35,9 +35,7 @@ public class SubScreenControl<D, O extends ConfigOption<D, ?>> extends Control<D
   }
 
   @Override
-  public void setBounds(int right, int y, int width, int height, double scrollAmount) {
-    super.setBounds(right, y, width, height, scrollAmount);
-
+  public void onBoundsChanged() {
     this.button.setY(this.scrolledTop);
   }
 

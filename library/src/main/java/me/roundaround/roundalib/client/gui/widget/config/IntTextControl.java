@@ -19,8 +19,8 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
   public IntTextControl(MinecraftClient client, IntConfigOption option) {
     super(client, option);
 
-    this.textField = new TextFieldWidget(client.textRenderer, this.widgetX + 1, this.widgetY + 1,
-        this.widgetWidth - 2, this.widgetHeight - 2, this.option.getLabel()
+    this.textField = new TextFieldWidget(client.textRenderer, this.widgetX + 1, this.widgetY + 1, this.widgetWidth - 2,
+        this.widgetHeight - 2, this.option.getLabel()
     ) {
       @Override
       public boolean charTyped(char chr, int keyCode) {
@@ -63,9 +63,7 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
   }
 
   @Override
-  public void setBounds(int right, int y, int width, int height, double scrollAmount) {
-    super.setBounds(right, y, width, height, scrollAmount);
-
+  public void onBoundsChanged() {
     this.textField.setY(this.scrolledTop + 1);
 
     if (this.option.showStepButtons()) {

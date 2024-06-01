@@ -35,9 +35,7 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
   }
 
   @Override
-  public void setBounds(int right, int y, int width, int height, double scrollAmount) {
-    super.setBounds(right, y, width, height, scrollAmount);
-
+  public void onBoundsChanged() {
     this.slider.setY(this.scrolledTop);
   }
 

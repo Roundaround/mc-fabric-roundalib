@@ -30,7 +30,7 @@ public abstract class Control<D, O extends ConfigOption<D, ?>> extends AbstractP
     this.option = option;
 
     Screen screen = Objects.requireNonNull(client.currentScreen);
-    this.option.subscribeToValueChanges(screen.hashCode(), this::valueChanged);
+    this.option.subscribeToValueChanges(screen.hashCode(), this::onValueChanged);
 
     this.disabled = this.option.isDisabled();
   }
@@ -71,9 +71,13 @@ public abstract class Control<D, O extends ConfigOption<D, ?>> extends AbstractP
     this.widgetHeight = height - PADDING * 2;
     this.widgetY = y + PADDING;
     this.scrolledTop = this.widgetY - (int) scrollAmount;
+
+    this.onBoundsChanged();
   }
 
-  private void valueChanged(D prev, D curr) {
+  public void onBoundsChanged() {}
+
+  private void onValueChanged(D prev, D curr) {
     boolean previousDisabled = this.disabled;
     this.disabled = this.option.isDisabled();
     this.onDisabledChange(previousDisabled, this.disabled);
