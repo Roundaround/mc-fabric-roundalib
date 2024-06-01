@@ -38,7 +38,8 @@ public class LabelWidget implements Drawable {
       Alignment alignmentV,
       boolean showBackground,
       boolean showTextShadow,
-      boolean shiftForPadding) {
+      boolean shiftForPadding
+  ) {
     this.posX = posX;
     this.posY = posY;
     this.alignmentH = alignmentH;
@@ -53,28 +54,20 @@ public class LabelWidget implements Drawable {
 
   @Override
   public void render(
-      DrawContext drawContext, int mouseX, int mouseY, float delta) {
+      DrawContext drawContext, int mouseX, int mouseY, float delta
+  ) {
     if (showBackground) {
-      drawContext.fill(MathHelper.floor(left) - 2,
-          MathHelper.floor(top) - 1,
-          MathHelper.ceil(right) + 2,
-          MathHelper.ceil(bottom) + 1,
-          GuiUtil.BACKGROUND_COLOR);
+      drawContext.fill(MathHelper.floor(left) - 2, MathHelper.floor(top) - 1, MathHelper.ceil(right) + 2,
+          MathHelper.ceil(bottom) + 1, GuiUtil.BACKGROUND_COLOR
+      );
     }
 
     if (showTextShadow) {
-      drawContext.drawTextWithShadow(textRenderer,
-          text,
-          Math.round(left + 0.5f),
-          Math.round(top + 1),
-          0xFFFFFFFF);
+      drawContext.drawTextWithShadow(textRenderer, text, Math.round(left + 0.5f), Math.round(top + 1), 0xFFFFFFFF);
     } else {
-      drawContext.drawText(textRenderer,
-          text,
-          Math.round(left + 0.5f),
-          Math.round(top + 1),
-          GuiUtil.LABEL_COLOR,
-          false);
+      drawContext.drawText(textRenderer, text, Math.round(left + 0.5f), Math.round(top + 1), GuiUtil.LABEL_COLOR,
+          false
+      );
     }
   }
 
@@ -171,8 +164,13 @@ public class LabelWidget implements Drawable {
   }
 
   public static Builder builder(
-      MinecraftClient client, Text text, int posX, int posY) {
+      MinecraftClient client, Text text, int posX, int posY
+  ) {
     return new Builder(client, text, posX, posY);
+  }
+
+  public static Builder centered(MinecraftClient client, Text text, int left, int top, int width, int height) {
+    return new Builder(client, text, left + width / 2, top + height / 2).justifiedCenter().alignedMiddle();
   }
 
   public static class Builder implements DrawableBuilder<LabelWidget> {
@@ -240,22 +238,14 @@ public class LabelWidget implements Drawable {
 
     @Override
     public LabelWidget build() {
-      return new LabelWidget(client,
-          text,
-          posX,
-          posY,
-          alignmentH,
-          alignmentV,
-          showBackground,
-          showTextShadow,
-          shiftForPadding);
+      return new LabelWidget(client, text, posX, posY, alignmentH, alignmentV, showBackground, showTextShadow,
+          shiftForPadding
+      );
     }
   }
 
   public enum Alignment {
-    START(1),
-    CENTER(0),
-    END(-1);
+    START(1), CENTER(0), END(-1);
 
     private final int shiftOffset;
 

@@ -66,8 +66,8 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
   }
 
   public abstract static class Entry extends VariableHeightListWidget.Entry {
-    protected Entry(int index, int x, int y, int width, int height) {
-      super(index, x, y, width, height);
+    protected Entry(int index, int left, int top, int width, int contentHeight) {
+      super(index, left, top, width, contentHeight);
     }
 
     public void tick() {
@@ -80,15 +80,13 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     protected final LabelWidget labelWidget;
 
     protected CategoryEntry(
-        MinecraftClient client, Text label, int index, int x, int y, int width
+        MinecraftClient client, Text label, int index, int left, int top, int width
     ) {
-      super(index, x, y, width, HEIGHT);
+      super(index, left, top, width, HEIGHT);
 
-      this.labelWidget = LabelWidget.builder(client, label, (this.getX() + this.getRight()) / 2,
-              this.getY() + this.getHeight() / 2
+      this.labelWidget = LabelWidget.centered(client, label, this.getContentLeft(), this.getContentWidth(),
+              this.getContentTop(), this.getContentHeight()
           )
-          .justifiedCenter()
-          .alignedMiddle()
           .shiftForPadding()
           .showTextShadow()
           .hideBackground()
@@ -97,7 +95,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
     @Override
     public void renderContent(DrawContext drawContext, int mouseX, int mouseY, float delta) {
-      this.labelWidget.setPosY(this.getY() + this.getHeight() / 2 - (int) this.getScrollAmount());
+      this.labelWidget.setPosY(this.getTop() + this.getHeight() / 2 - (int) this.getScrollAmount());
       this.labelWidget.render(drawContext, mouseX, mouseY, delta);
     }
 
@@ -130,17 +128,12 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
       this.option = option;
       this.control = ControlRegistry.getControlFactory(option).create(client, option);
-      this.labelWidget = LabelWidget.builder(client, option.getLabel(), this.getX() + GuiUtil.PADDING,
-              this.getY() + this.getHeight() / 2
-          )
-          .justifiedLeft()
-          .alignedMiddle()
-          .shiftForPadding()
-          .showTextShadow()
-          .hideBackground()
-          .build();
+      this.labelWidget = LabelWidget.builder(client, option.getLabel(), this.getContentLeft() + GuiUtil.PADDING,
+          this.getContentTop() + this.getContentHeight() / 2
+      ).justifiedLeft().alignedMiddle().shiftForPadding().showTextShadow().hideBackground().build();
       this.resetButton = RoundaLibIconButtons.resetButton(this.getControlRight() + GuiUtil.PADDING,
-          this.getY() + (this.getHeight() - RoundaLibIconButtons.SIZE_L) / 2, this.option, RoundaLibIconButtons.SIZE_L
+          this.getContentTop() + (this.getContentHeight() - RoundaLibIconButtons.SIZE_L) / 2, this.option,
+          RoundaLibIconButtons.SIZE_L
       );
     }
 
@@ -149,7 +142,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     }
 
     public int getControlRight() {
-      return this.getRight() - RoundaLibIconButtons.SIZE_L - 2 * GuiUtil.PADDING;
+      return this.getContentRight() - RoundaLibIconButtons.SIZE_L - 2 * GuiUtil.PADDING;
     }
 
     @Override
@@ -157,6 +150,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
       return Stream.of(this.control.children(), List.of(this.resetButton)).flatMap(List::stream).toList();
     }
 
+    @Override
     public List<? extends Selectable> selectableChildren() {
       Selectable label = new Selectable() {
         public Selectable.SelectionType getType() {
@@ -173,21 +167,28 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     }
 
     @Override
+    public void refreshPositions() {
+      // TODO: Update element positions here. Can't do it yet because at the moment position is too closely tied to
+      //   scroll amount. I need to separate the two.
+      super.refreshPositions();
+    }
+
+    @Override
     public void tick() {
       this.control.tick();
     }
 
     @Override
     public void renderContent(DrawContext drawContext, int mouseX, int mouseY, float delta) {
-      this.labelWidget.setPosY(this.getY() + this.getHeight() / 2 - (int) this.getScrollAmount());
+      this.labelWidget.setPosY(this.getTop() + this.getHeight() / 2 - (int) this.getScrollAmount());
       this.labelWidget.render(drawContext, mouseX, mouseY, delta);
 
       this.control.setBounds(
-          this.getControlRight(), this.getY(), this.getWidth(), this.getHeight(), this.getScrollAmount());
+          this.getControlRight(), this.getTop(), this.getWidth(), this.getHeight(), this.getScrollAmount());
       this.control.renderWidget(drawContext, mouseX, mouseY, delta);
 
       this.resetButton.setY(
-          this.getY() + (this.getHeight() - RoundaLibIconButtons.SIZE_L) / 2 - (int) this.getScrollAmount());
+          this.getTop() + (this.getHeight() - RoundaLibIconButtons.SIZE_L) / 2 - (int) this.getScrollAmount());
       this.resetButton.render(drawContext, mouseX, mouseY, delta);
     }
   }
