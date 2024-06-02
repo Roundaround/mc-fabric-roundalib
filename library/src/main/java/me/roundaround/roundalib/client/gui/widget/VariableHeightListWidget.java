@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.Positional;
+import me.roundaround.roundalib.client.gui.ScrollableElementWrapper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.navigation.GuiNavigation;
@@ -575,6 +576,10 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     @Override
     public List<? extends Element> children() {
       return List.of();
+    }
+
+    public List<? extends Element> wrappedChildren() {
+      return this.children().stream().map(ScrollableElementWrapper::new).toList();
     }
 
     public List<? extends Selectable> selectableChildren() {

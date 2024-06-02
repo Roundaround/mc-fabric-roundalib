@@ -88,7 +88,7 @@ public abstract class Control<D, O extends ConfigOption<D, ?>> extends Positiona
   public void renderPositional(DrawContext drawContext, int mouseX, int mouseY, float delta) {
     MatrixStack matrices = drawContext.getMatrices();
     matrices.push();
-    matrices.translate(0, -this.getRenderOffset(), 0);
+    matrices.translate(0, -Math.round(this.getRenderOffset()), 0);
     this.renderWidget(drawContext, mouseX, mouseY, delta);
     matrices.pop();
   }
