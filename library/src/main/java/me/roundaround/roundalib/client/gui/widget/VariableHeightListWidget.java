@@ -1,7 +1,9 @@
 package me.roundaround.roundalib.client.gui.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.Positional;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.navigation.GuiNavigation;
@@ -139,7 +141,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     }
 
     entry.setScrollAmount(scrollAmount);
-    entry.render(drawContext, mouseX, mouseY, delta);
+    entry.renderPositional(drawContext, mouseX, mouseY, delta);
   }
 
   protected void renderScrollBar(DrawContext drawContext, int mouseX, int mouseY, float delta) {
@@ -494,10 +496,10 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
   @FunctionalInterface
   public interface EntryFactory<E extends Entry> {
-    E create(int index, int x, int y, int width);
+    E create(int index, int left, int top, int width);
   }
 
-  public abstract static class Entry extends AbstractParentElement implements Drawable, LayoutWidget {
+  public abstract static class Entry extends Positional implements ParentElement {
     protected static final int ROW_SHADE_STRENGTH = 85;
     protected static final int DEFAULT_FADE_WIDTH = 10;
     protected static final int DEFAULT_MARGIN_HORIZONTAL = 10;
@@ -506,9 +508,6 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     private final int index;
     private final int contentHeight;
 
-    private int left;
-    private int top;
-    private int width;
     private int marginLeft = DEFAULT_MARGIN_HORIZONTAL;
     private int marginRight = DEFAULT_MARGIN_HORIZONTAL;
     private int marginTop = DEFAULT_MARGIN_VERTICAL;
@@ -519,15 +518,13 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     private double scrollAmount;
 
     protected Entry(int index, int left, int top, int width, int contentHeight) {
+      super(left, top, width, 0);
       this.index = index;
-      this.left = left;
-      this.top = top;
-      this.width = width;
       this.contentHeight = contentHeight;
     }
 
     @Override
-    public void render(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+    public void renderPositional(DrawContext drawContext, int mouseX, int mouseY, float delta) {
       this.renderBackground(drawContext, mouseX, mouseY, delta);
       this.renderContent(drawContext, mouseX, mouseY, delta);
       this.renderDecorations(drawContext, mouseX, mouseY, delta);
@@ -545,8 +542,8 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
         int left = this.getLeft();
         int right = this.getRight();
-        int top = this.getTop() - (int) scrollAmount;
-        int bottom = this.getBottom() - (int) scrollAmount + 1;
+        int top = this.getTop() - (int) this.getScrollAmount();
+        int bottom = this.getBottom() - (int) this.getScrollAmount() + 1;
 
         bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
         bufferBuilder.vertex(matrix4f, left + this.bgFadeWidth, top, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
@@ -614,6 +611,17 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       return this.focused;
     }
 
+    @Override
+    public void setDragging(boolean dragging) {
+      // TODO: Do I need dragging behavior?
+    }
+
+    @Override
+    public boolean isDragging() {
+      // TODO: Do I need dragging behavior?
+      return false;
+    }
+
     protected void appendNarrations(NarrationMessageBuilder builder) {
       List<? extends Selectable> list = this.selectableChildren();
       Screen.SelectedElementNarrationData data = Screen.findSelectedElementData(list, this.focusedSelectable);
@@ -654,7 +662,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     @Override
     public GuiNavigationPath getNavigationPath(GuiNavigation navigation) {
       if (!(navigation instanceof GuiNavigation.Arrow arrow)) {
-        return super.getNavigationPath(navigation);
+        return ParentElement.super.getNavigationPath(navigation);
       }
 
       int delta = switch (arrow.direction()) {
@@ -676,14 +684,14 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
         }
       }
 
-      return super.getNavigationPath(navigation);
+      return ParentElement.super.getNavigationPath(navigation);
     }
 
     protected void setScrollAmount(double scrollAmount) {
       this.scrollAmount = scrollAmount;
     }
 
-    protected double getScrollAmount() {
+    public double getScrollAmount() {
       return this.scrollAmount;
     }
 
@@ -691,48 +699,15 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       this.bgFadeWidth = bgFadeWidth;
     }
 
-    public void setLeft(int left) {
-      this.left = left;
-    }
-
-    public void setTop(int top) {
-      this.top = top;
-    }
-
-    @Override
-    public void setPosition(int left, int top) {
-      this.setLeft(left);
-      this.setTop(top);
-    }
-
-    public int getLeft() {
-      return this.left;
-    }
-
-    public int getTop() {
-      return this.top;
-    }
-
-    public void setWidth(int width) {
-      this.width = width;
-    }
-
-    @Override
-    public int getWidth() {
-      return this.width;
-    }
-
     @Override
     public int getHeight() {
       return this.contentHeight + this.getMarginTop() + this.getMarginBottom();
     }
 
-    public int getRight() {
-      return this.getLeft() + this.getWidth();
-    }
-
-    public int getBottom() {
-      return this.getTop() + this.getHeight();
+    @Override
+    public final void setHeight(int height) {
+      RoundaLib.LOGGER.error(
+          String.format("Cannot change height on %s. Reinitialize instead.", this.getClass().getCanonicalName()));
     }
 
     public void setMarginLeft(int margin) {
@@ -814,26 +789,6 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
     public int getContentHeight() {
       return this.contentHeight;
-    }
-
-    @Override
-    public final void setX(int x) {
-      this.setLeft(x);
-    }
-
-    @Override
-    public final void setY(int y) {
-      this.setTop(y);
-    }
-
-    @Override
-    public final int getX() {
-      return this.getLeft();
-    }
-
-    @Override
-    public final int getY() {
-      return this.getTop();
     }
   }
 }

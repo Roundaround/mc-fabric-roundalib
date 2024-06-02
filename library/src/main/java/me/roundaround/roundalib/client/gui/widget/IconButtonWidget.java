@@ -16,6 +16,8 @@ public class IconButtonWidget extends ButtonWidget {
   protected final int textureSize;
   protected final Identifier texture;
 
+  private double renderOffset;
+
   protected IconButtonWidget(
       int x,
       int y,
@@ -55,6 +57,14 @@ public class IconButtonWidget extends ButtonWidget {
         this.textureSize,
         this.textureSize);
     RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+  }
+
+  public void setRenderOffset(double renderOffset) {
+    this.renderOffset = renderOffset;
+  }
+
+  public double getRenderOffset() {
+    return this.renderOffset;
   }
 
   public static Builder builder(Identifier texture, PressAction onPress) {

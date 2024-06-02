@@ -16,11 +16,18 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
   private final IconButtonWidget plusButton;
   private final IconButtonWidget minusButton;
 
-  public IntTextControl(MinecraftClient client, IntConfigOption option) {
-    super(client, option);
+  public IntTextControl(MinecraftClient client, IntConfigOption option, int left, int top, int width, int height) {
+    super(client, option, left, top, width, height);
 
-    this.textField = new TextFieldWidget(client.textRenderer, this.widgetX + 1, this.widgetY + 1, this.widgetWidth - 2,
-        this.widgetHeight - 2, this.option.getLabel()
+    int widgetLeft = this.getWidgetLeft();
+    int widgetRight = this.getWidgetRight();
+    int widgetTop = this.getWidgetTop();
+    int widgetBottom = this.getWidgetBottom();
+    int widgetWidth = this.getWidgetWidth();
+    int widgetHeight = this.getWidgetHeight();
+
+    this.textField = new TextFieldWidget(client.textRenderer, widgetLeft + 1, widgetTop + 1, widgetWidth - 2,
+        widgetHeight - 2, this.option.getLabel()
     ) {
       @Override
       public boolean charTyped(char chr, int keyCode) {
@@ -36,14 +43,14 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
     this.textField.setChangedListener(this::onTextChanged);
 
     if (this.option.showStepButtons()) {
-      this.textField.setWidth(this.widgetWidth - RoundaLibIconButtons.SIZE_S - 4);
+      this.textField.setWidth(widgetWidth - RoundaLibIconButtons.SIZE_S - 4);
 
-      this.plusButton = RoundaLibIconButtons.intStepButton(
-          this.widgetX + this.widgetWidth - RoundaLibIconButtons.SIZE_S, this.widgetY, this.option, true);
+      this.plusButton = RoundaLibIconButtons.intStepButton(widgetRight - RoundaLibIconButtons.SIZE_S, widgetTop,
+          this.option, true
+      );
 
-      this.minusButton = RoundaLibIconButtons.intStepButton(
-          this.widgetX + this.widgetWidth - RoundaLibIconButtons.SIZE_S,
-          this.widgetY + this.widgetHeight - RoundaLibIconButtons.SIZE_S, this.option, false
+      this.minusButton = RoundaLibIconButtons.intStepButton(widgetRight - RoundaLibIconButtons.SIZE_S,
+          widgetBottom - RoundaLibIconButtons.SIZE_S, this.option, false
       );
     } else {
       this.plusButton = null;
@@ -63,12 +70,31 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
   }
 
   @Override
-  public void onBoundsChanged() {
-    this.textField.setY(this.scrolledTop + 1);
+  public void refreshPositions() {
+    int widgetLeft = this.getWidgetLeft();
+    int widgetRight = this.getWidgetRight();
+    int widgetTop = this.getWidgetTop();
+    int widgetBottom = this.getWidgetBottom();
+    int widgetWidth = this.getWidgetWidth();
+    int widgetHeight = this.getWidgetHeight();
+
+    this.textField.setPosition(widgetLeft + 1, widgetTop + 1);
+    this.textField.setDimensions(widgetWidth - 2, widgetHeight - 2);
 
     if (this.option.showStepButtons()) {
-      this.plusButton.setY(this.scrolledTop);
-      this.minusButton.setY(this.scrolledTop + this.widgetHeight - RoundaLibIconButtons.SIZE_S);
+      this.textField.setWidth(widgetWidth - RoundaLibIconButtons.SIZE_S - 4);
+      this.plusButton.setPosition(widgetRight - RoundaLibIconButtons.SIZE_S, widgetTop);
+      this.minusButton.setPosition(
+          widgetRight - RoundaLibIconButtons.SIZE_S, widgetBottom - RoundaLibIconButtons.SIZE_S);
+    }
+  }
+
+  @Override
+  public void renderWidget(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+    this.textField.render(drawContext, mouseX, mouseY, delta);
+    if (this.option.showStepButtons()) {
+      this.plusButton.render(drawContext, mouseX, mouseY, delta);
+      this.minusButton.render(drawContext, mouseX, mouseY, delta);
     }
   }
 
@@ -82,15 +108,6 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
   public void markValid() {
     this.textField.setEditableColor(GuiUtil.LABEL_COLOR);
     super.markValid();
-  }
-
-  @Override
-  public void renderWidget(DrawContext drawContext, int mouseX, int mouseY, float delta) {
-    this.textField.render(drawContext, mouseX, mouseY, delta);
-    if (this.option.showStepButtons()) {
-      this.plusButton.render(drawContext, mouseX, mouseY, delta);
-      this.minusButton.render(drawContext, mouseX, mouseY, delta);
-    }
   }
 
   @Override

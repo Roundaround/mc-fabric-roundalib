@@ -16,15 +16,21 @@ public class SubScreenControl<D, O extends ConfigOption<D, ?>> extends Control<D
   private final ButtonWidget button;
 
   public SubScreenControl(
-      MinecraftClient client, O option, SubScreenFactory<D, O> subScreenFactory
+      MinecraftClient client,
+      O option,
+      int left,
+      int top,
+      int width,
+      int height,
+      SubScreenFactory<D, O> subScreenFactory
   ) {
-    super(client, option);
+    super(client, option, left, top, width, height);
     this.subScreenFactory = subScreenFactory;
 
     this.button = ButtonWidget.builder(
         Text.translatable(option.getConfig().getModId() + ".roundalib.subscreen.label"),
         (button) -> GuiUtil.setScreen(this.subScreenFactory.create(client.currentScreen, this.option))
-    ).position(this.widgetX, this.widgetY).size(this.widgetWidth, this.widgetHeight).build();
+    ).position(this.getWidgetLeft(), this.getWidgetTop()).size(this.getWidgetWidth(), this.getWidgetHeight()).build();
 
     this.onDisabledChange(this.disabled, this.disabled);
   }
@@ -35,8 +41,9 @@ public class SubScreenControl<D, O extends ConfigOption<D, ?>> extends Control<D
   }
 
   @Override
-  public void onBoundsChanged() {
-    this.button.setY(this.scrolledTop);
+  public void refreshPositions() {
+    this.button.setPosition(this.getWidgetLeft(), this.getWidgetTop());
+    this.button.setDimensions(this.getWidgetWidth(), this.getWidgetHeight());
   }
 
   @Override

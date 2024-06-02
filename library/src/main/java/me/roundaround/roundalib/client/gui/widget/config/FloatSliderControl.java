@@ -5,6 +5,7 @@ import me.roundaround.roundalib.config.option.FloatConfigOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 
 import java.util.List;
@@ -13,17 +14,19 @@ import java.util.Objects;
 public class FloatSliderControl extends Control<Float, FloatConfigOption> {
   private final FloatSliderWidget slider;
 
-  public FloatSliderControl(MinecraftClient client, FloatConfigOption option) {
-    super(client, option);
+  public FloatSliderControl(
+      MinecraftClient client, FloatConfigOption option, int left, int top, int width, int height
+  ) {
+    super(client, option, left, top, width, height);
 
     if (!this.option.useSlider() || this.option.getMinValue().isEmpty() || this.option.getMaxValue().isEmpty()) {
       throw new IllegalArgumentException(
           "FloatConfigOption must use slider and have min and max values to use FloatSliderControl");
     }
 
-    this.slider = new FloatSliderWidget(this.widgetX, this.widgetY, this.widgetWidth, this.widgetHeight,
-        this.option.getMinValue().get(), this.option.getMaxValue().get(), this.option.getStep(), this.option.getValue(),
-        this::onSliderChanged, this::getValueAsText
+    this.slider = new FloatSliderWidget(this.getWidgetLeft(), this.getWidgetTop(), this.getWidgetWidth(),
+        this.getWidgetHeight(), this.option.getMinValue().get(), this.option.getMaxValue().get(), this.option.getStep(),
+        this.option.getValue(), this::onSliderChanged, this::getValueAsText
     );
 
     this.onDisabledChange(this.disabled, this.disabled);
@@ -35,8 +38,10 @@ public class FloatSliderControl extends Control<Float, FloatConfigOption> {
   }
 
   @Override
-  public void onBoundsChanged() {
-    this.slider.setY(this.scrolledTop);
+  public void refreshPositions() {
+    this.slider.setPosition(this.getWidgetLeft(), this.getWidgetTop());
+    this.slider.setDimensions(this.getWidgetWidth(), this.getWidgetHeight());
+    super.refreshPositions();
   }
 
   @Override

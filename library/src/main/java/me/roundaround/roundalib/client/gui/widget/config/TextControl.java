@@ -13,11 +13,11 @@ import java.util.Objects;
 public class TextControl extends Control<String, StringConfigOption> {
   private final TextFieldWidget textField;
 
-  public TextControl(MinecraftClient client, StringConfigOption option) {
-    super(client, option);
+  public TextControl(MinecraftClient client, StringConfigOption option, int left, int top, int width, int height) {
+    super(client, option, left, top, width, height);
 
-    this.textField = new TextFieldWidget(client.textRenderer, this.widgetX + 1, this.widgetY + 1, this.widgetWidth - 2,
-        this.widgetHeight - 2, this.option.getLabel()
+    this.textField = new TextFieldWidget(client.textRenderer, this.getWidgetLeft() + 1, this.getWidgetTop() + 1,
+        this.getWidgetWidth() - 2, this.getWidgetHeight() - 2, this.option.getLabel()
     );
 
     this.textField.setText(this.option.getValue());
@@ -32,8 +32,14 @@ public class TextControl extends Control<String, StringConfigOption> {
   }
 
   @Override
-  public void onBoundsChanged() {
-    this.textField.setY(this.scrolledTop + 1);
+  public void refreshPositions() {
+    this.textField.setPosition(this.getWidgetLeft() + 1, this.getWidgetTop() + 1);
+    this.textField.setDimensions(this.getWidgetWidth() - 2, this.getWidgetHeight() - 2);
+  }
+
+  @Override
+  public void renderWidget(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+    this.textField.render(drawContext, mouseX, mouseY, delta);
   }
 
   @Override
@@ -46,11 +52,6 @@ public class TextControl extends Control<String, StringConfigOption> {
   public void markValid() {
     this.textField.setEditableColor(GuiUtil.LABEL_COLOR);
     super.markValid();
-  }
-
-  @Override
-  public void renderWidget(DrawContext drawContext, int mouseX, int mouseY, float delta) {
-    this.textField.render(drawContext, mouseX, mouseY, delta);
   }
 
   @Override

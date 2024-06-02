@@ -77,14 +77,14 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
   public static class CategoryEntry extends Entry {
     protected static final int HEIGHT = 20;
 
-    protected final LabelWidget labelWidget;
+    protected final LabelWidget label;
 
     protected CategoryEntry(
         MinecraftClient client, Text label, int index, int left, int top, int width
     ) {
       super(index, left, top, width, HEIGHT);
 
-      this.labelWidget = LabelWidget.centered(client, label, this.getContentLeft(), this.getContentWidth(),
+      this.label = LabelWidget.centered(client, label, this.getContentLeft(), this.getContentWidth(),
               this.getContentTop(), this.getContentHeight()
           )
           .shiftForPadding()
@@ -95,8 +95,8 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
     @Override
     public void renderContent(DrawContext drawContext, int mouseX, int mouseY, float delta) {
-      this.labelWidget.setPosY(this.getTop() + this.getHeight() / 2 - (int) this.getScrollAmount());
-      this.labelWidget.render(drawContext, mouseX, mouseY, delta);
+      this.label.setY(this.getTop() + this.getHeight() / 2 - (int) this.getScrollAmount());
+      this.label.render(drawContext, mouseX, mouseY, delta);
     }
 
     @Override
@@ -107,7 +107,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
         }
 
         public void appendNarrations(NarrationMessageBuilder builder) {
-          builder.put(NarrationPart.TITLE, CategoryEntry.this.labelWidget.getText());
+          builder.put(NarrationPart.TITLE, CategoryEntry.this.label.getText());
         }
       });
     }
@@ -115,10 +115,11 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
   public static class OptionEntry<D, O extends ConfigOption<D, ?>> extends Entry {
     protected static final int HEIGHT = 20;
+    protected static final int CONTROL_MIN_WIDTH = 100;
 
     protected final O option;
     protected final Control<D, O> control;
-    protected final LabelWidget labelWidget;
+    protected final LabelWidget label;
     protected final IconButtonWidget resetButton;
 
     protected OptionEntry(
@@ -126,12 +127,17 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     ) throws ControlRegistry.NotRegisteredException {
       super(index, left, top, width, HEIGHT);
 
+      int controlLeft = this.getControlLeft();
+      int controlRight = this.getControlRight();
+      int controlWidth = controlRight - controlLeft;
+
       this.option = option;
-      this.control = ControlRegistry.getControlFactory(option).create(client, option);
-      this.labelWidget = LabelWidget.builder(client, option.getLabel(), this.getContentLeft() + GuiUtil.PADDING,
+      this.control = ControlRegistry.getControlFactory(option)
+          .create(client, option, controlLeft, this.getContentTop(), controlWidth, HEIGHT);
+      this.label = LabelWidget.builder(client, option.getLabel(), this.getContentLeft() + GuiUtil.PADDING,
           this.getContentTop() + this.getContentHeight() / 2
       ).justifiedLeft().alignedMiddle().shiftForPadding().showTextShadow().hideBackground().build();
-      this.resetButton = RoundaLibIconButtons.resetButton(this.getControlRight() + GuiUtil.PADDING,
+      this.resetButton = RoundaLibIconButtons.resetButton(controlRight + GuiUtil.PADDING,
           this.getContentTop() + (this.getContentHeight() - RoundaLibIconButtons.SIZE_L) / 2, this.option,
           RoundaLibIconButtons.SIZE_L
       );
@@ -141,7 +147,13 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
       return this.option;
     }
 
-    public int getControlRight() {
+    private int getControlLeft() {
+      return Math.max(CONTROL_MIN_WIDTH,
+          this.getContentLeft() + Math.round((this.getContentLeft() + this.getControlRight()) * 0.3f)
+      );
+    }
+
+    private int getControlRight() {
       return this.getContentRight() - RoundaLibIconButtons.SIZE_L - 2 * GuiUtil.PADDING;
     }
 
@@ -158,7 +170,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
         }
 
         public void appendNarrations(NarrationMessageBuilder builder) {
-          builder.put(NarrationPart.TITLE, OptionEntry.this.labelWidget.getText());
+          builder.put(NarrationPart.TITLE, OptionEntry.this.label.getText());
         }
       };
       return Stream.of(List.of(label), this.control.selectableChildren(), List.of(this.resetButton))
@@ -168,8 +180,19 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
     @Override
     public void refreshPositions() {
-      // TODO: Update element positions here. Can't do it yet because at the moment position is too closely tied to
-      //   scroll amount. I need to separate the two.
+      int controlLeft = this.getControlLeft();
+      int controlRight = this.getControlRight();
+
+      this.label.setPosition(
+          this.getContentLeft() + GuiUtil.PADDING, this.getContentTop() + this.getContentHeight() / 2);
+
+      this.control.setPosition(controlLeft, this.getContentTop());
+      this.control.setDimensions(controlRight - controlLeft, this.getContentHeight());
+
+      this.resetButton.setPosition(controlRight + GuiUtil.PADDING,
+          this.getContentTop() + (this.getContentHeight() - RoundaLibIconButtons.SIZE_L) / 2
+      );
+
       super.refreshPositions();
     }
 
@@ -180,12 +203,11 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
     @Override
     public void renderContent(DrawContext drawContext, int mouseX, int mouseY, float delta) {
-      this.labelWidget.setPosY(this.getTop() + this.getHeight() / 2 - (int) this.getScrollAmount());
-      this.labelWidget.render(drawContext, mouseX, mouseY, delta);
+      this.label.setY(this.getTop() + this.getHeight() / 2 - (int) this.getScrollAmount());
+      this.label.render(drawContext, mouseX, mouseY, delta);
 
-      this.control.setBounds(
-          this.getControlRight(), this.getTop(), this.getWidth(), this.getHeight(), this.getScrollAmount());
-      this.control.renderWidget(drawContext, mouseX, mouseY, delta);
+      this.control.setRenderOffset(this.getScrollAmount());
+      this.control.renderPositional(drawContext, mouseX, mouseY, delta);
 
       this.resetButton.setY(
           this.getTop() + (this.getHeight() - RoundaLibIconButtons.SIZE_L) / 2 - (int) this.getScrollAmount());

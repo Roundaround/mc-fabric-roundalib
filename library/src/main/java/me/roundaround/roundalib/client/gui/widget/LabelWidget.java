@@ -13,8 +13,8 @@ public class LabelWidget implements Drawable {
   public static final int HEIGHT_WITH_PADDING = 13;
   public static final int PADDING = 2;
 
-  private int posX;
-  private int posY;
+  private int x;
+  private int y;
   private final Alignment alignmentH;
   private final Alignment alignmentV;
   private final boolean showBackground;
@@ -28,20 +28,21 @@ public class LabelWidget implements Drawable {
   private float right;
   private float top;
   private float bottom;
+  private boolean layoutDirty = false;
 
   private LabelWidget(
       MinecraftClient client,
       Text text,
-      int posX,
-      int posY,
+      int x,
+      int y,
       Alignment alignmentH,
       Alignment alignmentV,
       boolean showBackground,
       boolean showTextShadow,
       boolean shiftForPadding
   ) {
-    this.posX = posX;
-    this.posY = posY;
+    this.x = x;
+    this.y = y;
     this.alignmentH = alignmentH;
     this.alignmentV = alignmentV;
     this.showBackground = showBackground;
@@ -49,33 +50,33 @@ public class LabelWidget implements Drawable {
     this.shiftForPadding = shiftForPadding;
     this.textRenderer = client.textRenderer;
 
-    setText(text);
+    this.setText(text);
+    this.updateLayout();
   }
 
   @Override
-  public void render(
-      DrawContext drawContext, int mouseX, int mouseY, float delta
-  ) {
-    if (showBackground) {
-      drawContext.fill(MathHelper.floor(left) - 2, MathHelper.floor(top) - 1, MathHelper.ceil(right) + 2,
-          MathHelper.ceil(bottom) + 1, GuiUtil.BACKGROUND_COLOR
+  public void render(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+    if (this.showBackground) {
+      drawContext.fill(MathHelper.floor(this.getLeft()) - 2, MathHelper.floor(this.getTop()) - 1,
+          MathHelper.ceil(this.getRight()) + 2, MathHelper.ceil(this.getBottom()) + 1, GuiUtil.BACKGROUND_COLOR
       );
     }
 
-    if (showTextShadow) {
-      drawContext.drawTextWithShadow(textRenderer, text, Math.round(left + 0.5f), Math.round(top + 1), 0xFFFFFFFF);
+    if (this.showTextShadow) {
+      drawContext.drawTextWithShadow(
+          this.textRenderer, this.text, Math.round(this.getLeft() + 0.5f), Math.round(this.getTop() + 1), 0xFFFFFFFF);
     } else {
-      drawContext.drawText(textRenderer, text, Math.round(left + 0.5f), Math.round(top + 1), GuiUtil.LABEL_COLOR,
-          false
+      drawContext.drawText(this.textRenderer, this.text, Math.round(this.getLeft() + 0.5f),
+          Math.round(this.getTop() + 1), GuiUtil.LABEL_COLOR, false
       );
     }
   }
 
   public boolean isMouseOver(double mouseX, double mouseY) {
-    int pixelLeft = MathHelper.floor(left) - (showBackground ? 2 : 0);
-    int pixelRight = MathHelper.ceil(right) + (showBackground ? 2 : 0);
-    int pixelTop = MathHelper.floor(top) - (showBackground ? 1 : 0);
-    int pixelBottom = MathHelper.ceil(bottom) + (showBackground ? 1 : 0);
+    int pixelLeft = MathHelper.floor(this.getLeft()) - (this.showBackground ? 2 : 0);
+    int pixelRight = MathHelper.ceil(this.getRight()) + (this.showBackground ? 2 : 0);
+    int pixelTop = MathHelper.floor(this.getTop()) - (this.showBackground ? 1 : 0);
+    int pixelBottom = MathHelper.ceil(this.getBottom()) + (this.showBackground ? 1 : 0);
     return mouseX >= pixelLeft && mouseY >= pixelTop && mouseX < pixelRight && mouseY < pixelBottom;
   }
 
@@ -84,88 +85,103 @@ public class LabelWidget implements Drawable {
       return;
     }
     this.text = text;
-    textWidth = textRenderer.getWidth(text);
-    calculateBounds();
+    this.textWidth = this.textRenderer.getWidth(text);
+    this.layoutDirty = true;
   }
 
   public Text getText() {
     return this.text.copy();
   }
 
-  public void setPosX(int posX) {
-    this.posX = posX;
-    calculateBounds();
+  public void setX(int x) {
+    this.x = x;
+    this.layoutDirty = true;
   }
 
-  public void setPosY(int posY) {
-    this.posY = posY;
-    calculateBounds();
+  public void setY(int y) {
+    this.y = y;
+    this.layoutDirty = true;
   }
 
-  public void setPos(int posX, int posY) {
-    this.posX = posX;
-    this.posY = posY;
-    calculateBounds();
+  public void setPosition(int x, int y) {
+    this.setX(x);
+    this.setY(y);
   }
 
-  public int getLeft() {
-    return MathHelper.floor(left);
+  public float getLeft() {
+    if (this.layoutDirty) {
+      this.updateLayout();
+    }
+    return this.left;
   }
 
-  public int getRight() {
-    return MathHelper.ceil(right);
+  public float getRight() {
+    if (this.layoutDirty) {
+      this.updateLayout();
+    }
+    return this.right;
   }
 
-  public int getTop() {
-    return MathHelper.floor(top);
+  public float getTop() {
+    if (this.layoutDirty) {
+      this.updateLayout();
+    }
+    return this.top;
   }
 
-  public int getBottom() {
-    return MathHelper.ceil(bottom);
+  public float getBottom() {
+    if (this.layoutDirty) {
+      this.updateLayout();
+    }
+    return this.bottom;
   }
 
-  private void calculateBounds() {
-    switch (alignmentH) {
-      case CENTER:
-        left = posX - textWidth / 2f;
-        right = posX + textWidth / 2f;
-        break;
-      case END:
-        left = posX - textWidth;
-        right = posX;
-        break;
-      case START:
-      default:
-        left = posX;
-        right = posX + textWidth;
+  private void updateLayout() {
+    if (!this.layoutDirty) {
+      return;
     }
 
-    switch (alignmentV) {
-      case START:
-        top = posY;
-        bottom = posY + 10;
-        break;
-      case END:
-        top = posY - 10;
-        bottom = posY;
-        break;
-      case CENTER:
-      default:
-        top = posY - 10 / 2f;
-        bottom = posY + 10 / 2f;
+    switch (this.alignmentH) {
+      case CENTER -> {
+        this.left = this.x - this.textWidth / 2f;
+        this.right = this.x + this.textWidth / 2f;
+      }
+      case END -> {
+        this.left = this.x - this.textWidth;
+        this.right = this.x;
+      }
+      default -> {
+        this.left = this.x;
+        this.right = this.x + this.textWidth;
+      }
     }
 
-    if (shiftForPadding) {
-      left += alignmentH.getShiftOffset() * 2;
-      right += alignmentH.getShiftOffset() * 2;
-      top += alignmentV.getShiftOffset();
-      bottom += alignmentV.getShiftOffset();
+    switch (this.alignmentV) {
+      case START -> {
+        this.top = this.y;
+        this.bottom = this.y + 10;
+      }
+      case END -> {
+        this.top = this.y - 10;
+        this.bottom = this.y;
+      }
+      default -> {
+        this.top = this.y - 10 / 2f;
+        this.bottom = this.y + 10 / 2f;
+      }
     }
+
+    if (this.shiftForPadding) {
+      this.left += this.alignmentH.getShiftOffset() * 2;
+      this.right += this.alignmentH.getShiftOffset() * 2;
+      this.top += this.alignmentV.getShiftOffset();
+      this.bottom += this.alignmentV.getShiftOffset();
+    }
+
+    this.layoutDirty = false;
   }
 
-  public static Builder builder(
-      MinecraftClient client, Text text, int posX, int posY
-  ) {
+  public static Builder builder(MinecraftClient client, Text text, int posX, int posY) {
     return new Builder(client, text, posX, posY);
   }
 
@@ -176,70 +192,70 @@ public class LabelWidget implements Drawable {
   public static class Builder implements DrawableBuilder<LabelWidget> {
     private final MinecraftClient client;
     private final Text text;
-    private final int posX;
-    private final int posY;
+    private final int x;
+    private final int y;
     private Alignment alignmentH = Alignment.START;
     private Alignment alignmentV = Alignment.CENTER;
     private boolean showBackground = true;
     private boolean showTextShadow = false;
     private boolean shiftForPadding = false;
 
-    public Builder(MinecraftClient client, Text text, int posX, int posY) {
+    public Builder(MinecraftClient client, Text text, int x, int y) {
       this.client = client;
       this.text = text;
-      this.posX = posX;
-      this.posY = posY;
+      this.x = x;
+      this.y = y;
     }
 
     public Builder justifiedLeft() {
-      alignmentH = Alignment.START;
+      this.alignmentH = Alignment.START;
       return this;
     }
 
     public Builder justifiedCenter() {
-      alignmentH = Alignment.CENTER;
+      this.alignmentH = Alignment.CENTER;
       return this;
     }
 
     public Builder justifiedRight() {
-      alignmentH = Alignment.END;
+      this.alignmentH = Alignment.END;
       return this;
     }
 
     public Builder alignedTop() {
-      alignmentV = Alignment.START;
+      this.alignmentV = Alignment.START;
       return this;
     }
 
     public Builder alignedMiddle() {
-      alignmentV = Alignment.CENTER;
+      this.alignmentV = Alignment.CENTER;
       return this;
     }
 
     public Builder alignedBottom() {
-      alignmentV = Alignment.END;
+      this.alignmentV = Alignment.END;
       return this;
     }
 
     public Builder hideBackground() {
-      showBackground = false;
+      this.showBackground = false;
       return this;
     }
 
     public Builder showTextShadow() {
-      showTextShadow = true;
+      this.showTextShadow = true;
       return this;
     }
 
     public Builder shiftForPadding() {
-      shiftForPadding = true;
+      this.shiftForPadding = true;
       return this;
     }
 
     @Override
     public LabelWidget build() {
-      return new LabelWidget(client, text, posX, posY, alignmentH, alignmentV, showBackground, showTextShadow,
-          shiftForPadding
+      return new LabelWidget(this.client, this.text, this.x, this.y, this.alignmentH, this.alignmentV,
+          this.showBackground, this.showTextShadow, this.shiftForPadding
       );
     }
   }
@@ -254,7 +270,7 @@ public class LabelWidget implements Drawable {
     }
 
     public int getShiftOffset() {
-      return shiftOffset;
+      return this.shiftOffset;
     }
   }
 }

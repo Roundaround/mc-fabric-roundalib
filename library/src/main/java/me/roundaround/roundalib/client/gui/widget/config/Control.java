@@ -1,31 +1,35 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
+import me.roundaround.roundalib.client.gui.Positional;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.AbstractParentElement;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.ParentElement;
 import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.util.math.MatrixStack;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
-public abstract class Control<D, O extends ConfigOption<D, ?>> extends AbstractParentElement {
+public abstract class Control<D, O extends ConfigOption<D, ?>> extends Positional implements ParentElement {
   protected static final int PADDING = 1;
-  protected static final int WIDGET_MIN_WIDTH = 100;
 
   protected final MinecraftClient client;
   protected final O option;
 
-  protected int widgetX;
-  protected int widgetY;
-  protected int widgetWidth;
-  protected int widgetHeight;
-  protected int scrolledTop;
   protected boolean valid;
   protected boolean disabled;
 
-  protected Control(MinecraftClient client, O option) {
+  private double renderOffset;
+  private Element focused;
+
+  protected Control(MinecraftClient client, O option, int left, int top, int width, int height) {
+    super(left, top, width, height);
+
     this.client = client;
     this.option = option;
 
@@ -35,6 +39,43 @@ public abstract class Control<D, O extends ConfigOption<D, ?>> extends AbstractP
     this.disabled = this.option.isDisabled();
   }
 
+  @Override
+  public void setDragging(boolean dragging) {
+    // TODO: Do I need dragging behavior?
+  }
+
+  @Override
+  public boolean isDragging() {
+    // TODO: Do I need dragging behavior?
+    return false;
+  }
+
+  @Override
+  public void setFocused(Element focused) {
+    if (this.focused != null) {
+      this.focused.setFocused(false);
+    }
+
+    if (focused != null) {
+      focused.setFocused(true);
+    }
+
+    this.focused = focused;
+  }
+
+  @Override
+  public Element getFocused() {
+    return this.focused;
+  }
+
+  @Override
+  public void forEachElement(Consumer<Widget> consumer) {
+    this.children()
+        .stream()
+        .filter((child) -> child instanceof Widget)
+        .forEach((child) -> consumer.accept((Widget) child));
+  }
+
   public List<? extends Selectable> selectableChildren() {
     return this.children()
         .stream()
@@ -42,6 +83,17 @@ public abstract class Control<D, O extends ConfigOption<D, ?>> extends AbstractP
         .map((child) -> (Selectable) child)
         .toList();
   }
+
+  @Override
+  public void renderPositional(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+    MatrixStack matrices = drawContext.getMatrices();
+    matrices.push();
+    matrices.translate(0, -this.getRenderOffset(), 0);
+    this.renderWidget(drawContext, mouseX, mouseY, delta);
+    matrices.pop();
+  }
+
+  public abstract void renderWidget(DrawContext drawContext, int mouseX, int mouseY, float delta);
 
   public O getOption() {
     return this.option;
@@ -59,23 +111,16 @@ public abstract class Control<D, O extends ConfigOption<D, ?>> extends AbstractP
     this.valid = false;
   }
 
+  public void setRenderOffset(double renderOffset) {
+    this.renderOffset = renderOffset;
+  }
+
+  public double getRenderOffset() {
+    return this.renderOffset;
+  }
+
   public void tick() {
   }
-
-  public void renderWidget(DrawContext drawContext, int mouseX, int mouseY, float delta) {
-  }
-
-  public void setBounds(int right, int y, int width, int height, double scrollAmount) {
-    this.widgetWidth = Math.max(WIDGET_MIN_WIDTH, Math.round(width * 0.3f));
-    this.widgetX = right - this.widgetWidth;
-    this.widgetHeight = height - PADDING * 2;
-    this.widgetY = y + PADDING;
-    this.scrolledTop = this.widgetY - (int) scrollAmount;
-
-    this.onBoundsChanged();
-  }
-
-  public void onBoundsChanged() {}
 
   private void onValueChanged(D prev, D curr) {
     boolean previousDisabled = this.disabled;
@@ -89,5 +134,34 @@ public abstract class Control<D, O extends ConfigOption<D, ?>> extends AbstractP
   }
 
   protected void onDisabledChange(boolean prev, boolean curr) {
+  }
+
+  protected int getWidgetLeft() {
+    return this.getLeft() + PADDING;
+  }
+
+  protected int getWidgetTop() {
+    return this.getTop() + PADDING;
+  }
+
+  protected int getWidgetRight() {
+    return this.getRight() - PADDING;
+  }
+
+  protected int getWidgetBottom() {
+    return this.getBottom() - PADDING;
+  }
+
+  protected int getWidgetWidth() {
+    return this.getWidth() - 2 * PADDING;
+  }
+
+  protected int getWidgetHeight() {
+    return this.getHeight() - 2 * PADDING;
+  }
+
+  @FunctionalInterface
+  public interface ControlFactory<D, O extends ConfigOption<D, ?>> {
+    Control<D, O> create(MinecraftClient client, O option, int left, int top, int width, int height);
   }
 }

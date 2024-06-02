@@ -11,12 +11,12 @@ import java.util.List;
 public class ToggleControl extends Control<Boolean, BooleanConfigOption> {
   private final ButtonWidget button;
 
-  public ToggleControl(MinecraftClient client, BooleanConfigOption option) {
-    super(client, option);
+  public ToggleControl(MinecraftClient client, BooleanConfigOption option, int left, int top, int width, int height) {
+    super(client, option, left, top, width, height);
 
     this.button = ButtonWidget.builder(this.option.getValueLabel(), (button) -> this.option.toggle())
-        .position(this.widgetX, this.widgetY)
-        .size(this.widgetWidth, this.widgetHeight)
+        .position(this.getWidgetLeft(), this.getWidgetTop())
+        .size(this.getWidgetWidth(), this.getWidgetHeight())
         .build();
 
     this.onDisabledChange(this.disabled, this.disabled);
@@ -28,8 +28,9 @@ public class ToggleControl extends Control<Boolean, BooleanConfigOption> {
   }
 
   @Override
-  public void onBoundsChanged() {
-    this.button.setY(this.scrolledTop);
+  public void refreshPositions() {
+    this.button.setPosition(this.getWidgetLeft(), this.getWidgetTop());
+    this.button.setDimensions(this.getWidgetWidth(), this.getWidgetHeight());
   }
 
   @Override

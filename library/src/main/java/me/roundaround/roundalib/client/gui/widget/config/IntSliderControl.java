@@ -13,17 +13,17 @@ import java.util.Objects;
 public class IntSliderControl extends Control<Integer, IntConfigOption> {
   private final IntSliderWidget slider;
 
-  public IntSliderControl(MinecraftClient client, IntConfigOption option) {
-    super(client, option);
+  public IntSliderControl(MinecraftClient client, IntConfigOption option, int left, int top, int width, int height) {
+    super(client, option, left, top, width, height);
 
     if (!this.option.useSlider() || this.option.getMinValue().isEmpty() || this.option.getMaxValue().isEmpty()) {
       throw new IllegalArgumentException(
           "IntConfigOption must use slider and have min and max values to use IntSliderControl");
     }
 
-    this.slider = new IntSliderWidget(this.widgetX, this.widgetY, this.widgetWidth, this.widgetHeight,
-        this.option.getMinValue().get(), this.option.getMaxValue().get(), this.option.getStep(), this.option.getValue(),
-        this::onSliderChanged, this::getValueAsText
+    this.slider = new IntSliderWidget(this.getWidgetLeft(), this.getWidgetTop(), this.getWidgetWidth(),
+        this.getWidgetHeight(), this.option.getMinValue().get(), this.option.getMaxValue().get(), this.option.getStep(),
+        this.option.getValue(), this::onSliderChanged, this::getValueAsText
     );
 
     this.onDisabledChange(this.disabled, this.disabled);
@@ -35,8 +35,10 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
   }
 
   @Override
-  public void onBoundsChanged() {
-    this.slider.setY(this.scrolledTop);
+  public void refreshPositions() {
+    this.slider.setPosition(this.getWidgetLeft(), this.getWidgetTop());
+    this.slider.setDimensions(this.getWidgetWidth(), this.getWidgetHeight());
+    super.refreshPositions();
   }
 
   @Override

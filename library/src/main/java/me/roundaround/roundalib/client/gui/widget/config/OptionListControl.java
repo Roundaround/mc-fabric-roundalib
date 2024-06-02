@@ -13,14 +13,18 @@ import java.util.List;
 public class OptionListControl<S extends ListOptionValue<S>> extends Control<S, OptionListConfigOption<S>> {
   private final CyclingButtonWidget<S> button;
 
-  public OptionListControl(MinecraftClient client, OptionListConfigOption<S> option) {
-    super(client, option);
+  public OptionListControl(
+      MinecraftClient client, OptionListConfigOption<S> option, int left, int top, int width, int height
+  ) {
+    super(client, option, left, top, width, height);
 
     this.button = new CyclingButtonWidget.Builder<S>((value) -> value.getDisplayText(option.getConfig())).values(
             option.getValues())
         .initially(option.getValue())
         .omitKeyText()
-        .build(this.widgetX, this.widgetY, this.widgetWidth, this.widgetHeight, Text.empty(), this::buttonClicked);
+        .build(this.getWidgetLeft(), this.getWidgetTop(), this.getWidgetWidth(), this.getWidgetHeight(), Text.empty(),
+            this::buttonClicked
+        );
 
     this.onDisabledChange(this.disabled, this.disabled);
   }
@@ -31,8 +35,9 @@ public class OptionListControl<S extends ListOptionValue<S>> extends Control<S, 
   }
 
   @Override
-  public void onBoundsChanged() {
-    this.button.setY(this.scrolledTop);
+  public void refreshPositions() {
+    this.button.setPosition(this.getWidgetLeft(), this.getWidgetTop());
+    this.button.setDimensions(this.getWidgetWidth(), this.getWidgetHeight());
   }
 
   @Override
