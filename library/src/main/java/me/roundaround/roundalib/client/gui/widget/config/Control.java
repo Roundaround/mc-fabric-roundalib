@@ -22,7 +22,6 @@ public abstract class Control<D, O extends ConfigOption<D, ?>> extends Positiona
   protected boolean valid;
   protected boolean disabled;
 
-  private double renderOffset;
   private Element focused;
 
   protected Control(MinecraftClient client, O option, int left, int top, int width, int height) {
@@ -96,14 +95,6 @@ public abstract class Control<D, O extends ConfigOption<D, ?>> extends Positiona
 
   public void markInvalid() {
     this.valid = false;
-  }
-
-  public void setRenderOffset(double renderOffset) {
-    this.renderOffset = renderOffset;
-  }
-
-  public double getRenderOffset() {
-    return this.renderOffset;
   }
 
   public void tick() {
