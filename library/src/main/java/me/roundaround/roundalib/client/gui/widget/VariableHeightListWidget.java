@@ -445,7 +445,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       return;
     }
 
-    int scrolledBottom = entry.getTop() + entry.getHeight() - (int) this.getScrollAmount();
+    int scrolledBottom = entry.getBottom() - (int) this.getScrollAmount();
     if (scrolledBottom > this.getBottom()) {
       this.scroll(scrolledBottom - this.getBottom());
     }
@@ -464,8 +464,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   public double getScrollAmount() {
-    return 0;
-//    return this.scrollAmount;
+    return this.scrollAmount;
   }
 
   public void setScrollAmount(double amount) {
