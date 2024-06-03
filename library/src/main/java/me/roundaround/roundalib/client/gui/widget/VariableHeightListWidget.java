@@ -512,7 +512,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   public abstract static class Entry extends Positional implements ParentElement {
-    protected static final int ROW_SHADE_STRENGTH = 85;
+    protected static final int ROW_SHADE_STRENGTH = 50;
     protected static final int DEFAULT_FADE_WIDTH = 10;
     protected static final int DEFAULT_MARGIN_HORIZONTAL = 10;
     protected static final int DEFAULT_MARGIN_VERTICAL = GuiUtil.PADDING / 2;
