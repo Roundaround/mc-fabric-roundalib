@@ -79,6 +79,14 @@ public abstract class Positional implements Drawable, LayoutWidget {
     return this.top;
   }
 
+  public int getCenterX() {
+    return this.getLeft() + this.getWidth() / 2;
+  }
+
+  public int getCenterY() {
+    return this.getTop() + this.getHeight() / 2;
+  }
+
   @Override
   public int getWidth() {
     return this.width;

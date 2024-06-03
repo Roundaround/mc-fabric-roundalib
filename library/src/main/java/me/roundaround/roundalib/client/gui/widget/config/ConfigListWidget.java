@@ -15,9 +15,7 @@ import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.text.Text;
 
 public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.Entry> {
-  public ConfigListWidget(
-      MinecraftClient client, ThreePartsLayoutWidget layout, ModConfig modConfig
-  ) {
+  public ConfigListWidget(MinecraftClient client, ThreePartsLayoutWidget layout, ModConfig modConfig) {
     super(client, layout.getX(), layout.getHeaderHeight(), layout.getWidth(), layout.getContentHeight());
 
     for (var entry : modConfig.getConfigOptions().entrySet()) {
@@ -78,9 +76,9 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     ) {
       super(index, left, top, width, HEIGHT);
 
-      this.label = LabelWidget.centered(client, label, this.getContentLeft(), this.getContentWidth(),
-              this.getContentTop(), this.getContentHeight()
-          )
+      this.label = LabelWidget.builder(client, label, this.getContentCenterX(), this.getContentCenterY())
+          .justifiedCenter()
+          .alignedMiddle()
           .shiftForPadding()
           .showTextShadow()
           .hideBackground()
@@ -100,7 +98,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
     @Override
     public void refreshPositions() {
-      this.label.setPosition(this.getContentLeft(), this.getContentTop() + this.getHeight() / 2);
+      this.label.setPosition(this.getContentCenterX(), this.getContentCenterY());
       super.refreshPositions();
     }
   }
@@ -114,20 +112,21 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     protected final LabelWidget label;
     protected final IconButtonWidget resetButton;
 
-    protected OptionEntry(
-        MinecraftClient client, O option, int index, int left, int top, int width
-    ) throws ControlRegistry.NotRegisteredException {
+    protected OptionEntry(MinecraftClient client, O option, int index, int left, int top, int width)
+        throws ControlRegistry.NotRegisteredException {
       super(index, left, top, width, HEIGHT);
 
-      int controlLeft = this.getControlLeft();
-      int controlRight = this.getControlRight();
-      int controlWidth = controlRight - controlLeft;
+      this.setMarginHorizontal(DEFAULT_MARGIN_HORIZONTAL + GuiUtil.PADDING);
 
       this.option = option;
 
-      this.label = LabelWidget.builder(client, option.getLabel(), this.getContentLeft() + GuiUtil.PADDING,
-          this.getContentTop() + this.getContentHeight() / 2
-      ).justifiedLeft().alignedMiddle().shiftForPadding().showTextShadow().hideBackground().build();
+      this.label = LabelWidget.builder(client, option.getLabel(), this.getContentLeft(), this.getContentCenterY())
+          .justifiedLeft()
+          .alignedMiddle()
+          .shiftForPadding()
+          .showTextShadow()
+          .hideBackground()
+          .build();
 
       this.addChild(this.label);
       this.addSelectableChild(new Selectable() {
@@ -141,13 +140,14 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
       });
 
       this.control = ControlRegistry.getControlFactory(option)
-          .create(client, option, controlLeft, this.getContentTop(), controlWidth, HEIGHT);
+          .create(client, option, this.getControlLeft(), this.getContentTop(), this.getControlWidth(),
+              this.getContentHeight()
+          );
       this.control.children().forEach(this::addChild);
       this.control.selectableChildren().forEach(this::addSelectableChild);
 
-      this.resetButton = RoundaLibIconButtons.resetButton(controlRight + GuiUtil.PADDING,
-          this.getContentTop() + (this.getContentHeight() - RoundaLibIconButtons.SIZE_L) / 2, this.option,
-          RoundaLibIconButtons.SIZE_L
+      this.resetButton = RoundaLibIconButtons.resetButton(this.getResetButtonLeft(), this.getResetButtonTop(),
+          this.option, RoundaLibIconButtons.SIZE_L
       );
       this.addChild(this.resetButton);
       this.addSelectableChild(this.resetButton);
@@ -157,30 +157,30 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
       return this.option;
     }
 
-    private int getControlLeft() {
-      return Math.max(CONTROL_MIN_WIDTH,
-          this.getContentLeft() + Math.round((this.getContentLeft() + this.getControlRight()) * 0.3f)
-      );
+    private int getControlWidth() {
+      return Math.max(CONTROL_MIN_WIDTH, Math.round(this.getContentWidth() * 0.3f));
     }
 
-    private int getControlRight() {
-      return this.getContentRight() - RoundaLibIconButtons.SIZE_L - 2 * GuiUtil.PADDING;
+    private int getControlLeft() {
+      return this.getResetButtonLeft() - GuiUtil.PADDING - this.getControlWidth();
+    }
+
+    private int getResetButtonLeft() {
+      return this.getContentRight() - RoundaLibIconButtons.SIZE_L;
+    }
+
+    private int getResetButtonTop() {
+      return this.getContentTop() + (this.getContentHeight() - RoundaLibIconButtons.SIZE_L) / 2;
     }
 
     @Override
     public void refreshPositions() {
-      int controlLeft = this.getControlLeft();
-      int controlRight = this.getControlRight();
+      this.label.setPosition(this.getContentLeft(), this.getContentCenterY());
 
-      this.label.setPosition(
-          this.getContentLeft() + GuiUtil.PADDING, this.getContentTop() + this.getContentHeight() / 2);
+      this.control.setPosition(this.getControlLeft(), this.getContentTop());
+      this.control.setDimensions(this.getControlWidth(), this.getContentHeight());
 
-      this.control.setPosition(controlLeft, this.getContentTop());
-      this.control.setDimensions(controlRight - controlLeft, this.getContentHeight());
-
-      this.resetButton.setPosition(controlRight + GuiUtil.PADDING,
-          this.getContentTop() + (this.getContentHeight() - RoundaLibIconButtons.SIZE_L) / 2
-      );
+      this.resetButton.setPosition(this.getResetButtonLeft(), this.getResetButtonTop());
 
       super.refreshPositions();
     }

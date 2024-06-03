@@ -193,10 +193,6 @@ public class LabelWidget implements Drawable, Element {
     return new Builder(client, text, posX, posY);
   }
 
-  public static Builder centered(MinecraftClient client, Text text, int left, int top, int width, int height) {
-    return new Builder(client, text, left + width / 2, top + height / 2).justifiedCenter().alignedMiddle();
-  }
-
   public static class Builder implements DrawableBuilder<LabelWidget> {
     private final MinecraftClient client;
     private final Text text;
