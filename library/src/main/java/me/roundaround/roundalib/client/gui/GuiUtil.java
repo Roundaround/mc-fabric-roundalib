@@ -6,7 +6,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.render.*;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.OrderedText;
@@ -17,8 +16,6 @@ import net.minecraft.util.Language;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.List;
-
-import static net.minecraft.client.gui.screen.Screen.MENU_BACKGROUND_TEXTURE;
 
 public class GuiUtil {
   public static int LABEL_COLOR = genColorInt(1f, 1f, 1f);
@@ -73,13 +70,11 @@ public class GuiUtil {
     return client.getWindow().getScaleFactor();
   }
 
-  public static void renderInScissor(
-      int x, int y, int width, int height, Runnable render) {
+  public static void renderInScissor(int x, int y, int width, int height, Runnable render) {
     renderInScissor(CLIENT, x, y, width, height, render);
   }
 
-  public static void renderInScissor(
-      MinecraftClient client, int x, int y, int width, int height, Runnable render) {
+  public static void renderInScissor(MinecraftClient client, int x, int y, int width, int height, Runnable render) {
     Screen currentScreen = getCurrentScreen(client);
     if (currentScreen == null) {
       render.run();
@@ -121,8 +116,7 @@ public class GuiUtil {
     playSoundEvent(CLIENT, soundEvent);
   }
 
-  public static void playSoundEvent(
-      MinecraftClient client, SoundEvent soundEvent) {
+  public static void playSoundEvent(MinecraftClient client, SoundEvent soundEvent) {
     client.getSoundManager().play(PositionedSoundInstance.master(soundEvent, 1));
   }
 
@@ -131,79 +125,145 @@ public class GuiUtil {
   }
 
   public static void drawTruncatedCenteredTextWithShadow(
-      DrawContext drawContext,
-      TextRenderer textRenderer,
-      Text text,
-      int x,
-      int y,
-      int color,
-      int maxWidth) {
+      DrawContext context, TextRenderer textRenderer, Text text, int x, int y, int color, int maxWidth
+  ) {
     StringVisitable trimmed = text;
     if (textRenderer.getWidth(text) > maxWidth) {
       StringVisitable ellipsis = StringVisitable.plain("...");
 
-      trimmed = StringVisitable.concat(textRenderer.trimToWidth(text,
-          maxWidth - textRenderer.getWidth(ellipsis)), ellipsis);
+      trimmed = StringVisitable.concat(
+          textRenderer.trimToWidth(text, maxWidth - textRenderer.getWidth(ellipsis)), ellipsis);
     }
 
-    drawContext.drawCenteredTextWithShadow(textRenderer,
-        Language.getInstance().reorder(trimmed),
-        x,
-        y,
-        color);
+    context.drawCenteredTextWithShadow(textRenderer, Language.getInstance().reorder(trimmed), x, y, color);
   }
 
   public static void drawWrappedCenteredTextWithShadow(
-      DrawContext drawContext,
+      DrawContext context, TextRenderer textRenderer, Text text, int x, int y, int color, int maxWidth
+  ) {
+    List<OrderedText> lines = textRenderer.wrapLines(text, maxWidth);
+    int yCursor = y;
+    for (OrderedText line : lines) {
+      context.drawCenteredTextWithShadow(textRenderer, line, x, yCursor, color);
+      yCursor += textRenderer.fontHeight;
+    }
+  }
+
+  public static void drawText(
+      DrawContext context, TextRenderer textRenderer, Text text, int x, int y, int color, boolean shadow
+  ) {
+    drawText(context, textRenderer, text.asOrderedText(), x, y, color, shadow);
+  }
+
+  public static void drawText(
+      DrawContext context, TextRenderer textRenderer, OrderedText text, int x, int y, int color, boolean shadow
+  ) {
+    drawText(context, textRenderer, text, x, y, color, shadow, TextAlignment.LEFT);
+  }
+
+  public static void drawText(
+      DrawContext context,
       TextRenderer textRenderer,
       Text text,
       int x,
       int y,
       int color,
-      int maxWidth) {
+      boolean shadow,
+      TextAlignment alignment
+  ) {
+    drawText(context, textRenderer, text.asOrderedText(), x, y, color, shadow, alignment);
+  }
+
+  public static void drawText(
+      DrawContext context,
+      TextRenderer textRenderer,
+      OrderedText text,
+      int x,
+      int y,
+      int color,
+      boolean shadow,
+      TextAlignment alignment
+  ) {
+    context.drawText(textRenderer, text, alignment.getLeft(textRenderer, text, x), y, color, shadow);
+  }
+
+  public static void drawTruncatedText(
+      DrawContext context, TextRenderer textRenderer, Text text, int x, int y, int color, boolean shadow, int maxWidth
+  ) {
+    drawTruncatedText(context, textRenderer, text, x, y, color, shadow, maxWidth, TextAlignment.LEFT);
+  }
+
+  public static void drawTruncatedText(
+      DrawContext context,
+      TextRenderer textRenderer,
+      Text text,
+      int x,
+      int y,
+      int color,
+      boolean shadow,
+      int maxWidth,
+      TextAlignment alignment
+  ) {
+    if (maxWidth <= 0) {
+      context.drawText(textRenderer, text, x, y, color, shadow);
+      return;
+    }
+
+    StringVisitable trimmed = text;
+    if (textRenderer.getWidth(text) > maxWidth) {
+      StringVisitable ellipsis = StringVisitable.plain("...");
+
+      trimmed = StringVisitable.concat(
+          textRenderer.trimToWidth(text, maxWidth - textRenderer.getWidth(ellipsis)), ellipsis);
+    }
+
+    drawText(context, textRenderer, Language.getInstance().reorder(trimmed), x, y, color, shadow, alignment);
+  }
+
+  public static void drawWrappedText(
+      DrawContext context, TextRenderer textRenderer, Text text, int x, int y, int color, boolean shadow, int maxWidth
+  ) {
+    drawWrappedText(context, textRenderer, text, x, y, color, shadow, maxWidth, 0);
+  }
+
+  public static void drawWrappedText(
+      DrawContext context,
+      TextRenderer textRenderer,
+      Text text,
+      int x,
+      int y,
+      int color,
+      boolean shadow,
+      int maxWidth,
+      int maxLines
+  ) {
+    drawWrappedText(context, textRenderer, text, x, y, color, shadow, maxWidth, maxLines, TextAlignment.LEFT);
+  }
+
+  public static void drawWrappedText(
+      DrawContext context,
+      TextRenderer textRenderer,
+      Text text,
+      int x,
+      int y,
+      int color,
+      boolean shadow,
+      int maxWidth,
+      int maxLines,
+      TextAlignment alignment
+  ) {
+    if (maxWidth <= 0) {
+      context.drawText(textRenderer, text, x, y, color, shadow);
+      return;
+    }
+
     List<OrderedText> lines = textRenderer.wrapLines(text, maxWidth);
     int yCursor = y;
-    for (OrderedText line : lines) {
-      drawContext.drawCenteredTextWithShadow(textRenderer, line, x, yCursor, color);
+    for (OrderedText line : lines.subList(0, maxLines - 1)) {
+      drawText(context, textRenderer, line, x, yCursor, color, shadow, alignment);
       yCursor += textRenderer.fontHeight;
     }
-  }
-
-  public static void renderBackgroundInRegion(
-      int brightness, int top, int bottom, int left, int right) {
-    renderBackgroundInRegion(brightness, top, bottom, left, right, 0, 0);
-  }
-
-  public static void renderBackgroundInRegion(
-      int brightness, int top, int bottom, int left, int right, double offsetX, double offsetY) {
-    Tessellator tessellator = Tessellator.getInstance();
-    BufferBuilder bufferBuilder = tessellator.getBuffer();
-    RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
-    RenderSystem.setShaderTexture(0, MENU_BACKGROUND_TEXTURE);
-    RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-
-    bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-    bufferBuilder.vertex(left, bottom, 0)
-        .texture((float) (left + Math.round(offsetX)) / 32f,
-            (float) (bottom + Math.round(offsetY)) / 32f)
-        .color(brightness, brightness, brightness, 255)
-        .next();
-    bufferBuilder.vertex(right, bottom, 0)
-        .texture((float) (right + Math.round(offsetX)) / 32f,
-            (float) (bottom + Math.round(offsetY)) / 32f)
-        .color(brightness, brightness, brightness, 255)
-        .next();
-    bufferBuilder.vertex(right, top, 0)
-        .texture((float) (right + Math.round(offsetX)) / 32f,
-            (float) (top + Math.round(offsetY)) / 32f)
-        .color(brightness, brightness, brightness, 255)
-        .next();
-    bufferBuilder.vertex(left, top, 0)
-        .texture((float) (left + Math.round(offsetX)) / 32f,
-            (float) (top + Math.round(offsetY)) / 32f)
-        .color(brightness, brightness, brightness, 255)
-        .next();
-    tessellator.draw();
+    drawText(context, textRenderer, text, x, y, color, shadow, alignment);
   }
 
   public static int genColorInt(float r, float g, float b) {
@@ -211,7 +271,23 @@ public class GuiUtil {
   }
 
   public static int genColorInt(float r, float g, float b, float a) {
-    return ((int) (a * 255) << 24) | ((int) (r * 255) << 16) | ((int) (g * 255) << 8) |
-        (int) (b * 255);
+    return ((int) (a * 255) << 24) | ((int) (r * 255) << 16) | ((int) (g * 255) << 8) | (int) (b * 255);
+  }
+
+  public enum TextAlignment {
+    LEFT, CENTER, RIGHT;
+
+    public int getLeft(TextRenderer textRenderer, Text text, int x) {
+      return this.getLeft(textRenderer, text.asOrderedText(), x);
+    }
+
+    public int getLeft(TextRenderer textRenderer, OrderedText text, int x) {
+      int width = textRenderer.getWidth(text);
+      return switch (this) {
+        case LEFT -> x;
+        case CENTER -> x - width / 2;
+        case RIGHT -> x - width;
+      };
+    }
   }
 }
