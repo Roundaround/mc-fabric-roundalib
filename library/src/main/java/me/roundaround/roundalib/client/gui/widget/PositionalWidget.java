@@ -1,18 +1,18 @@
-package me.roundaround.roundalib.client.gui;
+package me.roundaround.roundalib.client.gui.widget;
 
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.ScreenRect;
 import net.minecraft.client.gui.widget.LayoutWidget;
 
-public abstract class Positional implements Drawable, LayoutWidget {
+public abstract class PositionalWidget implements Drawable, LayoutWidget {
   private int left;
   private int top;
   private int width;
   private int height;
   private boolean dirty = false;
 
-  protected Positional(int left, int top, int width, int height) {
+  protected PositionalWidget(int left, int top, int width, int height) {
     this.left = left;
     this.top = top;
     this.width = width;

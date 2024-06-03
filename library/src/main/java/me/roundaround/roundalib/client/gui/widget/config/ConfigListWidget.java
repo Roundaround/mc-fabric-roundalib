@@ -3,7 +3,7 @@ package me.roundaround.roundalib.client.gui.widget.config;
 import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
-import me.roundaround.roundalib.client.gui.widget.LabelWidget;
+import me.roundaround.roundalib.client.gui.LabelElement;
 import me.roundaround.roundalib.client.gui.widget.VariableHeightListWidget;
 import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.option.ConfigOption;
@@ -69,14 +69,14 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
   public static class CategoryEntry extends Entry {
     protected static final int HEIGHT = 20;
 
-    protected final LabelWidget label;
+    protected final LabelElement label;
 
     protected CategoryEntry(
         MinecraftClient client, Text label, int index, int left, int top, int width
     ) {
       super(index, left, top, width, HEIGHT);
 
-      this.label = LabelWidget.builder(client, label, this.getContentCenterX(), this.getContentCenterY())
+      this.label = LabelElement.builder(client, label, this.getContentCenterX(), this.getContentCenterY())
           .justifiedCenter()
           .alignedMiddle()
           .shiftForPadding()
@@ -109,7 +109,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
     protected final O option;
     protected final Control<D, O> control;
-    protected final LabelWidget label;
+    protected final LabelElement label;
     protected final IconButtonWidget resetButton;
 
     protected OptionEntry(MinecraftClient client, O option, int index, int left, int top, int width)
@@ -120,7 +120,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
       this.option = option;
 
-      this.label = LabelWidget.builder(client, option.getLabel(), this.getContentLeft(), this.getContentCenterY())
+      this.label = LabelElement.builder(client, option.getLabel(), this.getContentLeft(), this.getContentCenterY())
           .justifiedLeft()
           .alignedMiddle()
           .shiftForPadding()

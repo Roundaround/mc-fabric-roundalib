@@ -1,6 +1,6 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
-import me.roundaround.roundalib.client.gui.Positional;
+import me.roundaround.roundalib.client.gui.widget.PositionalWidget;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Element;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-public abstract class Control<D, O extends ConfigOption<D, ?>> extends Positional implements ParentElement {
+public abstract class Control<D, O extends ConfigOption<D, ?>> extends PositionalWidget implements ParentElement {
   protected static final int PADDING = 1;
 
   protected final MinecraftClient client;

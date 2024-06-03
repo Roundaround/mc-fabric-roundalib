@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.Positional;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.navigation.GuiNavigation;
@@ -510,7 +509,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     E create(int index, int left, int top, int width);
   }
 
-  public abstract static class Entry extends Positional implements ParentElement {
+  public abstract static class Entry extends PositionalWidget implements ParentElement {
     protected static final int ROW_SHADE_STRENGTH = 50;
     protected static final int DEFAULT_FADE_WIDTH = 10;
     protected static final int DEFAULT_MARGIN_HORIZONTAL = 10;

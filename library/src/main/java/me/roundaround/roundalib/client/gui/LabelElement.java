@@ -1,7 +1,5 @@
-package me.roundaround.roundalib.client.gui.widget;
+package me.roundaround.roundalib.client.gui;
 
-import me.roundaround.roundalib.client.gui.DrawableBuilder;
-import me.roundaround.roundalib.client.gui.GuiUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -10,7 +8,7 @@ import net.minecraft.client.gui.Element;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 
-public class LabelWidget implements Drawable, Element {
+public class LabelElement implements Drawable, Element {
   private int x;
   private int y;
   private final Alignment alignmentH;
@@ -28,7 +26,7 @@ public class LabelWidget implements Drawable, Element {
   private float bottom;
   private boolean layoutDirty = false;
 
-  private LabelWidget(
+  private LabelElement(
       MinecraftClient client,
       Text text,
       int x,
@@ -193,7 +191,8 @@ public class LabelWidget implements Drawable, Element {
     return new Builder(client, text, posX, posY);
   }
 
-  public static class Builder implements DrawableBuilder<LabelWidget> {
+  @SuppressWarnings("unused")
+  public static class Builder {
     private final MinecraftClient client;
     private final Text text;
     private final int x;
@@ -256,9 +255,8 @@ public class LabelWidget implements Drawable, Element {
       return this;
     }
 
-    @Override
-    public LabelWidget build() {
-      return new LabelWidget(this.client, this.text, this.x, this.y, this.alignmentH, this.alignmentV,
+    public LabelElement build() {
+      return new LabelElement(this.client, this.text, this.x, this.y, this.alignmentH, this.alignmentV,
           this.showBackground, this.showTextShadow, this.shiftForPadding
       );
     }
