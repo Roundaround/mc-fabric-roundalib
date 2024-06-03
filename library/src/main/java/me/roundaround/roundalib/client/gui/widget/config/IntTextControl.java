@@ -90,7 +90,7 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
   }
 
   @Override
-  public void renderWidget(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+  public void renderPositional(DrawContext drawContext, int mouseX, int mouseY, float delta) {
     this.textField.render(drawContext, mouseX, mouseY, delta);
     if (this.option.showStepButtons()) {
       this.plusButton.render(drawContext, mouseX, mouseY, delta);

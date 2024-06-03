@@ -34,7 +34,7 @@ public class ToggleControl extends Control<Boolean, BooleanConfigOption> {
   }
 
   @Override
-  public void renderWidget(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+  public void renderPositional(DrawContext drawContext, int mouseX, int mouseY, float delta) {
     this.button.render(drawContext, mouseX, mouseY, delta);
   }
 

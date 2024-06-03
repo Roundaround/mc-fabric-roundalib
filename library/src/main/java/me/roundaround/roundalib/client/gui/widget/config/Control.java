@@ -84,17 +84,6 @@ public abstract class Control<D, O extends ConfigOption<D, ?>> extends Positiona
         .toList();
   }
 
-  @Override
-  public void renderPositional(DrawContext drawContext, int mouseX, int mouseY, float delta) {
-    MatrixStack matrices = drawContext.getMatrices();
-    matrices.push();
-    matrices.translate(0, -Math.round(this.getRenderOffset()), 0);
-    this.renderWidget(drawContext, mouseX, mouseY, delta);
-    matrices.pop();
-  }
-
-  public abstract void renderWidget(DrawContext drawContext, int mouseX, int mouseY, float delta);
-
   public O getOption() {
     return this.option;
   }

@@ -41,7 +41,7 @@ public class OptionListControl<S extends ListOptionValue<S>> extends Control<S, 
   }
 
   @Override
-  public void renderWidget(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+  public void renderPositional(DrawContext drawContext, int mouseX, int mouseY, float delta) {
     this.button.render(drawContext, mouseX, mouseY, delta);
   }
 

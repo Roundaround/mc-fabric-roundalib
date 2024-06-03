@@ -9,7 +9,6 @@ import me.roundaround.roundalib.client.gui.widget.VariableHeightListWidget;
 import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
@@ -94,9 +93,14 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     }
 
     @Override
-    public void renderContent(DrawContext drawContext, int mouseX, int mouseY, float delta) {
-      this.label.setY(this.getTop() + this.getHeight() / 2 - (int) this.getScrollAmount());
-      this.label.render(drawContext, mouseX, mouseY, delta);
+    public void refreshPositions() {
+      this.label.setPosition(this.getContentLeft(), this.getContentTop() + this.getHeight() / 2);
+      super.refreshPositions();
+    }
+
+    @Override
+    public List<? extends Element> elementChildren() {
+      return ImmutableList.of(label);
     }
 
     @Override
@@ -158,8 +162,10 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     }
 
     @Override
-    public List<? extends Element> children() {
-      return Stream.of(this.control.children(), List.of(this.resetButton)).flatMap(List::stream).toList();
+    public List<? extends Element> elementChildren() {
+      return Stream.of(List.of(this.label), this.control.children(), List.of(this.resetButton))
+          .flatMap(List::stream)
+          .toList();
     }
 
     @Override
@@ -199,19 +205,6 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     @Override
     public void tick() {
       this.control.tick();
-    }
-
-    @Override
-    public void renderContent(DrawContext drawContext, int mouseX, int mouseY, float delta) {
-      this.label.setY(this.getTop() + this.getHeight() / 2 - (int) this.getScrollAmount());
-      this.label.render(drawContext, mouseX, mouseY, delta);
-
-      this.control.setRenderOffset(this.getScrollAmount());
-      this.control.renderPositional(drawContext, mouseX, mouseY, delta);
-
-      this.resetButton.setY(
-          this.getTop() + (this.getHeight() - RoundaLibIconButtons.SIZE_L) / 2 - (int) this.getScrollAmount());
-      this.resetButton.render(drawContext, mouseX, mouseY, delta);
     }
   }
 }

@@ -8,15 +8,16 @@ import net.minecraft.client.gui.navigation.GuiNavigation;
 import net.minecraft.client.gui.navigation.GuiNavigationPath;
 import net.minecraft.client.gui.widget.LayoutWidget;
 import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.util.math.MatrixStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
-public class ScrollableElementWrapper implements Drawable, Element, LayoutWidget {
+public class ScrollableWrapperElement implements Drawable, Element, LayoutWidget {
   private final Element element;
   private double scrollAmount;
 
-  public ScrollableElementWrapper(Element element) {
+  public ScrollableWrapperElement(Element element) {
     this.element = element;
   }
 
@@ -39,38 +40,42 @@ public class ScrollableElementWrapper implements Drawable, Element, LayoutWidget
   @Override
   public void render(DrawContext context, int mouseX, int mouseY, float delta) {
     if (this.element instanceof Drawable drawable) {
-      drawable.render(context, mouseX, mouseY - (int) this.scrollAmount, delta);
+      MatrixStack matrices = context.getMatrices();
+      matrices.push();
+      matrices.translate(0, -(int) this.getScrollAmount(), 0);
+      drawable.render(context, mouseX, mouseY, delta);
+      matrices.pop();
     }
   }
 
   @Override
   public void mouseMoved(double mouseX, double mouseY) {
-    this.element.mouseMoved(mouseX, mouseY - this.scrollAmount);
+    this.element.mouseMoved(mouseX, mouseY - this.getScrollAmount());
   }
 
   @Override
   public boolean mouseClicked(double mouseX, double mouseY, int button) {
-    return this.element.mouseClicked(mouseX, mouseY - this.scrollAmount, button);
+    return this.element.mouseClicked(mouseX, mouseY - this.getScrollAmount(), button);
   }
 
   @Override
   public boolean mouseReleased(double mouseX, double mouseY, int button) {
-    return this.element.mouseReleased(mouseX, mouseY - this.scrollAmount, button);
+    return this.element.mouseReleased(mouseX, mouseY - this.getScrollAmount(), button);
   }
 
   @Override
   public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-    return this.element.mouseDragged(mouseX, mouseY - this.scrollAmount, button, deltaX, deltaY);
+    return this.element.mouseDragged(mouseX, mouseY - this.getScrollAmount(), button, deltaX, deltaY);
   }
 
   @Override
   public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-    return this.element.mouseScrolled(mouseX, mouseY - this.scrollAmount, horizontalAmount, verticalAmount);
+    return this.element.mouseScrolled(mouseX, mouseY - this.getScrollAmount(), horizontalAmount, verticalAmount);
   }
 
   @Override
   public boolean isMouseOver(double mouseX, double mouseY) {
-    return this.element.isMouseOver(mouseX, mouseY - this.scrollAmount);
+    return this.element.isMouseOver(mouseX, mouseY - this.getScrollAmount());
   }
 
   @Override

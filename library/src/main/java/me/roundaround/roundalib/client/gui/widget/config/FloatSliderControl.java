@@ -45,7 +45,7 @@ public class FloatSliderControl extends Control<Float, FloatConfigOption> {
   }
 
   @Override
-  public void renderWidget(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+  public void renderPositional(DrawContext drawContext, int mouseX, int mouseY, float delta) {
     this.slider.render(drawContext, mouseX, mouseY, delta);
   }
 

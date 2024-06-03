@@ -1,10 +1,11 @@
 package me.roundaround.roundalib.client.gui.widget;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.Positional;
-import me.roundaround.roundalib.client.gui.ScrollableElementWrapper;
+import me.roundaround.roundalib.client.gui.ScrollableWrapperElement;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.navigation.GuiNavigation;
@@ -141,7 +142,6 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       return;
     }
 
-    entry.setScrollAmount(scrollAmount);
     entry.renderPositional(drawContext, mouseX, mouseY, delta);
   }
 
@@ -459,6 +459,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
   public void setScrollAmount(double amount) {
     this.scrollAmount = MathHelper.clamp(amount, 0.0, this.getMaxScroll());
+    this.entries.forEach((entry) -> entry.setScrollAmount(this.scrollAmount));
   }
 
   public int getMaxScroll() {
@@ -480,6 +481,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
   @Override
   public void forEachElement(Consumer<Widget> consumer) {
+    this.entries.forEach(consumer);
   }
 
   @Override
@@ -568,22 +570,24 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     }
 
     public void renderContent(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+      this.children().forEach((child) -> child.render(drawContext, mouseX, mouseY, delta));
     }
 
     public void renderDecorations(DrawContext drawContext, int mouseX, int mouseY, float delta) {
     }
 
     @Override
-    public List<? extends Element> children() {
-      return List.of();
+    public List<ScrollableWrapperElement> children() {
+      // TODO: Stop recreating all these lists on every call
+      return this.elementChildren().stream().map(ScrollableWrapperElement::new).toList();
     }
 
-    public List<? extends Element> wrappedChildren() {
-      return this.children().stream().map(ScrollableElementWrapper::new).toList();
+    public List<? extends Element> elementChildren() {
+      return ImmutableList.of();
     }
 
     public List<? extends Selectable> selectableChildren() {
-      return this.children()
+      return this.elementChildren()
           .stream()
           .filter((child) -> child instanceof Selectable)
           .map((child) -> (Selectable) child)
@@ -592,10 +596,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
     @Override
     public void forEachElement(Consumer<Widget> consumer) {
-      this.children()
-          .stream()
-          .filter((child) -> child instanceof Widget)
-          .forEach((child) -> consumer.accept((Widget) child));
+      this.children().forEach(consumer);
     }
 
     @Override
@@ -694,6 +695,9 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
     protected void setScrollAmount(double scrollAmount) {
       this.scrollAmount = scrollAmount;
+      this.children().forEach((child) -> {
+        child.setScrollAmount(scrollAmount);
+      });
     }
 
     public double getScrollAmount() {

@@ -42,7 +42,7 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
   }
 
   @Override
-  public void renderWidget(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+  public void renderPositional(DrawContext drawContext, int mouseX, int mouseY, float delta) {
     this.slider.render(drawContext, mouseX, mouseY, delta);
   }
 

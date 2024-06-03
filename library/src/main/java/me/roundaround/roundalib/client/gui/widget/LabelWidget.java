@@ -6,10 +6,11 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
+import net.minecraft.client.gui.Element;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 
-public class LabelWidget implements Drawable {
+public class LabelWidget implements Drawable, Element {
   private int x;
   private int y;
   private final Alignment alignmentH;
@@ -69,12 +70,22 @@ public class LabelWidget implements Drawable {
     }
   }
 
+  @Override
   public boolean isMouseOver(double mouseX, double mouseY) {
     int pixelLeft = MathHelper.floor(this.getLeft()) - (this.showBackground ? 2 : 0);
     int pixelRight = MathHelper.ceil(this.getRight()) + (this.showBackground ? 2 : 0);
     int pixelTop = MathHelper.floor(this.getTop()) - (this.showBackground ? 1 : 0);
     int pixelBottom = MathHelper.ceil(this.getBottom()) + (this.showBackground ? 1 : 0);
     return mouseX >= pixelLeft && mouseY >= pixelTop && mouseX < pixelRight && mouseY < pixelBottom;
+  }
+
+  @Override
+  public boolean isFocused() {
+    return false;
+  }
+
+  @Override
+  public void setFocused(boolean focused) {
   }
 
   public void setText(Text text) {
