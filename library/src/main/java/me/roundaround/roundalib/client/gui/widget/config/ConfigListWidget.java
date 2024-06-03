@@ -179,6 +179,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
       this.control.setPosition(this.getControlLeft(), this.getContentTop());
       this.control.setDimensions(this.getControlWidth(), this.getContentHeight());
+      this.control.refreshPositions();
 
       this.resetButton.setPosition(this.getResetButtonLeft(), this.getResetButtonTop());
 
