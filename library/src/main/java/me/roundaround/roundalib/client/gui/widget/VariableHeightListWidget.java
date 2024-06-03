@@ -25,6 +25,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import org.joml.Matrix4f;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -508,6 +509,9 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     protected static final int DEFAULT_MARGIN_HORIZONTAL = 10;
     protected static final int DEFAULT_MARGIN_VERTICAL = GuiUtil.PADDING / 2;
 
+    private final ArrayList<Element> elementChildren = new ArrayList<>();
+    private final ArrayList<ScrollableWrapperElement> wrappedChildren = new ArrayList<>();
+    private final ArrayList<Selectable> selectableChildren = new ArrayList<>();
     private final int index;
     private final int contentHeight;
 
@@ -524,6 +528,15 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       super(left, top, width, 0);
       this.index = index;
       this.contentHeight = contentHeight;
+    }
+
+    protected final void addChild(Element child) {
+      this.elementChildren.add(child);
+      this.wrappedChildren.add(new ScrollableWrapperElement(child));
+    }
+
+    protected final void addSelectableChild(Selectable selectable) {
+      this.selectableChildren.add(selectable);
     }
 
     @Override
@@ -578,20 +591,15 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
     @Override
     public List<ScrollableWrapperElement> children() {
-      // TODO: Stop recreating all these lists on every call
-      return this.elementChildren().stream().map(ScrollableWrapperElement::new).toList();
+      return ImmutableList.copyOf(this.wrappedChildren);
     }
 
     public List<? extends Element> elementChildren() {
-      return ImmutableList.of();
+      return ImmutableList.copyOf(this.elementChildren);
     }
 
     public List<? extends Selectable> selectableChildren() {
-      return this.elementChildren()
-          .stream()
-          .filter((child) -> child instanceof Selectable)
-          .map((child) -> (Selectable) child)
-          .toList();
+      return ImmutableList.copyOf(this.selectableChildren);
     }
 
     @Override

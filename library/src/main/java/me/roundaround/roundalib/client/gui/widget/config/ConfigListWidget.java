@@ -1,6 +1,5 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
-import com.google.common.collect.ImmutableList;
 import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
@@ -9,15 +8,11 @@ import me.roundaround.roundalib.client.gui.widget.VariableHeightListWidget;
 import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;
 import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.text.Text;
-
-import java.util.List;
-import java.util.stream.Stream;
 
 public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.Entry> {
   public ConfigListWidget(
@@ -90,22 +85,9 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
           .showTextShadow()
           .hideBackground()
           .build();
-    }
 
-    @Override
-    public void refreshPositions() {
-      this.label.setPosition(this.getContentLeft(), this.getContentTop() + this.getHeight() / 2);
-      super.refreshPositions();
-    }
-
-    @Override
-    public List<? extends Element> elementChildren() {
-      return ImmutableList.of(label);
-    }
-
-    @Override
-    public List<? extends Selectable> selectableChildren() {
-      return ImmutableList.of(new Selectable() {
+      this.addChild(this.label);
+      this.addSelectableChild(new Selectable() {
         public Selectable.SelectionType getType() {
           return Selectable.SelectionType.HOVERED;
         }
@@ -114,6 +96,12 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
           builder.put(NarrationPart.TITLE, CategoryEntry.this.label.getText());
         }
       });
+    }
+
+    @Override
+    public void refreshPositions() {
+      this.label.setPosition(this.getContentLeft(), this.getContentTop() + this.getHeight() / 2);
+      super.refreshPositions();
     }
   }
 
@@ -136,15 +124,33 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
       int controlWidth = controlRight - controlLeft;
 
       this.option = option;
-      this.control = ControlRegistry.getControlFactory(option)
-          .create(client, option, controlLeft, this.getContentTop(), controlWidth, HEIGHT);
+
       this.label = LabelWidget.builder(client, option.getLabel(), this.getContentLeft() + GuiUtil.PADDING,
           this.getContentTop() + this.getContentHeight() / 2
       ).justifiedLeft().alignedMiddle().shiftForPadding().showTextShadow().hideBackground().build();
+
+      this.addChild(this.label);
+      this.addSelectableChild(new Selectable() {
+        public Selectable.SelectionType getType() {
+          return Selectable.SelectionType.HOVERED;
+        }
+
+        public void appendNarrations(NarrationMessageBuilder builder) {
+          builder.put(NarrationPart.TITLE, OptionEntry.this.label.getText());
+        }
+      });
+
+      this.control = ControlRegistry.getControlFactory(option)
+          .create(client, option, controlLeft, this.getContentTop(), controlWidth, HEIGHT);
+      this.control.children().forEach(this::addChild);
+      this.control.selectableChildren().forEach(this::addSelectableChild);
+
       this.resetButton = RoundaLibIconButtons.resetButton(controlRight + GuiUtil.PADDING,
           this.getContentTop() + (this.getContentHeight() - RoundaLibIconButtons.SIZE_L) / 2, this.option,
           RoundaLibIconButtons.SIZE_L
       );
+      this.addChild(this.resetButton);
+      this.addSelectableChild(this.resetButton);
     }
 
     public O getOption() {
@@ -159,29 +165,6 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
     private int getControlRight() {
       return this.getContentRight() - RoundaLibIconButtons.SIZE_L - 2 * GuiUtil.PADDING;
-    }
-
-    @Override
-    public List<? extends Element> elementChildren() {
-      return Stream.of(List.of(this.label), this.control.children(), List.of(this.resetButton))
-          .flatMap(List::stream)
-          .toList();
-    }
-
-    @Override
-    public List<? extends Selectable> selectableChildren() {
-      Selectable label = new Selectable() {
-        public Selectable.SelectionType getType() {
-          return Selectable.SelectionType.HOVERED;
-        }
-
-        public void appendNarrations(NarrationMessageBuilder builder) {
-          builder.put(NarrationPart.TITLE, OptionEntry.this.label.getText());
-        }
-      };
-      return Stream.of(List.of(label), this.control.selectableChildren(), List.of(this.resetButton))
-          .flatMap(List::stream)
-          .toList();
     }
 
     @Override
