@@ -5,7 +5,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.Positional;
-import me.roundaround.roundalib.client.gui.ScrollableWrapperElement;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.navigation.GuiNavigation;
@@ -517,7 +516,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     protected static final int DEFAULT_MARGIN_HORIZONTAL = 10;
     protected static final int DEFAULT_MARGIN_VERTICAL = GuiUtil.PADDING / 2;
 
-    private final ArrayList<Element> elementChildren = new ArrayList<>();
+    private final ArrayList<Element> children = new ArrayList<>();
     private final ArrayList<Selectable> selectableChildren = new ArrayList<>();
     private final int index;
     private final int contentHeight;
@@ -537,7 +536,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     }
 
     protected final void addChild(Element child) {
-      this.elementChildren.add(child);
+      this.children.add(child);
     }
 
     protected final void addSelectableChild(Selectable selectable) {
@@ -600,7 +599,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
     @Override
     public List<? extends Element> children() {
-      return ImmutableList.copyOf(this.elementChildren);
+      return ImmutableList.copyOf(this.children);
     }
 
     public List<? extends Selectable> selectableChildren() {
