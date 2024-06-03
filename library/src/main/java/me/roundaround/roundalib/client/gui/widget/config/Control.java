@@ -23,6 +23,7 @@ public abstract class Control<D, O extends ConfigOption<D, ?>> extends Positiona
   protected boolean disabled;
 
   private Element focused;
+  private boolean dragging;
 
   protected Control(MinecraftClient client, O option, int left, int top, int width, int height) {
     super(left, top, width, height);
@@ -38,13 +39,12 @@ public abstract class Control<D, O extends ConfigOption<D, ?>> extends Positiona
 
   @Override
   public void setDragging(boolean dragging) {
-    // TODO: Do I need dragging behavior?
+    this.dragging = dragging;
   }
 
   @Override
   public boolean isDragging() {
-    // TODO: Do I need dragging behavior?
-    return false;
+    return this.dragging;
   }
 
   @Override

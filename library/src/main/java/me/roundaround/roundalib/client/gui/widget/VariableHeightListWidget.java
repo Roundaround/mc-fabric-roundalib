@@ -528,6 +528,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     private int bgFadeWidth = DEFAULT_FADE_WIDTH;
     private Element focused;
     private Selectable focusedSelectable;
+    private boolean dragging;
 
     protected Entry(int index, int left, int top, int width, int contentHeight) {
       super(left, top, width, 0);
@@ -635,13 +636,12 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
     @Override
     public void setDragging(boolean dragging) {
-      // TODO: Do I need dragging behavior?
+      this.dragging = dragging;
     }
 
     @Override
     public boolean isDragging() {
-      // TODO: Do I need dragging behavior?
-      return false;
+      return this.dragging;
     }
 
     protected void appendNarrations(NarrationMessageBuilder builder) {
