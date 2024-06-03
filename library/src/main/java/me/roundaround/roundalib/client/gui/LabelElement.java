@@ -76,18 +76,17 @@ public class LabelElement implements Drawable, Element {
     }
 
     switch (this.overflowBehavior) {
-      case SHOW:
-        GuiUtil.drawText(context, this.textRenderer, this.text, this.x, Math.round(this.getTop() + 1), this.color,
-            this.showTextShadow, this.alignmentH.asTextAlignment()
-        );
-      case TRUNCATE:
-        GuiUtil.drawTruncatedText(context, this.textRenderer, this.text, this.x, Math.round(this.getTop() + 1),
-            this.color, this.showTextShadow, this.maxWidth, this.alignmentH.asTextAlignment()
-        );
-      case WRAP:
-        GuiUtil.drawWrappedText(context, this.textRenderer, this.text, this.x, Math.round(this.getTop() + 1),
-            this.color, this.showTextShadow, this.maxWidth, this.maxLines, this.alignmentH.asTextAlignment()
-        );
+      case SHOW ->
+          GuiUtil.drawText(context, this.textRenderer, this.text, this.x, Math.round(this.getTop() + 1), this.color,
+              this.showTextShadow, this.alignmentH.asTextAlignment()
+          );
+      case TRUNCATE ->
+          GuiUtil.drawTruncatedText(context, this.textRenderer, this.text, this.x, Math.round(this.getTop() + 1),
+              this.color, this.showTextShadow, this.maxWidth, this.alignmentH.asTextAlignment()
+          );
+      case WRAP -> GuiUtil.drawWrappedText(context, this.textRenderer, this.text, this.x, Math.round(this.getTop() + 1),
+          this.color, this.showTextShadow, this.maxWidth, this.maxLines, this.alignmentH.asTextAlignment()
+      );
     }
   }
 
