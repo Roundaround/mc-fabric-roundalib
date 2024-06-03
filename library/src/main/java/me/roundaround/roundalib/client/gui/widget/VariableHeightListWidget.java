@@ -563,7 +563,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
         int left = this.getLeft();
         int right = this.getRight();
         int top = this.getTop();
-        int bottom = this.getBottom() + 1;
+        int bottom = this.getBottom();
 
         bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
         bufferBuilder.vertex(matrix4f, left + this.bgFadeWidth, top, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
