@@ -1,6 +1,7 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.RoundaLibIconButtons;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.config.option.IntConfigOption;
 import net.minecraft.client.MinecraftClient;

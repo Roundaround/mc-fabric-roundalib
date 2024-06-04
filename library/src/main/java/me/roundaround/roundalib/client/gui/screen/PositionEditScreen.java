@@ -4,7 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
-import me.roundaround.roundalib.client.gui.widget.config.RoundaLibIconButtons;
+import me.roundaround.roundalib.client.gui.RoundaLibIconButtons;
 import me.roundaround.roundalib.config.option.PositionConfigOption;
 import me.roundaround.roundalib.config.value.Position;
 import net.minecraft.client.gui.DrawContext;

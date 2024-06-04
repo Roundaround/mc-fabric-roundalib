@@ -2,14 +2,13 @@ package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.RoundaLibIconButtons;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.LabelElement;
 import me.roundaround.roundalib.client.gui.widget.VariableHeightListWidget;
 import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;

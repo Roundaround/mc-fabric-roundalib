@@ -2,7 +2,7 @@ package me.roundaround.roundalib.client.gui.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.widget.config.RoundaLibIconButtons;
+import me.roundaround.roundalib.client.gui.RoundaLibIconButtons;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;

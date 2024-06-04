@@ -1,4 +1,4 @@
-package me.roundaround.roundalib.client.gui.widget.config;
+package me.roundaround.roundalib.client.gui;
 
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.config.option.ConfigOption;
