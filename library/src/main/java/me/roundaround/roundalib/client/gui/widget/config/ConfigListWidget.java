@@ -2,13 +2,14 @@ package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.LabelElement;
 import me.roundaround.roundalib.client.gui.RoundaLibIconButtons;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
-import me.roundaround.roundalib.client.gui.LabelElement;
 import me.roundaround.roundalib.client.gui.widget.VariableHeightListWidget;
 import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;
@@ -27,10 +28,9 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
       String modId = modConfig.getModId();
       String category = entry.getKey();
       if (modConfig.getShowGroupTitles() && !category.equals(modId)) {
-        this.addEntry(
-            (index, left, top, width) -> new CategoryEntry(this.client, Text.translatable(entry.getKey() + ".title"),
-                index, left, top, width
-            ));
+        this.addEntry((index, left, top, width) -> new CategoryEntry(this.client.textRenderer,
+            Text.translatable(entry.getKey() + ".title"), index, left, top, width
+        ));
       }
 
       for (var option : entry.getValue()) {
@@ -73,11 +73,11 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     protected final LabelElement label;
 
     protected CategoryEntry(
-        MinecraftClient client, Text label, int index, int left, int top, int width
+        TextRenderer textRenderer, Text label, int index, int left, int top, int width
     ) {
       super(index, left, top, width, HEIGHT);
 
-      this.label = LabelElement.builder(client, label, this.getContentCenterX(), this.getContentCenterY())
+      this.label = LabelElement.builder(textRenderer, label, this.getContentCenterX(), this.getContentCenterY())
           .justifiedCenter()
           .alignedMiddle()
           .shiftForPadding()
@@ -121,7 +121,8 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
       this.option = option;
 
-      this.label = LabelElement.builder(client, option.getLabel(), this.getContentLeft(), this.getContentCenterY())
+      this.label = LabelElement.builder(
+              client.textRenderer, option.getLabel(), this.getContentLeft(), this.getContentCenterY())
           .justifiedLeft()
           .alignedMiddle()
           .shiftForPadding()

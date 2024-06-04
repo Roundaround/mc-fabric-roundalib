@@ -30,7 +30,9 @@ public class ExamplePositionEditScreen extends PositionEditScreen {
       context.drawBorder(centerX - 41, row1Y - 6, 82, 12, GuiUtil.genColorInt(0, 0.3f, 0.8f));
     });
     this.addDrawable(
-        LabelElement.builder(this.client, Text.of("This is a very long label that needs to scroll"), centerX, row1Y)
+        LabelElement.builder(this.textRenderer, Text.of("This is a very long label that needs to scroll"), centerX,
+                row1Y
+            )
             .maxWidth(80)
             .justifiedCenter()
             .alignedMiddle()
@@ -42,7 +44,9 @@ public class ExamplePositionEditScreen extends PositionEditScreen {
       context.drawBorder(centerX - 1, row2Y - 6, 82, 12, GuiUtil.genColorInt(0, 0.3f, 0.8f));
     });
     this.addDrawable(
-        LabelElement.builder(this.client, Text.of("This is a very long label that needs to scroll"), centerX, row2Y)
+        LabelElement.builder(this.textRenderer, Text.of("This is a very long label that needs to scroll"), centerX,
+                row2Y
+            )
             .maxWidth(80)
             .justifiedLeft()
             .alignedMiddle()
@@ -54,7 +58,9 @@ public class ExamplePositionEditScreen extends PositionEditScreen {
       context.drawBorder(centerX - 81, row3Y - 6, 82, 12, GuiUtil.genColorInt(0, 0.3f, 0.8f));
     });
     this.addDrawable(
-        LabelElement.builder(this.client, Text.of("This is a very long label that needs to scroll"), centerX, row3Y)
+        LabelElement.builder(this.textRenderer, Text.of("This is a very long label that needs to scroll"), centerX,
+                row3Y
+            )
             .maxWidth(80)
             .justifiedRight()
             .alignedMiddle()
@@ -63,7 +69,7 @@ public class ExamplePositionEditScreen extends PositionEditScreen {
             .build());
 
     this.valueLabel = this.addDrawable(
-        LabelElement.builder(this.client, Text.of(getValue().toString()), centerX, centerY)
+        LabelElement.builder(this.textRenderer, Text.of(getValue().toString()), centerX, centerY)
             .justifiedCenter()
             .alignedMiddle()
             .hideBackground()

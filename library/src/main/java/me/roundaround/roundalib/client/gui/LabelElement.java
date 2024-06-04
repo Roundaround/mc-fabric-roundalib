@@ -1,19 +1,15 @@
 package me.roundaround.roundalib.client.gui;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 
 public class LabelElement implements Drawable, Element {
-  private int x;
-  private int y;
-  private int color;
-  private int bgColor;
-  private int maxWidth;
+  private final TextRenderer textRenderer;
   private final int maxLines;
   private final OverflowBehavior overflowBehavior;
   private final int scrollMargin;
@@ -22,9 +18,13 @@ public class LabelElement implements Drawable, Element {
   private final boolean showBackground;
   private final boolean showTextShadow;
   private final boolean shiftForPadding;
-  private final TextRenderer textRenderer;
 
   private Text text;
+  private int x;
+  private int y;
+  private int color;
+  private int bgColor;
+  private int maxWidth;
   private int width;
   private float left;
   private float right;
@@ -33,7 +33,7 @@ public class LabelElement implements Drawable, Element {
   private boolean layoutDirty = true;
 
   private LabelElement(
-      MinecraftClient client,
+      TextRenderer textRenderer,
       Text text,
       int x,
       int y,
@@ -49,6 +49,8 @@ public class LabelElement implements Drawable, Element {
       boolean showTextShadow,
       boolean shiftForPadding
   ) {
+    this.textRenderer = textRenderer;
+    this.text = text;
     this.x = x;
     this.y = y;
     this.color = color;
@@ -62,8 +64,6 @@ public class LabelElement implements Drawable, Element {
     this.showBackground = showBackground;
     this.showTextShadow = showTextShadow;
     this.shiftForPadding = shiftForPadding;
-    this.textRenderer = client.textRenderer;
-    this.text = text;
     this.width = this.getWidth();
 
     this.updateLayout();
@@ -261,13 +261,25 @@ public class LabelElement implements Drawable, Element {
     this.layoutDirty = false;
   }
 
-  public static Builder builder(MinecraftClient client, Text text, int posX, int posY) {
-    return new Builder(client, text, posX, posY);
+  public static Builder builder(TextRenderer textRenderer, Text text, int posX, int posY) {
+    return new Builder(textRenderer, text, posX, posY);
+  }
+
+  public static LabelElement screenTitle(TextRenderer textRenderer, Text text, Screen screen) {
+    return screenTitle(textRenderer, text, screen, GuiUtil.DEFAULT_HEADER_HEIGHT);
+  }
+
+  public static LabelElement screenTitle(TextRenderer textRenderer, Text text, Screen screen, int headerHeight) {
+    return new Builder(textRenderer, text, (int) (screen.width * 0.5f), (int) (headerHeight * 0.5f)).alignedMiddle()
+        .justifiedCenter()
+        .hideBackground()
+        .showTextShadow()
+        .build();
   }
 
   @SuppressWarnings("unused")
   public static class Builder {
-    private final MinecraftClient client;
+    private final TextRenderer textRenderer;
     private final Text text;
     private final int x;
     private final int y;
@@ -283,8 +295,8 @@ public class LabelElement implements Drawable, Element {
     private boolean showTextShadow = false;
     private boolean shiftForPadding = false;
 
-    public Builder(MinecraftClient client, Text text, int x, int y) {
-      this.client = client;
+    public Builder(TextRenderer textRenderer, Text text, int x, int y) {
+      this.textRenderer = textRenderer;
       this.text = text;
       this.x = x;
       this.y = y;
@@ -382,7 +394,7 @@ public class LabelElement implements Drawable, Element {
     }
 
     public LabelElement build() {
-      return new LabelElement(this.client, this.text, this.x, this.y, this.color, this.bgColor, this.maxWidth,
+      return new LabelElement(this.textRenderer, this.text, this.x, this.y, this.color, this.bgColor, this.maxWidth,
           this.maxLines, this.overflowBehavior, this.scrollMargin, this.alignmentH, this.alignmentV,
           this.showBackground, this.showTextShadow, this.shiftForPadding
       );

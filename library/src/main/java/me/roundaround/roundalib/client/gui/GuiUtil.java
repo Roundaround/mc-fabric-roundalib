@@ -1,6 +1,5 @@
 package me.roundaround.roundalib.client.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.config.ModConfig;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -14,16 +13,16 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Language;
 import net.minecraft.util.Util;
-import net.minecraft.util.math.MathHelper;
 
 import java.util.List;
 
 public class GuiUtil {
-  public static int LABEL_COLOR = genColorInt(1f, 1f, 1f);
-  public static int ERROR_COLOR = genColorInt(1f, 0.15f, 0.15f);
-  public static int BACKGROUND_COLOR = genColorInt(0f, 0f, 0f, 0.5f);
-  public static int PADDING = 4;
-  public static int SCROLLBAR_WIDTH = 6;
+  public static final int LABEL_COLOR = genColorInt(1f, 1f, 1f);
+  public static final int ERROR_COLOR = genColorInt(1f, 0.15f, 0.15f);
+  public static final int BACKGROUND_COLOR = genColorInt(0f, 0f, 0f, 0.5f);
+  public static final int PADDING = 4;
+  public static final int SCROLLBAR_WIDTH = 6;
+  public static final int DEFAULT_HEADER_HEIGHT = 33;
 
   private static final MinecraftClient CLIENT = MinecraftClient.getInstance();
 
