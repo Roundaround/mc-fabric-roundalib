@@ -6,9 +6,11 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.sound.PositionedSoundInstance;
+import net.minecraft.screen.ScreenTexts;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.StringVisitable;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Language;
@@ -160,8 +162,7 @@ public class GuiUtil {
 
     StringVisitable trimmed = text;
     if (textRenderer.getWidth(text) > maxWidth) {
-      StringVisitable ellipsis = StringVisitable.plain("...");
-
+      StringVisitable ellipsis = ScreenTexts.ELLIPSIS;
       trimmed = StringVisitable.concat(
           textRenderer.trimToWidth(text, maxWidth - textRenderer.getWidth(ellipsis)), ellipsis);
     }
@@ -208,11 +209,10 @@ public class GuiUtil {
 
     List<OrderedText> lines = textRenderer.wrapLines(text, maxWidth);
     int yCursor = y;
-    for (OrderedText line : lines.subList(0, maxLines - 1)) {
+    for (OrderedText line : lines.subList(0, maxLines)) {
       drawText(context, textRenderer, line, x, yCursor, color, shadow, alignment);
       yCursor += textRenderer.fontHeight;
     }
-    drawText(context, textRenderer, text, x, y, color, shadow, alignment);
   }
 
   public static void drawScrollingText(
