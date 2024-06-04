@@ -1,15 +1,13 @@
 package me.roundaround.roundalib.client.gui.screen;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.RoundaLibIconButtons;
+import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.config.option.PositionConfigOption;
 import me.roundaround.roundalib.config.value.Position;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
@@ -17,8 +15,7 @@ import org.lwjgl.glfw.GLFW;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class PositionEditScreen
-    extends ConfigOptionSubScreen<Position, PositionConfigOption> {
+public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position, PositionConfigOption> {
   protected static final Position CROSSHAIR_UV = new Position(0, 247);
   protected static final int CROSSHAIR_SIZE = 9;
 
@@ -30,16 +27,14 @@ public abstract class PositionEditScreen
   private IconButtonWidget downButton;
 
   protected PositionEditScreen(
-      Text title, Screen parent, PositionConfigOption configOption) {
+      Text title, Screen parent, PositionConfigOption configOption
+  ) {
     this(title, parent, configOption, false, false);
   }
 
   protected PositionEditScreen(
-      Text title,
-      Screen parent,
-      PositionConfigOption configOption,
-      boolean invertX,
-      boolean invertY) {
+      Text title, Screen parent, PositionConfigOption configOption, boolean invertX, boolean invertY
+  ) {
     super(title, parent, configOption);
     this.inverseX = invertX;
     this.inverseY = invertY;
@@ -50,29 +45,24 @@ public abstract class PositionEditScreen
     int startX = this.width - GuiUtil.PADDING;
     int startY = this.height - GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M - GuiUtil.PADDING;
 
-    this.upButton = addSelectableChild(RoundaLibIconButtons.upButton(
-        startX - 2 * RoundaLibIconButtons.SIZE_M - GuiUtil.PADDING,
-        startY - 3 * RoundaLibIconButtons.SIZE_M - 2 * GuiUtil.PADDING,
-        this.modId,
-        (button) -> this.moveUp()));
+    this.upButton = addSelectableChild(
+        RoundaLibIconButtons.upButton(startX - 2 * RoundaLibIconButtons.SIZE_M - GuiUtil.PADDING,
+            startY - 3 * RoundaLibIconButtons.SIZE_M - 2 * GuiUtil.PADDING, this.modId, (button) -> this.moveUp()
+        ));
 
-    this.leftButton = addSelectableChild(RoundaLibIconButtons.leftButton(
-        startX - 3 * RoundaLibIconButtons.SIZE_M - 2 * GuiUtil.PADDING,
-        startY - 2 * RoundaLibIconButtons.SIZE_M - GuiUtil.PADDING,
-        this.modId,
-        (button) -> this.moveLeft()));
+    this.leftButton = addSelectableChild(
+        RoundaLibIconButtons.leftButton(startX - 3 * RoundaLibIconButtons.SIZE_M - 2 * GuiUtil.PADDING,
+            startY - 2 * RoundaLibIconButtons.SIZE_M - GuiUtil.PADDING, this.modId, (button) -> this.moveLeft()
+        ));
 
-    this.rightButton =
-        addSelectableChild(RoundaLibIconButtons.rightButton(startX - RoundaLibIconButtons.SIZE_M,
-            startY - 2 * RoundaLibIconButtons.SIZE_M - GuiUtil.PADDING,
-            this.modId,
-            (button) -> this.moveRight()));
+    this.rightButton = addSelectableChild(RoundaLibIconButtons.rightButton(startX - RoundaLibIconButtons.SIZE_M,
+        startY - 2 * RoundaLibIconButtons.SIZE_M - GuiUtil.PADDING, this.modId, (button) -> this.moveRight()
+    ));
 
-    this.downButton = addSelectableChild(RoundaLibIconButtons.downButton(
-        startX - 2 * RoundaLibIconButtons.SIZE_M - GuiUtil.PADDING,
-        startY - RoundaLibIconButtons.SIZE_M,
-        this.modId,
-        (button) -> this.moveDown()));
+    this.downButton = addSelectableChild(
+        RoundaLibIconButtons.downButton(startX - 2 * RoundaLibIconButtons.SIZE_M - GuiUtil.PADDING,
+            startY - RoundaLibIconButtons.SIZE_M, this.modId, (button) -> this.moveDown()
+        ));
 
     super.init();
   }
@@ -112,30 +102,20 @@ public abstract class PositionEditScreen
 
   @Override
   protected void renderContent(
-      DrawContext drawContext, int mouseX, int mouseY, float partialTicks) {
+      DrawContext drawContext, int mouseX, int mouseY, float partialTicks
+  ) {
     super.renderContent(drawContext, mouseX, mouseY, partialTicks);
-
-    Identifier texture = new Identifier(this.modId, "textures/roundalib.png");
-    int left = this.upButton.getX() + GuiUtil.PADDING / 2;
-    int top = leftButton.getY() + GuiUtil.PADDING / 2;
 
     RenderSystem.setShaderColor(1, 1, 1, 0.4f);
     RenderSystem.enableBlend();
-    RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA,
-        GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
-    RenderSystem.applyModelViewMatrix();
 
-    MatrixStack matrixStack = drawContext.getMatrices();
-    matrixStack.push();
-    matrixStack.translate(0, 0, 50);
-    drawContext.drawTexture(texture,
-        left,
-        top,
-        CROSSHAIR_UV.x(),
-        CROSSHAIR_UV.y(),
-        CROSSHAIR_SIZE,
-        CROSSHAIR_SIZE);
-    matrixStack.pop();
+    drawContext.drawTexture(new Identifier(this.modId, "textures/roundalib.png"),
+        this.upButton.getX() + GuiUtil.PADDING / 2, leftButton.getY() + GuiUtil.PADDING / 2, CROSSHAIR_UV.x(),
+        CROSSHAIR_UV.y(), CROSSHAIR_SIZE, CROSSHAIR_SIZE
+    );
+
+    RenderSystem.setShaderColor(1, 1, 1, 1);
+    RenderSystem.disableBlend();
   }
 
   protected int getMoveAmount() {
