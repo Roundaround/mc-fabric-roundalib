@@ -6,7 +6,6 @@ import me.roundaround.roundalib.client.gui.RoundaLibIconButtons;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.*;
 import net.minecraft.text.Text;
@@ -29,30 +28,32 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D, ?>> ext
     this.configOption = configOption;
     this.workingCopy = (O) configOption.createWorkingCopy();
     this.modId = configOption.getConfig().getModId();
+
+    this.workingCopy.subscribeToValueChanges(this.hashCode(), this::onValueChanged);
   }
 
   @Override
   protected void init() {
-    this.addSelectableChild(RoundaLibIconButtons.resetButton(
-        this.width - 3 * (GuiUtil.PADDING + RoundaLibIconButtons.SIZE_M),
-        this.height - GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M,
-        this.workingCopy));
+    this.addDrawableChild(
+        RoundaLibIconButtons.resetButton(this.width - 3 * (GuiUtil.PADDING + RoundaLibIconButtons.SIZE_M),
+            this.height - GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M, this.workingCopy
+        ));
 
-    this.addSelectableChild(RoundaLibIconButtons.discardButton(
-        this.width - 2 * (GuiUtil.PADDING + RoundaLibIconButtons.SIZE_M),
-        this.height - GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M,
-        this.configOption.getConfig().getModId(),
-        (button) -> this.discardAndExit()));
+    this.addDrawableChild(
+        RoundaLibIconButtons.discardButton(this.width - 2 * (GuiUtil.PADDING + RoundaLibIconButtons.SIZE_M),
+            this.height - GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M, this.configOption.getConfig().getModId(),
+            (button) -> this.discardAndExit()
+        ));
 
-    this.addSelectableChild(RoundaLibIconButtons.saveButton(
-        this.width - GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M,
-        this.height - GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M,
-        this.configOption.getConfig().getModId(),
-        (button) -> this.saveAndExit()));
+    this.addDrawableChild(RoundaLibIconButtons.saveButton(this.width - GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M,
+        this.height - GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M, this.configOption.getConfig().getModId(),
+        (button) -> this.saveAndExit()
+    ));
   }
 
   @Override
   public void close() {
+    this.workingCopy.clearValueChangeListeners(this.hashCode());
     if (this.client == null) {
       return;
     }
@@ -81,24 +82,26 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D, ?>> ext
   }
 
   @Override
-  public void render(DrawContext drawContext, int mouseX, int mouseY, float partialTicks) {
-    this.renderBackground(drawContext, mouseX, mouseY, partialTicks);
-    this.renderContent(drawContext, mouseX, mouseY, partialTicks);
-    this.renderHelp(drawContext, mouseX, mouseY, partialTicks);
+  public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    super.render(context, mouseX, mouseY, delta);
+    this.renderContent(context, mouseX, mouseY, delta);
+    this.renderHelp(context, mouseX, mouseY, delta);
   }
 
-  @Override
-  public void renderBackground(
-      DrawContext drawContext, int mouseX, int mouseY, float partialTicks) {
-    if (parent == null) {
-      this.renderTextureBackground(drawContext, mouseX, mouseY, partialTicks);
-    } else {
-      this.renderDarkenBackground(drawContext, mouseX, mouseY, partialTicks);
-    }
-  }
+  //  @Override
+  //  public void renderBackground(
+  //      DrawContext context, int mouseX, int mouseY, float delta
+  //  ) {
+  //    if (parent == null) {
+  //      this.renderTextureBackground(context, mouseX, mouseY, delta);
+  //    } else {
+  //      this.renderDarkenBackground(context, mouseX, mouseY, delta);
+  //    }
+  //  }
 
   protected void renderTextureBackground(
-      DrawContext drawContext, int mouseX, int mouseY, float partialTicks) {
+      DrawContext context, int mouseX, int mouseY, float delta
+  ) {
     Tessellator tessellator = Tessellator.getInstance();
     BufferBuilder bufferBuilder = tessellator.getBuffer();
     RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
@@ -107,17 +110,15 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D, ?>> ext
 
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
     bufferBuilder.vertex(0, height, 0).texture(0, height / 32f).color(64, 64, 64, 255).next();
-    bufferBuilder.vertex(width, height, 0)
-        .texture(width / 32f, height / 32f)
-        .color(64, 64, 64, 255)
-        .next();
+    bufferBuilder.vertex(width, height, 0).texture(width / 32f, height / 32f).color(64, 64, 64, 255).next();
     bufferBuilder.vertex(width, 0, 0).texture(width / 32f, 0).color(64, 64, 64, 255).next();
     bufferBuilder.vertex(0, 0, 0).texture(0, 0).color(64, 64, 64, 255).next();
     tessellator.draw();
   }
 
   protected void renderDarkenBackground(
-      DrawContext drawContext, int mouseX, int mouseY, float partialTicks) {
+      DrawContext context, int mouseX, int mouseY, float delta
+  ) {
     Tessellator tessellator = Tessellator.getInstance();
     BufferBuilder bufferBuilder = tessellator.getBuffer();
     RenderSystem.enableBlend();
@@ -139,63 +140,56 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D, ?>> ext
   }
 
   protected void renderContent(
-      DrawContext drawContext, int mouseX, int mouseY, float partialTicks) {
-    drawContext.drawCenteredTextWithShadow(textRenderer, title, width / 2, 17, GuiUtil.LABEL_COLOR);
-
-    this.children().forEach((child) -> {
-      if (child instanceof Drawable) {
-        ((Drawable) child).render(drawContext, mouseX, mouseY, partialTicks);
-      }
-    });
+      DrawContext context, int mouseX, int mouseY, float delta
+  ) {
+    context.drawCenteredTextWithShadow(textRenderer, title, width / 2, 17, GuiUtil.LABEL_COLOR);
   }
 
-  protected void renderHelp(DrawContext drawContext, int mouseX, int mouseY, float partialTicks) {
+  protected void renderHelp(DrawContext context, int mouseX, int mouseY, float delta) {
     if (hasShiftDown()) {
-      this.renderHelpExpanded(drawContext, mouseX, mouseY, partialTicks);
+      this.renderHelpExpanded(context, mouseX, mouseY, delta);
     } else {
-      this.renderHelpPrompt(drawContext, mouseX, mouseY, partialTicks);
+      this.renderHelpPrompt(context, mouseX, mouseY, delta);
     }
   }
 
   protected void renderHelpPrompt(
-      DrawContext drawContext, int mouseX, int mouseY, float partialTicks) {
-    this.renderHelpLines(drawContext, getHelpShort(mouseX, mouseY, partialTicks));
+      DrawContext context, int mouseX, int mouseY, float delta
+  ) {
+    this.renderHelpLines(context, getHelpShort(mouseX, mouseY, delta));
   }
 
   protected void renderHelpExpanded(
-      DrawContext drawContext, int mouseX, int mouseY, float partialTicks) {
-    this.renderHelpLines(drawContext, getHelpLong(mouseX, mouseY, partialTicks));
+      DrawContext context, int mouseX, int mouseY, float delta
+  ) {
+    this.renderHelpLines(context, getHelpLong(mouseX, mouseY, delta));
   }
 
-  private void renderHelpLines(DrawContext drawContext, List<Text> lines) {
-    this.renderHelpLines(drawContext, lines, false);
+  private void renderHelpLines(DrawContext context, List<Text> lines) {
+    this.renderHelpLines(context, lines, false);
   }
 
-  private void renderHelpLines(DrawContext drawContext, List<Text> lines, boolean offsetForIcon) {
-    int startingOffset =
-        height - 4 - textRenderer.fontHeight - (lines.size() - 1) * (textRenderer.fontHeight + 2);
+  private void renderHelpLines(DrawContext context, List<Text> lines, boolean offsetForIcon) {
+    int startingOffset = height - 4 - textRenderer.fontHeight - (lines.size() - 1) * (textRenderer.fontHeight + 2);
 
     for (int i = 0; i < lines.size(); i++) {
-      drawContext.drawTextWithShadow(textRenderer,
-          lines.get(i),
-          4,
-          startingOffset + i * (textRenderer.fontHeight + 2),
-          GuiUtil.LABEL_COLOR);
+      context.drawTextWithShadow(textRenderer, lines.get(i), 4, startingOffset + i * (textRenderer.fontHeight + 2),
+          GuiUtil.LABEL_COLOR
+      );
     }
   }
 
-  protected List<Text> getHelpShort(int mouseX, int mouseY, float partialTicks) {
+  protected List<Text> getHelpShort(int mouseX, int mouseY, float delta) {
     return List.of(Text.translatable(this.modId + ".roundalib.help.short"));
   }
 
-  protected List<Text> getHelpLong(int mouseX, int mouseY, float partialTicks) {
-    return List.of(Text.translatable(this.modId + ".roundalib.help.cancel"),
-        (MinecraftClient.IS_SYSTEM_MAC
-            ? Text.translatable(this.modId + ".roundalib.help.save.mac")
-            : Text.translatable(this.modId + ".roundalib.help.save.win")),
-        (MinecraftClient.IS_SYSTEM_MAC
-            ? Text.translatable(this.modId + ".roundalib.help.reset.mac")
-            : Text.translatable(this.modId + ".roundalib.help.reset.win")));
+  protected List<Text> getHelpLong(int mouseX, int mouseY, float delta) {
+    return List.of(
+        Text.translatable(this.modId + ".roundalib.help.cancel"), (MinecraftClient.IS_SYSTEM_MAC ?
+            Text.translatable(this.modId + ".roundalib.help.save.mac") :
+            Text.translatable(this.modId + ".roundalib.help.save.win")), (MinecraftClient.IS_SYSTEM_MAC ?
+            Text.translatable(this.modId + ".roundalib.help.reset.mac") :
+            Text.translatable(this.modId + ".roundalib.help.reset.win")));
   }
 
   protected void setValue(D value) {
@@ -225,5 +219,8 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D, ?>> ext
   protected void saveAndExit() {
     this.commitValueToConfig();
     this.close();
+  }
+
+  protected void onValueChanged(D prev, D curr) {
   }
 }

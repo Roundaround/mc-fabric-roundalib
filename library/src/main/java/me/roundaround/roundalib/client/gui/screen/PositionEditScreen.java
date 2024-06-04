@@ -6,7 +6,6 @@ import me.roundaround.roundalib.client.gui.RoundaLibIconButtons;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.config.option.PositionConfigOption;
 import me.roundaround.roundalib.config.value.Position;
-import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -45,24 +44,37 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
     int startX = this.width - GuiUtil.PADDING;
     int startY = this.height - GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M - GuiUtil.PADDING;
 
-    this.upButton = addSelectableChild(
+    this.upButton = this.addDrawableChild(
         RoundaLibIconButtons.upButton(startX - 2 * RoundaLibIconButtons.SIZE_M - GuiUtil.PADDING,
             startY - 3 * RoundaLibIconButtons.SIZE_M - 2 * GuiUtil.PADDING, this.modId, (button) -> this.moveUp()
         ));
 
-    this.leftButton = addSelectableChild(
+    this.leftButton = this.addDrawableChild(
         RoundaLibIconButtons.leftButton(startX - 3 * RoundaLibIconButtons.SIZE_M - 2 * GuiUtil.PADDING,
             startY - 2 * RoundaLibIconButtons.SIZE_M - GuiUtil.PADDING, this.modId, (button) -> this.moveLeft()
         ));
 
-    this.rightButton = addSelectableChild(RoundaLibIconButtons.rightButton(startX - RoundaLibIconButtons.SIZE_M,
+    this.rightButton = this.addDrawableChild(RoundaLibIconButtons.rightButton(startX - RoundaLibIconButtons.SIZE_M,
         startY - 2 * RoundaLibIconButtons.SIZE_M - GuiUtil.PADDING, this.modId, (button) -> this.moveRight()
     ));
 
-    this.downButton = addSelectableChild(
+    this.downButton = this.addDrawableChild(
         RoundaLibIconButtons.downButton(startX - 2 * RoundaLibIconButtons.SIZE_M - GuiUtil.PADDING,
             startY - RoundaLibIconButtons.SIZE_M, this.modId, (button) -> this.moveDown()
         ));
+
+    this.addDrawable((context, mouseX, mouseY, delta) -> {
+      RenderSystem.setShaderColor(1, 1, 1, 0.8f);
+      RenderSystem.enableBlend();
+
+      context.drawTexture(new Identifier(this.modId, "textures/roundalib.png"),
+          this.upButton.getX() + GuiUtil.PADDING / 2, leftButton.getY() + GuiUtil.PADDING / 2, CROSSHAIR_UV.x(),
+          CROSSHAIR_UV.y(), CROSSHAIR_SIZE, CROSSHAIR_SIZE
+      );
+
+      RenderSystem.setShaderColor(1, 1, 1, 1);
+      RenderSystem.disableBlend();
+    });
 
     super.init();
   }
@@ -98,24 +110,6 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
     full.add(Text.translatable(this.modId + ".roundalib.help.position.multi"));
     full.addAll(super.getHelpLong(mouseX, mouseY, partialTicks));
     return full;
-  }
-
-  @Override
-  protected void renderContent(
-      DrawContext drawContext, int mouseX, int mouseY, float partialTicks
-  ) {
-    super.renderContent(drawContext, mouseX, mouseY, partialTicks);
-
-    RenderSystem.setShaderColor(1, 1, 1, 0.4f);
-    RenderSystem.enableBlend();
-
-    drawContext.drawTexture(new Identifier(this.modId, "textures/roundalib.png"),
-        this.upButton.getX() + GuiUtil.PADDING / 2, leftButton.getY() + GuiUtil.PADDING / 2, CROSSHAIR_UV.x(),
-        CROSSHAIR_UV.y(), CROSSHAIR_SIZE, CROSSHAIR_SIZE
-    );
-
-    RenderSystem.setShaderColor(1, 1, 1, 1);
-    RenderSystem.disableBlend();
   }
 
   protected int getMoveAmount() {

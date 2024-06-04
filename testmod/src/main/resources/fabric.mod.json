@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "testmod",
-  "version": "1.0.0",
+  "id": "${modId}",
+  "version": "${version}",
   "name": "RoundaLib Testing Mod",
-  "description": "Test mod for RoundaLib",
+  "description": "Test mod for RoundaLib\n${library}",
   "authors": [
     "Roundaround"
   ],

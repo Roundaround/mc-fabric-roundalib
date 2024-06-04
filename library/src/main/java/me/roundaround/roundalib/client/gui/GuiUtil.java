@@ -13,6 +13,7 @@ import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Language;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.List;
@@ -70,32 +71,6 @@ public class GuiUtil {
     return client.getWindow().getScaleFactor();
   }
 
-  public static void renderInScissor(int x, int y, int width, int height, Runnable render) {
-    renderInScissor(CLIENT, x, y, width, height, render);
-  }
-
-  public static void renderInScissor(MinecraftClient client, int x, int y, int width, int height, Runnable render) {
-    Screen currentScreen = getCurrentScreen(client);
-    if (currentScreen == null) {
-      render.run();
-    }
-
-    int scissorLeft = x;
-    int scissorTop = client.getWindow().getHeight() - (y + height);
-    int scissorWidth = width;
-    int scissorHeight = height;
-
-    double scaleFactor = getScaleFactor(client);
-    scissorLeft = MathHelper.floor(scissorLeft * scaleFactor);
-    scissorTop = MathHelper.floor(scissorTop * scaleFactor);
-    scissorWidth = MathHelper.ceil(scissorWidth * scaleFactor);
-    scissorHeight = MathHelper.ceil(scissorHeight * scaleFactor);
-
-    RenderSystem.enableScissor(scissorLeft, scissorTop, scissorWidth, scissorHeight);
-    render.run();
-    RenderSystem.disableScissor();
-  }
-
   public static Screen getCurrentScreen() {
     return getCurrentScreen(CLIENT);
   }
@@ -122,31 +97,6 @@ public class GuiUtil {
 
   public static TextRenderer getTextRenderer() {
     return CLIENT.textRenderer;
-  }
-
-  public static void drawTruncatedCenteredTextWithShadow(
-      DrawContext context, TextRenderer textRenderer, Text text, int x, int y, int color, int maxWidth
-  ) {
-    StringVisitable trimmed = text;
-    if (textRenderer.getWidth(text) > maxWidth) {
-      StringVisitable ellipsis = StringVisitable.plain("...");
-
-      trimmed = StringVisitable.concat(
-          textRenderer.trimToWidth(text, maxWidth - textRenderer.getWidth(ellipsis)), ellipsis);
-    }
-
-    context.drawCenteredTextWithShadow(textRenderer, Language.getInstance().reorder(trimmed), x, y, color);
-  }
-
-  public static void drawWrappedCenteredTextWithShadow(
-      DrawContext context, TextRenderer textRenderer, Text text, int x, int y, int color, int maxWidth
-  ) {
-    List<OrderedText> lines = textRenderer.wrapLines(text, maxWidth);
-    int yCursor = y;
-    for (OrderedText line : lines) {
-      context.drawCenteredTextWithShadow(textRenderer, line, x, yCursor, color);
-      yCursor += textRenderer.fontHeight;
-    }
   }
 
   public static void drawText(
@@ -266,6 +216,41 @@ public class GuiUtil {
     drawText(context, textRenderer, text, x, y, color, shadow, alignment);
   }
 
+  public static void drawScrollingText(
+      DrawContext context,
+      TextRenderer textRenderer,
+      Text text,
+      int x,
+      int y,
+      int color,
+      boolean shadow,
+      int maxWidth,
+      int margin,
+      TextAlignment alignment
+  ) {
+    if (maxWidth <= 0) {
+      drawText(context, textRenderer, text, x, y, color, shadow, alignment);
+    }
+
+    int textWidth = textRenderer.getWidth(text);
+    if (textWidth < maxWidth) {
+      drawText(context, textRenderer, text, x, y, color, shadow, alignment);
+    }
+
+    int left = alignment.getLeft(x, maxWidth);
+
+    // Based largely on the scrolling text from ClickableWidget.
+    double X = (double) textWidth - maxWidth + 2 * margin;
+    double t = Util.getMeasuringTimeMs() / 1000.0;
+    double T = Math.max(X / 2, 3);
+    double c = Math.sin((Math.PI / 2) * Math.cos(2 * Math.PI * t / T)) / 2 + 0.5;
+    double dx = c * X;
+
+    context.enableScissor(left, y - textRenderer.fontHeight, left + maxWidth, y + 2 * textRenderer.fontHeight);
+    drawText(context, textRenderer, text, left - (int) dx + margin, y, color, shadow, TextAlignment.LEFT);
+    context.disableScissor();
+  }
+
   public static int genColorInt(float r, float g, float b) {
     return genColorInt(r, g, b, 1f);
   }
@@ -283,6 +268,14 @@ public class GuiUtil {
 
     public int getLeft(TextRenderer textRenderer, OrderedText text, int x) {
       int width = textRenderer.getWidth(text);
+      return switch (this) {
+        case LEFT -> x;
+        case CENTER -> x - width / 2;
+        case RIGHT -> x - width;
+      };
+    }
+
+    public int getLeft(int x, int width) {
       return switch (this) {
         case LEFT -> x;
         case CENTER -> x - width / 2;

@@ -6,7 +6,6 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
 import net.minecraft.text.Text;
-import net.minecraft.util.Language;
 import net.minecraft.util.math.MathHelper;
 
 public class LabelElement implements Drawable, Element {
@@ -17,6 +16,7 @@ public class LabelElement implements Drawable, Element {
   private int maxWidth;
   private final int maxLines;
   private final OverflowBehavior overflowBehavior;
+  private final int scrollMargin;
   private final Alignment alignmentH;
   private final Alignment alignmentV;
   private final boolean showBackground;
@@ -30,7 +30,7 @@ public class LabelElement implements Drawable, Element {
   private float right;
   private float top;
   private float bottom;
-  private boolean layoutDirty = false;
+  private boolean layoutDirty = true;
 
   private LabelElement(
       MinecraftClient client,
@@ -42,6 +42,7 @@ public class LabelElement implements Drawable, Element {
       int maxWidth,
       int maxLines,
       OverflowBehavior overflowBehavior,
+      int scrollMargin,
       Alignment alignmentH,
       Alignment alignmentV,
       boolean showBackground,
@@ -55,6 +56,7 @@ public class LabelElement implements Drawable, Element {
     this.maxWidth = maxWidth;
     this.maxLines = maxLines;
     this.overflowBehavior = overflowBehavior;
+    this.scrollMargin = scrollMargin;
     this.alignmentH = alignmentH;
     this.alignmentV = alignmentV;
     this.showBackground = showBackground;
@@ -87,6 +89,19 @@ public class LabelElement implements Drawable, Element {
       case WRAP -> GuiUtil.drawWrappedText(context, this.textRenderer, this.text, this.x, Math.round(this.getTop() + 1),
           this.color, this.showTextShadow, this.maxWidth, this.maxLines, this.alignmentH.asTextAlignment()
       );
+      case CLIP -> {
+        context.enableScissor(MathHelper.floor(this.getLeft()), MathHelper.floor(this.getTop()),
+            MathHelper.ceil(this.getRight()), MathHelper.ceil(this.getBottom())
+        );
+        GuiUtil.drawText(context, this.textRenderer, this.text, this.x, Math.round(this.getTop() + 1), this.color,
+            this.showTextShadow, this.alignmentH.asTextAlignment()
+        );
+        context.disableScissor();
+      }
+      case SCROLL ->
+          GuiUtil.drawScrollingText(context, this.textRenderer, this.text, this.x, Math.round(this.getTop() + 1),
+              this.color, this.showTextShadow, this.maxWidth, this.scrollMargin, this.alignmentH.asTextAlignment()
+          );
     }
   }
 
@@ -261,6 +276,7 @@ public class LabelElement implements Drawable, Element {
     private int maxWidth = 0;
     private int maxLines = 0;
     private OverflowBehavior overflowBehavior = OverflowBehavior.SHOW;
+    private int scrollMargin = 2;
     private Alignment alignmentH = Alignment.START;
     private Alignment alignmentV = Alignment.CENTER;
     private boolean showBackground = true;
@@ -315,6 +331,11 @@ public class LabelElement implements Drawable, Element {
       return this;
     }
 
+    public Builder scrollMargin(int scrollMargin) {
+      this.scrollMargin = scrollMargin;
+      return this;
+    }
+
     public Builder justifiedLeft() {
       this.alignmentH = Alignment.START;
       return this;
@@ -362,8 +383,8 @@ public class LabelElement implements Drawable, Element {
 
     public LabelElement build() {
       return new LabelElement(this.client, this.text, this.x, this.y, this.color, this.bgColor, this.maxWidth,
-          this.maxLines, this.overflowBehavior, this.alignmentH, this.alignmentV, this.showBackground,
-          this.showTextShadow, this.shiftForPadding
+          this.maxLines, this.overflowBehavior, this.scrollMargin, this.alignmentH, this.alignmentV,
+          this.showBackground, this.showTextShadow, this.shiftForPadding
       );
     }
   }
@@ -399,6 +420,6 @@ public class LabelElement implements Drawable, Element {
   }
 
   public enum OverflowBehavior {
-    SHOW, TRUNCATE, WRAP;
+    SHOW, TRUNCATE, WRAP, CLIP, SCROLL;
   }
 }
