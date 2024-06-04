@@ -145,7 +145,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     MatrixStack matrices = drawContext.getMatrices();
     matrices.push();
     matrices.translate(0, -(int) this.getScrollAmount(), 0);
-    entry.renderPositional(drawContext, mouseX, mouseY + (int) this.getScrollAmount(), delta);
+    entry.render(drawContext, mouseX, mouseY + (int) this.getScrollAmount(), delta);
     matrices.pop();
   }
 
