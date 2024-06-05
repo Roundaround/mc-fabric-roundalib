@@ -100,17 +100,17 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   @Override
-  public void renderWidget(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+  public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
     this.hoveredEntry = this.isMouseOver(mouseX, mouseY) ? this.getEntryAtPosition(mouseX, mouseY) : null;
 
-    this.renderListBackground(drawContext);
+    this.renderListBackground(context);
 
-    drawContext.enableScissor(this.getX(), this.getY(), this.getRight(), this.getBottom());
-    this.renderList(drawContext, mouseX, mouseY, delta);
-    this.renderScrollBar(drawContext, mouseX, mouseY, delta);
-    drawContext.disableScissor();
+    context.enableScissor(this.getX(), this.getY(), this.getRight(), this.getBottom());
+    this.renderList(context, mouseX, mouseY, delta);
+    context.disableScissor();
 
-    this.renderListBorders(drawContext);
+    this.renderScrollBar(context);
+    this.renderListBorders(context);
   }
 
   protected void renderListBackground(DrawContext drawContext) {
@@ -118,7 +118,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     Identifier identifier =
         this.client.world == null ? MENU_LIST_BACKGROUND_TEXTURE : INWORLD_MENU_LIST_BACKGROUND_TEXTURE;
     drawContext.drawTexture(identifier, this.getX(), this.getY(), (float) this.getRight(),
-        (float) (this.getBottom() + (int) this.getScrollAmount()), this.getWidth(), this.getHeight(), 32, 32
+        this.getBottom() + (float) this.getScrollAmount(), this.getWidth(), this.getHeight(), 32, 32
     );
     RenderSystem.disableBlend();
   }
@@ -149,35 +149,35 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     matrices.pop();
   }
 
-  protected void renderScrollBar(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+  protected void renderListBorders(DrawContext context) {
+    Identifier headerSepTex =
+        this.client.world == null ? Screen.HEADER_SEPARATOR_TEXTURE : Screen.INWORLD_HEADER_SEPARATOR_TEXTURE;
+    Identifier footerSepTex =
+        this.client.world == null ? Screen.FOOTER_SEPARATOR_TEXTURE : Screen.INWORLD_FOOTER_SEPARATOR_TEXTURE;
+    RenderSystem.enableBlend();
+    context.drawTexture(headerSepTex, this.getX(), this.getY() - 2, 0, 0, this.getWidth(), 2, 32, 2);
+    context.drawTexture(footerSepTex, this.getX(), this.getBottom(), 0, 0, this.getWidth(), 2, 32, 2);
+    RenderSystem.disableBlend();
+  }
+
+  protected void renderScrollBar(DrawContext context) {
     if (!this.isScrollbarVisible()) {
       return;
     }
 
     int top = this.getY();
     int height = this.getHeight();
+    int contentHeight = this.getContentHeight();
+    double scrollAmount = this.getScrollAmount();
+    int maxScroll = this.getMaxScroll();
     int scrollbarLeft = this.getScrollbarPositionX();
 
-    int handleHeight = (int) ((float) height * height / this.getContentHeight());
-    handleHeight = MathHelper.clamp(handleHeight, 32, height - 8);
-
-    int handleTop = (int) this.getScrollAmount() * (height - handleHeight) / this.getMaxScroll() + top;
-    handleTop = Math.max(handleTop, top);
+    int handleHeight = MathHelper.clamp(Math.round((float) height * height / contentHeight), 32, height - 8);
+    int handleTop = top + (int) Math.round(scrollAmount * (height - handleHeight) / maxScroll);
 
     RenderSystem.enableBlend();
-    drawContext.drawGuiTexture(SCROLLER_BACKGROUND_TEXTURE, scrollbarLeft, top, GuiUtil.SCROLLBAR_WIDTH, height);
-    drawContext.drawGuiTexture(SCROLLER_TEXTURE, scrollbarLeft, handleTop, GuiUtil.SCROLLBAR_WIDTH, handleHeight);
-    RenderSystem.disableBlend();
-  }
-
-  protected void renderListBorders(DrawContext drawContext) {
-    Identifier headerSepTex =
-        this.client.world == null ? Screen.HEADER_SEPARATOR_TEXTURE : Screen.INWORLD_HEADER_SEPARATOR_TEXTURE;
-    Identifier footerSepTex =
-        this.client.world == null ? Screen.FOOTER_SEPARATOR_TEXTURE : Screen.INWORLD_FOOTER_SEPARATOR_TEXTURE;
-    RenderSystem.enableBlend();
-    drawContext.drawTexture(headerSepTex, this.getX(), this.getY() - 2, 0.0F, 0.0F, this.getWidth(), 2, 32, 2);
-    drawContext.drawTexture(footerSepTex, this.getX(), this.getBottom(), 0.0F, 0.0F, this.getWidth(), 2, 32, 2);
+    context.drawGuiTexture(SCROLLER_BACKGROUND_TEXTURE, scrollbarLeft, top, GuiUtil.SCROLLBAR_WIDTH, height);
+    context.drawGuiTexture(SCROLLER_TEXTURE, scrollbarLeft, handleTop, GuiUtil.SCROLLBAR_WIDTH, handleHeight);
     RenderSystem.disableBlend();
   }
 
@@ -384,6 +384,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       return true;
     }
 
+    // TODO: Clean up
     if (button == 0 && this.scrolling) {
       if (mouseY < this.getY()) {
         this.setScrollAmount(0);
