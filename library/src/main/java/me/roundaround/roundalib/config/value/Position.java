@@ -17,6 +17,15 @@ public record Position(int x, int y) {
     return new Position(x() + amount, y());
   }
 
+  public Position moved(Direction direction, int amount) {
+    return switch (direction) {
+      case LEFT -> this.movedLeft(amount);
+      case UP -> this.movedUp(amount);
+      case RIGHT -> this.movedRight(amount);
+      case DOWN -> this.movedDown(amount);
+    };
+  }
+
   @Override
   public String toString() {
     return serialize(this);
@@ -31,5 +40,9 @@ public record Position(int x, int y) {
 
   public static String serialize(Position value) {
     return String.format("(%d,%d)", value.x(), value.y());
+  }
+
+  public enum Direction {
+    LEFT, UP, RIGHT, DOWN;
   }
 }

@@ -18,8 +18,6 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
   protected static final Position CROSSHAIR_UV = new Position(0, 247);
   protected static final int CROSSHAIR_SIZE = 9;
 
-  private boolean inverseX = false;
-  private boolean inverseY = false;
   private IconButtonWidget upButton;
   private IconButtonWidget leftButton;
   private IconButtonWidget rightButton;
@@ -28,15 +26,7 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
   protected PositionEditScreen(
       Text title, Screen parent, PositionConfigOption configOption
   ) {
-    this(title, parent, configOption, false, false);
-  }
-
-  protected PositionEditScreen(
-      Text title, Screen parent, PositionConfigOption configOption, boolean invertX, boolean invertY
-  ) {
     super(title, parent, configOption);
-    this.inverseX = invertX;
-    this.inverseY = invertY;
   }
 
   @Override
@@ -81,26 +71,20 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
 
   @Override
   public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-    switch (keyCode) {
-      case GLFW.GLFW_KEY_UP -> {
-        moveUp();
-        return true;
-      }
-      case GLFW.GLFW_KEY_DOWN -> {
-        moveDown();
-        return true;
-      }
-      case GLFW.GLFW_KEY_LEFT -> {
-        moveLeft();
-        return true;
-      }
-      case GLFW.GLFW_KEY_RIGHT -> {
-        moveRight();
-        return true;
-      }
+    Position.Direction direction = switch (keyCode) {
+      case GLFW.GLFW_KEY_UP -> Position.Direction.UP;
+      case GLFW.GLFW_KEY_DOWN -> Position.Direction.DOWN;
+      case GLFW.GLFW_KEY_LEFT -> Position.Direction.LEFT;
+      case GLFW.GLFW_KEY_RIGHT -> Position.Direction.RIGHT;
+      default -> null;
+    };
+
+    if (direction == null) {
+      return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
-    return super.keyPressed(keyCode, scanCode, modifiers);
+    this.move(direction);
+    return true;
   }
 
   @Override
@@ -112,23 +96,27 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
     return full;
   }
 
-  protected int getMoveAmount() {
-    return hasShiftDown() ? 8 : 1;
+  protected int getMoveAmount(Position.Direction direction, boolean largeStep) {
+    return largeStep ? 8 : 1;
+  }
+
+  protected void move(Position.Direction direction) {
+    this.setValue(this.getValue().moved(direction, this.getMoveAmount(direction, hasShiftDown())));
   }
 
   protected void moveUp() {
-    this.setValue(this.getValue().movedUp(this.getMoveAmount() * (this.inverseY ? -1 : 1)));
+    this.move(Position.Direction.UP);
   }
 
   protected void moveDown() {
-    this.setValue(this.getValue().movedDown(this.getMoveAmount() * (this.inverseY ? -1 : 1)));
+    this.move(Position.Direction.DOWN);
   }
 
   protected void moveLeft() {
-    this.setValue(this.getValue().movedLeft(this.getMoveAmount() * (this.inverseX ? -1 : 1)));
+    this.move(Position.Direction.LEFT);
   }
 
   protected void moveRight() {
-    this.setValue(this.getValue().movedRight(this.getMoveAmount() * (this.inverseX ? -1 : 1)));
+    this.move(Position.Direction.RIGHT);
   }
 }
