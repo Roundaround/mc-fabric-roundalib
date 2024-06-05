@@ -1,12 +1,11 @@
 package me.roundaround.roundalib.config.option;
 
+import net.minecraft.text.Text;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-
-import me.roundaround.roundalib.config.ModConfig;
-import net.minecraft.text.Text;
 
 public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Builder> {
   private Optional<Float> minValue = Optional.empty();
@@ -91,20 +90,20 @@ public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Bui
     return new FloatConfigOption(this);
   }
 
-  public static Builder builder(ModConfig config, String id, String labelI18nKey) {
-    return new Builder(config, id, labelI18nKey);
+  public static Builder builder(String modId, String id, String labelI18nKey) {
+    return new Builder(modId, id, labelI18nKey);
   }
 
-  public static Builder builder(ModConfig config, String id, Text label) {
-    return new Builder(config, id, label);
+  public static Builder builder(String modId, String id, Text label) {
+    return new Builder(modId, id, label);
   }
 
-  public static Builder sliderBuilder(ModConfig config, String id, String labelI18nKey) {
-    return builder(config, id, labelI18nKey).setUseSlider(true);
+  public static Builder sliderBuilder(String modId, String id, String labelI18nKey) {
+    return builder(modId, id, labelI18nKey).setUseSlider(true);
   }
 
-  public static Builder sliderBuilder(ModConfig config, String id, Text label) {
-    return builder(config, id, label).setUseSlider(true);
+  public static Builder sliderBuilder(String modId, String id, Text label) {
+    return builder(modId, id, label).setUseSlider(true);
   }
 
   public static class Builder extends ConfigOption.AbstractBuilder<Float, Builder> {
@@ -115,12 +114,12 @@ public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Bui
     private Optional<Integer> step = Optional.of(20);
     private Function<Float, String> valueDisplayFunction = (Float value) -> String.format("%.2f", value);
 
-    private Builder(ModConfig config, String id, String labelI18nKey) {
-      super(config, id, labelI18nKey, 0f);
+    private Builder(String modId, String id, String labelI18nKey) {
+      super(modId, id, labelI18nKey, 0f);
     }
 
-    private Builder(ModConfig config, String id, Text label) {
-      super(config, id, label, 0f);
+    private Builder(String modId, String id, Text label) {
+      super(modId, id, label, 0f);
     }
 
     public Builder setDefaultValue(float defaultValue) {

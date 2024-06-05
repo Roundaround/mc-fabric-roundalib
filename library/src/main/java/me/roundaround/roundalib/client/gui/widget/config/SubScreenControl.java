@@ -28,7 +28,7 @@ public class SubScreenControl<D, O extends ConfigOption<D, ?>> extends Control<D
     this.subScreenFactory = subScreenFactory;
 
     this.button = ButtonWidget.builder(
-        Text.translatable(option.getConfig().getModId() + ".roundalib.subscreen.label"),
+        Text.translatable(option.getModId() + ".roundalib.subscreen.label"),
         (button) -> GuiUtil.setScreen(this.subScreenFactory.create(client.currentScreen, this.option))
     ).position(this.getWidgetLeft(), this.getWidgetTop()).size(this.getWidgetWidth(), this.getWidgetHeight()).build();
 

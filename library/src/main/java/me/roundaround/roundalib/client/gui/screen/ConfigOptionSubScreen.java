@@ -1,6 +1,5 @@
 package me.roundaround.roundalib.client.gui.screen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.LabelElement;
 import me.roundaround.roundalib.client.gui.RoundaLibIconButtons;
@@ -8,8 +7,6 @@ import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
-import net.minecraft.client.render.*;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
@@ -27,7 +24,7 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D, ?>> ext
     this.parent = parent;
     this.configOption = configOption;
     this.workingCopy = (O) configOption.createWorkingCopy();
-    this.modId = configOption.getConfig().getModId();
+    this.modId = configOption.getModId();
 
     this.workingCopy.subscribeToValueChanges(this.hashCode(), this::onValueChanged);
   }
@@ -43,12 +40,12 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D, ?>> ext
 
     this.addDrawableChild(
         RoundaLibIconButtons.discardButton(this.width - 2 * (GuiUtil.PADDING + RoundaLibIconButtons.SIZE_M),
-            this.height - GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M, this.configOption.getConfig().getModId(),
+            this.height - GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M, this.configOption.getModId(),
             (button) -> this.discardAndExit()
         ));
 
     this.addDrawableChild(RoundaLibIconButtons.saveButton(this.width - GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M,
-        this.height - GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M, this.configOption.getConfig().getModId(),
+        this.height - GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M, this.configOption.getModId(),
         (button) -> this.saveAndExit()
     ));
   }

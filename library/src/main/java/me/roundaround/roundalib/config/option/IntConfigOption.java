@@ -1,13 +1,12 @@
 package me.roundaround.roundalib.config.option;
 
+import net.minecraft.text.Text;
+import net.minecraft.util.math.MathHelper;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-
-import me.roundaround.roundalib.config.ModConfig;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.MathHelper;
 
 public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Builder> {
   private Optional<Integer> minValue = Optional.empty();
@@ -100,9 +99,9 @@ public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Build
       return false;
     }
 
-    int newValue = MathHelper.clamp(getValue() + this.step.get() * mult,
-        this.minValue.orElse(Integer.MIN_VALUE),
-        this.maxValue.orElse(Integer.MAX_VALUE));
+    int newValue = MathHelper.clamp(getValue() + this.step.get() * mult, this.minValue.orElse(Integer.MIN_VALUE),
+        this.maxValue.orElse(Integer.MAX_VALUE)
+    );
 
     if (newValue == getValue()) {
       return false;
@@ -131,20 +130,20 @@ public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Build
     return new IntConfigOption(this);
   }
 
-  public static Builder builder(ModConfig config, String id, String labelI18nKey) {
-    return new Builder(config, id, labelI18nKey);
+  public static Builder builder(String modId, String id, String labelI18nKey) {
+    return new Builder(modId, id, labelI18nKey);
   }
 
-  public static Builder builder(ModConfig config, String id, Text label) {
-    return new Builder(config, id, label);
+  public static Builder builder(String modId, String id, Text label) {
+    return new Builder(modId, id, label);
   }
 
-  public static Builder sliderBuilder(ModConfig config, String id, String labelI18nKey) {
-    return builder(config, id, labelI18nKey).setUseSlider(true);
+  public static Builder sliderBuilder(String modId, String id, String labelI18nKey) {
+    return builder(modId, id, labelI18nKey).setUseSlider(true);
   }
 
-  public static Builder sliderBuilder(ModConfig config, String id, Text label) {
-    return builder(config, id, label).setUseSlider(true);
+  public static Builder sliderBuilder(String modId, String id, Text label) {
+    return builder(modId, id, label).setUseSlider(true);
   }
 
   public static class Builder extends ConfigOption.AbstractBuilder<Integer, Builder> {
@@ -155,12 +154,12 @@ public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Build
     private boolean slider = false;
     private Function<Integer, String> valueDisplayFunction = (Integer value) -> value.toString();
 
-    private Builder(ModConfig config, String id, String labelI18nKey) {
-      super(config, id, labelI18nKey, 0);
+    private Builder(String modId, String id, String labelI18nKey) {
+      super(modId, id, labelI18nKey, 0);
     }
 
-    private Builder(ModConfig config, String id, Text label) {
-      super(config, id, label, 0);
+    private Builder(String modId, String id, Text label) {
+      super(modId, id, label, 0);
     }
 
     public Builder setDefaultValue(int defaultValue) {

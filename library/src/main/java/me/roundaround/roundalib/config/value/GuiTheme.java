@@ -2,12 +2,8 @@ package me.roundaround.roundalib.config.value;
 
 import java.util.Arrays;
 
-import me.roundaround.roundalib.config.ModConfig;
-
 public enum GuiTheme implements ListOptionValue<GuiTheme> {
-  LIGHT("light"),
-  DARK("dark"),
-  AUTO("auto");
+  LIGHT("light"), DARK("dark"), AUTO("auto");
 
   private final String id;
 
@@ -21,8 +17,8 @@ public enum GuiTheme implements ListOptionValue<GuiTheme> {
   }
 
   @Override
-  public String getI18nKey(ModConfig config) {
-    return config.getModId() + ".roundalib.gui_theme." + this.id;
+  public String getI18nKey(String modId) {
+    return modId + ".roundalib.gui_theme." + this.id;
   }
 
   @Override

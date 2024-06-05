@@ -2,13 +2,9 @@ package me.roundaround.roundalib.config.value;
 
 import java.util.Arrays;
 
-import me.roundaround.roundalib.config.ModConfig;
-
 public enum GameMode implements ListOptionValue<GameMode> {
-  SURVIVAL(net.minecraft.world.GameMode.SURVIVAL),
-  CREATIVE(net.minecraft.world.GameMode.CREATIVE),
-  ADVENTURE(net.minecraft.world.GameMode.ADVENTURE),
-  SPECTATOR(net.minecraft.world.GameMode.SPECTATOR);
+  SURVIVAL(net.minecraft.world.GameMode.SURVIVAL), CREATIVE(net.minecraft.world.GameMode.CREATIVE), ADVENTURE(
+      net.minecraft.world.GameMode.ADVENTURE), SPECTATOR(net.minecraft.world.GameMode.SPECTATOR);
 
   private final String id;
   private final net.minecraft.world.GameMode vanillaGameMode;
@@ -24,16 +20,13 @@ public enum GameMode implements ListOptionValue<GameMode> {
   }
 
   @Override
-  public String getI18nKey(ModConfig config) {
+  public String getI18nKey(String modId) {
     return "selectWorld.gameMode." + id;
   }
 
   @Override
   public GameMode getFromId(String id) {
-    return Arrays.stream(GameMode.values())
-        .filter(gamemode -> gamemode.id.equals(id))
-        .findFirst()
-        .orElse(getDefault());
+    return Arrays.stream(GameMode.values()).filter(gamemode -> gamemode.id.equals(id)).findFirst().orElse(getDefault());
   }
 
   @Override

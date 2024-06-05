@@ -1,20 +1,15 @@
 package me.roundaround.roundalib.config.value;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.config.ModConfig;
 
 import java.util.Arrays;
 
 public enum GuiAlignmentWithCenter implements ListOptionValue<GuiAlignmentWithCenter> {
-  TOP_LEFT(AlignmentY.TOP, AlignmentX.LEFT),
-  TOP_CENTER(AlignmentY.TOP, AlignmentX.CENTER),
-  TOP_RIGHT(AlignmentY.TOP, AlignmentX.RIGHT),
-  MIDDLE_LEFT(AlignmentY.MIDDLE, AlignmentX.LEFT),
-  MIDDLE_CENTER(AlignmentY.MIDDLE, AlignmentX.CENTER),
-  MIDDLE_RIGHT(AlignmentY.MIDDLE, AlignmentX.RIGHT),
-  BOTTOM_LEFT(AlignmentY.BOTTOM, AlignmentX.LEFT),
-  BOTTOM_CENTER(AlignmentY.BOTTOM, AlignmentX.CENTER),
-  BOTTOM_RIGHT(AlignmentY.BOTTOM, AlignmentX.RIGHT);
+  TOP_LEFT(AlignmentY.TOP, AlignmentX.LEFT), TOP_CENTER(AlignmentY.TOP, AlignmentX.CENTER), TOP_RIGHT(
+      AlignmentY.TOP, AlignmentX.RIGHT), MIDDLE_LEFT(AlignmentY.MIDDLE, AlignmentX.LEFT), MIDDLE_CENTER(
+      AlignmentY.MIDDLE, AlignmentX.CENTER), MIDDLE_RIGHT(AlignmentY.MIDDLE, AlignmentX.RIGHT), BOTTOM_LEFT(
+      AlignmentY.BOTTOM, AlignmentX.LEFT), BOTTOM_CENTER(AlignmentY.BOTTOM, AlignmentX.CENTER), BOTTOM_RIGHT(
+      AlignmentY.BOTTOM, AlignmentX.RIGHT);
 
   private final AlignmentX alignmentX;
   private final AlignmentY alignmentY;
@@ -32,8 +27,8 @@ public enum GuiAlignmentWithCenter implements ListOptionValue<GuiAlignmentWithCe
   }
 
   @Override
-  public String getI18nKey(ModConfig config) {
-    return config.getModId() + ".roundalib.gui_alignment." + this.id;
+  public String getI18nKey(String modId) {
+    return modId + ".roundalib.gui_alignment." + this.id;
   }
 
   @Override
@@ -103,9 +98,7 @@ public enum GuiAlignmentWithCenter implements ListOptionValue<GuiAlignmentWithCe
   }
 
   public enum AlignmentX {
-    LEFT("left"),
-    CENTER("center"),
-    RIGHT("right");
+    LEFT("left"), CENTER("center"), RIGHT("right");
 
     private final String value;
 
@@ -136,9 +129,7 @@ public enum GuiAlignmentWithCenter implements ListOptionValue<GuiAlignmentWithCe
   }
 
   public enum AlignmentY {
-    TOP("top"),
-    MIDDLE("middle"),
-    BOTTOM("bottom");
+    TOP("top"), MIDDLE("middle"), BOTTOM("bottom");
 
     private final String value;
 

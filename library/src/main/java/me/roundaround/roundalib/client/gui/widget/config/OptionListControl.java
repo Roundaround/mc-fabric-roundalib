@@ -18,7 +18,7 @@ public class OptionListControl<S extends ListOptionValue<S>> extends Control<S, 
   ) {
     super(client, option, left, top, width, height);
 
-    this.button = new CyclingButtonWidget.Builder<S>((value) -> value.getDisplayText(option.getConfig())).values(
+    this.button = new CyclingButtonWidget.Builder<S>((value) -> value.getDisplayText(option.getModId())).values(
             option.getValues())
         .initially(option.getValue())
         .omitKeyText()

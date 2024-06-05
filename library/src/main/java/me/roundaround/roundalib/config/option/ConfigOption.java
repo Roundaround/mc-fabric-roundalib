@@ -1,6 +1,5 @@
 package me.roundaround.roundalib.config.option;
 
-import me.roundaround.roundalib.config.ModConfig;
 import net.minecraft.text.Text;
 
 import java.util.*;
@@ -8,7 +7,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, B>> {
-  private final ModConfig config;
+  private final String modId;
   private final String id;
   private final Text label;
   private final boolean showInConfigScreen;
@@ -23,7 +22,7 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
   private D lastSavedValue;
 
   protected ConfigOption(B builder) {
-    this.config = builder.config;
+    this.modId = builder.modId;
     this.id = builder.id;
     this.label = builder.label;
     this.defaultValue = builder.defaultValue;
@@ -34,12 +33,11 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
     this.dependencies = builder.dependencies;
     this.value = defaultValue;
 
-    this.dependencies.forEach(dependency -> dependency.valueChangeListeners.add(null,
-        this::dependencyChanged));
+    this.dependencies.forEach(dependency -> dependency.valueChangeListeners.add(null, this::dependencyChanged));
   }
 
   protected ConfigOption(ConfigOption<D, B> other) {
-    this.config = other.config;
+    this.modId = other.modId;
     this.id = other.id;
     this.label = other.label;
     this.defaultValue = other.defaultValue;
@@ -52,8 +50,8 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
     this.lastSavedValue = other.lastSavedValue;
   }
 
-  public ModConfig getConfig() {
-    return this.config;
+  public String getModId() {
+    return this.modId;
   }
 
   public String getId() {
@@ -142,7 +140,7 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
   }
 
   public static abstract class AbstractBuilder<D, B extends AbstractBuilder<D, B>> {
-    protected final ModConfig config;
+    protected final String modId;
     protected final String id;
     protected final Text label;
     protected D defaultValue;
@@ -152,12 +150,12 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
     protected Supplier<Boolean> disabledSupplier = () -> false;
     protected List<ConfigOption<?, ?>> dependencies = List.of();
 
-    protected AbstractBuilder(ModConfig config, String id, String labelI18nKey, D defaultValue) {
-      this(config, id, Text.translatable(labelI18nKey), defaultValue);
+    protected AbstractBuilder(String modId, String id, String labelI18nKey, D defaultValue) {
+      this(modId, id, Text.translatable(labelI18nKey), defaultValue);
     }
 
-    protected AbstractBuilder(ModConfig config, String id, Text label, D defaultValue) {
-      this.config = config;
+    protected AbstractBuilder(String modId, String id, Text label, D defaultValue) {
+      this.modId = modId;
       this.id = id;
       this.label = label;
       this.defaultValue = defaultValue;

@@ -1,6 +1,5 @@
 package me.roundaround.roundalib.config.option;
 
-import me.roundaround.roundalib.config.ModConfig;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 
@@ -42,46 +41,40 @@ public class BooleanConfigOption extends ConfigOption<Boolean, BooleanConfigOpti
     return new BooleanConfigOption(this);
   }
 
-  public static Builder builder(ModConfig config, String id, String labelI18nKey) {
-    return new Builder(config, id, labelI18nKey);
+  public static Builder builder(String modId, String id, String labelI18nKey) {
+    return new Builder(modId, id, labelI18nKey);
   }
 
-  public static Builder builder(ModConfig config, String id, Text label) {
-    return new Builder(config, id, label);
+  public static Builder builder(String modId, String id, Text label) {
+    return new Builder(modId, id, label);
   }
 
-  public static Builder onOffBuilder(ModConfig config, String id, String labelI18nKey) {
-    return new Builder(config, id, labelI18nKey).setEnabledLabel(ScreenTexts.ON)
-        .setDisabledLabel(ScreenTexts.OFF);
+  public static Builder onOffBuilder(String modId, String id, String labelI18nKey) {
+    return new Builder(modId, id, labelI18nKey).setEnabledLabel(ScreenTexts.ON).setDisabledLabel(ScreenTexts.OFF);
   }
 
-  public static Builder onOffBuilder(ModConfig config, String id, Text label) {
-    return new Builder(config, id, label).setEnabledLabel(ScreenTexts.ON)
-        .setDisabledLabel(ScreenTexts.OFF);
+  public static Builder onOffBuilder(String modId, String id, Text label) {
+    return new Builder(modId, id, label).setEnabledLabel(ScreenTexts.ON).setDisabledLabel(ScreenTexts.OFF);
   }
 
-  public static Builder yesNoBuilder(ModConfig config, String id, String labelI18nKey) {
-    return new Builder(config, id, labelI18nKey).setEnabledLabel(ScreenTexts.YES)
-        .setDisabledLabel(ScreenTexts.NO);
+  public static Builder yesNoBuilder(String modId, String id, String labelI18nKey) {
+    return new Builder(modId, id, labelI18nKey).setEnabledLabel(ScreenTexts.YES).setDisabledLabel(ScreenTexts.NO);
   }
 
-  public static Builder yesNoBuilder(ModConfig config, String id, Text label) {
-    return new Builder(config, id, label).setEnabledLabel(ScreenTexts.YES)
-        .setDisabledLabel(ScreenTexts.NO);
+  public static Builder yesNoBuilder(String modId, String id, Text label) {
+    return new Builder(modId, id, label).setEnabledLabel(ScreenTexts.YES).setDisabledLabel(ScreenTexts.NO);
   }
 
   public static class Builder extends ConfigOption.AbstractBuilder<Boolean, Builder> {
-    private Text enabledLabel =
-        Text.translatable(this.config.getModId() + ".roundalib.toggle.enabled");
-    private Text disabledLabel =
-        Text.translatable(this.config.getModId() + ".roundalib.toggle.disabled");
+    private Text enabledLabel = Text.translatable(this.modId + ".roundalib.toggle.enabled");
+    private Text disabledLabel = Text.translatable(this.modId + ".roundalib.toggle.disabled");
 
-    private Builder(ModConfig config, String id, String labelI18nKey) {
-      super(config, id, labelI18nKey, true);
+    private Builder(String modId, String id, String labelI18nKey) {
+      super(modId, id, labelI18nKey, true);
     }
 
-    private Builder(ModConfig config, String id, Text label) {
-      super(config, id, label, true);
+    private Builder(String modId, String id, Text label) {
+      super(modId, id, label, true);
     }
 
     public Builder setDefaultValue(Boolean defaultValue) {
