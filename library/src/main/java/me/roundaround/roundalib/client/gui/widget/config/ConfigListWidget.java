@@ -80,8 +80,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
       this.label = LabelElement.builder(textRenderer, label, this.getContentCenterX(), this.getContentCenterY())
           .justifiedCenter()
           .alignedMiddle()
-          .shiftForPadding()
-          .showTextShadow()
+          .showShadow()
           .hideBackground()
           .build();
 
@@ -125,8 +124,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
               client.textRenderer, option.getLabel(), this.getContentLeft(), this.getContentCenterY())
           .justifiedLeft()
           .alignedMiddle()
-          .shiftForPadding()
-          .showTextShadow()
+          .showShadow()
           .hideBackground()
           .build();
 

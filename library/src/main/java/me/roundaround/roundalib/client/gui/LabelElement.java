@@ -1,117 +1,118 @@
 package me.roundaround.roundalib.client.gui;
 
+import me.roundaround.roundalib.client.gui.layout.FloatRect;
+import me.roundaround.roundalib.client.gui.layout.IntRect;
+import me.roundaround.roundalib.client.gui.layout.Spacing;
+import me.roundaround.roundalib.client.gui.layout.TextAlignment;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.MathHelper;
 
 public class LabelElement implements Drawable, Element {
   private final TextRenderer textRenderer;
-  private final int maxLines;
+  private final TextAlignment alignmentH;
+  private final TextAlignment alignmentV;
+  private final Spacing padding;
   private final OverflowBehavior overflowBehavior;
   private final int scrollMargin;
-  private final Alignment alignmentH;
-  private final Alignment alignmentV;
-  private final boolean showBackground;
-  private final boolean showTextShadow;
-  private final boolean shiftForPadding;
+  private final int maxLines;
+  private final boolean background;
+  private final Spacing bgOverflow;
+  private final boolean shadow;
+
+  private final FloatRect rawTextBounds = FloatRect.zero();
+  private final IntRect textBounds = IntRect.zero();
+  private final IntRect interactionBounds = IntRect.zero();
+  private final IntRect bgBounds = IntRect.zero();
 
   private Text text;
+  private int color;
   private int x;
   private int y;
-  private int color;
-  private int bgColor;
   private int maxWidth;
-  private int width;
-  private float left;
-  private float right;
-  private float top;
-  private float bottom;
+  private int bgColor;
+
   private boolean layoutDirty = true;
 
   private LabelElement(
       TextRenderer textRenderer,
       Text text,
+      int color,
       int x,
       int y,
-      int color,
-      int bgColor,
+      TextAlignment alignmentH,
+      TextAlignment alignmentV,
+      Spacing padding,
       int maxWidth,
-      int maxLines,
       OverflowBehavior overflowBehavior,
       int scrollMargin,
-      Alignment alignmentH,
-      Alignment alignmentV,
-      boolean showBackground,
-      boolean showTextShadow,
-      boolean shiftForPadding
+      int maxLines,
+      boolean background,
+      int bgColor,
+      Spacing bgOverflow,
+      boolean shadow
   ) {
     this.textRenderer = textRenderer;
     this.text = text;
+    this.color = color;
     this.x = x;
     this.y = y;
-    this.color = color;
-    this.bgColor = bgColor;
-    this.maxWidth = maxWidth;
-    this.maxLines = maxLines;
-    this.overflowBehavior = overflowBehavior;
-    this.scrollMargin = scrollMargin;
     this.alignmentH = alignmentH;
     this.alignmentV = alignmentV;
-    this.showBackground = showBackground;
-    this.showTextShadow = showTextShadow;
-    this.shiftForPadding = shiftForPadding;
-    this.width = this.getWidth();
+    this.padding = padding;
+    this.maxWidth = maxWidth;
+    this.overflowBehavior = overflowBehavior;
+    this.scrollMargin = scrollMargin;
+    this.maxLines = maxLines;
+    this.background = background;
+    this.bgColor = bgColor;
+    this.bgOverflow = bgOverflow;
+    this.shadow = shadow;
 
     this.updateLayout();
   }
 
   @Override
   public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-    if (this.showBackground) {
-      context.fill(MathHelper.floor(this.getLeft()) - 2, MathHelper.floor(this.getTop()) - 1,
-          MathHelper.ceil(this.getRight()) + 2, MathHelper.ceil(this.getBottom()) + 1, this.bgColor
+    this.updateLayout();
+
+    if (this.background) {
+      context.fill(this.bgBounds.getLeft(), this.bgBounds.getTop(), this.bgBounds.getRight(), this.bgBounds.getBottom(),
+          this.bgColor
       );
     }
 
+    int y = Math.round(this.rawTextBounds.getTop() + 1);
+
     switch (this.overflowBehavior) {
       case SHOW ->
-          GuiUtil.drawText(context, this.textRenderer, this.text, this.x, Math.round(this.getTop() + 1), this.color,
-              this.showTextShadow, this.alignmentH.asTextAlignment()
-          );
+          GuiUtil.drawText(context, this.textRenderer, this.text, this.x, y, this.color, this.shadow, this.alignmentH);
       case TRUNCATE ->
-          GuiUtil.drawTruncatedText(context, this.textRenderer, this.text, this.x, Math.round(this.getTop() + 1),
-              this.color, this.showTextShadow, this.maxWidth, this.alignmentH.asTextAlignment()
+          GuiUtil.drawTruncatedText(context, this.textRenderer, this.text, this.x, y, this.color, this.shadow,
+              this.maxWidth, this.alignmentH
           );
-      case WRAP -> GuiUtil.drawWrappedText(context, this.textRenderer, this.text, this.x, Math.round(this.getTop() + 1),
-          this.color, this.showTextShadow, this.maxWidth, this.maxLines, this.alignmentH.asTextAlignment()
+      case WRAP -> GuiUtil.drawWrappedText(context, this.textRenderer, this.text, this.x, y, this.color, this.shadow,
+          this.maxWidth, this.maxLines, this.alignmentH
       );
       case CLIP -> {
-        context.enableScissor(MathHelper.floor(this.getLeft()), MathHelper.floor(this.getTop()),
-            MathHelper.ceil(this.getRight()), MathHelper.ceil(this.getBottom())
-        );
-        GuiUtil.drawText(context, this.textRenderer, this.text, this.x, Math.round(this.getTop() + 1), this.color,
-            this.showTextShadow, this.alignmentH.asTextAlignment()
-        );
-        context.disableScissor();
+        GuiUtil.enableScissor(context, this.interactionBounds);
+        GuiUtil.drawText(context, this.textRenderer, this.text, this.x, y, this.color, this.shadow, this.alignmentH);
+        GuiUtil.disableScissor(context);
       }
       case SCROLL ->
-          GuiUtil.drawScrollingText(context, this.textRenderer, this.text, this.x, Math.round(this.getTop() + 1),
-              this.color, this.showTextShadow, this.maxWidth, this.scrollMargin, this.alignmentH.asTextAlignment()
+          GuiUtil.drawScrollingText(context, this.textRenderer, this.text, this.x, y, this.color, this.shadow,
+              this.maxWidth, this.scrollMargin, this.alignmentH
           );
     }
   }
 
   @Override
   public boolean isMouseOver(double mouseX, double mouseY) {
-    int pixelLeft = MathHelper.floor(this.getLeft()) - (this.showBackground ? 2 : 0);
-    int pixelRight = MathHelper.ceil(this.getRight()) + (this.showBackground ? 2 : 0);
-    int pixelTop = MathHelper.floor(this.getTop()) - (this.showBackground ? 1 : 0);
-    int pixelBottom = MathHelper.ceil(this.getBottom()) + (this.showBackground ? 1 : 0);
-    return mouseX >= pixelLeft && mouseY >= pixelTop && mouseX < pixelRight && mouseY < pixelBottom;
+    this.updateLayout();
+    return this.interactionBounds.contains(mouseX, mouseY);
   }
 
   @Override
@@ -128,20 +129,11 @@ public class LabelElement implements Drawable, Element {
       return;
     }
     this.text = text;
-    this.width = this.getWidth();
     this.layoutDirty = true;
   }
 
   public Text getText() {
     return this.text.copy();
-  }
-
-  public int getWidth() {
-    int textWidth = this.textRenderer.getWidth(this.text);
-    if (this.maxWidth <= 0) {
-      return textWidth;
-    }
-    return Math.min(textWidth, this.maxWidth);
   }
 
   public void setX(int x) {
@@ -188,75 +180,58 @@ public class LabelElement implements Drawable, Element {
     this.layoutDirty = true;
   }
 
-  public float getLeft() {
-    if (this.layoutDirty) {
-      this.updateLayout();
-    }
-    return this.left;
-  }
-
-  public float getRight() {
-    if (this.layoutDirty) {
-      this.updateLayout();
-    }
-    return this.right;
-  }
-
-  public float getTop() {
-    if (this.layoutDirty) {
-      this.updateLayout();
-    }
-    return this.top;
-  }
-
-  public float getBottom() {
-    if (this.layoutDirty) {
-      this.updateLayout();
-    }
-    return this.bottom;
-  }
-
   private void updateLayout() {
     if (!this.layoutDirty) {
       return;
     }
 
+    int textWidth = this.textRenderer.getWidth(this.text);
+    int textHeight = this.textRenderer.fontHeight;
+
+    if (this.maxWidth > 0) {
+      int available = this.maxWidth - this.padding.getHorizontal();
+      textWidth = Math.min(textWidth, available);
+
+      // TODO: Check if overflow behavior is WRAP, and remeasure textHeight accordingly.
+    }
+
     switch (this.alignmentH) {
-      case CENTER -> {
-        this.left = this.x - this.width / 2f;
-        this.right = this.x + this.width / 2f;
+      case START -> {
+        float left = this.x + this.padding.getLeft();
+        this.rawTextBounds.setLeft(left);
+        this.rawTextBounds.setRight(left + textWidth);
       }
       case END -> {
-        this.left = this.x - this.width;
-        this.right = this.x;
+        float right = this.x - this.padding.getRight();
+        this.rawTextBounds.setLeft(right - textWidth);
+        this.rawTextBounds.setRight(right);
       }
-      default -> {
-        this.left = this.x;
-        this.right = this.x + this.width;
+      case CENTER -> {
+        this.rawTextBounds.setLeft(this.x - textWidth / 2f);
+        this.rawTextBounds.setRight(this.x + textWidth / 2f);
       }
     }
 
     switch (this.alignmentV) {
       case START -> {
-        this.top = this.y;
-        this.bottom = this.y + 10;
+        float top = this.y + this.padding.getTop();
+        this.rawTextBounds.setTop(top);
+        this.rawTextBounds.setBottom(top + textHeight);
       }
       case END -> {
-        this.top = this.y - 10;
-        this.bottom = this.y;
+        float bottom = this.y - this.padding.getBottom();
+        this.rawTextBounds.setTop(bottom - textHeight);
+        this.rawTextBounds.setBottom(bottom);
       }
-      default -> {
-        this.top = this.y - 10 / 2f;
-        this.bottom = this.y + 10 / 2f;
+      case CENTER -> {
+        this.rawTextBounds.setTop(this.y - textHeight / 2f);
+        this.rawTextBounds.setBottom(this.y + textHeight / 2f);
       }
     }
 
-    if (this.shiftForPadding) {
-      this.left += this.alignmentH.getShiftOffset() * 2;
-      this.right += this.alignmentH.getShiftOffset() * 2;
-      this.top += this.alignmentV.getShiftOffset();
-      this.bottom += this.alignmentV.getShiftOffset();
-    }
+    this.textBounds.set(this.rawTextBounds.toPixelBounds());
+    this.interactionBounds.set(this.textBounds.expand(this.padding));
+    this.bgBounds.set(this.rawTextBounds.roundOutward().expand(this.bgOverflow));
 
     this.layoutDirty = false;
   }
@@ -273,7 +248,7 @@ public class LabelElement implements Drawable, Element {
     return new Builder(textRenderer, text, (int) (screen.width * 0.5f), (int) (headerHeight * 0.5f)).alignedMiddle()
         .justifiedCenter()
         .hideBackground()
-        .showTextShadow()
+        .showShadow()
         .build();
   }
 
@@ -283,17 +258,19 @@ public class LabelElement implements Drawable, Element {
     private final Text text;
     private final int x;
     private final int y;
+    private final Spacing padding = Spacing.of(1, 2);
+    private final Spacing bgOverflow = Spacing.zero();
+
     private int color = GuiUtil.LABEL_COLOR;
-    private int bgColor = GuiUtil.BACKGROUND_COLOR;
+    private TextAlignment alignmentH = TextAlignment.START;
+    private TextAlignment alignmentV = TextAlignment.CENTER;
     private int maxWidth = 0;
-    private int maxLines = 0;
     private OverflowBehavior overflowBehavior = OverflowBehavior.SHOW;
     private int scrollMargin = 2;
-    private Alignment alignmentH = Alignment.START;
-    private Alignment alignmentV = Alignment.CENTER;
-    private boolean showBackground = true;
-    private boolean showTextShadow = false;
-    private boolean shiftForPadding = false;
+    private int maxLines = 0;
+    private boolean background = true;
+    private int bgColor = GuiUtil.BACKGROUND_COLOR;
+    private boolean shadow = false;
 
     public Builder(TextRenderer textRenderer, Text text, int x, int y) {
       this.textRenderer = textRenderer;
@@ -315,26 +292,8 @@ public class LabelElement implements Drawable, Element {
       return this.color(GuiUtil.genColorInt(r, g, b, a));
     }
 
-    public Builder bgColor(int bgColor) {
-      this.bgColor = bgColor;
-      return this;
-    }
-
-    public Builder bgColor(int r, int g, int b) {
-      return this.bgColor(GuiUtil.genColorInt(r, g, b));
-    }
-
-    public Builder bgColor(int r, int g, int b, int a) {
-      return this.bgColor(GuiUtil.genColorInt(r, g, b, a));
-    }
-
     public Builder maxWidth(int maxWidth) {
       this.maxWidth = maxWidth;
-      return this;
-    }
-
-    public Builder maxLines(int maxLines) {
-      this.maxLines = maxLines;
       return this;
     }
 
@@ -348,86 +307,131 @@ public class LabelElement implements Drawable, Element {
       return this;
     }
 
-    public Builder justifiedLeft() {
-      this.alignmentH = Alignment.START;
+    public Builder maxLines(int maxLines) {
+      this.maxLines = maxLines;
       return this;
+    }
+
+    public Builder justifiedLeft() {
+      return this.justifiedHorizontally(TextAlignment.START);
     }
 
     public Builder justifiedCenter() {
-      this.alignmentH = Alignment.CENTER;
-      return this;
+      return this.justifiedHorizontally(TextAlignment.CENTER);
     }
 
     public Builder justifiedRight() {
-      this.alignmentH = Alignment.END;
+      return this.justifiedHorizontally(TextAlignment.END);
+    }
+
+    public Builder justifiedHorizontally(TextAlignment alignmentH) {
+      this.alignmentH = alignmentH;
       return this;
     }
 
     public Builder alignedTop() {
-      this.alignmentV = Alignment.START;
-      return this;
+      return this.alignedVertically(TextAlignment.START);
     }
 
     public Builder alignedMiddle() {
-      this.alignmentV = Alignment.CENTER;
-      return this;
+      return this.alignedVertically(TextAlignment.CENTER);
     }
 
     public Builder alignedBottom() {
-      this.alignmentV = Alignment.END;
+      return this.alignedVertically(TextAlignment.END);
+    }
+
+    public Builder alignedVertically(TextAlignment alignmentV) {
+      this.alignmentV = alignmentV;
+      return this;
+    }
+
+    public Builder padding(int space) {
+      this.padding.set(space);
+      return this;
+    }
+
+    public Builder padding(int vertical, int horizontal) {
+      this.padding.set(vertical, horizontal);
+      return this;
+    }
+
+    public Builder padding(int top, int horizontal, int bottom) {
+      this.padding.set(top, horizontal, bottom);
+      return this;
+    }
+
+    public Builder padding(int top, int right, int bottom, int left) {
+      this.padding.set(top, right, bottom, left);
+      return this;
+    }
+
+    public Builder padding(Spacing padding) {
+      this.padding.set(padding);
       return this;
     }
 
     public Builder hideBackground() {
-      this.showBackground = false;
+      return this.background(false);
+    }
+
+    public Builder background(boolean background) {
+      this.background = background;
       return this;
     }
 
-    public Builder showTextShadow() {
-      this.showTextShadow = true;
+    public Builder bgColor(int bgColor) {
+      this.bgColor = bgColor;
       return this;
     }
 
-    public Builder shiftForPadding() {
-      this.shiftForPadding = true;
+    public Builder bgColor(int r, int g, int b) {
+      return this.bgColor(GuiUtil.genColorInt(r, g, b));
+    }
+
+    public Builder bgColor(int r, int g, int b, int a) {
+      return this.bgColor(GuiUtil.genColorInt(r, g, b, a));
+    }
+
+    public Builder bgOverflow(int space) {
+      this.bgOverflow.set(space);
+      return this;
+    }
+
+    public Builder bgOverflow(int vertical, int horizontal) {
+      this.bgOverflow.set(vertical, horizontal);
+      return this;
+    }
+
+    public Builder bgOverflow(int top, int horizontal, int bottom) {
+      this.bgOverflow.set(top, horizontal, bottom);
+      return this;
+    }
+
+    public Builder bgOverflow(int top, int right, int bottom, int left) {
+      this.bgOverflow.set(top, right, bottom, left);
+      return this;
+    }
+
+    public Builder bgOverflow(Spacing bgOverflow) {
+      this.bgOverflow.set(bgOverflow);
+      return this;
+    }
+
+    public Builder showShadow() {
+      return this.shadow(true);
+    }
+
+    public Builder shadow(boolean shadow) {
+      this.shadow = shadow;
       return this;
     }
 
     public LabelElement build() {
-      return new LabelElement(this.textRenderer, this.text, this.x, this.y, this.color, this.bgColor, this.maxWidth,
-          this.maxLines, this.overflowBehavior, this.scrollMargin, this.alignmentH, this.alignmentV,
-          this.showBackground, this.showTextShadow, this.shiftForPadding
+      return new LabelElement(this.textRenderer, this.text, this.color, this.x, this.y, this.alignmentH,
+          this.alignmentV, this.padding.copy(), this.maxWidth, this.overflowBehavior, this.scrollMargin, this.maxLines,
+          this.background, this.bgColor, this.bgOverflow.copy(), this.shadow
       );
-    }
-  }
-
-  public enum Alignment {
-    START(1), CENTER(0), END(-1);
-
-    private final int shiftOffset;
-
-    Alignment(int shiftOffset) {
-      this.shiftOffset = shiftOffset;
-    }
-
-    public static Alignment from(GuiUtil.TextAlignment textAlignment) {
-      return switch (textAlignment) {
-        case CENTER -> CENTER;
-        case RIGHT -> END;
-        default -> START;
-      };
-    }
-
-    public int getShiftOffset() {
-      return this.shiftOffset;
-    }
-
-    public GuiUtil.TextAlignment asTextAlignment() {
-      return switch (this) {
-        case CENTER -> GuiUtil.TextAlignment.CENTER;
-        case END -> GuiUtil.TextAlignment.RIGHT;
-        default -> GuiUtil.TextAlignment.LEFT;
-      };
     }
   }
 

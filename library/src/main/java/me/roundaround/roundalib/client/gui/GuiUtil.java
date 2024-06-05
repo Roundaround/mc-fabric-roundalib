@@ -1,5 +1,7 @@
 package me.roundaround.roundalib.client.gui;
 
+import me.roundaround.roundalib.client.gui.layout.FourSided;
+import me.roundaround.roundalib.client.gui.layout.TextAlignment;
 import me.roundaround.roundalib.config.ModConfig;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -10,7 +12,6 @@ import net.minecraft.screen.ScreenTexts;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.StringVisitable;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Language;
@@ -18,6 +19,7 @@ import net.minecraft.util.Util;
 
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class GuiUtil {
   public static final int LABEL_COLOR = genColorInt(1f, 1f, 1f);
   public static final int ERROR_COLOR = genColorInt(1f, 0.15f, 0.15f);
@@ -109,7 +111,7 @@ public class GuiUtil {
   public static void drawText(
       DrawContext context, TextRenderer textRenderer, OrderedText text, int x, int y, int color, boolean shadow
   ) {
-    drawText(context, textRenderer, text, x, y, color, shadow, TextAlignment.LEFT);
+    drawText(context, textRenderer, text, x, y, color, shadow, TextAlignment.START);
   }
 
   public static void drawText(
@@ -141,7 +143,7 @@ public class GuiUtil {
   public static void drawTruncatedText(
       DrawContext context, TextRenderer textRenderer, Text text, int x, int y, int color, boolean shadow, int maxWidth
   ) {
-    drawTruncatedText(context, textRenderer, text, x, y, color, shadow, maxWidth, TextAlignment.LEFT);
+    drawTruncatedText(context, textRenderer, text, x, y, color, shadow, maxWidth, TextAlignment.START);
   }
 
   public static void drawTruncatedText(
@@ -187,7 +189,7 @@ public class GuiUtil {
       int maxWidth,
       int maxLines
   ) {
-    drawWrappedText(context, textRenderer, text, x, y, color, shadow, maxWidth, maxLines, TextAlignment.LEFT);
+    drawWrappedText(context, textRenderer, text, x, y, color, shadow, maxWidth, maxLines, TextAlignment.START);
   }
 
   public static void drawWrappedText(
@@ -246,7 +248,15 @@ public class GuiUtil {
     double dx = c * X;
 
     context.enableScissor(left, y - textRenderer.fontHeight, left + maxWidth, y + 2 * textRenderer.fontHeight);
-    drawText(context, textRenderer, text, left - (int) dx + margin, y, color, shadow, TextAlignment.LEFT);
+    drawText(context, textRenderer, text, left - (int) dx + margin, y, color, shadow, TextAlignment.START);
+    context.disableScissor();
+  }
+
+  public static void enableScissor(DrawContext context, FourSided<Integer> bounds) {
+    context.enableScissor(bounds.getLeft(), bounds.getTop(), bounds.getRight(), bounds.getBottom());
+  }
+
+  public static void disableScissor(DrawContext context) {
     context.disableScissor();
   }
 
@@ -256,30 +266,5 @@ public class GuiUtil {
 
   public static int genColorInt(float r, float g, float b, float a) {
     return ((int) (a * 255) << 24) | ((int) (r * 255) << 16) | ((int) (g * 255) << 8) | (int) (b * 255);
-  }
-
-  public enum TextAlignment {
-    LEFT, CENTER, RIGHT;
-
-    public int getLeft(TextRenderer textRenderer, Text text, int x) {
-      return this.getLeft(textRenderer, text.asOrderedText(), x);
-    }
-
-    public int getLeft(TextRenderer textRenderer, OrderedText text, int x) {
-      int width = textRenderer.getWidth(text);
-      return switch (this) {
-        case LEFT -> x;
-        case CENTER -> x - width / 2;
-        case RIGHT -> x - width;
-      };
-    }
-
-    public int getLeft(int x, int width) {
-      return switch (this) {
-        case LEFT -> x;
-        case CENTER -> x - width / 2;
-        case RIGHT -> x - width;
-      };
-    }
   }
 }
