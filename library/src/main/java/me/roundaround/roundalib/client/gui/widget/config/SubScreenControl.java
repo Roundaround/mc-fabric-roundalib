@@ -11,7 +11,7 @@ import net.minecraft.text.Text;
 
 import java.util.List;
 
-public class SubScreenControl<D, O extends ConfigOption<D, ?>> extends Control<D, O> {
+public class SubScreenControl<D, O extends ConfigOption<D>> extends Control<D, O> {
   private final SubScreenFactory<D, O> subScreenFactory;
   private final ButtonWidget button;
 
@@ -57,7 +57,7 @@ public class SubScreenControl<D, O extends ConfigOption<D, ?>> extends Control<D
   }
 
   @FunctionalInterface
-  public interface SubScreenFactory<D, O extends ConfigOption<D, ?>> {
+  public interface SubScreenFactory<D, O extends ConfigOption<D>> {
     Screen create(Screen screen, O option);
   }
 }

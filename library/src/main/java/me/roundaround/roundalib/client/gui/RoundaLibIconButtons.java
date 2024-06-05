@@ -31,11 +31,11 @@ public final class RoundaLibIconButtons {
   public static final int INDEX_PLUS = 9;
   public static final int INDEX_MINUS = 10;
 
-  public static IconButtonWidget resetButton(int x, int y, ConfigOption<?, ?> option) {
+  public static IconButtonWidget resetButton(int x, int y, ConfigOption<?> option) {
     return resetButton(x, y, option, SIZE_M);
   }
 
-  public static IconButtonWidget resetButton(int x, int y, ConfigOption<?, ?> option, int size) {
+  public static IconButtonWidget resetButton(int x, int y, ConfigOption<?> option, int size) {
     String modId = option.getModId();
 
     IconButtonWidget button = resetButton(x, y, size, modId, (buttonWidget) -> option.resetToDefault());

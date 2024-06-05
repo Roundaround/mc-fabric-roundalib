@@ -1,24 +1,23 @@
 package me.roundaround.roundalib.config;
 
+import com.electronwill.nightconfig.core.CommentedConfig;
+import com.electronwill.nightconfig.core.Config;
+import com.electronwill.nightconfig.core.file.CommentedFileConfig;
+import me.roundaround.roundalib.RoundaLib;
+import me.roundaround.roundalib.config.option.ConfigOption;
+import net.fabricmc.loader.api.FabricLoader;
+
 import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-
-import com.electronwill.nightconfig.core.CommentedConfig;
-import com.electronwill.nightconfig.core.Config;
-import com.electronwill.nightconfig.core.file.CommentedFileConfig;
-
-import me.roundaround.roundalib.RoundaLib;
-import me.roundaround.roundalib.config.option.ConfigOption;
-import net.fabricmc.loader.api.FabricLoader;
 
 public abstract class ModConfig {
   private final String modId;
   private final int configVersion;
   private final String configScreenI18nKey;
   private final boolean showGroupTitles;
-  private final LinkedHashMap<String, LinkedList<ConfigOption<?, ?>>> configOptions = new LinkedHashMap<>();
+  private final LinkedHashMap<String, LinkedList<ConfigOption<?>>> configOptions = new LinkedHashMap<>();
 
   private int version;
 
@@ -54,15 +53,12 @@ public abstract class ModConfig {
     return showGroupTitles;
   }
 
-  public LinkedHashMap<String, LinkedList<ConfigOption<?, ?>>> getConfigOptions() {
+  public LinkedHashMap<String, LinkedList<ConfigOption<?>>> getConfigOptions() {
     return configOptions;
   }
 
   public void loadFromFile() {
-    CommentedFileConfig fileConfig = CommentedFileConfig
-        .builder(getConfigFile())
-        .preserveInsertionOrder()
-        .build();
+    CommentedFileConfig fileConfig = CommentedFileConfig.builder(getConfigFile()).preserveInsertionOrder().build();
 
     fileConfig.load();
     fileConfig.close();
@@ -90,10 +86,7 @@ public abstract class ModConfig {
       return;
     }
 
-    CommentedFileConfig fileConfig = CommentedFileConfig
-        .builder(getConfigFile())
-        .preserveInsertionOrder()
-        .build();
+    CommentedFileConfig fileConfig = CommentedFileConfig.builder(getConfigFile()).preserveInsertionOrder().build();
 
     fileConfig.setComment("configVersion", " Config version is auto-generated\n DO NOT CHANGE");
     fileConfig.set("configVersion", configVersion);
@@ -119,11 +112,11 @@ public abstract class ModConfig {
     return false;
   }
 
-  protected <T extends ConfigOption<?, ?>> T registerConfigOption(T configOption) {
+  protected <T extends ConfigOption<?>> T registerConfigOption(T configOption) {
     return registerConfigOption(null, configOption);
   }
 
-  protected <T extends ConfigOption<?, ?>> T registerConfigOption(String group, T configOption) {
+  protected <T extends ConfigOption<?>> T registerConfigOption(String group, T configOption) {
     String key = modId;
     if (group != null) {
       key += "." + group;

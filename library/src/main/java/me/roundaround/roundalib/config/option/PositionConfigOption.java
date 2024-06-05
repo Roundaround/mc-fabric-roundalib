@@ -3,7 +3,7 @@ package me.roundaround.roundalib.config.option;
 import me.roundaround.roundalib.config.value.Position;
 import net.minecraft.text.Text;
 
-public class PositionConfigOption extends ConfigOption<Position, PositionConfigOption.Builder> {
+public class PositionConfigOption extends ConfigOption<Position> {
   protected PositionConfigOption(Builder builder) {
     super(builder);
   }
@@ -40,7 +40,7 @@ public class PositionConfigOption extends ConfigOption<Position, PositionConfigO
     return new Builder(modId, id, label, defaultValue);
   }
 
-  public static class Builder extends ConfigOption.AbstractBuilder<Position, Builder> {
+  public static class Builder extends ConfigOption.AbstractBuilder<Position> {
     private Builder(String modId, String id, String labelI18nKey, Position defaultValue) {
       super(modId, id, labelI18nKey, defaultValue);
     }

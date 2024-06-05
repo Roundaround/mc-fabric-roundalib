@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-public class StringConfigOption extends ConfigOption<String, StringConfigOption.Builder> {
+public class StringConfigOption extends ConfigOption<String> {
   private Optional<Integer> minLength = Optional.empty();
   private Optional<Integer> maxLength = Optional.empty();
   private Optional<Pattern> regex = Optional.empty();
@@ -72,7 +72,7 @@ public class StringConfigOption extends ConfigOption<String, StringConfigOption.
     return new Builder(modId, id, label);
   }
 
-  public static class Builder extends ConfigOption.AbstractBuilder<String, Builder> {
+  public static class Builder extends ConfigOption.AbstractBuilder<String> {
     private Optional<Integer> minLength = Optional.empty();
     private Optional<Integer> maxLength = Optional.empty();
     private Optional<Pattern> regex = Optional.empty();

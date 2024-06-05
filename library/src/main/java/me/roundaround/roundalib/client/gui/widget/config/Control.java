@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-public abstract class Control<D, O extends ConfigOption<D, ?>> extends PositionalWidget implements ParentElement {
+public abstract class Control<D, O extends ConfigOption<D>> extends PositionalWidget implements ParentElement {
   protected static final int PADDING = 1;
 
   protected final MinecraftClient client;
@@ -139,7 +139,7 @@ public abstract class Control<D, O extends ConfigOption<D, ?>> extends Positiona
   }
 
   @FunctionalInterface
-  public interface ControlFactory<D, O extends ConfigOption<D, ?>> {
+  public interface ControlFactory<D, O extends ConfigOption<D>> {
     Control<D, O> create(MinecraftClient client, O option, int left, int top, int width, int height);
   }
 }

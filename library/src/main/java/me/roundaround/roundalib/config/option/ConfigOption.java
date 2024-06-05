@@ -6,7 +6,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, B>> {
+public abstract class ConfigOption<D> {
   private final String modId;
   private final String id;
   private final Text label;
@@ -15,28 +15,44 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
   private final boolean useLabelAsCommentFallback;
   private final Supplier<Boolean> disabledSupplier;
   private final ValueChangeListeners<D> valueChangeListeners = new ValueChangeListeners<>();
-  private final List<ConfigOption<?, ?>> dependencies;
+  private final List<ConfigOption<?>> dependencies;
 
   private D defaultValue;
   private D value;
   private D lastSavedValue;
 
-  protected ConfigOption(B builder) {
-    this.modId = builder.modId;
-    this.id = builder.id;
-    this.label = builder.label;
-    this.defaultValue = builder.defaultValue;
-    this.showInConfigScreen = builder.showInConfigScreen;
-    this.comment = builder.comment;
-    this.useLabelAsCommentFallback = builder.useLabelAsCommentFallback;
-    this.disabledSupplier = builder.disabledSupplier;
-    this.dependencies = builder.dependencies;
-    this.value = defaultValue;
+  protected ConfigOption(AbstractBuilder<D> builder) {
+    this(builder.modId, builder.id, builder.label, builder.defaultValue, builder.showInConfigScreen, builder.comment,
+        builder.useLabelAsCommentFallback, builder.disabledSupplier, builder.dependencies
+    );
+  }
 
+  protected ConfigOption(
+      String modId,
+      String id,
+      Text label,
+      D defaultValue,
+      boolean showInConfigScreen,
+      List<String> comment,
+      boolean useLabelAsCommentFallback,
+      Supplier<Boolean> disabledSupplier,
+      List<ConfigOption<?>> dependencies
+  ) {
+    this.modId = modId;
+    this.id = id;
+    this.label = label;
+    this.defaultValue = defaultValue;
+    this.showInConfigScreen = showInConfigScreen;
+    this.comment = comment;
+    this.useLabelAsCommentFallback = useLabelAsCommentFallback;
+    this.disabledSupplier = disabledSupplier;
+    this.dependencies = dependencies;
+
+    this.value = this.defaultValue;
     this.dependencies.forEach(dependency -> dependency.valueChangeListeners.add(null, this::dependencyChanged));
   }
 
-  protected ConfigOption(ConfigOption<D, B> other) {
+  protected ConfigOption(ConfigOption<D> other) {
     this.modId = other.modId;
     this.id = other.id;
     this.label = other.label;
@@ -133,13 +149,13 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
     this.valueChangeListeners.invoke(this.getValue(), this.getValue());
   }
 
-  public abstract ConfigOption<D, B> copy();
+  public abstract ConfigOption<D> copy();
 
-  public final ConfigOption<D, B> createWorkingCopy() {
+  public final ConfigOption<D> createWorkingCopy() {
     return this.copy();
   }
 
-  public static abstract class AbstractBuilder<D, B extends AbstractBuilder<D, B>> {
+  public static abstract class AbstractBuilder<D> {
     protected final String modId;
     protected final String id;
     protected final Text label;
@@ -148,7 +164,7 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
     protected List<String> comment = List.of();
     protected boolean useLabelAsCommentFallback = true;
     protected Supplier<Boolean> disabledSupplier = () -> false;
-    protected List<ConfigOption<?, ?>> dependencies = List.of();
+    protected List<ConfigOption<?>> dependencies = List.of();
 
     protected AbstractBuilder(String modId, String id, String labelI18nKey, D defaultValue) {
       this(modId, id, Text.translatable(labelI18nKey), defaultValue);
@@ -161,49 +177,42 @@ public abstract class ConfigOption<D, B extends ConfigOption.AbstractBuilder<D, 
       this.defaultValue = defaultValue;
     }
 
-    @SuppressWarnings("unchecked")
-    public B hideFromConfigScreen() {
+    public AbstractBuilder<D> hideFromConfigScreen() {
       this.showInConfigScreen = false;
-      return (B) this;
+      return this;
     }
 
-    @SuppressWarnings("unchecked")
-    public B setComment(String comment) {
+    public AbstractBuilder<D> setComment(String comment) {
       this.comment = List.of(comment);
-      return (B) this;
+      return this;
     }
 
-    @SuppressWarnings("unchecked")
-    public B setComment(String... comment) {
+    public AbstractBuilder<D> setComment(String... comment) {
       this.comment = List.of(comment);
-      return (B) this;
+      return this;
     }
 
-    @SuppressWarnings("unchecked")
-    public B setComment(Collection<String> comment) {
+    public AbstractBuilder<D> setComment(Collection<String> comment) {
       this.comment = List.copyOf(comment);
-      return (B) this;
+      return this;
     }
 
-    @SuppressWarnings("unchecked")
-    public B setUseLabelAsCommentFallback(boolean useLabelAsCommentFallback) {
+    public AbstractBuilder<D> setUseLabelAsCommentFallback(boolean useLabelAsCommentFallback) {
       this.useLabelAsCommentFallback = useLabelAsCommentFallback;
-      return (B) this;
+      return this;
     }
 
-    @SuppressWarnings("unchecked")
-    public B setDisabledSupplier(Supplier<Boolean> disabledSupplier) {
+    public AbstractBuilder<D> setDisabledSupplier(Supplier<Boolean> disabledSupplier) {
       this.disabledSupplier = disabledSupplier;
-      return (B) this;
+      return this;
     }
 
-    @SuppressWarnings("unchecked")
-    public B dependsOn(ConfigOption<?, ?>... dependencies) {
+    public AbstractBuilder<D> dependsOn(ConfigOption<?>... dependencies) {
       this.dependencies = List.of(dependencies);
-      return (B) this;
+      return this;
     }
 
-    public abstract ConfigOption<D, B> build();
+    public abstract ConfigOption<D> build();
   }
 
   private static class ValueChangeListeners<D> {

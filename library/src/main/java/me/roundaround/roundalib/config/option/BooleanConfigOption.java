@@ -3,7 +3,7 @@ package me.roundaround.roundalib.config.option;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 
-public class BooleanConfigOption extends ConfigOption<Boolean, BooleanConfigOption.Builder> {
+public class BooleanConfigOption extends ConfigOption<Boolean> {
   private final Text enabledLabel;
   private final Text disabledLabel;
 
@@ -65,7 +65,7 @@ public class BooleanConfigOption extends ConfigOption<Boolean, BooleanConfigOpti
     return new Builder(modId, id, label).setEnabledLabel(ScreenTexts.YES).setDisabledLabel(ScreenTexts.NO);
   }
 
-  public static class Builder extends ConfigOption.AbstractBuilder<Boolean, Builder> {
+  public static class Builder extends ConfigOption.AbstractBuilder<Boolean> {
     private Text enabledLabel = Text.translatable(this.modId + ".roundalib.toggle.enabled");
     private Text disabledLabel = Text.translatable(this.modId + ".roundalib.toggle.disabled");
 

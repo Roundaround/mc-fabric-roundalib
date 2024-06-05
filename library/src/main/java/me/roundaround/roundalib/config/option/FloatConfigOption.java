@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Builder> {
+public class FloatConfigOption extends ConfigOption<Float> {
   private Optional<Float> minValue = Optional.empty();
   private Optional<Float> maxValue = Optional.empty();
   private List<Validator> validators = List.of();
@@ -106,7 +106,7 @@ public class FloatConfigOption extends ConfigOption<Float, FloatConfigOption.Bui
     return builder(modId, id, label).setUseSlider(true);
   }
 
-  public static class Builder extends ConfigOption.AbstractBuilder<Float, Builder> {
+  public static class Builder extends ConfigOption.AbstractBuilder<Float> {
     private Optional<Float> minValue = Optional.empty();
     private Optional<Float> maxValue = Optional.empty();
     private List<Validator> customValidators = new ArrayList<>();

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Builder> {
+public class IntConfigOption extends ConfigOption<Integer> {
   private Optional<Integer> minValue = Optional.empty();
   private Optional<Integer> maxValue = Optional.empty();
   private Optional<Integer> step = Optional.of(1);
@@ -146,7 +146,7 @@ public class IntConfigOption extends ConfigOption<Integer, IntConfigOption.Build
     return builder(modId, id, label).setUseSlider(true);
   }
 
-  public static class Builder extends ConfigOption.AbstractBuilder<Integer, Builder> {
+  public static class Builder extends ConfigOption.AbstractBuilder<Integer> {
     private Optional<Integer> minValue = Optional.empty();
     private Optional<Integer> maxValue = Optional.empty();
     private Optional<Integer> step = Optional.of(1);

@@ -6,8 +6,7 @@ import net.minecraft.text.Text;
 
 import java.util.List;
 
-public class OptionListConfigOption<T extends ListOptionValue<T>> extends ConfigOption<T,
-    OptionListConfigOption.Builder<T>> {
+public class OptionListConfigOption<T extends ListOptionValue<T>> extends ConfigOption<T> {
   private final List<T> values;
 
   protected OptionListConfigOption(Builder<T> builder) {
@@ -71,7 +70,7 @@ public class OptionListConfigOption<T extends ListOptionValue<T>> extends Config
     return new Builder<>(modId, id, label, values, defaultValue);
   }
 
-  public static class Builder<T extends ListOptionValue<T>> extends ConfigOption.AbstractBuilder<T, Builder<T>> {
+  public static class Builder<T extends ListOptionValue<T>> extends ConfigOption.AbstractBuilder<T> {
     private final List<T> values;
 
     private Builder(String modId, String id, String labelI18nKey, List<T> values, T defaultValue) {

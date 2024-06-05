@@ -103,7 +103,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     }
   }
 
-  public static class OptionEntry<D, O extends ConfigOption<D, ?>> extends Entry {
+  public static class OptionEntry<D, O extends ConfigOption<D>> extends Entry {
     protected static final int HEIGHT = 20;
     protected static final int CONTROL_MIN_WIDTH = 100;
 

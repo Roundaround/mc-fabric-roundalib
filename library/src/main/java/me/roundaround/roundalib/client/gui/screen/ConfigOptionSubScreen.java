@@ -12,7 +12,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 
-public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D, ?>> extends Screen {
+public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extends Screen {
   protected final Screen parent;
   protected final O configOption;
   protected final O workingCopy;
