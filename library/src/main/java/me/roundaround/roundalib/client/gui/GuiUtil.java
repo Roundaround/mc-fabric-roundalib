@@ -1,5 +1,6 @@
 package me.roundaround.roundalib.client.gui;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.client.gui.layout.FourSided;
 import me.roundaround.roundalib.client.gui.layout.TextAlignment;
 import me.roundaround.roundalib.config.ModConfig;
@@ -8,6 +9,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.sound.PositionedSoundInstance;
+import net.minecraft.client.util.Window;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.OrderedText;
@@ -258,6 +260,25 @@ public class GuiUtil {
 
   public static void disableScissor(DrawContext context) {
     context.disableScissor();
+  }
+
+  public static void enableScissorBypassContext(int left, int top, int right, int bottom) {
+    int width = right - left;
+    int height = bottom - top;
+    Window window = CLIENT.getWindow();
+    double windowScale = window.getScaleFactor();
+
+    RenderSystem.enableScissor((int) (left * windowScale), window.getFramebufferHeight() - (int) (bottom * windowScale),
+        Math.max(0, (int) (width * windowScale)), Math.max(0, (int) (height * windowScale))
+    );
+  }
+
+  public static void enableScissorBypassContext(FourSided<Integer> bounds) {
+    enableScissorBypassContext(bounds.getLeft(), bounds.getTop(), bounds.getRight(), bounds.getBottom());
+  }
+
+  public static void disableScissorBypassContext() {
+    RenderSystem.disableScissor();
   }
 
   public static int genColorInt(float r, float g, float b) {

@@ -17,7 +17,6 @@ import net.minecraft.client.gui.widget.ContainerWidget;
 import net.minecraft.client.gui.widget.LayoutWidget;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.render.*;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -58,7 +57,6 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
   @SuppressWarnings("UnusedReturnValue")
   public <T extends E> T addEntry(EntryFactory<T> factory) {
-
     T entry = factory.create(this.entries.size(), this.getX(), this.getContentHeight(), this.getContentWidth());
     if (entry == null) {
       return null;
@@ -104,49 +102,42 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     this.hoveredEntry = this.isMouseOver(mouseX, mouseY) ? this.getEntryAtPosition(mouseX, mouseY) : null;
 
     this.renderListBackground(context);
-
-    context.enableScissor(this.getX(), this.getY(), this.getRight(), this.getBottom());
     this.renderList(context, mouseX, mouseY, delta);
-    context.disableScissor();
-
     this.renderScrollBar(context);
     this.renderListBorders(context);
   }
 
-  protected void renderListBackground(DrawContext drawContext) {
+  protected void renderListBackground(DrawContext context) {
     RenderSystem.enableBlend();
     Identifier identifier =
         this.client.world == null ? MENU_LIST_BACKGROUND_TEXTURE : INWORLD_MENU_LIST_BACKGROUND_TEXTURE;
-    drawContext.drawTexture(identifier, this.getX(), this.getY(), (float) this.getRight(),
+    context.drawTexture(identifier, this.getX(), this.getY(), (float) this.getRight(),
         this.getBottom() + (float) this.getScrollAmount(), this.getWidth(), this.getHeight(), 32, 32
     );
     RenderSystem.disableBlend();
   }
 
-  protected void renderList(DrawContext drawContext, int mouseX, int mouseY, float delta) {
-    for (int i = 0; i < this.entries.size(); i++) {
-      this.renderEntry(drawContext, i, mouseX, mouseY, delta);
-    }
-  }
+  protected void renderList(DrawContext context, int mouseX, int mouseY, float delta) {
+    int scrollAmount = (int) this.getScrollAmount();
 
-  protected void renderEntry(
-      DrawContext drawContext, int index, int mouseX, int mouseY, float delta
-  ) {
-    E entry = this.entries.get(index);
-    double scrollAmount = this.getScrollAmount();
+    // Annoyingly ClickableWidget hover state is determined inside of render, which has no clean way to amend
+    // or hook into. Additionally, the hover state is bounded on the DrawContext's currently registered scissor
+    // so when I translate and adjust the mouseY accordingly, the ClickableWidget thinks we're outside the
+    // scissor. To get around this, we need to "set the scissor" on the DrawContext using the shifted region to
+    // track mouse hovering and tooltips, then overwrite that by bypassing DrawContext entirely and enabling
+    // the real scissor directly on the RenderSystem.
+    context.enableScissor(this.getX(), this.getY() + scrollAmount, this.getRight(), this.getBottom() + scrollAmount);
+    GuiUtil.enableScissorBypassContext(this.getX(), this.getY(), this.getRight(), this.getBottom());
 
-    double scrolledTop = entry.getTop() - scrollAmount;
-    double scrolledBottom = entry.getTop() + entry.getHeight() - scrollAmount;
+    context.getMatrices().push();
+    context.getMatrices().translate(0, -scrollAmount, 0);
 
-    if (scrolledBottom < this.getY() || scrolledTop > this.getBottom()) {
-      return;
-    }
+    this.entries.stream().filter(this::isEntryVisible).forEach((entry) -> {
+      entry.render(context, mouseX, mouseY + scrollAmount, delta);
+    });
 
-    MatrixStack matrices = drawContext.getMatrices();
-    matrices.push();
-    matrices.translate(0, -(int) this.getScrollAmount(), 0);
-    entry.render(drawContext, mouseX, mouseY + (int) this.getScrollAmount(), delta);
-    matrices.pop();
+    context.getMatrices().pop();
+    context.disableScissor();
   }
 
   protected void renderListBorders(DrawContext context) {
@@ -437,14 +428,24 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     return null;
   }
 
+  protected boolean isEntryVisible(E entry) {
+    int scrollAmount = (int) this.getScrollAmount();
+    int scrolledTop = entry.getTop() - scrollAmount;
+    int scrolledBottom = entry.getBottom() - scrollAmount;
+
+    return scrolledTop <= this.getBottom() && scrolledBottom >= this.getY();
+  }
+
   protected void ensureVisible(E entry) {
-    int scrolledTop = entry.getTop() - (int) this.getScrollAmount();
+    int scrollAmount = (int) this.getScrollAmount();
+
+    int scrolledTop = entry.getTop() - scrollAmount;
     if (scrolledTop < this.getY()) {
       this.scroll(scrolledTop - this.getY());
       return;
     }
 
-    int scrolledBottom = entry.getBottom() - (int) this.getScrollAmount();
+    int scrolledBottom = entry.getBottom() - scrollAmount;
     if (scrolledBottom > this.getBottom()) {
       this.scroll(scrolledBottom - this.getBottom());
     }
