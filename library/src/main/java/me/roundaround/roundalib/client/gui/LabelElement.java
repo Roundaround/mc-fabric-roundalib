@@ -231,7 +231,7 @@ public class LabelElement implements Drawable, Element {
 
     this.textBounds.set(this.rawTextBounds.toPixelBounds());
     this.interactionBounds.set(this.textBounds.expand(this.padding));
-    this.bgBounds.set(this.rawTextBounds.roundOutward().expand(this.bgOverflow));
+    this.bgBounds.set(this.rawTextBounds.roundOutward().expand(this.padding).expand(this.bgOverflow));
 
     this.layoutDirty = false;
   }
