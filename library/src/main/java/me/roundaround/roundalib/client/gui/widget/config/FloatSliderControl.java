@@ -5,11 +5,9 @@ import me.roundaround.roundalib.config.option.FloatConfigOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 
 import java.util.List;
-import java.util.Objects;
 
 public class FloatSliderControl extends Control<Float, FloatConfigOption> {
   private final FloatSliderWidget slider;
@@ -29,7 +27,7 @@ public class FloatSliderControl extends Control<Float, FloatConfigOption> {
         this.option.getValue(), this::onSliderChanged, this::getValueAsText
     );
 
-    this.onDisabledChange(this.disabled, this.disabled);
+    this.update();
   }
 
   @Override
@@ -50,16 +48,13 @@ public class FloatSliderControl extends Control<Float, FloatConfigOption> {
   }
 
   @Override
-  protected void onConfigValueChange(Float prev, Float curr) {
-    if (Objects.equals(curr, this.slider.getFloatValue())) {
-      return;
-    }
-    this.slider.setFloatValue(curr);
-  }
+  protected void update() {
+    this.slider.active = !this.getOption().isDisabled();
 
-  @Override
-  protected void onDisabledChange(boolean prev, boolean curr) {
-    this.slider.active = !this.disabled;
+    float value = this.getOption().getValue();
+    if (!this.getOption().areValuesEqual(value, this.slider.getFloatValue())) {
+      this.slider.setFloatValue(value);
+    }
   }
 
   private void onSliderChanged(float value) {

@@ -1,17 +1,13 @@
 package me.roundaround.roundalib.client.gui.screen;
 
-import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
 import me.roundaround.roundalib.config.ModConfig;
-import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.DirectionalLayoutWidget;
 import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
-
-import java.util.Collection;
 
 public class ConfigScreen extends Screen {
   protected final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this);
@@ -32,12 +28,9 @@ public class ConfigScreen extends Screen {
 
   @Override
   protected void init() {
-    this.clearConfigOptionListeners();
-
     this.initHeader();
-    this.initFooter();
-
     this.initBody();
+    this.initFooter();
 
     this.layout.forEachChild(this::addDrawableChild);
     this.initTabNavigation();
@@ -57,13 +50,13 @@ public class ConfigScreen extends Screen {
 
   @Override
   public void removed() {
+    this.modConfig.unsubscribe(this::update);
+
     if (this.shouldSave) {
       this.modConfig.saveToFile();
     } else {
       this.modConfig.loadFromFile();
     }
-
-    this.clearConfigOptionListeners();
   }
 
   @Override
@@ -71,34 +64,26 @@ public class ConfigScreen extends Screen {
     this.configListWidget.tick();
   }
 
+  protected void update(ModConfig modConfig) {
+    this.configListWidget.update();
+  }
+
   protected void initHeader() {
     this.layout.addHeader(this.title, this.textRenderer);
   }
 
   protected void initBody() {
-    this.configListWidget =
-        this.addDrawableChild(new ConfigListWidget(this.client, this.layout, this.modConfig));
+    this.configListWidget = this.addDrawableChild(new ConfigListWidget(this.client, this.layout, this.modConfig));
+    this.modConfig.subscribe(this::update);
   }
 
   protected void initFooter() {
-    DirectionalLayoutWidget row =
-        DirectionalLayoutWidget.horizontal().spacing(FOOTER_BUTTON_SPACING);
+    DirectionalLayoutWidget row = DirectionalLayoutWidget.horizontal().spacing(FOOTER_BUTTON_SPACING);
     this.layout.addFooter(row);
 
-    row.add(ButtonWidget.builder(ScreenTexts.CANCEL, this::cancel)
-        .size(FOOTER_BUTTON_WIDTH, FOOTER_BUTTON_HEIGHT)
-        .build());
-    row.add(ButtonWidget.builder(ScreenTexts.DONE, this::done)
-        .size(FOOTER_BUTTON_WIDTH, FOOTER_BUTTON_HEIGHT)
-        .build());
-  }
-
-  private void clearConfigOptionListeners() {
-    this.modConfig.getConfigOptions()
-        .values()
-        .stream()
-        .flatMap(Collection::stream)
-        .forEach((configOption) -> configOption.clearValueChangeListeners(this.hashCode()));
+    row.add(
+        ButtonWidget.builder(ScreenTexts.CANCEL, this::cancel).size(FOOTER_BUTTON_WIDTH, FOOTER_BUTTON_HEIGHT).build());
+    row.add(ButtonWidget.builder(ScreenTexts.DONE, this::done).size(FOOTER_BUTTON_WIDTH, FOOTER_BUTTON_HEIGHT).build());
   }
 
   private void cancel(ButtonWidget button) {

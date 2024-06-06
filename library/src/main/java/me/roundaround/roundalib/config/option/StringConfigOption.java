@@ -1,5 +1,6 @@
 package me.roundaround.roundalib.config.option;
 
+import me.roundaround.roundalib.config.ModConfig;
 import net.minecraft.text.Text;
 
 import java.util.ArrayList;
@@ -36,40 +37,28 @@ public class StringConfigOption extends ConfigOption<String> {
     this.validators = List.copyOf(allValidators);
   }
 
-  private StringConfigOption(StringConfigOption other) {
-    super(other);
-
-    this.minLength = other.minLength;
-    this.maxLength = other.maxLength;
-    this.regex = other.regex;
-    this.validators = other.validators;
-  }
-
   public boolean validateInput(String newValue) {
     return this.validators.stream().allMatch((validator) -> {
       return validator.apply(getValue(), newValue);
     });
   }
 
-  @Override
-  public StringConfigOption copy() {
-    return new StringConfigOption(this);
+  public static StringConfigOption defaultInstance(
+      ModConfig modConfig, String id, String labelI18nKey, String defaultValue
+  ) {
+    return builder(modConfig, id, labelI18nKey).setDefaultValue(defaultValue).build();
   }
 
-  public static StringConfigOption defaultInstance(String modId, String id, String labelI18nKey, String defaultValue) {
-    return builder(modId, id, labelI18nKey).setDefaultValue(defaultValue).build();
+  public static StringConfigOption defaultInstance(ModConfig modConfig, String id, Text label, String defaultValue) {
+    return builder(modConfig, id, label).setDefaultValue(defaultValue).build();
   }
 
-  public static StringConfigOption defaultInstance(String modId, String id, Text label, String defaultValue) {
-    return builder(modId, id, label).setDefaultValue(defaultValue).build();
+  public static Builder builder(ModConfig modConfig, String id, String labelI18nKey) {
+    return new Builder(modConfig, id, labelI18nKey);
   }
 
-  public static Builder builder(String modId, String id, String labelI18nKey) {
-    return new Builder(modId, id, labelI18nKey);
-  }
-
-  public static Builder builder(String modId, String id, Text label) {
-    return new Builder(modId, id, label);
+  public static Builder builder(ModConfig modConfig, String id, Text label) {
+    return new Builder(modConfig, id, label);
   }
 
   public static class Builder extends ConfigOption.AbstractBuilder<String> {
@@ -78,12 +67,12 @@ public class StringConfigOption extends ConfigOption<String> {
     private Optional<Pattern> regex = Optional.empty();
     private List<Validator> customValidators = new ArrayList<>();
 
-    private Builder(String modId, String id, String labelI18nKey) {
-      super(modId, id, labelI18nKey, "");
+    private Builder(ModConfig modConfig, String id, String labelI18nKey) {
+      super(modConfig, id, labelI18nKey, "");
     }
 
-    private Builder(String modId, String id, Text label) {
-      super(modId, id, label, "");
+    private Builder(ModConfig modConfig, String id, Text label) {
+      super(modConfig, id, label, "");
     }
 
     public Builder setDefaultValue(String defaultValue) {

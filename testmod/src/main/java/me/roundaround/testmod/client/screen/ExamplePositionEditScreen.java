@@ -133,8 +133,8 @@ public class ExamplePositionEditScreen extends PositionEditScreen {
   }
 
   @Override
-  protected void onValueChanged(Position prev, Position curr) {
-    this.valueLabel.setText(Text.of(curr.toString()));
+  public void onValueChanged(Position value) {
+    this.valueLabel.setText(Text.of(value.toString()));
   }
 
   public static SubScreenControl.SubScreenFactory<Position, PositionConfigOption> getSubScreenFactory() {

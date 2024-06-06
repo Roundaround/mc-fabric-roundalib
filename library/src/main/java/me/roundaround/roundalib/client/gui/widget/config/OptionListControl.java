@@ -26,7 +26,7 @@ public class OptionListControl<S extends ListOptionValue<S>> extends Control<S, 
             this::buttonClicked
         );
 
-    this.onDisabledChange(this.disabled, this.disabled);
+    this.update();
   }
 
   @Override
@@ -46,16 +46,9 @@ public class OptionListControl<S extends ListOptionValue<S>> extends Control<S, 
   }
 
   @Override
-  protected void onConfigValueChange(S prev, S curr) {
-    if (prev == curr) {
-      return;
-    }
-    this.button.setValue(curr);
-  }
-
-  @Override
-  protected void onDisabledChange(boolean prev, boolean curr) {
-    this.button.active = !this.disabled;
+  protected void update() {
+    this.button.active = !this.getOption().isDisabled();
+    this.button.setValue(this.getOption().getValue());
   }
 
   private void buttonClicked(CyclingButtonWidget<S> button, S value) {

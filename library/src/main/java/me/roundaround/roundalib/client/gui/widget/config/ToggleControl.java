@@ -19,7 +19,7 @@ public class ToggleControl extends Control<Boolean, BooleanConfigOption> {
         .size(this.getWidgetWidth(), this.getWidgetHeight())
         .build();
 
-    this.onDisabledChange(this.disabled, this.disabled);
+    this.update();
   }
 
   @Override
@@ -39,12 +39,8 @@ public class ToggleControl extends Control<Boolean, BooleanConfigOption> {
   }
 
   @Override
-  protected void onConfigValueChange(Boolean prev, Boolean curr) {
-    this.button.setMessage(this.option.getValueLabel());
-  }
-
-  @Override
-  protected void onDisabledChange(boolean prev, boolean curr) {
-    this.button.active = !this.disabled;
+  protected void update() {
+    this.button.active = !this.getOption().isDisabled();
+    this.button.setMessage(this.getOption().getValueLabel());
   }
 }

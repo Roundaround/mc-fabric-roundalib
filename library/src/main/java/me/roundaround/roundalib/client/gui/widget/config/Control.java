@@ -6,11 +6,9 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.ParentElement;
 import net.minecraft.client.gui.Selectable;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.Widget;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 public abstract class Control<D, O extends ConfigOption<D>> extends PositionalWidget implements ParentElement {
@@ -20,7 +18,6 @@ public abstract class Control<D, O extends ConfigOption<D>> extends PositionalWi
   protected final O option;
 
   protected boolean valid;
-  protected boolean disabled;
 
   private Element focused;
   private boolean dragging;
@@ -30,11 +27,6 @@ public abstract class Control<D, O extends ConfigOption<D>> extends PositionalWi
 
     this.client = client;
     this.option = option;
-
-    Screen screen = Objects.requireNonNull(client.currentScreen);
-    this.option.subscribeToValueChanges(screen.hashCode(), this::onValueChanged);
-
-    this.disabled = this.option.isDisabled();
   }
 
   @Override
@@ -100,18 +92,7 @@ public abstract class Control<D, O extends ConfigOption<D>> extends PositionalWi
   public void tick() {
   }
 
-  private void onValueChanged(D prev, D curr) {
-    boolean previousDisabled = this.disabled;
-    this.disabled = this.option.isDisabled();
-    this.onDisabledChange(previousDisabled, this.disabled);
-
-    this.onConfigValueChange(prev, curr);
-  }
-
-  protected void onConfigValueChange(D prev, D curr) {
-  }
-
-  protected void onDisabledChange(boolean prev, boolean curr) {
+  protected void update() {
   }
 
   protected int getWidgetLeft() {

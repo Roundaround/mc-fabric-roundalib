@@ -8,9 +8,11 @@ import me.roundaround.roundalib.config.option.ConfigOption;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class ModConfig {
   private final String modId;
@@ -18,6 +20,7 @@ public abstract class ModConfig {
   private final String configScreenI18nKey;
   private final boolean showGroupTitles;
   private final LinkedHashMap<String, LinkedList<ConfigOption<?>>> configOptions = new LinkedHashMap<>();
+  private final HashSet<Consumer<ModConfig>> updateListeners = new HashSet<>();
 
   private int version;
 
@@ -33,8 +36,10 @@ public abstract class ModConfig {
   }
 
   public void init() {
-    loadFromFile();
-    saveToFile();
+    this.loadFromFile();
+    this.saveToFile();
+
+    this.update();
   }
 
   public String getModId() {
@@ -58,26 +63,24 @@ public abstract class ModConfig {
   }
 
   public void loadFromFile() {
-    CommentedFileConfig fileConfig = CommentedFileConfig.builder(getConfigFile()).preserveInsertionOrder().build();
+    CommentedFileConfig fileConfig = CommentedFileConfig.builder(this.getConfigFile()).preserveInsertionOrder().build();
 
     fileConfig.load();
     fileConfig.close();
 
-    version = fileConfig.getIntOrElse("configVersion", -1);
+    this.version = fileConfig.getIntOrElse("configVersion", -1);
     CommentedConfig config = CommentedConfig.copy(fileConfig);
-    if (updateConfigVersion(version, config)) {
+    if (this.updateConfigVersion(version, config)) {
       fileConfig.putAll(config);
     }
 
-    configOptions.entrySet().forEach((entry) -> {
-      entry.getValue().forEach((configOption) -> {
-        String key = entry.getKey() + "." + configOption.getId();
-        Object data = fileConfig.get(key);
-        if (data != null) {
-          configOption.deserialize(data);
-        }
-      });
-    });
+    this.configOptions.forEach((group, options) -> options.forEach((option) -> {
+      String key = group + "." + option.getId();
+      Object data = fileConfig.get(key);
+      if (data != null) {
+        option.deserialize(data);
+      }
+    }));
   }
 
   public void saveToFile() {
@@ -91,21 +94,32 @@ public abstract class ModConfig {
     fileConfig.setComment("configVersion", " Config version is auto-generated\n DO NOT CHANGE");
     fileConfig.set("configVersion", configVersion);
 
-    configOptions.entrySet().forEach((entry) -> {
-      entry.getValue().forEach((configOption) -> {
-        String key = entry.getKey() + "." + configOption.getId();
+    this.configOptions.forEach((group, options) -> options.forEach((option) -> {
+      String key = group + "." + option.getId();
 
-        List<String> comment = configOption.getComment();
-        if (!comment.isEmpty()) {
-          // Prefix each line with space to get "# This is a comment"
-          fileConfig.setComment(key, " " + String.join("\n ", comment));
-        }
-        fileConfig.set(key, configOption.serialize());
-      });
-    });
+      List<String> comment = option.getComment();
+      if (!comment.isEmpty()) {
+        // Prefix each line with space to get "# This is a comment"
+        fileConfig.setComment(key, " " + String.join("\n ", comment));
+      }
+      fileConfig.set(key, option.serialize());
+    }));
 
     fileConfig.save();
     fileConfig.close();
+  }
+
+  public void update() {
+    this.configOptions.forEach((group, options) -> options.forEach(ConfigOption::update));
+    this.updateListeners.forEach((listener) -> listener.accept(this));
+  }
+
+  public void subscribe(Consumer<ModConfig> listener) {
+    this.updateListeners.add(listener);
+  }
+
+  public void unsubscribe(Consumer<ModConfig> listener) {
+    this.updateListeners.remove(listener);
   }
 
   protected boolean updateConfigVersion(int version, Config config) {

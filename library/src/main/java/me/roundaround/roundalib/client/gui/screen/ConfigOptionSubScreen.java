@@ -7,6 +7,10 @@ import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.DirectionalLayoutWidget;
+import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
+import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
@@ -14,45 +18,45 @@ import java.util.List;
 
 public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extends Screen {
   protected final Screen parent;
-  protected final O configOption;
-  protected final O workingCopy;
+  protected final O option;
   protected final String modId;
+  protected final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this);
 
-  @SuppressWarnings("unchecked")
-  protected ConfigOptionSubScreen(Text title, Screen parent, O configOption) {
+  protected ConfigOptionSubScreen(Text title, Screen parent, O option) {
     super(title);
     this.parent = parent;
-    this.configOption = configOption;
-    this.workingCopy = (O) configOption.createWorkingCopy();
-    this.modId = configOption.getModId();
+    this.option = option;
+    this.modId = option.getModId();
 
-    this.workingCopy.subscribeToValueChanges(this.hashCode(), this::onValueChanged);
+    this.option.subscribePending(this::onValueChanged);
   }
 
   @Override
   protected void init() {
-    this.addDrawable(LabelElement.screenTitle(this.textRenderer, this.title, this));
+    this.layout.addHeader(this.title, this.textRenderer);
 
-    this.addDrawableChild(
-        RoundaLibIconButtons.resetButton(this.width - 3 * (GuiUtil.PADDING + RoundaLibIconButtons.SIZE_M),
-            this.height - GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M, this.workingCopy
-        ));
+    DirectionalLayoutWidget row = DirectionalLayoutWidget.horizontal().spacing(8);
+    this.layout.addFooter(row);
 
-    this.addDrawableChild(
-        RoundaLibIconButtons.discardButton(this.width - 2 * (GuiUtil.PADDING + RoundaLibIconButtons.SIZE_M),
-            this.height - GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M, this.configOption.getModId(),
-            (button) -> this.discardAndExit()
-        ));
+    row.add(ButtonWidget.builder(ScreenTexts.DONE, this::close).size(150, 20).build());
+    row.add(RoundaLibIconButtons.resetButton(0, 0, this.option));
 
-    this.addDrawableChild(RoundaLibIconButtons.saveButton(this.width - GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M,
-        this.height - GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M, this.configOption.getModId(),
-        (button) -> this.saveAndExit()
-    ));
+    this.layout.forEachChild(this::addDrawableChild);
+    this.initTabNavigation();
+  }
+
+  @Override
+  protected void initTabNavigation() {
+    this.layout.refreshPositions();
+  }
+
+  protected void close(ButtonWidget button) {
+    this.close();
   }
 
   @Override
   public void close() {
-    this.workingCopy.clearValueChangeListeners(this.hashCode());
+    this.option.unsubscribePending(this::onValueChanged);
     if (this.client == null) {
       return;
     }
@@ -62,19 +66,16 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   @Override
   public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
     switch (keyCode) {
-      case GLFW.GLFW_KEY_ESCAPE:
-        this.discardAndExit();
+      case GLFW.GLFW_KEY_ESCAPE -> {
+        this.close();
         return true;
-      case GLFW.GLFW_KEY_S:
-        if (Screen.hasControlDown()) {
-          this.saveAndExit();
-          return true;
-        }
-      case GLFW.GLFW_KEY_R:
+      }
+      case GLFW.GLFW_KEY_R -> {
         if (Screen.hasControlDown()) {
           this.resetToDefault();
           return true;
         }
+      }
     }
 
     return super.keyPressed(keyCode, scanCode, modifiers);
@@ -134,34 +135,25 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   }
 
   protected void setValue(D value) {
-    this.workingCopy.setValue(value);
+    this.option.setValue(value);
   }
 
   protected D getValue() {
-    return this.workingCopy.getValue();
+    return this.option.getPendingValue();
   }
 
   protected void resetToDefault() {
-    this.workingCopy.resetToDefault();
+    this.option.setDefault();
+  }
+
+  protected boolean isDefault() {
+    return this.option.isPendingDefault();
   }
 
   protected boolean isDirty() {
-    return this.workingCopy.isDirty();
+    return this.option.isDirty();
   }
 
-  protected void commitValueToConfig() {
-    this.configOption.setValue(this.getValue());
-  }
-
-  protected void discardAndExit() {
-    this.close();
-  }
-
-  protected void saveAndExit() {
-    this.commitValueToConfig();
-    this.close();
-  }
-
-  protected void onValueChanged(D prev, D curr) {
+  protected void onValueChanged(D value) {
   }
 }

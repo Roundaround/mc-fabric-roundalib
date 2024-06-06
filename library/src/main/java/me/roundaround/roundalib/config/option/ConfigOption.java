@@ -1,73 +1,72 @@
 package me.roundaround.roundalib.config.option;
 
+import me.roundaround.roundalib.config.ModConfig;
 import net.minecraft.text.Text;
 
-import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Supplier;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 public abstract class ConfigOption<D> {
-  private final String modId;
+  private final ModConfig modConfig;
   private final String id;
   private final Text label;
-  private final boolean showInConfigScreen;
+  private final D defaultValue;
+  private final boolean noGui;
   private final List<String> comment;
   private final boolean useLabelAsCommentFallback;
-  private final Supplier<Boolean> disabledSupplier;
-  private final ValueChangeListeners<D> valueChangeListeners = new ValueChangeListeners<>();
-  private final List<ConfigOption<?>> dependencies;
+  private final Consumer<ConfigOption<?>> onUpdate;
+  private final HashSet<Consumer<D>> savedValueChangeListeners = new HashSet<>();
+  private final HashSet<Consumer<D>> pendingValueChangeListeners = new HashSet<>();
 
-  private D defaultValue;
-  private D value;
-  private D lastSavedValue;
+  private boolean isDisabled;
+  private D pendingValue;
+  private D savedValue;
+  private boolean isDirty;
+  private boolean isPendingDefault;
+  private boolean isDefault;
 
   protected ConfigOption(AbstractBuilder<D> builder) {
-    this(builder.modId, builder.id, builder.label, builder.defaultValue, builder.showInConfigScreen, builder.comment,
-        builder.useLabelAsCommentFallback, builder.disabledSupplier, builder.dependencies
+    this(builder.modConfig, builder.id, builder.label, builder.defaultValue, !builder.noGui, builder.comment,
+        builder.useLabelAsCommentFallback, builder.onUpdate
     );
   }
 
   protected ConfigOption(
-      String modId,
+      ModConfig modConfig,
       String id,
       Text label,
       D defaultValue,
-      boolean showInConfigScreen,
+      boolean noGui,
       List<String> comment,
       boolean useLabelAsCommentFallback,
-      Supplier<Boolean> disabledSupplier,
-      List<ConfigOption<?>> dependencies
+      Consumer<ConfigOption<?>> onUpdate
   ) {
-    this.modId = modId;
+    this.modConfig = modConfig;
     this.id = id;
     this.label = label;
     this.defaultValue = defaultValue;
-    this.showInConfigScreen = showInConfigScreen;
+    this.noGui = !noGui;
     this.comment = comment;
     this.useLabelAsCommentFallback = useLabelAsCommentFallback;
-    this.disabledSupplier = disabledSupplier;
-    this.dependencies = dependencies;
+    this.onUpdate = onUpdate;
 
-    this.value = this.defaultValue;
-    this.dependencies.forEach(dependency -> dependency.valueChangeListeners.add(null, this::dependencyChanged));
+    this.pendingValue = this.defaultValue;
+    this.savedValue = this.defaultValue;
+
+    this.isDirty = false;
+    this.isPendingDefault = true;
+    this.isDefault = true;
   }
 
-  protected ConfigOption(ConfigOption<D> other) {
-    this.modId = other.modId;
-    this.id = other.id;
-    this.label = other.label;
-    this.defaultValue = other.defaultValue;
-    this.showInConfigScreen = other.showInConfigScreen;
-    this.comment = other.comment;
-    this.useLabelAsCommentFallback = other.useLabelAsCommentFallback;
-    this.disabledSupplier = other.disabledSupplier;
-    this.dependencies = other.dependencies;
-    this.value = other.value;
-    this.lastSavedValue = other.lastSavedValue;
+  public ModConfig getModConfig() {
+    return this.modConfig;
   }
 
   public String getModId() {
-    return this.modId;
+    return this.modConfig.getModId();
   }
 
   public String getId() {
@@ -75,7 +74,7 @@ public abstract class ConfigOption<D> {
   }
 
   public boolean shouldShowInConfigScreen() {
-    return this.showInConfigScreen;
+    return !this.noGui;
   }
 
   public Text getLabel() {
@@ -90,42 +89,104 @@ public abstract class ConfigOption<D> {
     return this.useLabelAsCommentFallback;
   }
 
+  public boolean isDisabled() {
+    return this.isDisabled;
+  }
+
   public D getValue() {
-    return this.value;
+    return this.savedValue;
   }
 
-  public void setValue(D value) {
-    D prev = this.value;
-    this.value = value;
-    this.valueChangeListeners.invoke(prev, value);
+  public D getPendingValue() {
+    return this.pendingValue;
   }
 
-  public D getDefault() {
+  public D getDefaultValue() {
     return this.defaultValue;
   }
 
-  public void setDefault(D defaultValue) {
-    this.defaultValue = defaultValue;
-  }
-
-  public void resetToDefault() {
-    this.setValue(this.defaultValue);
-  }
-
-  public void markValueAsSaved() {
-    this.lastSavedValue = value;
-  }
-
+  /**
+   * Whether this ConfigOption has pending changes to its value.
+   */
   public boolean isDirty() {
-    return !this.value.equals(this.lastSavedValue);
+    return this.isDirty;
   }
 
-  public boolean isModified() {
-    return !this.value.equals(this.defaultValue);
+  /**
+   * Whether this ConfigOption's pending value is equal to the default.
+   */
+  public boolean isPendingDefault() {
+    return this.isPendingDefault;
   }
 
-  public boolean isDisabled() {
-    return this.disabledSupplier.get();
+  /**
+   * Whether this ConfigOption's value is different from the default.
+   */
+  public boolean isDefault() {
+    return this.isDefault;
+  }
+
+  /**
+   * By default, ConfigOptions will simply use {@link Objects#equals(Object, Object)} in change detection. In most
+   * cases, this should be sufficient. Override this method to implement your own custom equality check.
+   */
+  protected boolean areValuesEqual(D a, D b) {
+    return Objects.equals(a, b);
+  }
+
+  public void setValue(D pendingValue) {
+    if (this.areValuesEqual(this.getPendingValue(), pendingValue)) {
+      return;
+    }
+
+    D prevPendingValue = this.getPendingValue();
+    this.pendingValue = pendingValue;
+
+    this.isDirty = !this.areValuesEqual(this.getPendingValue(), this.getValue());
+    this.isPendingDefault = this.areValuesEqual(this.getPendingValue(), this.getDefaultValue());
+
+    this.modConfig.update();
+
+    if (!this.areValuesEqual(prevPendingValue, this.getPendingValue())) {
+      this.pendingValueChangeListeners.forEach((listener) -> listener.accept(this.getPendingValue()));
+    }
+  }
+
+  /**
+   * Marks the value as saved and updates any appropriate listeners.
+   */
+  public void commit() {
+    D prevSavedValue = this.getValue();
+    this.savedValue = this.getPendingValue();
+
+    this.isDirty = false;
+    this.isDefault = !this.areValuesEqual(this.getValue(), this.getDefaultValue());
+
+    if (!this.areValuesEqual(prevSavedValue, this.getValue())) {
+      this.savedValueChangeListeners.forEach((listener) -> listener.accept(this.getValue()));
+    }
+  }
+
+  /**
+   * Sets the ConfigOption to its default value using {@link #setValue}, meaning that the update won't take
+   * effect until it is committed to file with {@link ModConfig#saveToFile}.
+   */
+  public void setDefault() {
+    this.setValue(this.getDefaultValue());
+  }
+
+  /**
+   * Reverts the pending ConfigOption back to the committed value.
+   */
+  public void revert() {
+    if (!this.isDirty()) {
+      return;
+    }
+    this.setValue(this.getValue());
+  }
+
+  public void setDisabled(boolean isDisabled) {
+    this.isDisabled = isDisabled;
   }
 
   @SuppressWarnings("unchecked")
@@ -134,51 +195,53 @@ public abstract class ConfigOption<D> {
   }
 
   public Object serialize() {
-    return value;
+    return pendingValue;
   }
 
-  public final void subscribeToValueChanges(Integer hashCode, BiConsumer<D, D> listener) {
-    this.valueChangeListeners.add(hashCode, listener);
+  public void update() {
+    this.onUpdate.accept(this);
   }
 
-  public final void clearValueChangeListeners(Integer hashCode) {
-    this.valueChangeListeners.clear(hashCode);
+  public final void subscribe(Consumer<D> listener) {
+    this.savedValueChangeListeners.add(listener);
   }
 
-  protected void dependencyChanged(Object prev, Object curr) {
-    this.valueChangeListeners.invoke(this.getValue(), this.getValue());
+  public final void unsubscribe(Consumer<D> listener) {
+    this.savedValueChangeListeners.remove(listener);
   }
 
-  public abstract ConfigOption<D> copy();
+  public final void subscribePending(Consumer<D> listener) {
+    this.pendingValueChangeListeners.add(listener);
+  }
 
-  public final ConfigOption<D> createWorkingCopy() {
-    return this.copy();
+  public final void unsubscribePending(Consumer<D> listener) {
+    this.pendingValueChangeListeners.remove(listener);
   }
 
   public static abstract class AbstractBuilder<D> {
-    protected final String modId;
+    protected final ModConfig modConfig;
     protected final String id;
     protected final Text label;
     protected D defaultValue;
-    protected boolean showInConfigScreen = true;
+    protected boolean noGui = false;
     protected List<String> comment = List.of();
     protected boolean useLabelAsCommentFallback = true;
-    protected Supplier<Boolean> disabledSupplier = () -> false;
-    protected List<ConfigOption<?>> dependencies = List.of();
+    protected Consumer<ConfigOption<?>> onUpdate = (option) -> {
+    };
 
-    protected AbstractBuilder(String modId, String id, String labelI18nKey, D defaultValue) {
-      this(modId, id, Text.translatable(labelI18nKey), defaultValue);
+    protected AbstractBuilder(ModConfig modConfig, String id, String labelI18nKey, D defaultValue) {
+      this(modConfig, id, Text.translatable(labelI18nKey), defaultValue);
     }
 
-    protected AbstractBuilder(String modId, String id, Text label, D defaultValue) {
-      this.modId = modId;
+    protected AbstractBuilder(ModConfig modConfig, String id, Text label, D defaultValue) {
+      this.modConfig = modConfig;
       this.id = id;
       this.label = label;
       this.defaultValue = defaultValue;
     }
 
     public AbstractBuilder<D> hideFromConfigScreen() {
-      this.showInConfigScreen = false;
+      this.noGui = true;
       return this;
     }
 
@@ -202,49 +265,11 @@ public abstract class ConfigOption<D> {
       return this;
     }
 
-    public AbstractBuilder<D> setDisabledSupplier(Supplier<Boolean> disabledSupplier) {
-      this.disabledSupplier = disabledSupplier;
-      return this;
-    }
-
-    public AbstractBuilder<D> dependsOn(ConfigOption<?>... dependencies) {
-      this.dependencies = List.of(dependencies);
+    public AbstractBuilder<D> onUpdate(Consumer<ConfigOption<?>> onUpdate) {
+      this.onUpdate = onUpdate;
       return this;
     }
 
     public abstract ConfigOption<D> build();
-  }
-
-  private static class ValueChangeListeners<D> {
-    private final HashMap<Integer, Queue<BiConsumer<D, D>>> listeners = new HashMap<>();
-
-    public void add(Integer hashCode, BiConsumer<D, D> listener) {
-      if (!this.listeners.containsKey(hashCode)) {
-        this.listeners.put(hashCode, new LinkedList<>());
-      }
-      this.listeners.get(hashCode).add(listener);
-    }
-
-    public void remove(Integer hashCode, BiConsumer<D, D> listener) {
-      if (!this.listeners.containsKey(hashCode)) {
-        return;
-      }
-      this.listeners.get(hashCode).remove(listener);
-    }
-
-    public void clear(Integer hashCode) {
-      this.listeners.remove(hashCode);
-    }
-
-    public void invoke(D prev, D curr) {
-      this.listeners.keySet().forEach((hashCode) -> invoke(hashCode, prev, curr));
-    }
-
-    public void invoke(Integer hashCode, D prev, D curr) {
-      if (!this.listeners.containsKey(hashCode)) {
-        return;
-      }
-      this.listeners.get(hashCode).forEach((listener) -> listener.accept(prev, curr));
-    }
   }
 }

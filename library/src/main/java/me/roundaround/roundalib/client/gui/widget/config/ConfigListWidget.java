@@ -58,12 +58,19 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     this.forEachEntry(Entry::tick);
   }
 
+  public void update() {
+    this.forEachEntry(Entry::update);
+  }
+
   public abstract static class Entry extends VariableHeightListWidget.Entry {
     protected Entry(int index, int left, int top, int width, int contentHeight) {
       super(index, left, top, width, contentHeight);
     }
 
     public void tick() {
+    }
+
+    public void update() {
     }
   }
 
@@ -149,8 +156,11 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
       this.resetButton = RoundaLibIconButtons.resetButton(this.getResetButtonLeft(), this.getResetButtonTop(),
           this.option, RoundaLibIconButtons.SIZE_L
       );
+
       this.addChild(this.resetButton);
       this.addSelectableChild(this.resetButton);
+
+      this.update();
     }
 
     public O getOption() {
@@ -189,6 +199,11 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     @Override
     public void tick() {
       this.control.tick();
+    }
+
+    @Override
+    public void update() {
+      this.resetButton.active = !option.isPendingDefault() && !option.isDisabled();
     }
   }
 }

@@ -32,7 +32,7 @@ public class SubScreenControl<D, O extends ConfigOption<D>> extends Control<D, O
         (button) -> GuiUtil.setScreen(this.subScreenFactory.create(client.currentScreen, this.option))
     ).position(this.getWidgetLeft(), this.getWidgetTop()).size(this.getWidgetWidth(), this.getWidgetHeight()).build();
 
-    this.onDisabledChange(this.disabled, this.disabled);
+    this.update();
   }
 
   @Override
@@ -52,8 +52,8 @@ public class SubScreenControl<D, O extends ConfigOption<D>> extends Control<D, O
   }
 
   @Override
-  protected void onDisabledChange(boolean prev, boolean curr) {
-    this.button.active = !this.disabled;
+  protected void update() {
+    this.button.active = !this.getOption().isDisabled();
   }
 
   @FunctionalInterface

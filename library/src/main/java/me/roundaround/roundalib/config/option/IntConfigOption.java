@@ -1,5 +1,6 @@
 package me.roundaround.roundalib.config.option;
 
+import me.roundaround.roundalib.config.ModConfig;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 
@@ -37,17 +38,6 @@ public class IntConfigOption extends ConfigOption<Integer> {
 
     this.slider = builder.slider;
     this.valueDisplayFunction = builder.valueDisplayFunction;
-  }
-
-  private IntConfigOption(IntConfigOption other) {
-    super(other);
-
-    this.minValue = other.minValue;
-    this.maxValue = other.maxValue;
-    this.step = other.step;
-    this.validators = other.validators;
-    this.slider = other.slider;
-    this.valueDisplayFunction = other.valueDisplayFunction;
   }
 
   public Optional<Integer> getMinValue() {
@@ -125,25 +115,20 @@ public class IntConfigOption extends ConfigOption<Integer> {
     });
   }
 
-  @Override
-  public IntConfigOption copy() {
-    return new IntConfigOption(this);
+  public static Builder builder(ModConfig modConfig, String id, String labelI18nKey) {
+    return new Builder(modConfig, id, labelI18nKey);
   }
 
-  public static Builder builder(String modId, String id, String labelI18nKey) {
-    return new Builder(modId, id, labelI18nKey);
+  public static Builder builder(ModConfig modConfig, String id, Text label) {
+    return new Builder(modConfig, id, label);
   }
 
-  public static Builder builder(String modId, String id, Text label) {
-    return new Builder(modId, id, label);
+  public static Builder sliderBuilder(ModConfig modConfig, String id, String labelI18nKey) {
+    return builder(modConfig, id, labelI18nKey).setUseSlider(true);
   }
 
-  public static Builder sliderBuilder(String modId, String id, String labelI18nKey) {
-    return builder(modId, id, labelI18nKey).setUseSlider(true);
-  }
-
-  public static Builder sliderBuilder(String modId, String id, Text label) {
-    return builder(modId, id, label).setUseSlider(true);
+  public static Builder sliderBuilder(ModConfig modConfig, String id, Text label) {
+    return builder(modConfig, id, label).setUseSlider(true);
   }
 
   public static class Builder extends ConfigOption.AbstractBuilder<Integer> {
@@ -154,12 +139,12 @@ public class IntConfigOption extends ConfigOption<Integer> {
     private boolean slider = false;
     private Function<Integer, String> valueDisplayFunction = (Integer value) -> value.toString();
 
-    private Builder(String modId, String id, String labelI18nKey) {
-      super(modId, id, labelI18nKey, 0);
+    private Builder(ModConfig modConfig, String id, String labelI18nKey) {
+      super(modConfig, id, labelI18nKey, 0);
     }
 
-    private Builder(String modId, String id, Text label) {
-      super(modId, id, label, 0);
+    private Builder(ModConfig modConfig, String id, Text label) {
+      super(modConfig, id, label, 0);
     }
 
     public Builder setDefaultValue(int defaultValue) {

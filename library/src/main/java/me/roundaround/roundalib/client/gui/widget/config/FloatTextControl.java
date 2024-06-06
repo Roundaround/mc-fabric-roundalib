@@ -6,7 +6,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.util.math.MathHelper;
 
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -41,7 +40,7 @@ public class FloatTextControl extends Control<Float, FloatConfigOption> {
     this.textField.setMaxLength(12);
     this.textField.setChangedListener(this::onTextChanged);
 
-    this.onDisabledChange(this.disabled, this.disabled);
+    this.update();
   }
 
   @Override
@@ -73,22 +72,20 @@ public class FloatTextControl extends Control<Float, FloatConfigOption> {
   }
 
   @Override
-  protected void onConfigValueChange(Float prev, Float curr) {
+  protected void update() {
+    boolean disabled = this.getOption().isDisabled();
+    this.textField.active = !disabled;
+    this.textField.setEditable(!disabled);
+
+    float value = this.getOption().getValue();
     try {
       float parsed = this.parseFloat(this.textField.getText());
-      if (Math.abs(curr - parsed) < MathHelper.EPSILON) {
-        return;
+      if (!this.getOption().areValuesEqual(value, parsed)) {
+        this.textField.setText(this.getOption().toString());
       }
-      this.textField.setText(curr.toString());
     } catch (Exception e) {
-      this.textField.setText(curr.toString());
+      this.textField.setText(this.getOption().toString());
     }
-  }
-
-  @Override
-  protected void onDisabledChange(boolean prev, boolean curr) {
-    this.textField.active = !this.disabled;
-    this.textField.setEditable(!this.disabled);
   }
 
   private void onTextChanged(String value) {

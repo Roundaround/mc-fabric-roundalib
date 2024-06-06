@@ -10,7 +10,6 @@ import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 
 import java.util.List;
-import java.util.Objects;
 
 public class IntTextControl extends Control<Integer, IntConfigOption> {
   private final TextFieldWidget textField;
@@ -58,7 +57,7 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
       this.minusButton = null;
     }
 
-    this.onDisabledChange(this.disabled, this.disabled);
+    this.update();
   }
 
   @Override
@@ -112,20 +111,20 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
   }
 
   @Override
-  protected void onConfigValueChange(Integer prev, Integer curr) {
-    String currStr = String.valueOf(curr);
+  protected void update() {
+    IntConfigOption option = this.getOption();
 
-    if (Objects.equals(currStr, this.textField.getText())) {
-      return;
+    boolean disabled = option.isDisabled();
+    this.textField.active = !disabled;
+    this.textField.setEditable(!disabled);
+
+    String value = option.getValueAsString();
+    if (!value.equals(this.textField.getText())) {
+      this.textField.setText(value);
     }
 
-    this.textField.setText(currStr);
-  }
-
-  @Override
-  protected void onDisabledChange(boolean prev, boolean curr) {
-    this.textField.active = !this.disabled;
-    this.textField.setEditable(!this.disabled);
+    this.plusButton.active = !disabled && option.canIncrement();
+    this.minusButton.active = !disabled && option.canDecrement();
   }
 
   private void onTextChanged(String value) {

@@ -26,7 +26,7 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
         this.option.getValue(), this::onSliderChanged, this::getValueAsText
     );
 
-    this.onDisabledChange(this.disabled, this.disabled);
+    this.update();
   }
 
   @Override
@@ -47,16 +47,13 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
   }
 
   @Override
-  protected void onConfigValueChange(Integer prev, Integer curr) {
-    if (Objects.equals(curr, this.slider.getIntValue())) {
-      return;
-    }
-    this.slider.setIntValue(curr);
-  }
+  protected void update() {
+    this.slider.active = !this.getOption().isDisabled();
 
-  @Override
-  protected void onDisabledChange(boolean prev, boolean curr) {
-    this.slider.active = !this.disabled;
+    int value = this.getOption().getValue();
+    if (!Objects.equals(value, this.slider.getIntValue())) {
+      this.slider.setIntValue(value);
+    }
   }
 
   private void onSliderChanged(int value) {

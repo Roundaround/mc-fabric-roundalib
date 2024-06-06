@@ -14,11 +14,6 @@ public class OptionListConfigOption<T extends ListOptionValue<T>> extends Config
     this.values = builder.values;
   }
 
-  private OptionListConfigOption(OptionListConfigOption<T> other) {
-    super(other);
-    this.values = other.values;
-  }
-
   @Override
   public void deserialize(Object data) {
     setValue(getValue().getFromId((String) data));
@@ -41,45 +36,40 @@ public class OptionListConfigOption<T extends ListOptionValue<T>> extends Config
     return this.values;
   }
 
-  @Override
-  public OptionListConfigOption<T> copy() {
-    return new OptionListConfigOption<>(this);
+  public static <T extends ListOptionValue<T>, C extends ModConfig> OptionListConfigOption<T> defaultInstance(
+      ModConfig modConfig, String id, String labelI18nKey, List<T> values, T defaultValue
+  ) {
+    return builder(modConfig, id, labelI18nKey, values, defaultValue).build();
   }
 
   public static <T extends ListOptionValue<T>, C extends ModConfig> OptionListConfigOption<T> defaultInstance(
-      String modId, String id, String labelI18nKey, List<T> values, T defaultValue
+      ModConfig modConfig, String id, Text label, List<T> values, T defaultValue
   ) {
-    return builder(modId, id, labelI18nKey, values, defaultValue).build();
-  }
-
-  public static <T extends ListOptionValue<T>, C extends ModConfig> OptionListConfigOption<T> defaultInstance(
-      String modId, String id, Text label, List<T> values, T defaultValue
-  ) {
-    return builder(modId, id, label, values, defaultValue).build();
+    return builder(modConfig, id, label, values, defaultValue).build();
   }
 
   public static <T extends ListOptionValue<T>, C extends ModConfig> Builder<T> builder(
-      String modId, String id, String labelI18nKey, List<T> values, T defaultValue
+      ModConfig modConfig, String id, String labelI18nKey, List<T> values, T defaultValue
   ) {
-    return new Builder<>(modId, id, labelI18nKey, values, defaultValue);
+    return new Builder<>(modConfig, id, labelI18nKey, values, defaultValue);
   }
 
   public static <T extends ListOptionValue<T>> Builder<T> builder(
-      String modId, String id, Text label, List<T> values, T defaultValue
+      ModConfig modConfig, String id, Text label, List<T> values, T defaultValue
   ) {
-    return new Builder<>(modId, id, label, values, defaultValue);
+    return new Builder<>(modConfig, id, label, values, defaultValue);
   }
 
   public static class Builder<T extends ListOptionValue<T>> extends ConfigOption.AbstractBuilder<T> {
     private final List<T> values;
 
-    private Builder(String modId, String id, String labelI18nKey, List<T> values, T defaultValue) {
-      super(modId, id, labelI18nKey, defaultValue);
+    private Builder(ModConfig modConfig, String id, String labelI18nKey, List<T> values, T defaultValue) {
+      super(modConfig, id, labelI18nKey, defaultValue);
       this.values = values;
     }
 
-    private Builder(String modId, String id, Text label, List<T> values, T defaultValue) {
-      super(modId, id, label, defaultValue);
+    private Builder(ModConfig modConfig, String id, Text label, List<T> values, T defaultValue) {
+      super(modConfig, id, label, defaultValue);
       this.values = values;
     }
 

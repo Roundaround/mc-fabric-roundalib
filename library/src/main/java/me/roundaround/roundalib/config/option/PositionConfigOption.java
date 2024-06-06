@@ -1,15 +1,12 @@
 package me.roundaround.roundalib.config.option;
 
+import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.value.Position;
 import net.minecraft.text.Text;
 
 public class PositionConfigOption extends ConfigOption<Position> {
   protected PositionConfigOption(Builder builder) {
     super(builder);
-  }
-
-  private PositionConfigOption(PositionConfigOption other) {
-    super(other);
   }
 
   @Override
@@ -27,26 +24,21 @@ public class PositionConfigOption extends ConfigOption<Position> {
     return String.format("(%d,%d)", value.x(), value.y());
   }
 
-  @Override
-  public PositionConfigOption copy() {
-    return new PositionConfigOption(this);
+  public static Builder builder(ModConfig modConfig, String id, String labelI18nKey, Position defaultValue) {
+    return new Builder(modConfig, id, labelI18nKey, defaultValue);
   }
 
-  public static Builder builder(String modId, String id, String labelI18nKey, Position defaultValue) {
-    return new Builder(modId, id, labelI18nKey, defaultValue);
-  }
-
-  public static Builder builder(String modId, String id, Text label, Position defaultValue) {
-    return new Builder(modId, id, label, defaultValue);
+  public static Builder builder(ModConfig modConfig, String id, Text label, Position defaultValue) {
+    return new Builder(modConfig, id, label, defaultValue);
   }
 
   public static class Builder extends ConfigOption.AbstractBuilder<Position> {
-    private Builder(String modId, String id, String labelI18nKey, Position defaultValue) {
-      super(modId, id, labelI18nKey, defaultValue);
+    private Builder(ModConfig modConfig, String id, String labelI18nKey, Position defaultValue) {
+      super(modConfig, id, labelI18nKey, defaultValue);
     }
 
-    private Builder(String modId, String id, Text label, Position defaultValue) {
-      super(modId, id, label, defaultValue);
+    private Builder(ModConfig modConfig, String id, Text label, Position defaultValue) {
+      super(modConfig, id, label, defaultValue);
     }
 
     @Override

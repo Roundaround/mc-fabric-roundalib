@@ -8,7 +8,6 @@ import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 
 import java.util.List;
-import java.util.Objects;
 
 public class TextControl extends Control<String, StringConfigOption> {
   private final TextFieldWidget textField;
@@ -23,7 +22,7 @@ public class TextControl extends Control<String, StringConfigOption> {
     this.textField.setText(this.option.getValue());
     this.textField.setChangedListener(this::onTextChanged);
 
-    this.onDisabledChange(this.disabled, this.disabled);
+    this.update();
   }
 
   @Override
@@ -55,17 +54,15 @@ public class TextControl extends Control<String, StringConfigOption> {
   }
 
   @Override
-  protected void onConfigValueChange(String prev, String curr) {
-    if (Objects.equals(curr, this.textField.getText())) {
-      return;
-    }
-    this.textField.setText(curr);
-  }
+  protected void update() {
+    boolean disabled = this.getOption().isDisabled();
+    this.textField.active = !disabled;
+    this.textField.setEditable(!disabled);
 
-  @Override
-  protected void onDisabledChange(boolean prev, boolean curr) {
-    this.textField.active = !this.disabled;
-    this.textField.setEditable(!this.disabled);
+    String value = this.getOption().getValue();
+    if (!value.equals(this.textField.getText())) {
+      this.textField.setText(value);
+    }
   }
 
   private void onTextChanged(String text) {
