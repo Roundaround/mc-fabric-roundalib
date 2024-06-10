@@ -23,12 +23,11 @@ public class BooleanConfigOption extends ConfigOption<Boolean> {
   }
 
   public Text getValueLabel() {
-    return this.getValue() ? this.enabledLabel : this.disabledLabel;
+    return this.getPendingValue() ? this.getEnabledLabel() : this.getDisabledLabel();
   }
 
-  public boolean toggle() {
-    this.setValue(!this.getValue());
-    return this.getValue();
+  public void toggle() {
+    this.setValue(!this.getPendingValue());
   }
 
   public static Builder builder(ModConfig modConfig, String id, String labelI18nKey) {

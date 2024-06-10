@@ -135,13 +135,12 @@ public abstract class ConfigOption<D> {
   }
 
   public void setValue(D pendingValue) {
-    if (this.areValuesEqual(this.getPendingValue(), pendingValue)) {
+    D prevPendingValue = this.getPendingValue();
+    if (this.areValuesEqual(prevPendingValue, pendingValue)) {
       return;
     }
 
-    D prevPendingValue = this.getPendingValue();
     this.pendingValue = pendingValue;
-
     this.isDirty = !this.areValuesEqual(this.getPendingValue(), this.getValue());
     this.isPendingDefault = this.areValuesEqual(this.getPendingValue(), this.getDefaultValue());
 

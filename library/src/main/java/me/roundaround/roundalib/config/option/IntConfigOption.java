@@ -65,7 +65,7 @@ public class IntConfigOption extends ConfigOption<Integer> {
       return false;
     }
 
-    return getValue() < maxValue.orElse(Integer.MAX_VALUE);
+    return getPendingValue() < maxValue.orElse(Integer.MAX_VALUE);
   }
 
   public boolean canDecrement() {
@@ -73,7 +73,7 @@ public class IntConfigOption extends ConfigOption<Integer> {
       return false;
     }
 
-    return getValue() > this.minValue.orElse(Integer.MIN_VALUE);
+    return getPendingValue() > this.minValue.orElse(Integer.MIN_VALUE);
   }
 
   public boolean showStepButtons() {
@@ -89,11 +89,12 @@ public class IntConfigOption extends ConfigOption<Integer> {
       return false;
     }
 
-    int newValue = MathHelper.clamp(getValue() + this.step.get() * mult, this.minValue.orElse(Integer.MIN_VALUE),
+    int value = this.getPendingValue();
+    int newValue = MathHelper.clamp(value + this.step.get() * mult, this.minValue.orElse(Integer.MIN_VALUE),
         this.maxValue.orElse(Integer.MAX_VALUE)
     );
 
-    if (newValue == getValue()) {
+    if (newValue == value) {
       return false;
     }
 
@@ -102,7 +103,7 @@ public class IntConfigOption extends ConfigOption<Integer> {
   }
 
   public String getValueAsString() {
-    return this.getValueAsString(this.getValue());
+    return this.getValueAsString(this.getPendingValue());
   }
 
   public String getValueAsString(int value) {
@@ -111,7 +112,7 @@ public class IntConfigOption extends ConfigOption<Integer> {
 
   public boolean validateInput(int newValue) {
     return this.validators.stream().allMatch((validator) -> {
-      return validator.apply(getValue(), newValue);
+      return validator.apply(getPendingValue(), newValue);
     });
   }
 

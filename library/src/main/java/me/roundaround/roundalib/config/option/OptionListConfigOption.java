@@ -21,15 +21,15 @@ public class OptionListConfigOption<T extends ListOptionValue<T>> extends Config
 
   @Override
   public Object serialize() {
-    return getValue().getId();
+    return getPendingValue().getId();
   }
 
   public void setNext() {
-    setValue(getValue().getNext());
+    setValue(getPendingValue().getNext());
   }
 
   public void setPrev() {
-    setValue(getValue().getPrev());
+    setValue(getPendingValue().getPrev());
   }
 
   public List<T> getValues() {

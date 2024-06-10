@@ -39,7 +39,7 @@ public class StringConfigOption extends ConfigOption<String> {
 
   public boolean validateInput(String newValue) {
     return this.validators.stream().allMatch((validator) -> {
-      return validator.apply(getValue(), newValue);
+      return validator.apply(getPendingValue(), newValue);
     });
   }
 

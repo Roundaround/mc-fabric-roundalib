@@ -36,7 +36,7 @@ public class FloatTextControl extends Control<Float, FloatConfigOption> {
       }
     };
 
-    this.textField.setText(this.option.getValue().toString());
+    this.textField.setText(this.option.getValueAsString());
     this.textField.setMaxLength(12);
     this.textField.setChangedListener(this::onTextChanged);
 
@@ -77,7 +77,7 @@ public class FloatTextControl extends Control<Float, FloatConfigOption> {
     this.textField.active = !disabled;
     this.textField.setEditable(!disabled);
 
-    float value = this.getOption().getValue();
+    float value = this.getOption().getPendingValue();
     try {
       float parsed = this.parseFloat(this.textField.getText());
       if (!this.getOption().areValuesEqual(value, parsed)) {

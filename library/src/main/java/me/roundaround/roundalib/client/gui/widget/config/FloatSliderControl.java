@@ -24,7 +24,7 @@ public class FloatSliderControl extends Control<Float, FloatConfigOption> {
 
     this.slider = new FloatSliderWidget(this.getWidgetLeft(), this.getWidgetTop(), this.getWidgetWidth(),
         this.getWidgetHeight(), this.option.getMinValue().get(), this.option.getMaxValue().get(), this.option.getStep(),
-        this.option.getValue(), this::onSliderChanged, this::getValueAsText
+        this.option.getPendingValue(), this::onSliderChanged, this::getValueAsText
     );
 
     this.update();
@@ -51,7 +51,7 @@ public class FloatSliderControl extends Control<Float, FloatConfigOption> {
   protected void update() {
     this.slider.active = !this.getOption().isDisabled();
 
-    float value = this.getOption().getValue();
+    float value = this.getOption().getPendingValue();
     if (!this.getOption().areValuesEqual(value, this.slider.getFloatValue())) {
       this.slider.setFloatValue(value);
     }

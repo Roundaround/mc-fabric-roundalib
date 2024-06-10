@@ -21,7 +21,7 @@ public class TestModConfig extends ModConfig {
     registerConfigOption(
         "group0", BooleanConfigOption.builder(this, "testOption1", "testmod.group0.testOption1.label")
             .setDefaultValue(true)
-            .onUpdate((option) -> option.setDisabled(!first.getValue()))
+            .onUpdate((option) -> option.setDisabled(!first.getPendingValue()))
             .build());
 
     registerConfigOption("group0",
@@ -35,7 +35,7 @@ public class TestModConfig extends ModConfig {
             .setDefaultValue("foo")
             .setMinLength(3)
             .setMaxLength(12)
-            .onUpdate((option) -> option.setDisabled(!first.getValue()))
+            .onUpdate((option) -> option.setDisabled(!first.getPendingValue()))
             .build());
 
     registerConfigOption(
@@ -45,7 +45,7 @@ public class TestModConfig extends ModConfig {
             .setMaxValue(100)
             .setStep(5)
             .addCustomValidator((option, value) -> value % 25 != 0)
-            .onUpdate((option) -> option.setDisabled(!first.getValue()))
+            .onUpdate((option) -> option.setDisabled(!first.getPendingValue()))
             .build());
 
     registerConfigOption(
@@ -55,7 +55,7 @@ public class TestModConfig extends ModConfig {
             .setMaxValue(100)
             .setStep(5)
             .setUseSlider(true)
-            .onUpdate((option) -> option.setDisabled(!first.getValue()))
+            .onUpdate((option) -> option.setDisabled(!first.getPendingValue()))
             .build());
 
     registerConfigOption(

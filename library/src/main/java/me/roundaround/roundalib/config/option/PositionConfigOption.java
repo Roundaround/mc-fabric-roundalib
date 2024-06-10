@@ -20,7 +20,7 @@ public class PositionConfigOption extends ConfigOption<Position> {
 
   @Override
   public Object serialize() {
-    Position value = getValue();
+    Position value = getPendingValue();
     return String.format("(%d,%d)", value.x(), value.y());
   }
 

@@ -23,7 +23,7 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
 
     this.slider = new IntSliderWidget(this.getWidgetLeft(), this.getWidgetTop(), this.getWidgetWidth(),
         this.getWidgetHeight(), this.option.getMinValue().get(), this.option.getMaxValue().get(), this.option.getStep(),
-        this.option.getValue(), this::onSliderChanged, this::getValueAsText
+        this.option.getPendingValue(), this::onSliderChanged, this::getValueAsText
     );
 
     this.update();
@@ -50,7 +50,7 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
   protected void update() {
     this.slider.active = !this.getOption().isDisabled();
 
-    int value = this.getOption().getValue();
+    int value = this.getOption().getPendingValue();
     if (!Objects.equals(value, this.slider.getIntValue())) {
       this.slider.setIntValue(value);
     }

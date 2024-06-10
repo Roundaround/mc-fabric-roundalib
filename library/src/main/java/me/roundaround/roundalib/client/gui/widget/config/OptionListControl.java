@@ -20,7 +20,7 @@ public class OptionListControl<S extends ListOptionValue<S>> extends Control<S, 
 
     this.button = new CyclingButtonWidget.Builder<S>((value) -> value.getDisplayText(option.getModId())).values(
             option.getValues())
-        .initially(option.getValue())
+        .initially(option.getPendingValue())
         .omitKeyText()
         .build(this.getWidgetLeft(), this.getWidgetTop(), this.getWidgetWidth(), this.getWidgetHeight(), Text.empty(),
             this::buttonClicked
@@ -48,7 +48,7 @@ public class OptionListControl<S extends ListOptionValue<S>> extends Control<S, 
   @Override
   protected void update() {
     this.button.active = !this.getOption().isDisabled();
-    this.button.setValue(this.getOption().getValue());
+    this.button.setValue(this.getOption().getPendingValue());
   }
 
   private void buttonClicked(CyclingButtonWidget<S> button, S value) {

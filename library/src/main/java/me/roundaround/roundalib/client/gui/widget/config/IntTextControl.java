@@ -38,7 +38,7 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
       }
     };
 
-    this.textField.setText(this.option.getValue().toString());
+    this.textField.setText(this.option.getValueAsString());
     this.textField.setMaxLength(12);
     this.textField.setChangedListener(this::onTextChanged);
 

@@ -55,7 +55,7 @@ public class FloatConfigOption extends ConfigOption<Float> {
 
   public boolean validateInput(float newValue) {
     return this.validators.stream().allMatch((validator) -> {
-      return validator.apply(getValue(), newValue);
+      return validator.apply(getPendingValue(), newValue);
     });
   }
 
@@ -68,11 +68,11 @@ public class FloatConfigOption extends ConfigOption<Float> {
   }
 
   public String getValueAsString() {
-    return this.getValueAsString(this.getValue());
+    return this.getValueAsString(this.getPendingValue());
   }
 
   public String getValueAsString(float value) {
-    return this.valueDisplayFunction.apply(getValue());
+    return this.valueDisplayFunction.apply(getPendingValue());
   }
 
   @Override

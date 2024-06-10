@@ -107,6 +107,8 @@ public abstract class ModConfig {
 
     fileConfig.save();
     fileConfig.close();
+
+    this.configOptions.forEach((group, options) -> options.forEach(ConfigOption::commit));
   }
 
   public void update() {

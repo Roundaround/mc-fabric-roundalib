@@ -203,6 +203,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
 
     @Override
     public void update() {
+      this.control.update();
       this.resetButton.active = !option.isPendingDefault() && !option.isDisabled();
     }
   }

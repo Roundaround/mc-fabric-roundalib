@@ -19,7 +19,7 @@ public class TextControl extends Control<String, StringConfigOption> {
         this.getWidgetWidth() - 2, this.getWidgetHeight() - 2, this.option.getLabel()
     );
 
-    this.textField.setText(this.option.getValue());
+    this.textField.setText(this.option.getPendingValue());
     this.textField.setChangedListener(this::onTextChanged);
 
     this.update();
@@ -59,7 +59,7 @@ public class TextControl extends Control<String, StringConfigOption> {
     this.textField.active = !disabled;
     this.textField.setEditable(!disabled);
 
-    String value = this.getOption().getValue();
+    String value = this.getOption().getPendingValue();
     if (!value.equals(this.textField.getText())) {
       this.textField.setText(value);
     }
