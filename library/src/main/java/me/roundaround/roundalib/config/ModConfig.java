@@ -129,19 +129,15 @@ public abstract class ModConfig {
   }
 
   protected <T extends ConfigOption<?>> T registerConfigOption(T configOption) {
-    return registerConfigOption(null, configOption);
-  }
-
-  protected <T extends ConfigOption<?>> T registerConfigOption(String group, T configOption) {
-    String key = modId;
-    if (group != null) {
-      key += "." + group;
+    String key = this.modId;
+    if (configOption.getGroup() != null) {
+      key += "." + configOption.getGroup();
     }
 
-    if (!configOptions.containsKey(key)) {
-      configOptions.put(key, new LinkedList<>());
+    if (!this.configOptions.containsKey(key)) {
+      this.configOptions.put(key, new LinkedList<>());
     }
-    configOptions.get(key).add(configOption);
+    this.configOptions.get(key).add(configOption);
     return configOption;
   }
 

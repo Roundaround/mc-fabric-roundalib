@@ -2,7 +2,6 @@ package me.roundaround.roundalib.config.option;
 
 import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.value.Position;
-import net.minecraft.text.Text;
 
 public class PositionConfigOption extends ConfigOption<Position> {
   protected PositionConfigOption(Builder builder) {
@@ -20,25 +19,19 @@ public class PositionConfigOption extends ConfigOption<Position> {
 
   @Override
   public Object serialize() {
-    Position value = getPendingValue();
+    Position value = this.getPendingValue();
     return String.format("(%d,%d)", value.x(), value.y());
   }
 
-  public static Builder builder(ModConfig modConfig, String id, String labelI18nKey, Position defaultValue) {
-    return new Builder(modConfig, id, labelI18nKey, defaultValue);
+  public static Builder builder(ModConfig modConfig, String id) {
+    return new Builder(modConfig, id);
   }
 
-  public static Builder builder(ModConfig modConfig, String id, Text label, Position defaultValue) {
-    return new Builder(modConfig, id, label, defaultValue);
-  }
+  public static class Builder extends ConfigOption.AbstractBuilder<Position, Builder> {
+    private Builder(ModConfig modConfig, String id) {
+      super(modConfig, id);
 
-  public static class Builder extends ConfigOption.AbstractBuilder<Position> {
-    private Builder(ModConfig modConfig, String id, String labelI18nKey, Position defaultValue) {
-      super(modConfig, id, labelI18nKey, defaultValue);
-    }
-
-    private Builder(ModConfig modConfig, String id, Text label, Position defaultValue) {
-      super(modConfig, id, label, defaultValue);
+      this.setDefaultValue(new Position(0, 0));
     }
 
     @Override

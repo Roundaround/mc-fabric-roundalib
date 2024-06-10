@@ -11,12 +11,12 @@ import java.util.function.Consumer;
 
 public abstract class ConfigOption<D> {
   private final ModConfig modConfig;
+  private final String group;
   private final String id;
   private final Text label;
   private final D defaultValue;
   private final boolean noGui;
   private final List<String> comment;
-  private final boolean useLabelAsCommentFallback;
   private final Consumer<ConfigOption<?>> onUpdate;
   private final HashSet<Consumer<D>> savedValueChangeListeners = new HashSet<>();
   private final HashSet<Consumer<D>> pendingValueChangeListeners = new HashSet<>();
@@ -28,29 +28,29 @@ public abstract class ConfigOption<D> {
   private boolean isPendingDefault;
   private boolean isDefault;
 
-  protected ConfigOption(AbstractBuilder<D> builder) {
-    this(builder.modConfig, builder.id, builder.label, builder.defaultValue, !builder.noGui, builder.comment,
-        builder.useLabelAsCommentFallback, builder.onUpdate
+  protected ConfigOption(AbstractBuilder<D, ?> builder) {
+    this(builder.modConfig, builder.group, builder.id, builder.label, builder.defaultValue, !builder.noGui,
+        builder.comment, builder.onUpdate
     );
   }
 
   protected ConfigOption(
       ModConfig modConfig,
+      String group,
       String id,
       Text label,
       D defaultValue,
       boolean noGui,
       List<String> comment,
-      boolean useLabelAsCommentFallback,
       Consumer<ConfigOption<?>> onUpdate
   ) {
     this.modConfig = modConfig;
+    this.group = group;
     this.id = id;
     this.label = label;
     this.defaultValue = defaultValue;
     this.noGui = !noGui;
     this.comment = comment;
-    this.useLabelAsCommentFallback = useLabelAsCommentFallback;
     this.onUpdate = onUpdate;
 
     this.pendingValue = this.defaultValue;
@@ -73,8 +73,8 @@ public abstract class ConfigOption<D> {
     return this.id;
   }
 
-  public boolean shouldShowInConfigScreen() {
-    return !this.noGui;
+  public String getGroup() {
+    return this.group;
   }
 
   public Text getLabel() {
@@ -85,8 +85,8 @@ public abstract class ConfigOption<D> {
     return this.comment;
   }
 
-  public boolean getUseLabelAsCommentFallback() {
-    return this.useLabelAsCommentFallback;
+  public boolean hasGuiControl() {
+    return !this.noGui;
   }
 
   public boolean isDisabled() {
@@ -217,56 +217,87 @@ public abstract class ConfigOption<D> {
     this.pendingValueChangeListeners.remove(listener);
   }
 
-  public static abstract class AbstractBuilder<D> {
+  @SuppressWarnings("unchecked")
+  public static abstract class AbstractBuilder<D, B extends AbstractBuilder<D, B>> {
     protected final ModConfig modConfig;
     protected final String id;
-    protected final Text label;
+    protected String group = null;
+    protected Text label;
     protected D defaultValue;
     protected boolean noGui = false;
     protected List<String> comment = List.of();
-    protected boolean useLabelAsCommentFallback = true;
     protected Consumer<ConfigOption<?>> onUpdate = (option) -> {
     };
 
-    protected AbstractBuilder(ModConfig modConfig, String id, String labelI18nKey, D defaultValue) {
-      this(modConfig, id, Text.translatable(labelI18nKey), defaultValue);
-    }
+    private boolean hasDefaultLabel = true;
 
-    protected AbstractBuilder(ModConfig modConfig, String id, Text label, D defaultValue) {
+    protected AbstractBuilder(ModConfig modConfig, String id) {
       this.modConfig = modConfig;
       this.id = id;
+
+      this.label = this.getDefaultLabel();
+    }
+
+    protected Text getDefaultLabel() {
+      StringBuilder builder = new StringBuilder();
+      builder.append(this.modConfig.getModId()).append(".");
+
+      if (this.group != null) {
+        builder.append(this.group).append(".");
+      }
+
+      builder.append(this.id).append(".label");
+      return Text.translatable(builder.toString());
+    }
+
+    public B setGroup(String group) {
+      this.group = group;
+      if (this.hasDefaultLabel) {
+        this.label = this.getDefaultLabel();
+      }
+      return (B) this;
+    }
+
+    public B setLabel(String i18nKey) {
+      this.label = Text.translatable(i18nKey);
+      this.hasDefaultLabel = false;
+      return (B) this;
+    }
+
+    public B setLabel(Text label) {
       this.label = label;
+      this.hasDefaultLabel = false;
+      return (B) this;
+    }
+
+    public B setDefaultValue(D defaultValue) {
       this.defaultValue = defaultValue;
+      return (B) this;
     }
 
-    public AbstractBuilder<D> hideFromConfigScreen() {
+    public B hideFromConfigScreen() {
       this.noGui = true;
-      return this;
+      return (B) this;
     }
 
-    public AbstractBuilder<D> setComment(String comment) {
+    public B setComment(String comment) {
       this.comment = List.of(comment);
-      return this;
+      return (B) this;
     }
 
-    public AbstractBuilder<D> setComment(String... comment) {
+    public B setComment(String... comment) {
       this.comment = List.of(comment);
-      return this;
+      return (B) this;
     }
 
-    public AbstractBuilder<D> setComment(Collection<String> comment) {
+    public B setComment(Collection<String> comment) {
       this.comment = List.copyOf(comment);
-      return this;
+      return (B) this;
     }
 
-    public AbstractBuilder<D> setUseLabelAsCommentFallback(boolean useLabelAsCommentFallback) {
-      this.useLabelAsCommentFallback = useLabelAsCommentFallback;
-      return this;
-    }
-
-    public AbstractBuilder<D> onUpdate(Consumer<ConfigOption<?>> onUpdate) {
+    public B onUpdate(Consumer<ConfigOption<?>> onUpdate) {
       this.onUpdate = onUpdate;
-      return this;
+      return (B) this;
     }
 
     public abstract ConfigOption<D> build();

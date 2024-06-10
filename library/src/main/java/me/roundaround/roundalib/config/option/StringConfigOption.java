@@ -1,7 +1,6 @@
 package me.roundaround.roundalib.config.option;
 
 import me.roundaround.roundalib.config.ModConfig;
-import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +24,7 @@ public class StringConfigOption extends ConfigOption<String> {
     if (this.minLength.isPresent()) {
       allValidators.add((String prev, String curr) -> curr != null && curr.length() >= this.minLength.get());
     }
-    if (maxLength.isPresent()) {
+    if (this.maxLength.isPresent()) {
       allValidators.add((String prev, String curr) -> curr != null && curr.length() <= this.maxLength.get());
     }
     if (this.regex.isPresent()) {
@@ -43,41 +42,18 @@ public class StringConfigOption extends ConfigOption<String> {
     });
   }
 
-  public static StringConfigOption defaultInstance(
-      ModConfig modConfig, String id, String labelI18nKey, String defaultValue
-  ) {
-    return builder(modConfig, id, labelI18nKey).setDefaultValue(defaultValue).build();
+  public static Builder builder(ModConfig modConfig, String id) {
+    return new Builder(modConfig, id);
   }
 
-  public static StringConfigOption defaultInstance(ModConfig modConfig, String id, Text label, String defaultValue) {
-    return builder(modConfig, id, label).setDefaultValue(defaultValue).build();
-  }
-
-  public static Builder builder(ModConfig modConfig, String id, String labelI18nKey) {
-    return new Builder(modConfig, id, labelI18nKey);
-  }
-
-  public static Builder builder(ModConfig modConfig, String id, Text label) {
-    return new Builder(modConfig, id, label);
-  }
-
-  public static class Builder extends ConfigOption.AbstractBuilder<String> {
+  public static class Builder extends ConfigOption.AbstractBuilder<String, Builder> {
     private Optional<Integer> minLength = Optional.empty();
     private Optional<Integer> maxLength = Optional.empty();
     private Optional<Pattern> regex = Optional.empty();
     private List<Validator> customValidators = new ArrayList<>();
 
-    private Builder(ModConfig modConfig, String id, String labelI18nKey) {
-      super(modConfig, id, labelI18nKey, "");
-    }
-
-    private Builder(ModConfig modConfig, String id, Text label) {
-      super(modConfig, id, label, "");
-    }
-
-    public Builder setDefaultValue(String defaultValue) {
-      this.defaultValue = defaultValue;
-      return this;
+    private Builder(ModConfig modConfig, String id) {
+      super(modConfig, id);
     }
 
     public Builder setMinLength(int minLength) {

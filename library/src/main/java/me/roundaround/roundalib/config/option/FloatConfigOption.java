@@ -1,7 +1,6 @@
 package me.roundaround.roundalib.config.option;
 
 import me.roundaround.roundalib.config.ModConfig;
-import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,23 +79,15 @@ public class FloatConfigOption extends ConfigOption<Float> {
     return Math.abs(a - b) < 0x1.0p-10f;
   }
 
-  public static Builder builder(ModConfig modConfig, String id, String labelI18nKey) {
-    return new Builder(modConfig, id, labelI18nKey);
+  public static Builder builder(ModConfig modConfig, String id) {
+    return new Builder(modConfig, id);
   }
 
-  public static Builder builder(ModConfig modConfig, String id, Text label) {
-    return new Builder(modConfig, id, label);
+  public static Builder sliderBuilder(ModConfig modConfig, String id) {
+    return builder(modConfig, id).setUseSlider(true);
   }
 
-  public static Builder sliderBuilder(ModConfig modConfig, String id, String labelI18nKey) {
-    return builder(modConfig, id, labelI18nKey).setUseSlider(true);
-  }
-
-  public static Builder sliderBuilder(ModConfig modConfig, String id, Text label) {
-    return builder(modConfig, id, label).setUseSlider(true);
-  }
-
-  public static class Builder extends ConfigOption.AbstractBuilder<Float> {
+  public static class Builder extends ConfigOption.AbstractBuilder<Float, Builder> {
     private Optional<Float> minValue = Optional.empty();
     private Optional<Float> maxValue = Optional.empty();
     private List<Validator> customValidators = new ArrayList<>();
@@ -104,17 +95,8 @@ public class FloatConfigOption extends ConfigOption<Float> {
     private Optional<Integer> step = Optional.of(20);
     private Function<Float, String> valueDisplayFunction = (Float value) -> String.format("%.2f", value);
 
-    private Builder(ModConfig modConfig, String id, String labelI18nKey) {
-      super(modConfig, id, labelI18nKey, 0f);
-    }
-
-    private Builder(ModConfig modConfig, String id, Text label) {
-      super(modConfig, id, label, 0f);
-    }
-
-    public Builder setDefaultValue(float defaultValue) {
-      this.defaultValue = defaultValue;
-      return this;
+    private Builder(ModConfig modConfig, String id) {
+      super(modConfig, id);
     }
 
     public Builder setMinValue(float minValue) {

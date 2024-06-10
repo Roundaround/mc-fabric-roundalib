@@ -21,7 +21,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     super(client, layout.getX(), layout.getHeaderHeight(), layout.getWidth(), layout.getContentHeight());
 
     for (var entry : modConfig.getConfigOptions().entrySet()) {
-      if (entry.getValue().stream().noneMatch(ConfigOption::shouldShowInConfigScreen)) {
+      if (entry.getValue().stream().noneMatch(ConfigOption::hasGuiControl)) {
         continue;
       }
 
@@ -34,7 +34,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
       }
 
       for (var option : entry.getValue()) {
-        if (!option.shouldShowInConfigScreen()) {
+        if (!option.hasGuiControl()) {
           continue;
         }
 

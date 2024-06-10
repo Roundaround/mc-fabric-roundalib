@@ -30,45 +30,24 @@ public class BooleanConfigOption extends ConfigOption<Boolean> {
     this.setValue(!this.getPendingValue());
   }
 
-  public static Builder builder(ModConfig modConfig, String id, String labelI18nKey) {
-    return new Builder(modConfig, id, labelI18nKey);
+  public static Builder builder(ModConfig modConfig, String id) {
+    return new Builder(modConfig, id);
   }
 
-  public static Builder builder(ModConfig modConfig, String id, Text label) {
-    return new Builder(modConfig, id, label);
+  public static Builder onOffBuilder(ModConfig modConfig, String id) {
+    return new Builder(modConfig, id).setEnabledLabel(ScreenTexts.ON).setDisabledLabel(ScreenTexts.OFF);
   }
 
-  public static Builder onOffBuilder(ModConfig modConfig, String id, String labelI18nKey) {
-    return new Builder(modConfig, id, labelI18nKey).setEnabledLabel(ScreenTexts.ON).setDisabledLabel(ScreenTexts.OFF);
+  public static Builder yesNoBuilder(ModConfig modConfig, String id) {
+    return new Builder(modConfig, id).setEnabledLabel(ScreenTexts.YES).setDisabledLabel(ScreenTexts.NO);
   }
 
-  public static Builder onOffBuilder(ModConfig modConfig, String id, Text label) {
-    return new Builder(modConfig, id, label).setEnabledLabel(ScreenTexts.ON).setDisabledLabel(ScreenTexts.OFF);
-  }
-
-  public static Builder yesNoBuilder(ModConfig modConfig, String id, String labelI18nKey) {
-    return new Builder(modConfig, id, labelI18nKey).setEnabledLabel(ScreenTexts.YES).setDisabledLabel(ScreenTexts.NO);
-  }
-
-  public static Builder yesNoBuilder(ModConfig modConfig, String id, Text label) {
-    return new Builder(modConfig, id, label).setEnabledLabel(ScreenTexts.YES).setDisabledLabel(ScreenTexts.NO);
-  }
-
-  public static class Builder extends ConfigOption.AbstractBuilder<Boolean> {
+  public static class Builder extends ConfigOption.AbstractBuilder<Boolean, Builder> {
     private Text enabledLabel = Text.translatable(this.modConfig.getModId() + ".roundalib.toggle.enabled");
     private Text disabledLabel = Text.translatable(this.modConfig.getModId() + ".roundalib.toggle.disabled");
 
-    private Builder(ModConfig modConfig, String id, String labelI18nKey) {
-      super(modConfig, id, labelI18nKey, true);
-    }
-
-    private Builder(ModConfig modConfig, String id, Text label) {
-      super(modConfig, id, label, true);
-    }
-
-    public Builder setDefaultValue(Boolean defaultValue) {
-      this.defaultValue = defaultValue;
-      return this;
+    private Builder(ModConfig modConfig, String id) {
+      super(modConfig, id);
     }
 
     public Builder setEnabledLabel(String i18nKey) {
