@@ -152,7 +152,9 @@ public abstract class ConfigOption<D> {
   }
 
   /**
-   * Marks the value as saved and updates any appropriate listeners.
+   * Marks the value as saved and updates any subscribed listeners. By default, this is called after
+   * {@link ModConfig#saveToFile()} successfully writes any pending values to file. Usually you will
+   * not need to call this yourself.
    */
   public void commit() {
     D prevSavedValue = this.getValue();
