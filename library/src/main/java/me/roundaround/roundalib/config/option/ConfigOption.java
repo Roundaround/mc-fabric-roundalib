@@ -1,12 +1,20 @@
 package me.roundaround.roundalib.config.option;
 
+import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.config.ModConfig;
+import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
+import me.roundaround.roundalib.config.panic.IllegalStatePanic;
 import net.minecraft.text.Text;
 
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/**
+ * Base container class for a mod configuration option.
+ *
+ * @param <D> The data type represented by this config option. Must be immutable.
+ */
 public abstract class ConfigOption<D> {
   private final ModConfig modConfig;
   private final String group;
@@ -32,6 +40,13 @@ public abstract class ConfigOption<D> {
     this(builder.modConfig, builder.group, builder.id, builder.label, builder.defaultValue, builder.noGui,
         builder.toStringFunction, builder.comment, builder.validators, builder.onUpdate
     );
+
+    if (!builder.preBuildCalled) {
+      this.getModConfig()
+          .panic(new IllegalStatePanic(
+              "Any builder classes extending ConfigOption.AbstractBuilder must call `preBuild` before passing the " +
+                  "instance to the ConfigOption constructor."));
+    }
   }
 
   protected ConfigOption(
@@ -203,18 +218,19 @@ public abstract class ConfigOption<D> {
   }
 
   public boolean validate(D value) {
-    return this.validators.stream().allMatch((validator) -> {
-      return validator.validate(value, this);
-    });
+    if (this.validators.isEmpty()) {
+      return true;
+    }
+    return this.validators.stream().allMatch((validator) -> validator.validate(value, this));
   }
 
   @SuppressWarnings("unchecked")
   public void deserialize(Object data) {
-    setValue((D) data);
+    this.setValue((D) data);
   }
 
   public Object serialize() {
-    return pendingValue;
+    return this.getPendingValue();
   }
 
   public void update() {
@@ -242,22 +258,21 @@ public abstract class ConfigOption<D> {
     protected final ModConfig modConfig;
     protected final String id;
     protected String group = null;
-    protected Text label;
+    protected Text label = null;
     protected D defaultValue;
     protected boolean noGui = false;
     protected Function<D, String> toStringFunction = Object::toString;
-    protected List<String> comment = List.of();
-    protected List<Validator<D>> validators = List.of();
+    protected List<String> comment = new ArrayList<>();
+    protected List<Validator<D>> validators = new ArrayList<>();
     protected Consumer<ConfigOption<?>> onUpdate = (option) -> {
     };
+    protected boolean allowNullDefault = false;
 
-    private boolean hasDefaultLabel = true;
+    private boolean preBuildCalled = false;
 
     protected AbstractBuilder(ModConfig modConfig, String id) {
       this.modConfig = modConfig;
       this.id = id;
-
-      this.label = this.getDefaultLabel();
     }
 
     protected Text getDefaultLabel() {
@@ -274,21 +289,16 @@ public abstract class ConfigOption<D> {
 
     public B setGroup(String group) {
       this.group = group;
-      if (this.hasDefaultLabel) {
-        this.label = this.getDefaultLabel();
-      }
       return (B) this;
     }
 
     public B setLabel(String i18nKey) {
       this.label = Text.translatable(i18nKey);
-      this.hasDefaultLabel = false;
       return (B) this;
     }
 
     public B setLabel(Text label) {
       this.label = label;
-      this.hasDefaultLabel = false;
       return (B) this;
     }
 
@@ -335,6 +345,24 @@ public abstract class ConfigOption<D> {
     public B onUpdate(Consumer<ConfigOption<?>> onUpdate) {
       this.onUpdate = onUpdate;
       return (B) this;
+    }
+
+    public B allowNullDefaultValue() {
+      this.allowNullDefault = true;
+      return (B) this;
+    }
+
+    protected final void preBuild() {
+      if (this.label == null) {
+        this.label = this.getDefaultLabel();
+      }
+
+      if (!this.allowNullDefault && this.defaultValue == null) {
+        this.modConfig.panic(new IllegalArgumentPanic(
+            "All config options must have a non-null default value or explicitly set the flag allowing null"));
+      }
+
+      this.preBuildCalled = true;
     }
 
     public abstract ConfigOption<D> build();

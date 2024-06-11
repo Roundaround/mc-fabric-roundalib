@@ -123,21 +123,23 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
       this.textField.setText(value);
     }
 
-    this.plusButton.active = !disabled && option.canIncrement();
-    this.minusButton.active = !disabled && option.canDecrement();
+    if (this.option.showStepButtons()) {
+      this.plusButton.active = !disabled && option.canIncrement();
+      this.minusButton.active = !disabled && option.canDecrement();
+    }
   }
 
   private void onTextChanged(String value) {
     try {
       int parsed = Integer.parseInt(value);
-      if (this.option.validateInput(parsed)) {
+      if (this.option.validate(parsed)) {
         this.option.setValue(parsed);
-        markValid();
+        this.markValid();
       } else {
-        markInvalid();
+        this.markInvalid();
       }
     } catch (Exception e) {
-      markInvalid();
+      this.markInvalid();
     }
   }
 }

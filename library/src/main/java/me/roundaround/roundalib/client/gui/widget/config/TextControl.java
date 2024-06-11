@@ -66,7 +66,7 @@ public class TextControl extends Control<String, StringConfigOption> {
   }
 
   private void onTextChanged(String text) {
-    if (!this.option.validateInput(text)) {
+    if (!this.option.validate(text)) {
       this.markInvalid();
       return;
     }

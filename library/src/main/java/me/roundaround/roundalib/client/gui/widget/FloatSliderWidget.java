@@ -11,7 +11,7 @@ import java.util.function.Function;
 public class FloatSliderWidget extends SliderWidget {
   protected final float min;
   protected final float max;
-  protected final float step;
+  protected final Function<Integer, Float> stepHandler;
   protected final Consumer<Float> valueChanged;
   protected final Function<Float, Text> formatter;
 
@@ -24,10 +24,11 @@ public class FloatSliderWidget extends SliderWidget {
       int height,
       float min,
       float max,
-      float step,
       float value,
-      Consumer<Float> valueChanged) {
-    this(x, y, width, height, min, max, step, value, valueChanged, (v) -> Text.of(v.toString()));
+      Function<Integer, Float> stepHandler,
+      Consumer<Float> valueChanged
+  ) {
+    this(x, y, width, height, min, max, value, stepHandler, valueChanged, (v) -> Text.of(v.toString()));
   }
 
   public FloatSliderWidget(
@@ -37,15 +38,16 @@ public class FloatSliderWidget extends SliderWidget {
       int height,
       float min,
       float max,
-      float step,
       float value,
+      Function<Integer, Float> stepHandler,
       Consumer<Float> valueChanged,
-      Function<Float, Text> formatter) {
+      Function<Float, Text> formatter
+  ) {
     super(x, y, width, height, formatter.apply(value), valueToSlider(value, min, max));
 
     this.min = min;
     this.max = max;
-    this.step = step;
+    this.stepHandler = stepHandler;
     this.valueChanged = valueChanged;
     this.formatter = formatter;
 
@@ -75,9 +77,10 @@ public class FloatSliderWidget extends SliderWidget {
 
   @Override
   public boolean mouseScrolled(
-      double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+      double mouseX, double mouseY, double horizontalAmount, double verticalAmount
+  ) {
     if (this.isMouseOver(mouseX, mouseY)) {
-      this.setFloatValue(this.floatValue + (int) Math.signum(verticalAmount) * this.step);
+      this.setFloatValue(this.stepHandler.apply((int) Math.signum(verticalAmount)));
       this.applyValue();
       return true;
     }

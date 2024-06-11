@@ -12,8 +12,8 @@ public class TestModClient implements ClientModInitializer {
   @Override
   public void onInitializeClient() {
     try {
-      ControlRegistry.register("testOption8", TestModClient::getSubScreenControl);
       ControlRegistry.register("testOption9", TestModClient::getSubScreenControl);
+      ControlRegistry.register("testOption10", TestModClient::getSubScreenControl);
     } catch (ControlRegistry.RegistrationException e) {
       throw new RuntimeException(e);
     }

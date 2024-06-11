@@ -72,6 +72,7 @@ public class BooleanConfigOption extends ConfigOption<Boolean> {
 
     @Override
     public BooleanConfigOption build() {
+      this.preBuild();
       return new BooleanConfigOption(this);
     }
   }

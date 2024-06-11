@@ -2,6 +2,7 @@ package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.client.gui.widget.IntSliderWidget;
 import me.roundaround.roundalib.config.option.IntConfigOption;
+import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
@@ -16,14 +17,15 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
   public IntSliderControl(MinecraftClient client, IntConfigOption option, int left, int top, int width, int height) {
     super(client, option, left, top, width, height);
 
-    if (!this.option.useSlider() || this.option.getMinValue().isEmpty() || this.option.getMaxValue().isEmpty()) {
-      throw new IllegalArgumentException(
-          "IntConfigOption must use slider and have min and max values to use IntSliderControl");
+    if (!this.option.useSlider() || this.option.getMinValue() == null || this.option.getMaxValue() == null) {
+      this.option.getModConfig()
+          .panic(new IllegalArgumentPanic(
+              "IntConfigOption must use slider and have min and max values to use IntSliderControl"));
     }
 
     this.slider = new IntSliderWidget(this.getWidgetLeft(), this.getWidgetTop(), this.getWidgetWidth(),
-        this.getWidgetHeight(), this.option.getMinValue().get(), this.option.getMaxValue().get(), this.option.getStep(),
-        this.option.getPendingValue(), this::onSliderChanged, this::getValueAsText
+        this.getWidgetHeight(), this.option.getMinValue(), this.option.getMaxValue(), this.option.getPendingValue(),
+        this::step, this::onSliderChanged, this::getValueAsText
     );
 
     this.update();
@@ -54,6 +56,11 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
     if (!Objects.equals(value, this.slider.getIntValue())) {
       this.slider.setIntValue(value);
     }
+  }
+
+  private int step(int multi) {
+    this.getOption().step(multi);
+    return this.getOption().getPendingValue();
   }
 
   private void onSliderChanged(int value) {

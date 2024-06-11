@@ -11,7 +11,7 @@ import java.util.function.Function;
 public class IntSliderWidget extends SliderWidget {
   protected final int min;
   protected final int max;
-  protected final int step;
+  protected final Function<Integer, Integer> stepHandler;
   protected final Consumer<Integer> valueChanged;
   protected final Function<Integer, Text> formatter;
 
@@ -24,10 +24,11 @@ public class IntSliderWidget extends SliderWidget {
       int height,
       int min,
       int max,
-      int step,
       int value,
-      Consumer<Integer> valueChanged) {
-    this(x, y, width, height, min, max, step, value, valueChanged, (v) -> Text.of(v.toString()));
+      Function<Integer, Integer> stepHandler,
+      Consumer<Integer> valueChanged
+  ) {
+    this(x, y, width, height, min, max, value, stepHandler, valueChanged, (v) -> Text.of(v.toString()));
   }
 
   public IntSliderWidget(
@@ -37,15 +38,16 @@ public class IntSliderWidget extends SliderWidget {
       int height,
       int min,
       int max,
-      int step,
       int value,
+      Function<Integer, Integer> stepHandler,
       Consumer<Integer> valueChanged,
-      Function<Integer, Text> formatter) {
+      Function<Integer, Text> formatter
+  ) {
     super(x, y, width, height, formatter.apply(value), valueToSlider(value, min, max));
 
     this.min = min;
     this.max = max;
-    this.step = step;
+    this.stepHandler = stepHandler;
     this.valueChanged = valueChanged;
     this.formatter = formatter;
 
@@ -75,9 +77,10 @@ public class IntSliderWidget extends SliderWidget {
 
   @Override
   public boolean mouseScrolled(
-      double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+      double mouseX, double mouseY, double horizontalAmount, double verticalAmount
+  ) {
     if (this.isMouseOver(mouseX, mouseY)) {
-      this.setIntValue(this.intValue + (int) Math.signum(verticalAmount) * this.step);
+      this.setIntValue(this.stepHandler.apply((int) Math.signum(verticalAmount)));
       this.applyValue();
       return true;
     }

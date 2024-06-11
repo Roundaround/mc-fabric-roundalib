@@ -2,6 +2,7 @@ package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.client.gui.widget.FloatSliderWidget;
 import me.roundaround.roundalib.config.option.FloatConfigOption;
+import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
@@ -17,14 +18,15 @@ public class FloatSliderControl extends Control<Float, FloatConfigOption> {
   ) {
     super(client, option, left, top, width, height);
 
-    if (!this.option.useSlider() || this.option.getMinValue().isEmpty() || this.option.getMaxValue().isEmpty()) {
-      throw new IllegalArgumentException(
-          "FloatConfigOption must use slider and have min and max values to use FloatSliderControl");
+    if (!this.option.useSlider() || this.option.getMinValue() == null || this.option.getMaxValue() == null) {
+      this.option.getModConfig()
+          .panic(new IllegalArgumentPanic(
+              "FloatConfigOption must use slider and have min and max values to use FloatSliderControl"));
     }
 
     this.slider = new FloatSliderWidget(this.getWidgetLeft(), this.getWidgetTop(), this.getWidgetWidth(),
-        this.getWidgetHeight(), this.option.getMinValue().get(), this.option.getMaxValue().get(), this.option.getStep(),
-        this.option.getPendingValue(), this::onSliderChanged, this::getValueAsText
+        this.getWidgetHeight(), this.option.getMinValue(), this.option.getMaxValue(), this.option.getPendingValue(),
+        this::step, this::onSliderChanged, this::getValueAsText
     );
 
     this.update();
@@ -55,6 +57,11 @@ public class FloatSliderControl extends Control<Float, FloatConfigOption> {
     if (!this.getOption().areValuesEqual(value, this.slider.getFloatValue())) {
       this.slider.setFloatValue(value);
     }
+  }
+
+  private float step(int multi) {
+    this.getOption().step(multi);
+    return this.getOption().getPendingValue();
   }
 
   private void onSliderChanged(float value) {

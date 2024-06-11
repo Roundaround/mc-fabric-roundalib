@@ -10,8 +10,9 @@
   "testmod.group1.testOption5.label": "Option 5",
   "testmod.group1.testOption6.label": "Option 6",
   "testmod.group1.testOption7.label": "Option 7",
+  "testmod.group1.testOption8.label": "Option 8",
   "testmod.group2.title": "Group 2",
-  "testmod.group2.testOption8.label": "Option 8",
   "testmod.group2.testOption9.label": "Option 9",
-  "testmod.group2.testOption10.label": "Option 10"
+  "testmod.group2.testOption10.label": "Option 10",
+  "testmod.group2.testOption11.label": "Option 11"
 }

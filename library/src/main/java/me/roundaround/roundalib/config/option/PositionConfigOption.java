@@ -14,7 +14,7 @@ public class PositionConfigOption extends ConfigOption<Position> {
     String[] split = value.substring(1, value.length() - 1).split(",");
     int x = Integer.parseInt(split[0]);
     int y = Integer.parseInt(split[1]);
-    setValue(new Position(x, y));
+    this.setValue(new Position(x, y));
   }
 
   @Override
@@ -36,6 +36,7 @@ public class PositionConfigOption extends ConfigOption<Position> {
 
     @Override
     public PositionConfigOption build() {
+      this.preBuild();
       return new PositionConfigOption(this);
     }
   }

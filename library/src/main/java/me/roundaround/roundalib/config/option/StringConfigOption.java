@@ -8,10 +8,9 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class StringConfigOption extends ConfigOption<String> {
-  private Optional<Integer> minLength = Optional.empty();
-  private Optional<Integer> maxLength = Optional.empty();
-  private Optional<Pattern> regex = Optional.empty();
-  private List<Validator> validators = List.of();
+  private Integer minLength;
+  private Integer maxLength;
+  private Pattern regex;
 
   protected StringConfigOption(Builder builder) {
     super(builder);
@@ -19,27 +18,6 @@ public class StringConfigOption extends ConfigOption<String> {
     this.minLength = builder.minLength;
     this.maxLength = builder.maxLength;
     this.regex = builder.regex;
-
-    List<Validator> allValidators = new ArrayList<>();
-    if (this.minLength.isPresent()) {
-      allValidators.add((String prev, String curr) -> curr != null && curr.length() >= this.minLength.get());
-    }
-    if (this.maxLength.isPresent()) {
-      allValidators.add((String prev, String curr) -> curr != null && curr.length() <= this.maxLength.get());
-    }
-    if (this.regex.isPresent()) {
-      allValidators.add((String prev, String curr) -> curr != null && this.regex.get().matcher(curr).find());
-    }
-    if (!builder.customValidators.isEmpty()) {
-      allValidators.addAll(builder.customValidators);
-    }
-    this.validators = List.copyOf(allValidators);
-  }
-
-  public boolean validateInput(String newValue) {
-    return this.validators.stream().allMatch((validator) -> {
-      return validator.apply(getPendingValue(), newValue);
-    });
   }
 
   public static Builder builder(ModConfig modConfig, String id) {
@@ -47,43 +25,44 @@ public class StringConfigOption extends ConfigOption<String> {
   }
 
   public static class Builder extends ConfigOption.AbstractBuilder<String, Builder> {
-    private Optional<Integer> minLength = Optional.empty();
-    private Optional<Integer> maxLength = Optional.empty();
-    private Optional<Pattern> regex = Optional.empty();
-    private List<Validator> customValidators = new ArrayList<>();
+    private Integer minLength = null;
+    private Integer maxLength = null;
+    private Pattern regex = null;
 
     private Builder(ModConfig modConfig, String id) {
       super(modConfig, id);
     }
 
     public Builder setMinLength(int minLength) {
-      this.minLength = Optional.of(minLength);
+      this.minLength = minLength;
       return this;
     }
 
     public Builder setMaxLength(int maxLength) {
-      this.maxLength = Optional.of(maxLength);
+      this.maxLength = maxLength;
       return this;
     }
 
     public Builder setRegex(Pattern regex) {
-      this.regex = Optional.of(regex);
-      return this;
-    }
-
-    public Builder addCustomValidator(Validator validator) {
-      this.customValidators.add(validator);
+      this.regex = regex;
       return this;
     }
 
     @Override
     public StringConfigOption build() {
+      this.preBuild();
+
+      if (this.maxLength != null) {
+        this.validators.addFirst((value, option) -> value != null && value.length() <= this.maxLength);
+      }
+      if (this.minLength != null) {
+        this.validators.addFirst((value, option) -> value != null && value.length() >= this.minLength);
+      }
+      if (this.regex != null) {
+        this.validators.addFirst((value, option) -> value != null && this.regex.matcher(value).find());
+      }
+
       return new StringConfigOption(this);
     }
-  }
-
-  @FunctionalInterface
-  public static interface Validator {
-    boolean apply(String prev, String curr);
   }
 }

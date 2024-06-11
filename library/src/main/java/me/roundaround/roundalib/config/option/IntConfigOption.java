@@ -1,118 +1,96 @@
 package me.roundaround.roundalib.config.option;
 
 import me.roundaround.roundalib.config.ModConfig;
+import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
 import net.minecraft.util.math.MathHelper;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
 public class IntConfigOption extends ConfigOption<Integer> {
-  private Optional<Integer> minValue = Optional.empty();
-  private Optional<Integer> maxValue = Optional.empty();
-  private Optional<Integer> step = Optional.of(1);
-  private List<Validator> validators = List.of();
-  private boolean slider = false;
-  private Function<Integer, String> valueDisplayFunction = (Integer value) -> value.toString();
+  private final Integer minValue;
+  private final Integer maxValue;
+  private final Integer step;
+  private final boolean slider;
 
   protected IntConfigOption(Builder builder) {
     super(builder);
 
     this.minValue = builder.minValue;
     this.maxValue = builder.maxValue;
-    this.step = builder.step;
-
-    List<Validator> allValidators = new ArrayList<>();
-    if (this.minValue.isPresent()) {
-      allValidators.add((int prev, int curr) -> curr >= this.minValue.get());
-    }
-    if (this.maxValue.isPresent()) {
-      allValidators.add((int prev, int curr) -> curr <= this.maxValue.get());
-    }
-    if (!builder.customValidators.isEmpty()) {
-      allValidators.addAll(builder.customValidators);
-    }
-    this.validators = List.copyOf(allValidators);
-
     this.slider = builder.slider;
-    this.valueDisplayFunction = builder.valueDisplayFunction;
+    this.step = builder.step;
   }
 
-  public Optional<Integer> getMinValue() {
+  public Integer getMinValue() {
     return this.minValue;
   }
 
-  public Optional<Integer> getMaxValue() {
+  public Integer getMaxValue() {
     return this.maxValue;
-  }
-
-  public int getStep() {
-    return this.step.isEmpty() ? 1 : this.step.get();
-  }
-
-  public boolean increment() {
-    return step(1);
-  }
-
-  public boolean decrement() {
-    return step(-1);
-  }
-
-  public boolean canIncrement() {
-    if (this.step.isEmpty()) {
-      return false;
-    }
-
-    return getPendingValue() < maxValue.orElse(Integer.MAX_VALUE);
-  }
-
-  public boolean canDecrement() {
-    if (this.step.isEmpty()) {
-      return false;
-    }
-
-    return getPendingValue() > this.minValue.orElse(Integer.MIN_VALUE);
-  }
-
-  public boolean showStepButtons() {
-    return this.step.isPresent();
   }
 
   public boolean useSlider() {
     return this.slider;
   }
 
-  private boolean step(int mult) {
-    if (this.step.isEmpty()) {
+  public int getStep() {
+    if (this.step != null) {
+      return this.step;
+    }
+
+    if (this.getMinValue() != null && this.getMaxValue() != null) {
+      return Math.max(1, Math.round((this.getMaxValue() - this.getMinValue()) / 10f));
+    }
+
+    return 1;
+  }
+
+  public boolean showStepButtons() {
+    return this.step != null;
+  }
+
+  public boolean canIncrement() {
+    if (this.step == null) {
+      return false;
+    }
+
+    return this.getPendingValue() < Optional.ofNullable(this.getMaxValue()).orElse(Integer.MAX_VALUE);
+  }
+
+  public boolean canDecrement() {
+    if (this.step == null) {
+      return false;
+    }
+
+    return this.getPendingValue() > Optional.ofNullable(this.minValue).orElse(Integer.MIN_VALUE);
+  }
+
+  @SuppressWarnings("UnusedReturnValue")
+  public boolean increment() {
+    return this.step(1);
+  }
+
+  @SuppressWarnings("UnusedReturnValue")
+  public boolean decrement() {
+    return this.step(-1);
+  }
+
+  public boolean step(int multi) {
+    if (this.step == null) {
       return false;
     }
 
     int value = this.getPendingValue();
-    int newValue = MathHelper.clamp(value + this.step.get() * mult, this.minValue.orElse(Integer.MIN_VALUE),
-        this.maxValue.orElse(Integer.MAX_VALUE)
-    );
+    int minValue = Optional.ofNullable(this.getMinValue()).orElse(Integer.MIN_VALUE);
+    int maxValue = Optional.ofNullable(this.getMaxValue()).orElse(Integer.MAX_VALUE);
+    int newValue = MathHelper.clamp(value + this.step * multi, minValue, maxValue);
 
     if (newValue == value) {
       return false;
     }
 
-    setValue(newValue);
+    this.setValue(newValue);
     return true;
-  }
-
-  public String getValueAsString() {
-    return this.getValueAsString(this.getPendingValue());
-  }
-
-  public String getValueAsString(int value) {
-    return this.valueDisplayFunction.apply(value);
-  }
-
-  public boolean validateInput(int newValue) {
-    return this.validators.stream().allMatch((validator) -> {
-      return validator.apply(getPendingValue(), newValue);
-    });
   }
 
   public static Builder builder(ModConfig modConfig, String id) {
@@ -123,35 +101,49 @@ public class IntConfigOption extends ConfigOption<Integer> {
     return new Builder(modConfig, id).setUseSlider(true);
   }
 
+  // TODO: Set up a separate slider builder
   public static class Builder extends ConfigOption.AbstractBuilder<Integer, Builder> {
-    private Optional<Integer> minValue = Optional.empty();
-    private Optional<Integer> maxValue = Optional.empty();
-    private Optional<Integer> step = Optional.of(1);
-    private List<Validator> customValidators = new ArrayList<>();
+    private Integer minValue = null;
+    private Integer maxValue = null;
+    private Integer step = 1;
     private boolean slider = false;
-    private Function<Integer, String> valueDisplayFunction = (Integer value) -> value.toString();
 
     private Builder(ModConfig modConfig, String id) {
       super(modConfig, id);
     }
 
+    public Builder setDefaultValue(int defaultValue) {
+      this.defaultValue = defaultValue;
+      return this;
+    }
+
     public Builder setMinValue(int minValue) {
-      this.minValue = Optional.of(minValue);
+      this.minValue = minValue;
+      return this;
+    }
+
+    public Builder setMinValue(Integer minValue) {
+      this.minValue = minValue;
       return this;
     }
 
     public Builder setMaxValue(int maxValue) {
-      this.maxValue = Optional.of(maxValue);
+      this.maxValue = maxValue;
+      return this;
+    }
+
+    public Builder setMaxValue(Integer maxValue) {
+      this.maxValue = maxValue;
       return this;
     }
 
     public Builder setStep(int step) {
-      this.step = Optional.of(step);
+      this.step = step;
       return this;
     }
 
-    public Builder addCustomValidator(Validator validator) {
-      customValidators.add(validator);
+    public Builder setStep(Integer step) {
+      this.step = step;
       return this;
     }
 
@@ -160,22 +152,29 @@ public class IntConfigOption extends ConfigOption<Integer> {
       return this;
     }
 
-    public Builder setValueDisplayFunction(Function<Integer, String> valueDisplayFunction) {
-      this.valueDisplayFunction = valueDisplayFunction;
-      return this;
-    }
-
     @Override
     public IntConfigOption build() {
-      if (this.slider && (this.minValue.isEmpty() || this.maxValue.isEmpty())) {
-        throw new IllegalStateException();
+      this.preBuild();
+
+      if (this.maxValue != null) {
+        this.validators.addFirst((value, option) -> value <= this.maxValue);
+
+        if (this.minValue != null && this.minValue > this.maxValue) {
+          this.modConfig.panic(
+              new IllegalArgumentPanic("Min value cannot be larger than max value for IntConfigOption"));
+        }
       }
+
+      if (this.minValue != null) {
+        this.validators.addFirst((value, option) -> value >= this.minValue);
+      }
+
+      if (this.slider && (this.minValue == null || this.maxValue == null)) {
+        this.modConfig.panic(
+            new IllegalArgumentPanic("Min and max values must be defined to use slider control for IntConfigOption"));
+      }
+
       return new IntConfigOption(this);
     }
-  }
-
-  @FunctionalInterface
-  public static interface Validator {
-    boolean apply(int prev, int curr);
   }
 }

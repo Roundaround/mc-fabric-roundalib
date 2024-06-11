@@ -1,17 +1,16 @@
 package me.roundaround.roundalib.config.option;
 
 import me.roundaround.roundalib.config.ModConfig;
+import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
+import net.minecraft.util.math.MathHelper;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
 public class FloatConfigOption extends ConfigOption<Float> {
   private final Float minValue;
   private final Float maxValue;
   private final boolean slider;
-  private final float step;
+  private final Float step;
 
   protected FloatConfigOption(Builder builder) {
     super(builder);
@@ -20,28 +19,12 @@ public class FloatConfigOption extends ConfigOption<Float> {
     this.maxValue = builder.maxValue;
     this.slider = builder.slider;
     this.step = builder.step;
-
-    List<Validator> allValidators = new ArrayList<>();
-    if (this.minValue.isPresent()) {
-      allValidators.add((float prev, float curr) -> curr >= minValue.get());
-    }
-    if (this.maxValue.isPresent()) {
-      allValidators.add((float prev, float curr) -> curr <= maxValue.get());
-    }
-    if (!builder.validators.isEmpty()) {
-      allValidators.addAll(builder.validators);
-    }
-    this.validators = List.copyOf(allValidators);
-
-    this.slider = builder.slider;
-    this.step = builder.step;
-    this.valueDisplayFunction = builder.valueDisplayFunction;
   }
 
   @Override
   public void deserialize(Object data) {
     // Getting around a weird issue where the default deserializes into a Double
-    setValue(((Double) data).floatValue());
+    this.setValue(((Double) data).floatValue());
   }
 
   public Float getMinValue() {
@@ -52,23 +35,40 @@ public class FloatConfigOption extends ConfigOption<Float> {
     return this.maxValue;
   }
 
-  public boolean validateInput(float newValue) {
-    return this.validators.stream().allMatch((validator) -> {
-      return validator.apply(getPendingValue(), newValue);
-    });
-  }
-
   public boolean useSlider() {
     return this.slider;
   }
 
-  public int getStep() {
-    return this.step.isEmpty() ? 20 : this.step.get();
+  public float getStep() {
+    if (this.step != null) {
+      return this.step;
+    }
+
+    if (this.getMinValue() != null && this.getMaxValue() != null) {
+      return (this.getMaxValue() - this.getMinValue()) / 10f;
+    }
+
+    return 20f;
   }
 
   @Override
   public boolean areValuesEqual(Float a, Float b) {
     return Math.abs(a - b) < 0x1.0p-10f;
+  }
+
+  @SuppressWarnings("UnusedReturnValue")
+  public boolean step(int multi) {
+    float value = this.getPendingValue();
+    float minValue = Optional.ofNullable(this.getMinValue()).orElse(Float.MIN_VALUE);
+    float maxValue = Optional.ofNullable(this.getMaxValue()).orElse(Float.MAX_VALUE);
+    float newValue = MathHelper.clamp(value + this.getStep() * multi, minValue, maxValue);
+
+    if (newValue == value) {
+      return false;
+    }
+
+    this.setValue(newValue);
+    return true;
   }
 
   public static Builder builder(ModConfig modConfig, String id) {
@@ -79,20 +79,28 @@ public class FloatConfigOption extends ConfigOption<Float> {
     return builder(modConfig, id).setUseSlider(true);
   }
 
+  // TODO: Set up a separate slider builder
   public static class Builder extends ConfigOption.AbstractBuilder<Float, Builder> {
-    private final List<Validator> validators = new ArrayList<>();
-
     private Float minValue = null;
     private Float maxValue = null;
     private boolean slider = false;
-    private float step = 20;
-    private Function<Float, String> valueDisplayFunction = (Float value) -> String.format("%.2f", value);
+    private Float step = null;
 
     private Builder(ModConfig modConfig, String id) {
       super(modConfig, id);
     }
 
+    public Builder setDefaultValue(float defaultValue) {
+      this.defaultValue = defaultValue;
+      return this;
+    }
+
     public Builder setMinValue(float minValue) {
+      this.minValue = minValue;
+      return this;
+    }
+
+    public Builder setMinValue(Float minValue) {
       this.minValue = minValue;
       return this;
     }
@@ -102,8 +110,8 @@ public class FloatConfigOption extends ConfigOption<Float> {
       return this;
     }
 
-    public Builder addCustomValidator(Validator validator) {
-      validators.add(validator);
+    public Builder setMaxValue(Float maxValue) {
+      this.maxValue = maxValue;
       return this;
     }
 
@@ -117,19 +125,34 @@ public class FloatConfigOption extends ConfigOption<Float> {
       return this;
     }
 
-    public Builder setValueDisplayFunction(Function<Float, String> valueDisplayFunction) {
-      this.valueDisplayFunction = valueDisplayFunction;
+    public Builder setStep(Float step) {
+      this.step = step;
       return this;
     }
 
     @Override
     public FloatConfigOption build() {
+      this.preBuild();
+
+      if (this.maxValue != null) {
+        this.validators.addFirst((value, option) -> value <= this.maxValue);
+
+        if (this.minValue != null && this.minValue > this.maxValue) {
+          this.modConfig.panic(
+              new IllegalArgumentPanic("Min value cannot be larger than max value for FloatConfigOption"));
+        }
+      }
+
+      if (this.minValue != null) {
+        this.validators.addFirst((value, option) -> value >= this.minValue);
+      }
+
+      if (this.slider && (this.minValue == null || this.maxValue == null)) {
+        this.modConfig.panic(
+            new IllegalArgumentPanic("Min and max values must be defined to use slider control for FloatConfigOption"));
+      }
+
       return new FloatConfigOption(this);
     }
-  }
-
-  @FunctionalInterface
-  public interface Validator {
-    boolean apply(float prev, float curr);
   }
 }

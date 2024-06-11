@@ -91,14 +91,14 @@ public class FloatTextControl extends Control<Float, FloatConfigOption> {
   private void onTextChanged(String value) {
     try {
       float parsed = this.parseFloat(value);
-      if (this.option.validateInput(parsed)) {
+      if (this.option.validate(parsed)) {
         this.option.setValue(parsed);
-        markValid();
+        this.markValid();
       } else {
-        markInvalid();
+        this.markInvalid();
       }
     } catch (Exception e) {
-      markInvalid();
+      this.markInvalid();
     }
   }
 

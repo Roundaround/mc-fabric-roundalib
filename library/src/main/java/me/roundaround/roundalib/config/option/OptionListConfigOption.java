@@ -53,6 +53,7 @@ public class OptionListConfigOption<T extends ListOptionValue<T>> extends Config
 
     @Override
     public OptionListConfigOption<T> build() {
+      this.preBuild();
       return new OptionListConfigOption<>(this);
     }
   }
