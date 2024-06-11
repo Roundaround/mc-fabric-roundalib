@@ -3,6 +3,7 @@ package me.roundaround.roundalib.client.gui.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.RoundaLibIconButtons;
+import me.roundaround.roundalib.client.gui.layout.ScreenPosition;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.config.option.PositionConfigOption;
 import me.roundaround.roundalib.config.value.Position;
@@ -15,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position, PositionConfigOption> {
-  protected static final Position CROSSHAIR_UV = new Position(0, 247);
+  protected static final ScreenPosition CROSSHAIR_UV = new ScreenPosition(0, 247);
   protected static final int CROSSHAIR_SIZE = 9;
 
   private IconButtonWidget upButton;

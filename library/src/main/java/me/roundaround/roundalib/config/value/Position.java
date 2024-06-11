@@ -2,19 +2,19 @@ package me.roundaround.roundalib.config.value;
 
 public record Position(int x, int y) {
   public Position movedUp(int amount) {
-    return new Position(x(), y() - amount);
+    return new Position(this.x(), this.y() - amount);
   }
-  
+
   public Position movedDown(int amount) {
-    return new Position(x(), y() + amount);
+    return new Position(this.x(), this.y() + amount);
   }
-  
+
   public Position movedLeft(int amount) {
-    return new Position(x() - amount, y());
+    return new Position(this.x() - amount, this.y());
   }
-  
+
   public Position movedRight(int amount) {
-    return new Position(x() + amount, y());
+    return new Position(this.x() + amount, this.y());
   }
 
   public Position moved(Direction direction, int amount) {
@@ -43,6 +43,6 @@ public record Position(int x, int y) {
   }
 
   public enum Direction {
-    LEFT, UP, RIGHT, DOWN;
+    LEFT, UP, RIGHT, DOWN
   }
 }
