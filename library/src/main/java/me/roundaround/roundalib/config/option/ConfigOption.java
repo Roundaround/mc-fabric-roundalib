@@ -3,11 +3,9 @@ package me.roundaround.roundalib.config.option;
 import me.roundaround.roundalib.config.ModConfig;
 import net.minecraft.text.Text;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public abstract class ConfigOption<D> {
   private final ModConfig modConfig;
@@ -16,7 +14,9 @@ public abstract class ConfigOption<D> {
   private final Text label;
   private final D defaultValue;
   private final boolean noGui;
+  private final Function<D, String> toStringFunction;
   private final List<String> comment;
+  private final List<Validator<D>> validators;
   private final Consumer<ConfigOption<?>> onUpdate;
   private final HashSet<Consumer<D>> savedValueChangeListeners = new HashSet<>();
   private final HashSet<Consumer<D>> pendingValueChangeListeners = new HashSet<>();
@@ -29,8 +29,8 @@ public abstract class ConfigOption<D> {
   private boolean isDefault;
 
   protected ConfigOption(AbstractBuilder<D, ?> builder) {
-    this(builder.modConfig, builder.group, builder.id, builder.label, builder.defaultValue, !builder.noGui,
-        builder.comment, builder.onUpdate
+    this(builder.modConfig, builder.group, builder.id, builder.label, builder.defaultValue, builder.noGui,
+        builder.toStringFunction, builder.comment, builder.validators, builder.onUpdate
     );
   }
 
@@ -41,7 +41,9 @@ public abstract class ConfigOption<D> {
       Text label,
       D defaultValue,
       boolean noGui,
+      Function<D, String> toStringFunction,
       List<String> comment,
+      List<Validator<D>> validators,
       Consumer<ConfigOption<?>> onUpdate
   ) {
     this.modConfig = modConfig;
@@ -49,8 +51,10 @@ public abstract class ConfigOption<D> {
     this.id = id;
     this.label = label;
     this.defaultValue = defaultValue;
-    this.noGui = !noGui;
+    this.noGui = noGui;
+    this.toStringFunction = toStringFunction;
     this.comment = comment;
+    this.validators = validators;
     this.onUpdate = onUpdate;
 
     this.pendingValue = this.defaultValue;
@@ -99,6 +103,14 @@ public abstract class ConfigOption<D> {
 
   public D getPendingValue() {
     return this.pendingValue;
+  }
+
+  public final String getValueAsString() {
+    return this.getValueAsString(this.getPendingValue());
+  }
+
+  public String getValueAsString(D value) {
+    return this.toStringFunction.apply(value);
   }
 
   public D getDefaultValue() {
@@ -190,6 +202,12 @@ public abstract class ConfigOption<D> {
     this.isDisabled = isDisabled;
   }
 
+  public boolean validate(D value) {
+    return this.validators.stream().allMatch((validator) -> {
+      return validator.validate(value, this);
+    });
+  }
+
   @SuppressWarnings("unchecked")
   public void deserialize(Object data) {
     setValue((D) data);
@@ -227,7 +245,9 @@ public abstract class ConfigOption<D> {
     protected Text label;
     protected D defaultValue;
     protected boolean noGui = false;
+    protected Function<D, String> toStringFunction = Object::toString;
     protected List<String> comment = List.of();
+    protected List<Validator<D>> validators = List.of();
     protected Consumer<ConfigOption<?>> onUpdate = (option) -> {
     };
 
@@ -282,6 +302,11 @@ public abstract class ConfigOption<D> {
       return (B) this;
     }
 
+    public B setToStringFunction(Function<D, String> toStringFunction) {
+      this.toStringFunction = toStringFunction;
+      return (B) this;
+    }
+
     public B setComment(String comment) {
       this.comment = List.of(comment);
       return (B) this;
@@ -297,11 +322,26 @@ public abstract class ConfigOption<D> {
       return (B) this;
     }
 
+    public <O extends ConfigOption<D>> B setValidators(Collection<Validator<D>> validators) {
+      this.validators = List.copyOf(validators);
+      return (B) this;
+    }
+
+    public <O extends ConfigOption<D>> B addValidator(Validator<D> validator) {
+      this.validators.add(validator);
+      return (B) this;
+    }
+
     public B onUpdate(Consumer<ConfigOption<?>> onUpdate) {
       this.onUpdate = onUpdate;
       return (B) this;
     }
 
     public abstract ConfigOption<D> build();
+  }
+
+  @FunctionalInterface
+  public interface Validator<D> {
+    boolean validate(D value, ConfigOption<D> option);
   }
 }

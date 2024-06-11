@@ -8,18 +8,18 @@ import java.util.Optional;
 import java.util.function.Function;
 
 public class FloatConfigOption extends ConfigOption<Float> {
-  private Optional<Float> minValue = Optional.empty();
-  private Optional<Float> maxValue = Optional.empty();
-  private List<Validator> validators = List.of();
-  private boolean slider = false;
-  private Optional<Integer> step = Optional.of(20);
-  private Function<Float, String> valueDisplayFunction = (Float value) -> value.toString();
+  private final Float minValue;
+  private final Float maxValue;
+  private final boolean slider;
+  private final float step;
 
   protected FloatConfigOption(Builder builder) {
     super(builder);
 
     this.minValue = builder.minValue;
     this.maxValue = builder.maxValue;
+    this.slider = builder.slider;
+    this.step = builder.step;
 
     List<Validator> allValidators = new ArrayList<>();
     if (this.minValue.isPresent()) {
@@ -28,8 +28,8 @@ public class FloatConfigOption extends ConfigOption<Float> {
     if (this.maxValue.isPresent()) {
       allValidators.add((float prev, float curr) -> curr <= maxValue.get());
     }
-    if (!builder.customValidators.isEmpty()) {
-      allValidators.addAll(builder.customValidators);
+    if (!builder.validators.isEmpty()) {
+      allValidators.addAll(builder.validators);
     }
     this.validators = List.copyOf(allValidators);
 
@@ -44,11 +44,11 @@ public class FloatConfigOption extends ConfigOption<Float> {
     setValue(((Double) data).floatValue());
   }
 
-  public Optional<Float> getMinValue() {
+  public Float getMinValue() {
     return this.minValue;
   }
 
-  public Optional<Float> getMaxValue() {
+  public Float getMaxValue() {
     return this.maxValue;
   }
 
@@ -66,14 +66,6 @@ public class FloatConfigOption extends ConfigOption<Float> {
     return this.step.isEmpty() ? 20 : this.step.get();
   }
 
-  public String getValueAsString() {
-    return this.getValueAsString(this.getPendingValue());
-  }
-
-  public String getValueAsString(float value) {
-    return this.valueDisplayFunction.apply(getPendingValue());
-  }
-
   @Override
   public boolean areValuesEqual(Float a, Float b) {
     return Math.abs(a - b) < 0x1.0p-10f;
@@ -88,11 +80,12 @@ public class FloatConfigOption extends ConfigOption<Float> {
   }
 
   public static class Builder extends ConfigOption.AbstractBuilder<Float, Builder> {
-    private Optional<Float> minValue = Optional.empty();
-    private Optional<Float> maxValue = Optional.empty();
-    private List<Validator> customValidators = new ArrayList<>();
+    private final List<Validator> validators = new ArrayList<>();
+
+    private Float minValue = null;
+    private Float maxValue = null;
     private boolean slider = false;
-    private Optional<Integer> step = Optional.of(20);
+    private float step = 20;
     private Function<Float, String> valueDisplayFunction = (Float value) -> String.format("%.2f", value);
 
     private Builder(ModConfig modConfig, String id) {
@@ -100,17 +93,17 @@ public class FloatConfigOption extends ConfigOption<Float> {
     }
 
     public Builder setMinValue(float minValue) {
-      this.minValue = Optional.of(minValue);
+      this.minValue = minValue;
       return this;
     }
 
     public Builder setMaxValue(float maxValue) {
-      this.maxValue = Optional.of(maxValue);
+      this.maxValue = maxValue;
       return this;
     }
 
     public Builder addCustomValidator(Validator validator) {
-      customValidators.add(validator);
+      validators.add(validator);
       return this;
     }
 
@@ -119,8 +112,8 @@ public class FloatConfigOption extends ConfigOption<Float> {
       return this;
     }
 
-    public Builder setStep(int step) {
-      this.step = Optional.of(step);
+    public Builder setStep(float step) {
+      this.step = step;
       return this;
     }
 
@@ -136,7 +129,7 @@ public class FloatConfigOption extends ConfigOption<Float> {
   }
 
   @FunctionalInterface
-  public static interface Validator {
+  public interface Validator {
     boolean apply(float prev, float curr);
   }
 }
