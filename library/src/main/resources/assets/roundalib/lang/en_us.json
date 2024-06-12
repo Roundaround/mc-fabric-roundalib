@@ -1,5 +1,6 @@
 {
   "${modId}.roundalib.reset.tooltip": "Reset to default",
+  "${modId}.roundalib.close.tooltip": "Close",
   "${modId}.roundalib.discard.tooltip": "Discard changes",
   "${modId}.roundalib.save.tooltip": "Save changes",
   "${modId}.roundalib.up.tooltip": "Move up",

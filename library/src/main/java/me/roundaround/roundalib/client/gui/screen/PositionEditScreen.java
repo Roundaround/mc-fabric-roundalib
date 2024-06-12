@@ -8,21 +8,24 @@ import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.config.option.PositionConfigOption;
 import me.roundaround.roundalib.config.value.Position;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.DirectionalLayoutWidget;
+import net.minecraft.client.gui.widget.EmptyWidget;
+import net.minecraft.client.gui.widget.Positioner;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position, PositionConfigOption> {
-  protected static final Coords CROSSHAIR_UV = new Coords(0, 247);
   protected static final int CROSSHAIR_SIZE = 9;
+  protected static final Coords CROSSHAIR_UV = new Coords(0, 256 - CROSSHAIR_SIZE);
+  protected static final int MOVER_SIZE = CROSSHAIR_SIZE + 2 * (RoundaLibIconButtons.SIZE_M + GuiUtil.PADDING);
 
-  private IconButtonWidget upButton;
-  private IconButtonWidget leftButton;
-  private IconButtonWidget rightButton;
-  private IconButtonWidget downButton;
+  private DirectionalLayoutWidget column;
+  private DirectionalLayoutWidget row;
 
   protected PositionEditScreen(
       Text title, Screen parent, PositionConfigOption configOption
@@ -32,34 +35,46 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
 
   @Override
   protected void init() {
-    int startX = this.width - GuiUtil.PADDING;
-    int startY = this.height - GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M - GuiUtil.PADDING;
+    this.column = DirectionalLayoutWidget.vertical();
+    this.column.spacing(GuiUtil.PADDING);
+    this.column.setPosition(
+        this.width - GuiUtil.PADDING - MathHelper.ceil((MOVER_SIZE + RoundaLibIconButtons.SIZE_M) / 2f),
+        this.height - GuiUtil.PADDING - MOVER_SIZE
+    );
 
-    this.upButton = this.addDrawableChild(
-        RoundaLibIconButtons.upButton(startX - 2 * RoundaLibIconButtons.SIZE_M - GuiUtil.PADDING,
-            startY - 3 * RoundaLibIconButtons.SIZE_M - 2 * GuiUtil.PADDING, this.modId, (button) -> this.moveUp()
-        ));
+    this.row = DirectionalLayoutWidget.horizontal();
+    this.row.spacing(GuiUtil.PADDING);
+    this.row.setPosition(this.width - GuiUtil.PADDING - MOVER_SIZE,
+        this.height - GuiUtil.PADDING - MathHelper.ceil((MOVER_SIZE + RoundaLibIconButtons.SIZE_M) / 2f)
+    );
 
-    this.leftButton = this.addDrawableChild(
-        RoundaLibIconButtons.leftButton(startX - 3 * RoundaLibIconButtons.SIZE_M - 2 * GuiUtil.PADDING,
-            startY - 2 * RoundaLibIconButtons.SIZE_M - GuiUtil.PADDING, this.modId, (button) -> this.moveLeft()
-        ));
+    super.init();
 
-    this.rightButton = this.addDrawableChild(RoundaLibIconButtons.rightButton(startX - RoundaLibIconButtons.SIZE_M,
-        startY - 2 * RoundaLibIconButtons.SIZE_M - GuiUtil.PADDING, this.modId, (button) -> this.moveRight()
-    ));
+    IconButtonWidget upButton = this.column.add(RoundaLibIconButtons.upButton(this.modId, (button) -> this.moveUp()),
+        Positioner::alignHorizontalCenter
+    );
+    this.column.add(EmptyWidget.ofHeight(CROSSHAIR_SIZE));
+    IconButtonWidget downButton = this.column.add(
+        RoundaLibIconButtons.downButton(this.modId, (button) -> this.moveDown()), Positioner::alignHorizontalCenter);
 
-    this.downButton = this.addDrawableChild(
-        RoundaLibIconButtons.downButton(startX - 2 * RoundaLibIconButtons.SIZE_M - GuiUtil.PADDING,
-            startY - RoundaLibIconButtons.SIZE_M, this.modId, (button) -> this.moveDown()
-        ));
+    IconButtonWidget leftButton = this.row.add(
+        RoundaLibIconButtons.leftButton(this.modId, (button) -> this.moveLeft()), Positioner::alignVerticalCenter);
+    this.row.add(EmptyWidget.ofWidth(CROSSHAIR_SIZE));
+    IconButtonWidget rightButton = this.row.add(
+        RoundaLibIconButtons.rightButton(this.modId, (button) -> this.moveRight()), Positioner::alignVerticalCenter);
+
+    this.addDrawableChild(upButton);
+    this.addDrawableChild(leftButton);
+    this.addDrawableChild(rightButton);
+    this.addDrawableChild(downButton);
 
     this.addDrawable((context, mouseX, mouseY, delta) -> {
       RenderSystem.setShaderColor(1, 1, 1, 0.8f);
       RenderSystem.enableBlend();
 
       context.drawTexture(new Identifier(this.modId, "textures/roundalib.png"),
-          this.upButton.getX() + GuiUtil.PADDING / 2, leftButton.getY() + GuiUtil.PADDING / 2, CROSSHAIR_UV.x(),
+          this.width - 2 * GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M - CROSSHAIR_SIZE,
+          this.height - 2 * GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M - CROSSHAIR_SIZE, CROSSHAIR_UV.x(),
           CROSSHAIR_UV.y(), CROSSHAIR_SIZE, CROSSHAIR_SIZE
       );
 
@@ -67,7 +82,27 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
       RenderSystem.disableBlend();
     });
 
-    super.init();
+    this.initTabNavigation();
+  }
+
+  @Override
+  protected void initTabNavigation() {
+    super.initTabNavigation();
+
+    if (this.column != null) {
+      this.column.setPosition(
+          this.width - GuiUtil.PADDING - MathHelper.ceil((MOVER_SIZE + RoundaLibIconButtons.SIZE_M) / 2f),
+          this.height - GuiUtil.PADDING - MOVER_SIZE
+      );
+      this.column.refreshPositions();
+    }
+
+    if (this.row != null) {
+      this.row.setPosition(this.width - GuiUtil.PADDING - MOVER_SIZE,
+          this.height - GuiUtil.PADDING - MathHelper.ceil((MOVER_SIZE + RoundaLibIconButtons.SIZE_M) / 2f)
+      );
+      this.row.refreshPositions();
+    }
   }
 
   @Override

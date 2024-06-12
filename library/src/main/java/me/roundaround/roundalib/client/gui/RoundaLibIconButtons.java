@@ -29,8 +29,16 @@ public final class RoundaLibIconButtons {
   public static final int INDEX_PLUS = 9;
   public static final int INDEX_MINUS = 10;
 
+  public static IconButtonWidget resetButton(ConfigOption<?> option) {
+    return resetButton(0, 0, option, SIZE_M);
+  }
+
   public static IconButtonWidget resetButton(int x, int y, ConfigOption<?> option) {
     return resetButton(x, y, option, SIZE_M);
+  }
+
+  public static IconButtonWidget resetButton(ConfigOption<?> option, int size) {
+    return resetButton(0, 0, option, size);
   }
 
   public static IconButtonWidget resetButton(int x, int y, ConfigOption<?> option, int size) {
@@ -47,6 +55,31 @@ public final class RoundaLibIconButtons {
         .position(x, y)
         .autoCalculateUV(INDEX_RESET, 0, getOriginForSize(size))
         .tooltip(Text.translatable(modId + ".roundalib.reset.tooltip"))
+        .build();
+  }
+
+  public static IconButtonWidget closeButton(String modId, PressAction onPress) {
+    return closeButton(0, 0, modId, onPress);
+  }
+
+  public static IconButtonWidget closeButton(int x, int y, String modId, PressAction onPress) {
+    return closeButton(x, y, SIZE_M, modId, onPress);
+  }
+
+  public static IconButtonWidget closeButton(String modId, int size, PressAction onPress) {
+    return closeButton(0, 0, size, modId, onPress);
+  }
+
+  public static IconButtonWidget closeButton(
+      int x, int y, int size, String modId, PressAction onPress
+  ) {
+    Identifier texture = new Identifier(modId, "textures/roundalib.png");
+
+    return IconButtonWidget.builder(texture, castPressAction(onPress))
+        .size(size)
+        .position(x, y)
+        .autoCalculateUV(INDEX_CLOSE, 0, getOriginForSize(size))
+        .tooltip(Text.translatable(modId + ".roundalib.close.tooltip"))
         .build();
   }
 
@@ -106,6 +139,10 @@ public final class RoundaLibIconButtons {
         .build();
   }
 
+  public static IconButtonWidget upButton(String modId, PressAction onPress) {
+    return upButton(0, 0, modId, onPress, SIZE_M);
+  }
+
   public static IconButtonWidget upButton(int x, int y, String modId, PressAction onPress) {
     return upButton(x, y, modId, onPress, SIZE_M);
   }
@@ -121,6 +158,10 @@ public final class RoundaLibIconButtons {
         .autoCalculateUV(INDEX_UP, 0, getOriginForSize(size))
         .tooltip(Text.translatable(modId + ".roundalib.up.tooltip"))
         .build();
+  }
+
+  public static IconButtonWidget downButton(String modId, PressAction onPress) {
+    return downButton(0, 0, modId, onPress, SIZE_M);
   }
 
   public static IconButtonWidget downButton(int x, int y, String modId, PressAction onPress) {
@@ -140,6 +181,10 @@ public final class RoundaLibIconButtons {
         .build();
   }
 
+  public static IconButtonWidget leftButton(String modId, PressAction onPress) {
+    return leftButton(0, 0, modId, onPress, SIZE_M);
+  }
+
   public static IconButtonWidget leftButton(int x, int y, String modId, PressAction onPress) {
     return leftButton(x, y, modId, onPress, SIZE_M);
   }
@@ -155,6 +200,10 @@ public final class RoundaLibIconButtons {
         .autoCalculateUV(INDEX_LEFT, 0, getOriginForSize(size))
         .tooltip(Text.translatable(modId + ".roundalib.left.tooltip"))
         .build();
+  }
+
+  public static IconButtonWidget rightButton(String modId, PressAction onPress) {
+    return rightButton(0, 0, modId, onPress, SIZE_M);
   }
 
   public static IconButtonWidget rightButton(int x, int y, String modId, PressAction onPress) {

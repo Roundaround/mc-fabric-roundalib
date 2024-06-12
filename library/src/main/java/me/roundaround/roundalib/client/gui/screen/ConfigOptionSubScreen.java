@@ -1,7 +1,6 @@
 package me.roundaround.roundalib.client.gui.screen;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.LabelElement;
 import me.roundaround.roundalib.client.gui.RoundaLibIconButtons;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.MinecraftClient;
@@ -9,8 +8,8 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.DirectionalLayoutWidget;
+import net.minecraft.client.gui.widget.Positioner;
 import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
-import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
@@ -38,8 +37,8 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
     DirectionalLayoutWidget row = DirectionalLayoutWidget.horizontal().spacing(8);
     this.layout.addFooter(row);
 
-    row.add(ButtonWidget.builder(ScreenTexts.DONE, this::close).size(150, 20).build());
-    row.add(RoundaLibIconButtons.resetButton(0, 0, this.option));
+    row.add(RoundaLibIconButtons.closeButton(this.modId, RoundaLibIconButtons.SIZE_L, this::close));
+    row.add(RoundaLibIconButtons.resetButton(this.option, RoundaLibIconButtons.SIZE_L));
 
     this.layout.forEachChild(this::addDrawableChild);
     this.initTabNavigation();
