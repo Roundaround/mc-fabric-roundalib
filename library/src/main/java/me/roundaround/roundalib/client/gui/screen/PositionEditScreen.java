@@ -97,12 +97,20 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
     return full;
   }
 
-  protected int getMoveAmount(Position.Direction direction, boolean largeStep) {
-    return largeStep ? 8 : 1;
+  protected int getMoveAmount(Position.Direction direction) {
+    return hasShiftDown() ? this.getLargeMoveAmount(direction) : this.getSmallMoveAmount(direction);
+  }
+
+  protected int getSmallMoveAmount(Position.Direction direction) {
+    return 1;
+  }
+
+  protected int getLargeMoveAmount(Position.Direction direction) {
+    return 8;
   }
 
   protected void move(Position.Direction direction) {
-    this.setValue(this.getValue().moved(direction, this.getMoveAmount(direction, hasShiftDown())));
+    this.setValue(this.getValue().moved(direction, this.getMoveAmount(direction)));
   }
 
   protected void moveUp() {
