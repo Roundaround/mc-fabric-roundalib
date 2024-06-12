@@ -8,10 +8,9 @@ import me.roundaround.roundalib.config.value.Position;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.DirectionalLayoutWidget;
 import net.minecraft.client.gui.widget.EmptyWidget;
-import net.minecraft.client.gui.widget.Positioner;
+import net.minecraft.client.gui.widget.SimplePositioningWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
@@ -21,97 +20,62 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
   protected static final int CROSSHAIR_SIZE = 9;
   protected static final int MOVER_SIZE = CROSSHAIR_SIZE + 2 * (IconButtonWidget.SIZE_M + GuiUtil.PADDING);
 
-  private DirectionalLayoutWidget column;
-  private DirectionalLayoutWidget row;
+  private final SimplePositioningWidget mover = new SimplePositioningWidget();
+  private final DirectionalLayoutWidget column = DirectionalLayoutWidget.vertical().spacing(GuiUtil.PADDING);
+  private final DirectionalLayoutWidget row = DirectionalLayoutWidget.horizontal().spacing(GuiUtil.PADDING);
 
   protected PositionEditScreen(
       Text title, Screen parent, PositionConfigOption configOption
   ) {
     super(title, parent, configOption);
+
+    this.column.getMainPositioner().alignHorizontalCenter();
+    this.row.getMainPositioner().alignVerticalCenter();
+
+    this.buttonRow.spacing(7);
+    this.body.getMainPositioner().alignBottom().alignRight().margin(GuiUtil.PADDING);
   }
 
   @Override
-  protected void init() {
-    this.column = DirectionalLayoutWidget.vertical();
-    this.column.spacing(GuiUtil.PADDING);
-    this.column.setPosition(
-        this.width - GuiUtil.PADDING - MathHelper.ceil((MOVER_SIZE + IconButtonWidget.SIZE_M) / 2f),
-        this.height - GuiUtil.PADDING - MOVER_SIZE
-    );
+  protected void initBody() {
+    super.initBody();
 
-    this.row = DirectionalLayoutWidget.horizontal();
-    this.row.spacing(GuiUtil.PADDING);
-    this.row.setPosition(
-        this.width - GuiUtil.PADDING - MOVER_SIZE,
-        this.height - GuiUtil.PADDING - MathHelper.ceil((MOVER_SIZE + IconButtonWidget.SIZE_M) / 2f)
-    );
+    this.body.add(this.mover);
+    this.mover.add(this.column, (positioner) -> positioner.alignBottom().alignRight());
 
-    super.init();
-
-    IconButtonWidget upButton = this.column.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.UP_13, this.modId)
+    this.column.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.UP_13, this.modId)
         .dimensions(IconButtonWidget.SIZE_M)
         .messageAndTooltip(Text.translatable(this.modId + ".roundalib.up.tooltip"))
         .onPress((button) -> this.moveUp())
-        .build(), Positioner::alignHorizontalCenter);
-    this.column.add(EmptyWidget.ofHeight(CROSSHAIR_SIZE));
-    IconButtonWidget downButton = this.column.add(
-        IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.DOWN_13, this.modId)
-            .dimensions(IconButtonWidget.SIZE_M)
-            .messageAndTooltip(Text.translatable(this.modId + ".roundalib.down.tooltip"))
-            .onPress((button) -> this.moveDown())
-            .build(), Positioner::alignHorizontalCenter);
+        .build());
+    this.column.add(this.row);
+    this.column.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.DOWN_13, this.modId)
+        .dimensions(IconButtonWidget.SIZE_M)
+        .messageAndTooltip(Text.translatable(this.modId + ".roundalib.down.tooltip"))
+        .onPress((button) -> this.moveDown())
+        .build());
 
-    IconButtonWidget leftButton = this.row.add(
-        IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.LEFT_13, this.modId)
-            .dimensions(IconButtonWidget.SIZE_M)
-            .messageAndTooltip(Text.translatable(this.modId + ".roundalib.left.tooltip"))
-            .onPress((button) -> this.moveLeft())
-            .build(), Positioner::alignVerticalCenter);
+    this.row.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.LEFT_13, this.modId)
+        .dimensions(IconButtonWidget.SIZE_M)
+        .messageAndTooltip(Text.translatable(this.modId + ".roundalib.left.tooltip"))
+        .onPress((button) -> this.moveLeft())
+        .build());
     this.row.add(EmptyWidget.ofWidth(CROSSHAIR_SIZE));
-    IconButtonWidget rightButton = this.row.add(
-        IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.RIGHT_13, this.modId)
-            .dimensions(IconButtonWidget.SIZE_M)
-            .messageAndTooltip(Text.translatable(this.modId + ".roundalib.right.tooltip"))
-            .onPress((button) -> this.moveRight())
-            .build(), Positioner::alignVerticalCenter);
-
-    this.addDrawableChild(upButton);
-    this.addDrawableChild(leftButton);
-    this.addDrawableChild(rightButton);
-    this.addDrawableChild(downButton);
+    this.row.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.RIGHT_13, this.modId)
+        .dimensions(IconButtonWidget.SIZE_M)
+        .messageAndTooltip(Text.translatable(this.modId + ".roundalib.right.tooltip"))
+        .onPress((button) -> this.moveRight())
+        .build());
 
     this.addDrawable((context, mouseX, mouseY, delta) -> {
       RenderSystem.enableBlend();
       context.drawGuiTexture(
           new Identifier(this.modId, "hud/roundalib/crosshair-9"),
-          this.width - 2 * GuiUtil.PADDING - IconButtonWidget.SIZE_M - CROSSHAIR_SIZE,
-          this.height - 2 * GuiUtil.PADDING - IconButtonWidget.SIZE_M - CROSSHAIR_SIZE, CROSSHAIR_SIZE, CROSSHAIR_SIZE
+          this.mover.getX() + (this.mover.getWidth() - CROSSHAIR_SIZE) / 2,
+          this.mover.getY() + (this.mover.getHeight() - CROSSHAIR_SIZE) / 2, CROSSHAIR_SIZE, CROSSHAIR_SIZE
       );
       RenderSystem.disableBlend();
     });
-
-    this.initTabNavigation();
-  }
-
-  @Override
-  protected void initTabNavigation() {
-    super.initTabNavigation();
-
-    if (this.column != null) {
-      this.column.setPosition(
-          this.width - GuiUtil.PADDING - MathHelper.ceil((MOVER_SIZE + IconButtonWidget.SIZE_M) / 2f),
-          this.height - GuiUtil.PADDING - MOVER_SIZE
-      );
-      this.column.refreshPositions();
-    }
-
-    if (this.row != null) {
-      this.row.setPosition(
-          this.width - GuiUtil.PADDING - MOVER_SIZE,
-          this.height - GuiUtil.PADDING - MathHelper.ceil((MOVER_SIZE + IconButtonWidget.SIZE_M) / 2f)
-      );
-      this.row.refreshPositions();
-    }
   }
 
   @Override

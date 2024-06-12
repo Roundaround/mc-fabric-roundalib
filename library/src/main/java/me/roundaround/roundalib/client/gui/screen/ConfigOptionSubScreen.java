@@ -6,8 +6,8 @@ import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.DirectionalLayoutWidget;
+import net.minecraft.client.gui.widget.SimplePositioningWidget;
 import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
@@ -19,6 +19,9 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   protected final O option;
   protected final String modId;
   protected final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this);
+  protected final SimplePositioningWidget footer = new SimplePositioningWidget();
+  protected final SimplePositioningWidget body = new SimplePositioningWidget();
+  protected final DirectionalLayoutWidget buttonRow = DirectionalLayoutWidget.horizontal().spacing(GuiUtil.PADDING);
 
   protected ConfigOptionSubScreen(Text title, Screen parent, O option) {
     super(title);
@@ -27,35 +30,54 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
     this.modId = option.getModId();
 
     this.option.subscribePending(this::onValueChanged);
+
+    this.footer.getMainPositioner()
+        .alignBottom()
+        .alignRight()
+        .marginBottom(GuiUtil.PADDING)
+        .marginRight(GuiUtil.PADDING);
   }
 
   @Override
   protected void init() {
-    this.layout.addHeader(this.title, this.textRenderer);
-
-    DirectionalLayoutWidget row = DirectionalLayoutWidget.horizontal().spacing(8);
-    this.layout.addFooter(row);
-
-    row.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.CLOSE_18, this.modId)
-        .onPress(this::close)
-        .messageAndTooltip(Text.translatable(this.modId + ".roundalib.close.tooltip"))
-        .build());
-    row.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.UNDO_18, this.modId)
-        .onPress((button) -> this.option.setDefault())
-        .messageAndTooltip(Text.translatable(this.modId + ".roundalib.reset.tooltip"))
-        .build());
+    this.initHeader();
+    this.initBody();
+    this.initFooter();
 
     this.layout.forEachChild(this::addDrawableChild);
     this.initTabNavigation();
   }
 
+  protected void initHeader() {
+    this.layout.addHeader(this.title, this.textRenderer);
+  }
+
+  protected void initBody() {
+    this.layout.addBody(this.body);
+  }
+
+  protected void initFooter() {
+    this.layout.addFooter(this.footer);
+    this.footer.add(this.buttonRow);
+    this.buttonRow.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.BACK_18, this.modId)
+        .onPress((button) -> this.close())
+        .messageAndTooltip(Text.translatable(this.modId + ".roundalib.back.tooltip"))
+        .build());
+    this.buttonRow.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.UNDO_18, this.modId)
+        .onPress((button) -> this.option.setDefault())
+        .messageAndTooltip(Text.translatable(this.modId + ".roundalib.reset.tooltip"))
+        .build());
+  }
+
   @Override
   protected void initTabNavigation() {
+    this.prepLayoutForRefresh();
     this.layout.refreshPositions();
   }
 
-  protected void close(ButtonWidget button) {
-    this.close();
+  protected void prepLayoutForRefresh() {
+    this.footer.setDimensions(this.layout.getWidth(), this.layout.getFooterHeight());
+    this.body.setDimensions(this.layout.getWidth(), this.layout.getContentHeight());
   }
 
   @Override
@@ -102,25 +124,22 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   protected void renderHelpPrompt(
       DrawContext context, int mouseX, int mouseY, float delta
   ) {
-    this.renderHelpLines(context, getHelpShort(mouseX, mouseY, delta));
+    this.renderHelpLines(context, this.getHelpShort(mouseX, mouseY, delta));
   }
 
   protected void renderHelpExpanded(
       DrawContext context, int mouseX, int mouseY, float delta
   ) {
-    this.renderHelpLines(context, getHelpLong(mouseX, mouseY, delta));
+    this.renderHelpLines(context, this.getHelpLong(mouseX, mouseY, delta));
   }
 
   private void renderHelpLines(DrawContext context, List<Text> lines) {
-    this.renderHelpLines(context, lines, false);
-  }
-
-  private void renderHelpLines(DrawContext context, List<Text> lines, boolean offsetForIcon) {
-    int startingOffset = height - 4 - textRenderer.fontHeight - (lines.size() - 1) * (textRenderer.fontHeight + 2);
+    int startingOffset =
+        this.height - 4 - this.textRenderer.fontHeight - (lines.size() - 1) * (this.textRenderer.fontHeight + 2);
 
     for (int i = 0; i < lines.size(); i++) {
-      context.drawTextWithShadow(textRenderer, lines.get(i), 4, startingOffset + i * (textRenderer.fontHeight + 2),
-          GuiUtil.LABEL_COLOR
+      context.drawTextWithShadow(this.textRenderer, lines.get(i), 4,
+          startingOffset + i * (this.textRenderer.fontHeight + 2), GuiUtil.LABEL_COLOR
       );
     }
   }
