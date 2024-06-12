@@ -1,13 +1,13 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.IconButtons;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.config.option.IntConfigOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.text.Text;
 
 import java.util.List;
 
@@ -43,15 +43,24 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
     this.textField.setChangedListener(this::onTextChanged);
 
     if (this.option.showStepButtons()) {
-      this.textField.setWidth(widgetWidth - IconButtons.SIZE_S - 4);
+      this.textField.setWidth(widgetWidth - IconButtonWidget.SIZE_S - 4);
 
-      this.plusButton = IconButtons.intStepButton(widgetRight - IconButtons.SIZE_S, widgetTop,
-          this.option, true
-      );
+      String modId = this.getOption().getModId();
+      int step = this.getOption().getStep();
 
-      this.minusButton = IconButtons.intStepButton(widgetRight - IconButtons.SIZE_S,
-          widgetBottom - IconButtons.SIZE_S, this.option, false
-      );
+      this.plusButton = IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.PLUS_9, modId)
+          .position(widgetRight - IconButtonWidget.SIZE_S, widgetTop)
+          .dimensions(IconButtonWidget.SIZE_S)
+          .messageAndTooltip(Text.translatable(modId + ".roundalib.step_up.tooltip", step))
+          .onPress((button) -> this.getOption().increment())
+          .build();
+
+      this.minusButton = IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.MINUS_9, modId)
+          .position(widgetRight - IconButtonWidget.SIZE_S, widgetTop)
+          .dimensions(IconButtonWidget.SIZE_S)
+          .messageAndTooltip(Text.translatable(modId + ".roundalib.step_down.tooltip", step))
+          .onPress((button) -> this.getOption().decrement())
+          .build();
     } else {
       this.plusButton = null;
       this.minusButton = null;
@@ -82,10 +91,9 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
     this.textField.setDimensions(widgetWidth - 2, widgetHeight - 2);
 
     if (this.option.showStepButtons()) {
-      this.textField.setWidth(widgetWidth - IconButtons.SIZE_S - 4);
-      this.plusButton.setPosition(widgetRight - IconButtons.SIZE_S, widgetTop);
-      this.minusButton.setPosition(
-          widgetRight - IconButtons.SIZE_S, widgetBottom - IconButtons.SIZE_S);
+      this.textField.setWidth(widgetWidth - IconButtonWidget.SIZE_S - 4);
+      this.plusButton.setPosition(widgetRight - IconButtonWidget.SIZE_S, widgetTop);
+      this.minusButton.setPosition(widgetRight - IconButtonWidget.SIZE_S, widgetBottom - IconButtonWidget.SIZE_S);
     }
   }
 

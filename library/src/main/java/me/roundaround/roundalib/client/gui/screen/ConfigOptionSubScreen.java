@@ -1,7 +1,7 @@
 package me.roundaround.roundalib.client.gui.screen;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.IconButtons;
+import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -36,8 +36,14 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
     DirectionalLayoutWidget row = DirectionalLayoutWidget.horizontal().spacing(8);
     this.layout.addFooter(row);
 
-    row.add(IconButtons.closeButton(this.modId, IconButtons.SIZE_L, this::close));
-    row.add(IconButtons.resetButton(this.option, IconButtons.SIZE_L));
+    row.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.CLOSE_18, this.modId)
+        .onPress(this::close)
+        .messageAndTooltip(Text.translatable(this.modId + ".roundalib.close.tooltip"))
+        .build());
+    row.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.UNDO_18, this.modId)
+        .onPress((button) -> this.option.setDefault())
+        .messageAndTooltip(Text.translatable(this.modId + ".roundalib.reset.tooltip"))
+        .build());
 
     this.layout.forEachChild(this::addDrawableChild);
     this.initTabNavigation();
