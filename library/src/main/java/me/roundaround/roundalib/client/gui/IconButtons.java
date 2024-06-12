@@ -8,9 +8,7 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-public final class RoundaLibIconButtons {
-  private static final MinecraftClient client = MinecraftClient.getInstance();
-
+public final class IconButtons {
   public static final int SIZE_L = 18;
   public static final int SIZE_M = 13;
   public static final int SIZE_S = 9;

@@ -1,7 +1,7 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.RoundaLibIconButtons;
+import me.roundaround.roundalib.client.gui.IconButtons;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.config.option.IntConfigOption;
 import net.minecraft.client.MinecraftClient;
@@ -43,14 +43,14 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
     this.textField.setChangedListener(this::onTextChanged);
 
     if (this.option.showStepButtons()) {
-      this.textField.setWidth(widgetWidth - RoundaLibIconButtons.SIZE_S - 4);
+      this.textField.setWidth(widgetWidth - IconButtons.SIZE_S - 4);
 
-      this.plusButton = RoundaLibIconButtons.intStepButton(widgetRight - RoundaLibIconButtons.SIZE_S, widgetTop,
+      this.plusButton = IconButtons.intStepButton(widgetRight - IconButtons.SIZE_S, widgetTop,
           this.option, true
       );
 
-      this.minusButton = RoundaLibIconButtons.intStepButton(widgetRight - RoundaLibIconButtons.SIZE_S,
-          widgetBottom - RoundaLibIconButtons.SIZE_S, this.option, false
+      this.minusButton = IconButtons.intStepButton(widgetRight - IconButtons.SIZE_S,
+          widgetBottom - IconButtons.SIZE_S, this.option, false
       );
     } else {
       this.plusButton = null;
@@ -82,10 +82,10 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
     this.textField.setDimensions(widgetWidth - 2, widgetHeight - 2);
 
     if (this.option.showStepButtons()) {
-      this.textField.setWidth(widgetWidth - RoundaLibIconButtons.SIZE_S - 4);
-      this.plusButton.setPosition(widgetRight - RoundaLibIconButtons.SIZE_S, widgetTop);
+      this.textField.setWidth(widgetWidth - IconButtons.SIZE_S - 4);
+      this.plusButton.setPosition(widgetRight - IconButtons.SIZE_S, widgetTop);
       this.minusButton.setPosition(
-          widgetRight - RoundaLibIconButtons.SIZE_S, widgetBottom - RoundaLibIconButtons.SIZE_S);
+          widgetRight - IconButtons.SIZE_S, widgetBottom - IconButtons.SIZE_S);
     }
   }
 

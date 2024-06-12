@@ -3,7 +3,7 @@ package me.roundaround.roundalib.client.gui.widget.config;
 import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.LabelElement;
-import me.roundaround.roundalib.client.gui.RoundaLibIconButtons;
+import me.roundaround.roundalib.client.gui.IconButtons;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.VariableHeightListWidget;
 import me.roundaround.roundalib.config.ModConfig;
@@ -153,8 +153,8 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
       this.control.children().forEach(this::addChild);
       this.control.selectableChildren().forEach(this::addSelectableChild);
 
-      this.resetButton = RoundaLibIconButtons.resetButton(this.getResetButtonLeft(), this.getResetButtonTop(),
-          this.option, RoundaLibIconButtons.SIZE_L
+      this.resetButton = IconButtons.resetButton(this.getResetButtonLeft(), this.getResetButtonTop(),
+          this.option, IconButtons.SIZE_L
       );
 
       this.addChild(this.resetButton);
@@ -176,11 +176,11 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     }
 
     private int getResetButtonLeft() {
-      return this.getContentRight() - RoundaLibIconButtons.SIZE_L;
+      return this.getContentRight() - IconButtons.SIZE_L;
     }
 
     private int getResetButtonTop() {
-      return this.getContentTop() + (this.getContentHeight() - RoundaLibIconButtons.SIZE_L) / 2;
+      return this.getContentTop() + (this.getContentHeight() - IconButtons.SIZE_L) / 2;
     }
 
     @Override

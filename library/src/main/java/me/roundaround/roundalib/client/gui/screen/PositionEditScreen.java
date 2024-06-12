@@ -2,7 +2,7 @@ package me.roundaround.roundalib.client.gui.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.RoundaLibIconButtons;
+import me.roundaround.roundalib.client.gui.IconButtons;
 import me.roundaround.roundalib.client.gui.layout.Coords;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.config.option.PositionConfigOption;
@@ -22,7 +22,7 @@ import java.util.List;
 public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position, PositionConfigOption> {
   protected static final int CROSSHAIR_SIZE = 9;
   protected static final Coords CROSSHAIR_UV = new Coords(0, 256 - CROSSHAIR_SIZE);
-  protected static final int MOVER_SIZE = CROSSHAIR_SIZE + 2 * (RoundaLibIconButtons.SIZE_M + GuiUtil.PADDING);
+  protected static final int MOVER_SIZE = CROSSHAIR_SIZE + 2 * (IconButtons.SIZE_M + GuiUtil.PADDING);
 
   private DirectionalLayoutWidget column;
   private DirectionalLayoutWidget row;
@@ -38,30 +38,31 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
     this.column = DirectionalLayoutWidget.vertical();
     this.column.spacing(GuiUtil.PADDING);
     this.column.setPosition(
-        this.width - GuiUtil.PADDING - MathHelper.ceil((MOVER_SIZE + RoundaLibIconButtons.SIZE_M) / 2f),
+        this.width - GuiUtil.PADDING - MathHelper.ceil((MOVER_SIZE + IconButtons.SIZE_M) / 2f),
         this.height - GuiUtil.PADDING - MOVER_SIZE
     );
 
     this.row = DirectionalLayoutWidget.horizontal();
     this.row.spacing(GuiUtil.PADDING);
     this.row.setPosition(this.width - GuiUtil.PADDING - MOVER_SIZE,
-        this.height - GuiUtil.PADDING - MathHelper.ceil((MOVER_SIZE + RoundaLibIconButtons.SIZE_M) / 2f)
+        this.height - GuiUtil.PADDING - MathHelper.ceil((MOVER_SIZE + IconButtons.SIZE_M) / 2f)
     );
 
     super.init();
 
-    IconButtonWidget upButton = this.column.add(RoundaLibIconButtons.upButton(this.modId, (button) -> this.moveUp()),
+    IconButtonWidget upButton = this.column.add(
+        IconButtons.upButton(this.modId, (button) -> this.moveUp()),
         Positioner::alignHorizontalCenter
     );
     this.column.add(EmptyWidget.ofHeight(CROSSHAIR_SIZE));
     IconButtonWidget downButton = this.column.add(
-        RoundaLibIconButtons.downButton(this.modId, (button) -> this.moveDown()), Positioner::alignHorizontalCenter);
+        IconButtons.downButton(this.modId, (button) -> this.moveDown()), Positioner::alignHorizontalCenter);
 
     IconButtonWidget leftButton = this.row.add(
-        RoundaLibIconButtons.leftButton(this.modId, (button) -> this.moveLeft()), Positioner::alignVerticalCenter);
+        IconButtons.leftButton(this.modId, (button) -> this.moveLeft()), Positioner::alignVerticalCenter);
     this.row.add(EmptyWidget.ofWidth(CROSSHAIR_SIZE));
     IconButtonWidget rightButton = this.row.add(
-        RoundaLibIconButtons.rightButton(this.modId, (button) -> this.moveRight()), Positioner::alignVerticalCenter);
+        IconButtons.rightButton(this.modId, (button) -> this.moveRight()), Positioner::alignVerticalCenter);
 
     this.addDrawableChild(upButton);
     this.addDrawableChild(leftButton);
@@ -73,8 +74,8 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
       RenderSystem.enableBlend();
 
       context.drawTexture(new Identifier(this.modId, "textures/roundalib.png"),
-          this.width - 2 * GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M - CROSSHAIR_SIZE,
-          this.height - 2 * GuiUtil.PADDING - RoundaLibIconButtons.SIZE_M - CROSSHAIR_SIZE, CROSSHAIR_UV.x(),
+          this.width - 2 * GuiUtil.PADDING - IconButtons.SIZE_M - CROSSHAIR_SIZE,
+          this.height - 2 * GuiUtil.PADDING - IconButtons.SIZE_M - CROSSHAIR_SIZE, CROSSHAIR_UV.x(),
           CROSSHAIR_UV.y(), CROSSHAIR_SIZE, CROSSHAIR_SIZE
       );
 
@@ -91,7 +92,7 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
 
     if (this.column != null) {
       this.column.setPosition(
-          this.width - GuiUtil.PADDING - MathHelper.ceil((MOVER_SIZE + RoundaLibIconButtons.SIZE_M) / 2f),
+          this.width - GuiUtil.PADDING - MathHelper.ceil((MOVER_SIZE + IconButtons.SIZE_M) / 2f),
           this.height - GuiUtil.PADDING - MOVER_SIZE
       );
       this.column.refreshPositions();
@@ -99,7 +100,7 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
 
     if (this.row != null) {
       this.row.setPosition(this.width - GuiUtil.PADDING - MOVER_SIZE,
-          this.height - GuiUtil.PADDING - MathHelper.ceil((MOVER_SIZE + RoundaLibIconButtons.SIZE_M) / 2f)
+          this.height - GuiUtil.PADDING - MathHelper.ceil((MOVER_SIZE + IconButtons.SIZE_M) / 2f)
       );
       this.row.refreshPositions();
     }
