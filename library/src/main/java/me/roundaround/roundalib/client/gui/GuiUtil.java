@@ -177,7 +177,7 @@ public class GuiUtil {
   public static void drawWrappedText(
       DrawContext context, TextRenderer textRenderer, Text text, int x, int y, int color, boolean shadow, int maxWidth
   ) {
-    drawWrappedText(context, textRenderer, text, x, y, color, shadow, maxWidth, 0);
+    drawWrappedText(context, textRenderer, text, x, y, color, shadow, maxWidth, 0, 0);
   }
 
   public static void drawWrappedText(
@@ -189,9 +189,11 @@ public class GuiUtil {
       int color,
       boolean shadow,
       int maxWidth,
+      int lineSpacing,
       int maxLines
   ) {
-    drawWrappedText(context, textRenderer, text, x, y, color, shadow, maxWidth, maxLines, TextAlignment.START);
+    drawWrappedText(
+        context, textRenderer, text, x, y, color, shadow, maxWidth, maxLines, lineSpacing, TextAlignment.START);
   }
 
   public static void drawWrappedText(
@@ -204,6 +206,7 @@ public class GuiUtil {
       boolean shadow,
       int maxWidth,
       int maxLines,
+      int lineSpacing,
       TextAlignment alignment
   ) {
     if (maxWidth <= 0) {
@@ -215,8 +218,28 @@ public class GuiUtil {
     int yCursor = y;
     for (OrderedText line : lines.subList(0, maxLines)) {
       drawText(context, textRenderer, line, x, yCursor, color, shadow, alignment);
-      yCursor += textRenderer.fontHeight;
+      yCursor += textRenderer.fontHeight + lineSpacing;
     }
+  }
+
+  public static int measureWrappedTextHeight(
+      TextRenderer textRenderer,
+      Text text,
+      int maxWidth,
+      int maxLines,
+      int lineSpacing
+  ) {
+    if (maxWidth <= 0) {
+      return textRenderer.fontHeight;
+    }
+
+    List<OrderedText> lines = textRenderer.wrapLines(text, maxWidth);
+    if (lines.size() <= 1) {
+      return textRenderer.fontHeight;
+    }
+
+    int lineCount = Math.min(lines.size(), maxLines);
+    return textRenderer.fontHeight * lineCount + lineSpacing * (lineCount - 1);
   }
 
   public static void drawScrollingText(

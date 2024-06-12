@@ -19,6 +19,7 @@ public class LabelElement implements Drawable, Element {
   private final OverflowBehavior overflowBehavior;
   private final int scrollMargin;
   private final int maxLines;
+  private final int lineSpacing;
   private final boolean background;
   private final Spacing bgOverflow;
   private final boolean shadow;
@@ -34,7 +35,6 @@ public class LabelElement implements Drawable, Element {
   private int y;
   private int maxWidth;
   private int bgColor;
-
   private boolean layoutDirty = true;
 
   private LabelElement(
@@ -50,6 +50,7 @@ public class LabelElement implements Drawable, Element {
       OverflowBehavior overflowBehavior,
       int scrollMargin,
       int maxLines,
+      int lineSpacing,
       boolean background,
       int bgColor,
       Spacing bgOverflow,
@@ -67,6 +68,7 @@ public class LabelElement implements Drawable, Element {
     this.overflowBehavior = overflowBehavior;
     this.scrollMargin = scrollMargin;
     this.maxLines = maxLines;
+    this.lineSpacing = lineSpacing;
     this.background = background;
     this.bgColor = bgColor;
     this.bgOverflow = bgOverflow;
@@ -95,7 +97,7 @@ public class LabelElement implements Drawable, Element {
               this.maxWidth, this.alignmentH
           );
       case WRAP -> GuiUtil.drawWrappedText(context, this.textRenderer, this.text, this.x, y, this.color, this.shadow,
-          this.maxWidth, this.maxLines, this.alignmentH
+          this.maxWidth, this.maxLines, this.lineSpacing, this.alignmentH
       );
       case CLIP -> {
         GuiUtil.enableScissor(context, this.interactionBounds);
@@ -180,6 +182,18 @@ public class LabelElement implements Drawable, Element {
     this.layoutDirty = true;
   }
 
+  public IntRect getTextBounds() {
+    return this.textBounds.copy();
+  }
+
+  public IntRect getInteractionBounds() {
+    return this.interactionBounds.copy();
+  }
+
+  public IntRect getBgBounds() {
+    return this.bgBounds.copy();
+  }
+
   private void updateLayout() {
     if (!this.layoutDirty) {
       return;
@@ -191,8 +205,11 @@ public class LabelElement implements Drawable, Element {
     if (this.maxWidth > 0) {
       int available = this.maxWidth - this.padding.getHorizontal();
       textWidth = Math.min(textWidth, available);
+    }
 
-      // TODO: Check if overflow behavior is WRAP, and remeasure textHeight accordingly.
+    if (this.overflowBehavior == OverflowBehavior.WRAP) {
+      textHeight = GuiUtil.measureWrappedTextHeight(
+          this.textRenderer, this.text, this.maxWidth, this.maxLines, this.lineSpacing);
     }
 
     switch (this.alignmentH) {
@@ -230,8 +247,8 @@ public class LabelElement implements Drawable, Element {
     }
 
     this.textBounds.set(this.rawTextBounds.toPixelBounds());
-    this.interactionBounds.set(this.textBounds.expand(this.padding));
-    this.bgBounds.set(this.rawTextBounds.roundOutward().expand(this.padding).expand(this.bgOverflow));
+    this.interactionBounds.set(this.textBounds.copy().expand(this.padding));
+    this.bgBounds.set(this.rawTextBounds.copy().roundOutward().expand(this.padding).expand(this.bgOverflow));
 
     this.layoutDirty = false;
   }
@@ -268,6 +285,7 @@ public class LabelElement implements Drawable, Element {
     private OverflowBehavior overflowBehavior = OverflowBehavior.SHOW;
     private int scrollMargin = 2;
     private int maxLines = 0;
+    private int lineSpacing = 0;
     private boolean background = true;
     private int bgColor = GuiUtil.BACKGROUND_COLOR;
     private boolean shadow = false;
@@ -309,6 +327,11 @@ public class LabelElement implements Drawable, Element {
 
     public Builder maxLines(int maxLines) {
       this.maxLines = maxLines;
+      return this;
+    }
+
+    public Builder lineSpacing(int lineSpacing) {
+      this.lineSpacing = lineSpacing;
       return this;
     }
 
@@ -430,7 +453,7 @@ public class LabelElement implements Drawable, Element {
     public LabelElement build() {
       return new LabelElement(this.textRenderer, this.text, this.color, this.x, this.y, this.alignmentH,
           this.alignmentV, this.padding.copy(), this.maxWidth, this.overflowBehavior, this.scrollMargin, this.maxLines,
-          this.background, this.bgColor, this.bgOverflow.copy(), this.shadow
+          this.lineSpacing, this.background, this.bgColor, this.bgOverflow.copy(), this.shadow
       );
     }
   }

@@ -112,11 +112,27 @@ public class IntRect implements FourSided<Integer> {
     return this;
   }
 
+  public IntRect expand(int by) {
+    this.setLeft(this.getLeft() - by);
+    this.setTop(this.getTop() - by);
+    this.setRight(this.getRight() + by);
+    this.setBottom(this.getBottom() + by);
+    return this;
+  }
+
   public IntRect reduce(FourSided<Integer> by) {
     this.setLeft(this.getLeft() + by.getLeft());
     this.setTop(this.getTop() + by.getTop());
     this.setRight(this.getRight() - by.getRight());
     this.setBottom(this.getBottom() - by.getBottom());
+    return this;
+  }
+
+  public IntRect reduce(int by) {
+    this.setLeft(this.getLeft() + by);
+    this.setTop(this.getTop() + by);
+    this.setRight(this.getRight() - by);
+    this.setBottom(this.getBottom() - by);
     return this;
   }
 }

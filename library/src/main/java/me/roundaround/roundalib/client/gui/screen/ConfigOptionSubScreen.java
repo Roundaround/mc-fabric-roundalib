@@ -165,6 +165,10 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
     return this.option.getPendingValue();
   }
 
+  protected String getValueAsString() {
+    return this.option.getValueAsString();
+  }
+
   protected void resetToDefault() {
     this.option.setDefault();
   }
