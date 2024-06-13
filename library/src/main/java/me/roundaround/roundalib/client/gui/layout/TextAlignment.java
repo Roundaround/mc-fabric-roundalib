@@ -27,4 +27,16 @@ public enum TextAlignment {
       case END -> x - width;
     };
   }
+
+  public int getTop(TextRenderer textRenderer, int y) {
+    return this.getTop(y, textRenderer.fontHeight);
+  }
+
+  public int getTop(int y, int height) {
+    return switch (this) {
+      case START -> y;
+      case CENTER -> y - height / 2;
+      case END -> y - height;
+    };
+  }
 }

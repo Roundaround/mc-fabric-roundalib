@@ -8,6 +8,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Text;
 
 public class LabelElement implements Drawable, Element {
@@ -84,27 +85,28 @@ public class LabelElement implements Drawable, Element {
       );
     }
 
+    int x = this.getPaddedX();
     int y = this.textBounds.top();
+    int availableWidth = this.getAvailableWidth();
 
     switch (this.overflowBehavior) {
       case SHOW ->
-          GuiUtil.drawText(context, this.textRenderer, this.text, this.x, y, this.color, this.shadow, this.alignmentH);
-      case TRUNCATE ->
-          GuiUtil.drawTruncatedText(context, this.textRenderer, this.text, this.x, y, this.color, this.shadow,
-              this.maxWidth, this.alignmentH
-          );
-      case WRAP -> GuiUtil.drawWrappedText(context, this.textRenderer, this.text, this.x, y, this.color, this.shadow,
-          this.maxWidth, this.maxLines, this.lineSpacing, this.alignmentH
+          GuiUtil.drawText(context, this.textRenderer, this.text, x, y, this.color, this.shadow, this.alignmentH);
+      case TRUNCATE -> GuiUtil.drawTruncatedText(context, this.textRenderer, this.text, x, y, this.color, this.shadow,
+          availableWidth, this.alignmentH
       );
+      case WRAP ->
+          GuiUtil.drawWrappedText(context, this.textRenderer, this.text, x, y, this.color, this.shadow, availableWidth,
+              this.maxLines, this.lineSpacing, this.alignmentH
+          );
       case CLIP -> {
         GuiUtil.enableScissor(context, this.textBounds);
-        GuiUtil.drawText(context, this.textRenderer, this.text, this.x, y, this.color, this.shadow, this.alignmentH);
+        GuiUtil.drawText(context, this.textRenderer, this.text, x, y, this.color, this.shadow, this.alignmentH);
         GuiUtil.disableScissor(context);
       }
-      case SCROLL ->
-          GuiUtil.drawScrollingText(context, this.textRenderer, this.text, this.x, y, this.color, this.shadow,
-              this.maxWidth, this.scrollMargin, this.alignmentH
-          );
+      case SCROLL -> GuiUtil.drawScrollingText(context, this.textRenderer, this.text, x, y, this.color, this.shadow,
+          availableWidth, this.scrollMargin, this.alignmentH
+      );
     }
   }
 
@@ -191,47 +193,66 @@ public class LabelElement implements Drawable, Element {
     return this.bgBounds;
   }
 
-  private void updateLayout() {
+  private int getAvailableWidth() {
+    if (this.maxWidth <= 0) {
+      return Integer.MAX_VALUE;
+    }
+    return this.maxWidth - this.padding.getHorizontal();
+  }
+
+  private int getPaddedX() {
+    return switch (this.alignmentH) {
+      case START -> this.x + this.padding.left();
+      case END -> this.x - this.padding.right();
+      case CENTER -> this.x;
+    };
+  }
+
+  private int getPaddedY() {
+    return switch (this.alignmentV) {
+      case START -> this.y + this.padding.top();
+      case END -> this.y - this.padding.bottom();
+      case CENTER -> this.y;
+    };
+  }
+
+  public void updateLayout() {
     if (!this.layoutDirty) {
       return;
     }
 
-    int textWidth = this.textRenderer.getWidth(this.text);
+    int textWidth = Math.min(this.textRenderer.getWidth(this.text), this.getAvailableWidth());
     int textHeight = this.textRenderer.fontHeight;
-
-    if (this.maxWidth > 0) {
-      int available = this.maxWidth - this.padding.getHorizontal();
-      textWidth = Math.min(textWidth, available);
-    }
 
     if (this.overflowBehavior == OverflowBehavior.WRAP) {
       textHeight = GuiUtil.measureWrappedTextHeight(
           this.textRenderer, this.text, this.maxWidth, this.maxLines, this.lineSpacing);
     }
 
-    if (!this.shadow) {
-      textHeight -= 1;
-      textWidth -= 1;
-    }
-
-    int paddedX = switch (this.alignmentH) {
-      case START -> this.x + this.padding.left();
-      case END -> this.x - this.padding.right();
-      case CENTER -> this.x;
-    };
-    int textLeft = this.alignmentH.getLeft(paddedX, textWidth);
-
-    int textTop = switch (this.alignmentV) {
-      case START -> this.y + this.padding.top();
-      case END -> this.y - this.padding.bottom() - textHeight;
-      case CENTER -> this.y - textHeight / 2;
-    };
+    int textLeft = this.alignmentH.getLeft(this.getPaddedX(), textWidth);
+    int textTop = this.alignmentV.getTop(this.getPaddedY(), textHeight);
 
     this.textBounds = IntRect.byDimensions(textLeft, textTop, textWidth, textHeight);
     this.interactionBounds = this.textBounds.expand(this.padding);
     this.bgBounds = this.interactionBounds.expand(this.bgOverflow);
 
     this.layoutDirty = false;
+  }
+
+  public Builder toBuilder() {
+    return new Builder(this.textRenderer, this.text, this.x, this.y).color(this.color)
+        .maxWidth(this.maxWidth)
+        .overflowBehavior(this.overflowBehavior)
+        .scrollMargin(this.scrollMargin)
+        .maxLines(this.maxLines)
+        .lineSpacing(this.lineSpacing)
+        .justifiedHorizontally(this.alignmentH)
+        .alignedVertically(this.alignmentV)
+        .padding(this.padding)
+        .background(this.background)
+        .bgColor(this.bgColor)
+        .bgOverflow(this.bgOverflow)
+        .shadow(this.shadow);
   }
 
   public static Builder builder(TextRenderer textRenderer, Text text, int posX, int posY) {
@@ -440,6 +461,24 @@ public class LabelElement implements Drawable, Element {
   }
 
   public enum OverflowBehavior {
-    SHOW, TRUNCATE, WRAP, CLIP, SCROLL
+    SHOW("show"), TRUNCATE("truncate"), WRAP("wrap"), CLIP("clip"), SCROLL("scroll");
+
+    private final String id;
+
+    OverflowBehavior(String id) {
+      this.id = id;
+    }
+
+    public String getI18nKey(String modId) {
+      return String.format("%s.roundalib.overflow_behavior.%s", modId, this.id);
+    }
+
+    public Text getDisplayText(String modId) {
+      return Text.translatable(this.getI18nKey(modId));
+    }
+
+    public String getDisplayString(String modId) {
+      return I18n.translate(this.getI18nKey(modId));
+    }
   }
 }

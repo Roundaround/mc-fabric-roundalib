@@ -1,4 +1,5 @@
 {
+  "testmod.labeldemoscreen.title": "Label Demo",
   "testmod.config.title": "Testmod Config",
   "testmod.group0.title": "Group 0",
   "testmod.group0.testOption0.label": "Option 0",
