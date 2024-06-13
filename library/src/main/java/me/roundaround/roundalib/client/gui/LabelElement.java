@@ -278,7 +278,7 @@ public class LabelElement implements Drawable, Element {
     private final int x;
     private final int y;
     private final Spacing padding = Spacing.of(1, 2);
-    private final Spacing bgOverflow = Spacing.zero();
+    private final Spacing bgOverflow = Spacing.of(1, 0, 0, 1);
 
     private int color = GuiUtil.LABEL_COLOR;
     private TextAlignment alignmentH = TextAlignment.START;
