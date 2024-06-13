@@ -1,21 +1,9 @@
 package me.roundaround.roundalib.client.gui.layout;
 
 @SuppressWarnings("unused")
-public class IntRect implements FourSided<Integer> {
-  private int left;
-  private int top;
-  private int right;
-  private int bottom;
-
-  private IntRect(int left, int top, int right, int bottom) {
-    this.left = left;
-    this.top = top;
-    this.right = right;
-    this.bottom = bottom;
-  }
-
+public record IntRect(Integer left, Integer top, Integer right, Integer bottom) implements FourSided<Integer> {
   public static IntRect zero() {
-    return new IntRect(0, 0, 0, 0);
+    return byBounds(0, 0, 0, 0);
   }
 
   public static IntRect byBounds(int left, int top, int right, int bottom) {
@@ -26,34 +14,6 @@ public class IntRect implements FourSided<Integer> {
     return new IntRect(left, top, left + width, top + height);
   }
 
-  public static IntRect copyOf(IntRect other) {
-    return new IntRect(other.left, other.top, other.right, other.bottom);
-  }
-
-  public IntRect copy() {
-    return copyOf(this);
-  }
-
-  @Override
-  public Integer getLeft() {
-    return this.left;
-  }
-
-  @Override
-  public Integer getTop() {
-    return this.top;
-  }
-
-  @Override
-  public Integer getRight() {
-    return this.right;
-  }
-
-  @Override
-  public Integer getBottom() {
-    return this.bottom;
-  }
-
   public int getWidth() {
     return this.right - this.left;
   }
@@ -62,77 +22,23 @@ public class IntRect implements FourSided<Integer> {
     return this.bottom - this.top;
   }
 
-  public void setLeft(int left) {
-    this.left = left;
+  public IntRect expand(int amount) {
+    return IntRect.byBounds(this.left - amount, this.top - amount, this.right + amount, this.bottom + amount);
   }
 
-  public void setTop(int top) {
-    this.top = top;
+  public IntRect expand(FourSided<Integer> other) {
+    return IntRect.byBounds(this.left - other.left(), this.top - other.top(), this.right + other.right(),
+        this.bottom + other.bottom()
+    );
   }
 
-  public void setRight(int right) {
-    this.right = right;
+  public IntRect reduce(int amount) {
+    return IntRect.byBounds(this.left + amount, this.top + amount, this.right - amount, this.bottom - amount);
   }
 
-  public void setBottom(int bottom) {
-    this.bottom = bottom;
-  }
-
-  public void setWidth(int width) {
-    this.setRight(this.getLeft() + width);
-  }
-
-  public void setHeight(int height) {
-    this.setBottom(this.getTop() + height);
-  }
-
-  public void setByBounds(int left, int top, int right, int bottom) {
-    this.setLeft(left);
-    this.setTop(top);
-    this.setRight(right);
-    this.setBottom(bottom);
-  }
-
-  public void setByDimensions(int left, int top, int width, int height) {
-    this.setLeft(left);
-    this.setTop(top);
-    this.setRight(left + width);
-    this.setBottom(left + height);
-  }
-
-  public void set(IntRect other) {
-    this.setByBounds(other.left, other.top, other.right, other.bottom);
-  }
-
-  public IntRect expand(FourSided<Integer> by) {
-    this.setLeft(this.getLeft() - by.getLeft());
-    this.setTop(this.getTop() - by.getTop());
-    this.setRight(this.getRight() + by.getRight());
-    this.setBottom(this.getBottom() + by.getBottom());
-    return this;
-  }
-
-  public IntRect expand(int by) {
-    this.setLeft(this.getLeft() - by);
-    this.setTop(this.getTop() - by);
-    this.setRight(this.getRight() + by);
-    this.setBottom(this.getBottom() + by);
-    return this;
-  }
-
-  public IntRect reduce(FourSided<Integer> by) {
-    this.setLeft(this.getLeft() + by.getLeft());
-    this.setTop(this.getTop() + by.getTop());
-    this.setRight(this.getRight() - by.getRight());
-    this.setBottom(this.getBottom() - by.getBottom());
-    return this;
-  }
-
-  public IntRect reduce(int by) {
-    this.setLeft(this.getLeft() + by);
-    this.setTop(this.getTop() + by);
-    this.setRight(this.getRight() - by);
-    this.setBottom(this.getBottom() - by);
-    return this;
+  public IntRect reduce(FourSided<Integer> other) {
+    return IntRect.byBounds(this.left + other.left(), this.top + other.top(), this.right - other.right(),
+        this.bottom - other.bottom()
+    );
   }
 }

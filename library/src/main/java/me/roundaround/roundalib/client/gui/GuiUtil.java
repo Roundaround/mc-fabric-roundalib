@@ -166,9 +166,8 @@ public class GuiUtil {
 
     StringVisitable trimmed = text;
     if (textRenderer.getWidth(text) > maxWidth) {
-      StringVisitable ellipsis = ScreenTexts.ELLIPSIS;
-      trimmed = StringVisitable.concat(
-          textRenderer.trimToWidth(text, maxWidth - textRenderer.getWidth(ellipsis)), ellipsis);
+      trimmed = textRenderer.trimToWidth(text, maxWidth - textRenderer.getWidth(ScreenTexts.ELLIPSIS));
+      trimmed = StringVisitable.concat(trimmed, ScreenTexts.ELLIPSIS);
     }
 
     drawText(context, textRenderer, Language.getInstance().reorder(trimmed), x, y, color, shadow, alignment);
@@ -278,7 +277,7 @@ public class GuiUtil {
   }
 
   public static void enableScissor(DrawContext context, FourSided<Integer> bounds) {
-    context.enableScissor(bounds.getLeft(), bounds.getTop(), bounds.getRight(), bounds.getBottom());
+    context.enableScissor(bounds.left(), bounds.top(), bounds.right(), bounds.bottom());
   }
 
   public static void disableScissor(DrawContext context) {
@@ -297,7 +296,7 @@ public class GuiUtil {
   }
 
   public static void enableScissorBypassContext(FourSided<Integer> bounds) {
-    enableScissorBypassContext(bounds.getLeft(), bounds.getTop(), bounds.getRight(), bounds.getBottom());
+    enableScissorBypassContext(bounds.left(), bounds.top(), bounds.right(), bounds.bottom());
   }
 
   public static void disableScissorBypassContext() {

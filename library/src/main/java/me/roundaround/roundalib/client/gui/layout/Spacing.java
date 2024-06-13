@@ -43,31 +43,31 @@ public class Spacing implements FourSided<Integer> {
   }
 
   @Override
-  public Integer getTop() {
+  public Integer top() {
     return this.top;
   }
 
   @Override
-  public Integer getRight() {
+  public Integer right() {
     return this.right;
   }
 
   @Override
-  public Integer getBottom() {
+  public Integer bottom() {
     return this.bottom;
   }
 
   @Override
-  public Integer getLeft() {
+  public Integer left() {
     return this.left;
   }
 
   public int getVertical() {
-    return this.getTop() + this.getBottom();
+    return this.top() + this.bottom();
   }
 
   public int getHorizontal() {
-    return this.getLeft() + this.getRight();
+    return this.left() + this.right();
   }
 
   public void setTop(int space) {
@@ -120,18 +120,18 @@ public class Spacing implements FourSided<Integer> {
   }
 
   public Spacing expand(FourSided<Integer> by) {
-    this.setTop(this.getTop() - by.getTop());
-    this.setRight(this.getRight() + by.getRight());
-    this.setBottom(this.getBottom() + by.getBottom());
-    this.setLeft(this.getLeft() - by.getLeft());
+    this.setTop(this.top() - by.top());
+    this.setRight(this.right() + by.right());
+    this.setBottom(this.bottom() + by.bottom());
+    this.setLeft(this.left() - by.left());
     return this;
   }
 
   public Spacing reduce(FourSided<Integer> by) {
-    this.setTop(this.getTop() + by.getTop());
-    this.setRight(this.getRight() - by.getRight());
-    this.setBottom(this.getBottom() - by.getBottom());
-    this.setLeft(this.getLeft() + by.getLeft());
+    this.setTop(this.top() + by.top());
+    this.setRight(this.right() - by.right());
+    this.setBottom(this.bottom() - by.bottom());
+    this.setLeft(this.left() + by.left());
     return this;
   }
 }

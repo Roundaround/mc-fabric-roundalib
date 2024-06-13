@@ -30,6 +30,7 @@ public class ExamplePositionEditScreen extends PositionEditScreen {
     int row4Y = centerY;
     int row5Y = centerY + 20;
     int row6Y = centerY + 40;
+    int row7Y = centerY + 60;
 
     LabelElement label1 = LabelElement.builder(this.textRenderer,
             Text.of("This is a very long label that needs to scroll"), centerX, row1Y
@@ -98,6 +99,13 @@ public class ExamplePositionEditScreen extends PositionEditScreen {
         .build();
     this.addDrawable(new LabelRenderer(label6));
 
+    LabelElement label7 = LabelElement.builder(this.textRenderer, Text.of("Short label"), centerX, row7Y)
+        .justifiedCenter()
+        .alignedMiddle()
+        .hideBackground()
+        .build();
+    this.addDrawable(new LabelRenderer(label7));
+
     this.valueLabel = this.addDrawable(
         LabelElement.builder(this.textRenderer, Text.of(this.getValueAsString()), centerX,
                 GuiUtil.DEFAULT_HEADER_HEIGHT
@@ -123,11 +131,10 @@ public class ExamplePositionEditScreen extends PositionEditScreen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
       IntRect bounds = this.label().getTextBounds();
-      context.fill(
-          bounds.getLeft(), bounds.getTop(), bounds.getRight(), bounds.getBottom(), GuiUtil.genColorInt(0, 0, 0));
-      bounds.expand(1);
+      context.fill(bounds.left(), bounds.top(), bounds.right(), bounds.bottom(), GuiUtil.genColorInt(0, 0, 0));
+      IntRect border = bounds.expand(1);
       context.drawBorder(
-          bounds.getLeft(), bounds.getTop(), bounds.getWidth(), bounds.getHeight(), GuiUtil.genColorInt(0, 0.3f, 0.8f));
+          border.left(), border.top(), border.getWidth(), border.getHeight(), GuiUtil.genColorInt(0, 0.3f, 0.8f));
 
       this.label.render(context, mouseX, mouseY, delta);
     }

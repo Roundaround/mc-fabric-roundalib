@@ -1,16 +1,16 @@
 package me.roundaround.roundalib.client.gui.layout;
 
 public interface FourSided<N extends Number> {
-  N getLeft();
+  N left();
 
-  N getTop();
+  N top();
 
-  N getRight();
+  N right();
 
-  N getBottom();
+  N bottom();
 
   default boolean contains(double x, double y) {
-    return x >= this.getLeft().doubleValue() && x <= this.getRight().doubleValue() &&
-        y >= this.getTop().doubleValue() && y <= this.getBottom().doubleValue();
+    return x >= this.left().doubleValue() && x <= this.right().doubleValue() && y >= this.top().doubleValue() &&
+        y <= this.bottom().doubleValue();
   }
 }

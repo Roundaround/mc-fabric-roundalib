@@ -1,6 +1,5 @@
 package me.roundaround.roundalib.client.gui;
 
-import me.roundaround.roundalib.client.gui.layout.FloatRect;
 import me.roundaround.roundalib.client.gui.layout.IntRect;
 import me.roundaround.roundalib.client.gui.layout.Spacing;
 import me.roundaround.roundalib.client.gui.layout.TextAlignment;
@@ -24,11 +23,6 @@ public class LabelElement implements Drawable, Element {
   private final Spacing bgOverflow;
   private final boolean shadow;
 
-  private final FloatRect rawTextBounds = FloatRect.zero();
-  private final IntRect textBounds = IntRect.zero();
-  private final IntRect interactionBounds = IntRect.zero();
-  private final IntRect bgBounds = IntRect.zero();
-
   private Text text;
   private int color;
   private int x;
@@ -36,6 +30,9 @@ public class LabelElement implements Drawable, Element {
   private int maxWidth;
   private int bgColor;
   private boolean layoutDirty = true;
+  private IntRect textBounds = IntRect.zero();
+  private IntRect interactionBounds = IntRect.zero();
+  private IntRect bgBounds = IntRect.zero();
 
   private LabelElement(
       TextRenderer textRenderer,
@@ -82,12 +79,12 @@ public class LabelElement implements Drawable, Element {
     this.updateLayout();
 
     if (this.background) {
-      context.fill(this.bgBounds.getLeft(), this.bgBounds.getTop(), this.bgBounds.getRight(), this.bgBounds.getBottom(),
+      context.fill(this.bgBounds.left(), this.bgBounds.top(), this.bgBounds.right(), this.bgBounds.bottom(),
           this.bgColor
       );
     }
 
-    int y = Math.round(this.rawTextBounds.getTop() + 1);
+    int y = this.textBounds.top();
 
     switch (this.overflowBehavior) {
       case SHOW ->
@@ -100,7 +97,7 @@ public class LabelElement implements Drawable, Element {
           this.maxWidth, this.maxLines, this.lineSpacing, this.alignmentH
       );
       case CLIP -> {
-        GuiUtil.enableScissor(context, this.interactionBounds);
+        GuiUtil.enableScissor(context, this.textBounds);
         GuiUtil.drawText(context, this.textRenderer, this.text, this.x, y, this.color, this.shadow, this.alignmentH);
         GuiUtil.disableScissor(context);
       }
@@ -183,15 +180,15 @@ public class LabelElement implements Drawable, Element {
   }
 
   public IntRect getTextBounds() {
-    return this.textBounds.copy();
+    return this.textBounds;
   }
 
   public IntRect getInteractionBounds() {
-    return this.interactionBounds.copy();
+    return this.interactionBounds;
   }
 
   public IntRect getBgBounds() {
-    return this.bgBounds.copy();
+    return this.bgBounds;
   }
 
   private void updateLayout() {
@@ -212,43 +209,27 @@ public class LabelElement implements Drawable, Element {
           this.textRenderer, this.text, this.maxWidth, this.maxLines, this.lineSpacing);
     }
 
-    switch (this.alignmentH) {
-      case START -> {
-        float left = this.x + this.padding.getLeft();
-        this.rawTextBounds.setLeft(left);
-        this.rawTextBounds.setRight(left + textWidth);
-      }
-      case END -> {
-        float right = this.x - this.padding.getRight();
-        this.rawTextBounds.setLeft(right - textWidth);
-        this.rawTextBounds.setRight(right);
-      }
-      case CENTER -> {
-        this.rawTextBounds.setLeft(this.x - textWidth / 2f);
-        this.rawTextBounds.setRight(this.x + textWidth / 2f);
-      }
+    if (!this.shadow) {
+      textHeight -= 1;
+      textWidth -= 1;
     }
 
-    switch (this.alignmentV) {
-      case START -> {
-        float top = this.y + this.padding.getTop();
-        this.rawTextBounds.setTop(top);
-        this.rawTextBounds.setBottom(top + textHeight);
-      }
-      case END -> {
-        float bottom = this.y - this.padding.getBottom();
-        this.rawTextBounds.setTop(bottom - textHeight);
-        this.rawTextBounds.setBottom(bottom);
-      }
-      case CENTER -> {
-        this.rawTextBounds.setTop(this.y - textHeight / 2f);
-        this.rawTextBounds.setBottom(this.y + textHeight / 2f);
-      }
-    }
+    int paddedX = switch (this.alignmentH) {
+      case START -> this.x + this.padding.left();
+      case END -> this.x - this.padding.right();
+      case CENTER -> this.x;
+    };
+    int textLeft = this.alignmentH.getLeft(paddedX, textWidth);
 
-    this.textBounds.set(this.rawTextBounds.toPixelBounds());
-    this.interactionBounds.set(this.textBounds.copy().expand(this.padding));
-    this.bgBounds.set(this.rawTextBounds.copy().roundOutward().expand(this.padding).expand(this.bgOverflow));
+    int textTop = switch (this.alignmentV) {
+      case START -> this.y + this.padding.top();
+      case END -> this.y - this.padding.bottom() - textHeight;
+      case CENTER -> this.y - textHeight / 2;
+    };
+
+    this.textBounds = IntRect.byDimensions(textLeft, textTop, textWidth, textHeight);
+    this.interactionBounds = this.textBounds.expand(this.padding);
+    this.bgBounds = this.interactionBounds.expand(this.bgOverflow);
 
     this.layoutDirty = false;
   }
@@ -459,6 +440,6 @@ public class LabelElement implements Drawable, Element {
   }
 
   public enum OverflowBehavior {
-    SHOW, TRUNCATE, WRAP, CLIP, SCROLL;
+    SHOW, TRUNCATE, WRAP, CLIP, SCROLL
   }
 }
