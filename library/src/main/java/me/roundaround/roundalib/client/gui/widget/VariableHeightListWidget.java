@@ -83,12 +83,6 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     this.entries.forEach(consumer);
   }
 
-  public void updatePosition(int x, int y, int width, int height) {
-    this.setPosition(x, y);
-    this.setDimensions(width, height);
-    this.refreshPositions();
-  }
-
   public int getContentWidth() {
     return this.getWidth() - (this.isScrollbarVisible() ? GuiUtil.SCROLLBAR_WIDTH : 0);
   }
@@ -468,7 +462,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   }
 
   public void setScrollAmount(double amount) {
-    this.scrollAmount = MathHelper.clamp(amount, 0.0, this.getMaxScroll());
+    this.scrollAmount = MathHelper.clamp(amount, 0, this.getMaxScroll());
   }
 
   public int getMaxScroll() {
@@ -503,6 +497,9 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
       entryY += entry.getHeight();
     }
+
+    this.setScrollAmount(this.getScrollAmount());
+
     LayoutWidget.super.refreshPositions();
   }
 
@@ -553,39 +550,41 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     }
 
     public void renderBackground(DrawContext drawContext, int mouseX, int mouseY, float delta) {
-      if (index % 2 == 0) {
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
-
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferBuilder = tessellator.getBuffer();
-        Matrix4f matrix4f = drawContext.getMatrices().peek().getPositionMatrix();
-
-        int left = this.getLeft();
-        int right = this.getRight();
-        int top = this.getTop();
-        int bottom = this.getBottom();
-
-        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-        bufferBuilder.vertex(matrix4f, left + this.bgFadeWidth, top, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
-        bufferBuilder.vertex(matrix4f, left, top, 0).color(0, 0, 0, 0).next();
-        bufferBuilder.vertex(matrix4f, left, bottom, 0).color(0, 0, 0, 0).next();
-        bufferBuilder.vertex(matrix4f, left + this.bgFadeWidth, bottom, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
-
-        bufferBuilder.vertex(matrix4f, right - this.bgFadeWidth, top, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
-        bufferBuilder.vertex(matrix4f, left + this.bgFadeWidth, top, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
-        bufferBuilder.vertex(matrix4f, left + this.bgFadeWidth, bottom, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
-        bufferBuilder.vertex(matrix4f, right - this.bgFadeWidth, bottom, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
-
-        bufferBuilder.vertex(matrix4f, right, top, 0).color(0, 0, 0, 0).next();
-        bufferBuilder.vertex(matrix4f, right - this.bgFadeWidth, top, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
-        bufferBuilder.vertex(matrix4f, right - this.bgFadeWidth, bottom, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
-        bufferBuilder.vertex(matrix4f, right, bottom, 0).color(0, 0, 0, 0).next();
-        tessellator.draw();
-
-        RenderSystem.disableBlend();
+      if (this.index % 2 != 0) {
+        return;
       }
+
+      RenderSystem.enableBlend();
+      RenderSystem.defaultBlendFunc();
+      RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+
+      Tessellator tessellator = Tessellator.getInstance();
+      BufferBuilder bufferBuilder = tessellator.getBuffer();
+      Matrix4f matrix4f = drawContext.getMatrices().peek().getPositionMatrix();
+
+      int left = this.getLeft();
+      int right = this.getRight();
+      int top = this.getTop();
+      int bottom = this.getBottom();
+
+      bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+      bufferBuilder.vertex(matrix4f, left + this.bgFadeWidth, top, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+      bufferBuilder.vertex(matrix4f, left, top, 0).color(0, 0, 0, 0).next();
+      bufferBuilder.vertex(matrix4f, left, bottom, 0).color(0, 0, 0, 0).next();
+      bufferBuilder.vertex(matrix4f, left + this.bgFadeWidth, bottom, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+
+      bufferBuilder.vertex(matrix4f, right - this.bgFadeWidth, top, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+      bufferBuilder.vertex(matrix4f, left + this.bgFadeWidth, top, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+      bufferBuilder.vertex(matrix4f, left + this.bgFadeWidth, bottom, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+      bufferBuilder.vertex(matrix4f, right - this.bgFadeWidth, bottom, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+
+      bufferBuilder.vertex(matrix4f, right, top, 0).color(0, 0, 0, 0).next();
+      bufferBuilder.vertex(matrix4f, right - this.bgFadeWidth, top, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+      bufferBuilder.vertex(matrix4f, right - this.bgFadeWidth, bottom, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+      bufferBuilder.vertex(matrix4f, right, bottom, 0).color(0, 0, 0, 0).next();
+      tessellator.draw();
+
+      RenderSystem.disableBlend();
     }
 
     public void renderContent(DrawContext drawContext, int mouseX, int mouseY, float delta) {

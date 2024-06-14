@@ -49,10 +49,6 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     }
   }
 
-  public void updatePosition(ThreePartsLayoutWidget layout) {
-    this.updatePosition(layout.getX(), layout.getHeaderHeight(), layout.getWidth(), layout.getContentHeight());
-  }
-
   public void tick() {
     this.forEachEntry(Entry::tick);
   }

@@ -1,5 +1,6 @@
 package me.roundaround.roundalib.client.gui.screen;
 
+import me.roundaround.roundalib.client.gui.widget.FullBodyWrapperWidget;
 import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
 import me.roundaround.roundalib.config.ModConfig;
 import net.minecraft.client.gui.screen.Screen;
@@ -36,10 +37,28 @@ public class ConfigScreen extends Screen {
     this.initTabNavigation();
   }
 
+  protected void initHeader() {
+    this.layout.addHeader(this.title, this.textRenderer);
+  }
+
+  protected void initBody() {
+    this.configListWidget = new ConfigListWidget(this.client, this.layout, this.modConfig);
+    this.layout.addBody(new FullBodyWrapperWidget(this.configListWidget, this.layout));
+    this.modConfig.subscribe(this::update);
+  }
+
+  protected void initFooter() {
+    DirectionalLayoutWidget row = DirectionalLayoutWidget.horizontal().spacing(FOOTER_BUTTON_SPACING);
+    this.layout.addFooter(row);
+
+    row.add(
+        ButtonWidget.builder(ScreenTexts.CANCEL, this::cancel).size(FOOTER_BUTTON_WIDTH, FOOTER_BUTTON_HEIGHT).build());
+    row.add(ButtonWidget.builder(ScreenTexts.DONE, this::done).size(FOOTER_BUTTON_WIDTH, FOOTER_BUTTON_HEIGHT).build());
+  }
+
   @Override
   protected void initTabNavigation() {
     this.layout.refreshPositions();
-    this.configListWidget.updatePosition(this.layout);
   }
 
   @Override
@@ -66,24 +85,6 @@ public class ConfigScreen extends Screen {
 
   protected void update(ModConfig modConfig) {
     this.configListWidget.update();
-  }
-
-  protected void initHeader() {
-    this.layout.addHeader(this.title, this.textRenderer);
-  }
-
-  protected void initBody() {
-    this.configListWidget = this.addDrawableChild(new ConfigListWidget(this.client, this.layout, this.modConfig));
-    this.modConfig.subscribe(this::update);
-  }
-
-  protected void initFooter() {
-    DirectionalLayoutWidget row = DirectionalLayoutWidget.horizontal().spacing(FOOTER_BUTTON_SPACING);
-    this.layout.addFooter(row);
-
-    row.add(
-        ButtonWidget.builder(ScreenTexts.CANCEL, this::cancel).size(FOOTER_BUTTON_WIDTH, FOOTER_BUTTON_HEIGHT).build());
-    row.add(ButtonWidget.builder(ScreenTexts.DONE, this::done).size(FOOTER_BUTTON_WIDTH, FOOTER_BUTTON_HEIGHT).build());
   }
 
   private void cancel(ButtonWidget button) {
