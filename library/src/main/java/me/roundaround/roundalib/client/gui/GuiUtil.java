@@ -21,8 +21,7 @@ import net.minecraft.util.Util;
 
 import java.util.List;
 
-@SuppressWarnings("unused")
-public class GuiUtil {
+public final class GuiUtil {
   public static final int LABEL_COLOR = genColorInt(1f, 1f, 1f);
   public static final int ERROR_COLOR = genColorInt(1f, 0.15f, 0.15f);
   public static final int BACKGROUND_COLOR = genColorInt(0f, 0f, 0f, 0.5f);
@@ -31,6 +30,9 @@ public class GuiUtil {
   public static final int DEFAULT_HEADER_HEIGHT = 33;
 
   private static final MinecraftClient CLIENT = MinecraftClient.getInstance();
+
+  private GuiUtil() {
+  }
 
   public static Identifier getWidgetsTexture(ModConfig config) {
     return new Identifier(config.getModId(), "textures/roundalib.png");
@@ -222,11 +224,7 @@ public class GuiUtil {
   }
 
   public static int measureWrappedTextHeight(
-      TextRenderer textRenderer,
-      Text text,
-      int maxWidth,
-      int maxLines,
-      int lineSpacing
+      TextRenderer textRenderer, Text text, int maxWidth, int maxLines, int lineSpacing
   ) {
     if (maxWidth <= 0) {
       return textRenderer.fontHeight;
