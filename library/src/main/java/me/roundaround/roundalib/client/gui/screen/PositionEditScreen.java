@@ -20,6 +20,9 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
   protected static final int CROSSHAIR_SIZE = 9;
   protected static final int MOVER_SIZE = CROSSHAIR_SIZE + 2 * (IconButtonWidget.SIZE_M + GuiUtil.PADDING);
 
+  protected final Text helpMoveSingleText;
+  protected final Text helpMoveMultiText;
+
   private final SimplePositioningWidget mover = new SimplePositioningWidget();
   private final DirectionalLayoutWidget column = DirectionalLayoutWidget.vertical().spacing(GuiUtil.PADDING);
   private final DirectionalLayoutWidget row = DirectionalLayoutWidget.horizontal().spacing(GuiUtil.PADDING);
@@ -28,6 +31,9 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
       Text title, Screen parent, PositionConfigOption configOption
   ) {
     super(title, parent, configOption);
+
+    this.helpMoveSingleText = Text.translatable(this.modId + ".roundalib.help.position.single");
+    this.helpMoveMultiText = Text.translatable(this.modId + ".roundalib.help.position.multi");
 
     this.column.getMainPositioner().alignHorizontalCenter();
     this.row.getMainPositioner().alignVerticalCenter();
@@ -99,8 +105,8 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
   @Override
   protected List<Text> getHelpLong(int mouseX, int mouseY, float partialTicks) {
     ArrayList<Text> full = new ArrayList<>();
-    full.add(Text.translatable(this.modId + ".roundalib.help.position.single"));
-    full.add(Text.translatable(this.modId + ".roundalib.help.position.multi"));
+    full.add(this.helpMoveSingleText);
+    full.add(this.helpMoveMultiText);
     full.addAll(super.getHelpLong(mouseX, mouseY, partialTicks));
     return full;
   }

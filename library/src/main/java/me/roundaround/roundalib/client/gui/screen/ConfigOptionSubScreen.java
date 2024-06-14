@@ -18,6 +18,9 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   protected final Screen parent;
   protected final O option;
   protected final String modId;
+  protected final Text helpShortText;
+  protected final Text helpCloseText;
+  protected final Text helpResetText;
   protected final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this);
   protected final SimplePositioningWidget footer = new SimplePositioningWidget();
   protected final SimplePositioningWidget body = new SimplePositioningWidget();
@@ -28,6 +31,12 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
     this.parent = parent;
     this.option = option;
     this.modId = option.getModId();
+
+    this.helpShortText = Text.translatable(this.modId + ".roundalib.help.short");
+    this.helpCloseText = Text.translatable(this.modId + ".roundalib.help.close");
+    this.helpResetText = MinecraftClient.IS_SYSTEM_MAC ?
+        Text.translatable(this.modId + ".roundalib.help.reset.mac") :
+        Text.translatable(this.modId + ".roundalib.help.reset.win");
 
     this.option.subscribePending(this::onValueChanged);
 
@@ -145,16 +154,11 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   }
 
   protected List<Text> getHelpShort(int mouseX, int mouseY, float delta) {
-    return List.of(Text.translatable(this.modId + ".roundalib.help.short"));
+    return List.of(this.helpShortText);
   }
 
   protected List<Text> getHelpLong(int mouseX, int mouseY, float delta) {
-    return List.of(
-        Text.translatable(this.modId + ".roundalib.help.cancel"), (MinecraftClient.IS_SYSTEM_MAC ?
-            Text.translatable(this.modId + ".roundalib.help.save.mac") :
-            Text.translatable(this.modId + ".roundalib.help.save.win")), (MinecraftClient.IS_SYSTEM_MAC ?
-            Text.translatable(this.modId + ".roundalib.help.reset.mac") :
-            Text.translatable(this.modId + ".roundalib.help.reset.win")));
+    return List.of(this.helpCloseText, this.helpResetText);
   }
 
   protected void setValue(D value) {
