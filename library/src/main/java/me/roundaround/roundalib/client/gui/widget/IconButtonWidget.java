@@ -8,6 +8,9 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class IconButtonWidget extends ButtonWidget {
   public static final int SIZE_V = 20;
   public static final int SIZE_L = 18;
@@ -242,22 +245,36 @@ public class IconButtonWidget extends ButtonWidget {
     UP_13("up", 13),
     UP_18("up", 18);
 
-    public final String path;
+    public final String name;
     public final int size;
 
     BuiltinIcon(String name, int size) {
-      this.path = String.format("icon/roundalib/%s-%s", name, size);
+      this.name = name;
       this.size = size;
     }
 
     @Override
     public Identifier getTexture(String modId) {
-      return new Identifier(modId, this.path);
+      return new Identifier(modId, String.format("icon/roundalib/%s-%s", this.name, this.size));
     }
 
     @Override
     public int getSize() {
       return this.size;
+    }
+
+    public String getI18nKey(String modId) {
+      return String.format("%s.roundalib.icon.%s", modId, this.name);
+    }
+
+    public Text getDisplayText(String modId) {
+      return Text.translatable(this.getI18nKey(modId));
+    }
+
+    public static List<BuiltinIcon> valuesOfSize(int size) {
+      return Arrays.stream(values())
+          .filter((icon) -> icon.size == size)
+          .toList();
     }
   }
 

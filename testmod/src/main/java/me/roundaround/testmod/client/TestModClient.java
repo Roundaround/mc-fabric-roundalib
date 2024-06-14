@@ -7,6 +7,7 @@ import me.roundaround.roundalib.client.gui.widget.config.SubScreenControl;
 import me.roundaround.roundalib.config.option.PositionConfigOption;
 import me.roundaround.roundalib.config.value.Position;
 import me.roundaround.testmod.client.screen.ExamplePositionEditScreen;
+import me.roundaround.testmod.client.screen.IconButtonDemoScreen;
 import me.roundaround.testmod.client.screen.LabelDemoScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.client.MinecraftClient;
@@ -27,9 +28,17 @@ public class TestModClient implements ClientModInitializer {
       if (screen instanceof LabelDemoScreen) {
         return false;
       }
-      if (keyCode == GLFW.GLFW_KEY_L && Screen.hasControlDown()) {
-        GuiUtil.setScreen(new LabelDemoScreen(screen));
-        return true;
+      if (Screen.hasControlDown()) {
+        switch (keyCode) {
+          case GLFW.GLFW_KEY_L -> {
+            GuiUtil.setScreen(new LabelDemoScreen(screen));
+            return true;
+          }
+          case GLFW.GLFW_KEY_I -> {
+            GuiUtil.setScreen(new IconButtonDemoScreen(screen));
+            return true;
+          }
+        }
       }
       return false;
     });
