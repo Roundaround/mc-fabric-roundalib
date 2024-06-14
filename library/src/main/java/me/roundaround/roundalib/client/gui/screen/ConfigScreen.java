@@ -3,7 +3,6 @@ package me.roundaround.roundalib.client.gui.screen;
 import me.roundaround.roundalib.client.gui.widget.FullBodyWrapperWidget;
 import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
 import me.roundaround.roundalib.config.ModConfig;
-import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.DirectionalLayoutWidget;
@@ -12,15 +11,16 @@ import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 
 public class ConfigScreen extends Screen {
-  protected final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this);
-
   private static final int FOOTER_BUTTON_WIDTH = 150;
   private static final int FOOTER_BUTTON_HEIGHT = 20;
   private static final int FOOTER_BUTTON_SPACING = 8;
+
+  protected final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this);
+
   private final Screen parent;
   private final ModConfig modConfig;
   private ConfigListWidget configListWidget;
-  private boolean shouldSave = false;
+  private CloseAction closeAction = CloseAction.NOOP;
 
   public ConfigScreen(Screen parent, ModConfig modConfig) {
     super(Text.translatable(modConfig.getConfigScreenI18nKey()));
@@ -71,12 +71,7 @@ public class ConfigScreen extends Screen {
   @Override
   public void removed() {
     this.modConfig.unsubscribe(this::update);
-
-    if (this.shouldSave) {
-      this.modConfig.saveToFile();
-    } else {
-      this.modConfig.loadFromFile();
-    }
+    this.closeAction.run();
   }
 
   @Override
@@ -89,12 +84,20 @@ public class ConfigScreen extends Screen {
   }
 
   private void cancel(ButtonWidget button) {
-    this.shouldSave = false;
+    this.closeAction = this.modConfig::loadFromFile;
     this.close();
   }
 
   private void done(ButtonWidget button) {
-    this.shouldSave = true;
+    this.closeAction = this.modConfig::saveToFile;
     this.close();
+  }
+
+  @FunctionalInterface
+  private interface CloseAction {
+    CloseAction NOOP = () -> {
+    };
+
+    void run();
   }
 }

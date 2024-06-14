@@ -1,7 +1,8 @@
 package me.roundaround.roundalib.config.option;
 
-import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.config.ModConfig;
+import me.roundaround.roundalib.config.PendingValueListener;
+import me.roundaround.roundalib.config.SavedValueListener;
 import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
 import me.roundaround.roundalib.config.panic.IllegalStatePanic;
 import net.minecraft.text.Text;
@@ -26,8 +27,8 @@ public abstract class ConfigOption<D> {
   private final List<String> comment;
   private final List<Validator<D>> validators;
   private final Consumer<ConfigOption<?>> onUpdate;
-  private final HashSet<Consumer<D>> savedValueChangeListeners = new HashSet<>();
-  private final HashSet<Consumer<D>> pendingValueChangeListeners = new HashSet<>();
+  private final HashSet<SavedValueListener<D>> savedValueChangeListeners = new HashSet<>();
+  private final HashSet<PendingValueListener<D>> pendingValueChangeListeners = new HashSet<>();
 
   private boolean isDisabled;
   private D pendingValue;
@@ -120,7 +121,7 @@ public abstract class ConfigOption<D> {
     return this.pendingValue;
   }
 
-  public final String getValueAsString() {
+  public final String getPendingValueAsString() {
     return this.getValueAsString(this.getPendingValue());
   }
 
@@ -174,7 +175,7 @@ public abstract class ConfigOption<D> {
     this.modConfig.update();
 
     if (!this.areValuesEqual(prevPendingValue, this.getPendingValue())) {
-      this.pendingValueChangeListeners.forEach((listener) -> listener.accept(this.getPendingValue()));
+      this.pendingValueChangeListeners.forEach((listener) -> listener.onPendingValueChange(this.getPendingValue()));
     }
   }
 
@@ -191,7 +192,7 @@ public abstract class ConfigOption<D> {
     this.isDefault = !this.areValuesEqual(this.getValue(), this.getDefaultValue());
 
     if (!this.areValuesEqual(prevSavedValue, this.getValue())) {
-      this.savedValueChangeListeners.forEach((listener) -> listener.accept(this.getValue()));
+      this.savedValueChangeListeners.forEach((listener) -> listener.onSavedValueChange(this.getValue()));
     }
   }
 
@@ -237,19 +238,19 @@ public abstract class ConfigOption<D> {
     this.onUpdate.accept(this);
   }
 
-  public final void subscribe(Consumer<D> listener) {
+  public final void subscribe(SavedValueListener<D> listener) {
     this.savedValueChangeListeners.add(listener);
   }
 
-  public final void unsubscribe(Consumer<D> listener) {
+  public final void unsubscribe(SavedValueListener<D> listener) {
     this.savedValueChangeListeners.remove(listener);
   }
 
-  public final void subscribePending(Consumer<D> listener) {
+  public final void subscribePending(PendingValueListener<D> listener) {
     this.pendingValueChangeListeners.add(listener);
   }
 
-  public final void unsubscribePending(Consumer<D> listener) {
+  public final void unsubscribePending(PendingValueListener<D> listener) {
     this.pendingValueChangeListeners.remove(listener);
   }
 

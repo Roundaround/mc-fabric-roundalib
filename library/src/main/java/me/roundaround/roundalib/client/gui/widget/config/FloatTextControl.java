@@ -36,7 +36,7 @@ public class FloatTextControl extends Control<Float, FloatConfigOption> {
       }
     };
 
-    this.textField.setText(this.option.getValueAsString());
+    this.textField.setText(this.option.getPendingValueAsString());
     this.textField.setMaxLength(12);
     this.textField.setChangedListener(this::onTextChanged);
 

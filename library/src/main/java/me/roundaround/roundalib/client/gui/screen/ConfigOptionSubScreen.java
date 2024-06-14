@@ -2,6 +2,7 @@ package me.roundaround.roundalib.client.gui.screen;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
+import me.roundaround.roundalib.config.PendingValueListener;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -14,7 +15,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 
-public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extends Screen {
+public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extends Screen implements PendingValueListener<D> {
   protected final Screen parent;
   protected final O option;
   protected final String modId;
@@ -38,8 +39,6 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
         Text.translatable(this.modId + ".roundalib.help.reset.mac") :
         Text.translatable(this.modId + ".roundalib.help.reset.win");
 
-    this.option.subscribePending(this::onValueChanged);
-
     this.footer.getMainPositioner()
         .alignBottom()
         .alignRight()
@@ -55,6 +54,8 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
 
     this.layout.forEachChild(this::addDrawableChild);
     this.initTabNavigation();
+
+    this.option.subscribePending(this);
   }
 
   protected void initHeader() {
@@ -91,11 +92,15 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
 
   @Override
   public void close() {
-    this.option.unsubscribePending(this::onValueChanged);
+    this.option.unsubscribePending(this);
     if (this.client == null) {
       return;
     }
     this.client.setScreen(this.parent);
+  }
+
+  @Override
+  public void onPendingValueChange(D value) {
   }
 
   @Override
@@ -170,7 +175,7 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   }
 
   protected String getValueAsString() {
-    return this.option.getValueAsString();
+    return this.option.getPendingValueAsString();
   }
 
   protected void resetToDefault() {
@@ -183,8 +188,5 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
 
   protected boolean isDirty() {
     return this.option.isDirty();
-  }
-
-  protected void onValueChanged(D value) {
   }
 }

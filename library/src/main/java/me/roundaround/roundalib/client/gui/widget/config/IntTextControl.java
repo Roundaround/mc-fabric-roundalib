@@ -38,7 +38,7 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
       }
     };
 
-    this.textField.setText(this.option.getValueAsString());
+    this.textField.setText(this.option.getPendingValueAsString());
     this.textField.setMaxLength(12);
     this.textField.setChangedListener(this::onTextChanged);
 
@@ -126,7 +126,7 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
     this.textField.active = !disabled;
     this.textField.setEditable(!disabled);
 
-    String value = option.getValueAsString();
+    String value = option.getPendingValueAsString();
     if (!value.equals(this.textField.getText())) {
       this.textField.setText(value);
     }

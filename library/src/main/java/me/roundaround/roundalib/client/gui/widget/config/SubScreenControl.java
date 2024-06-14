@@ -10,8 +10,10 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 
 import java.util.List;
+import java.util.function.Function;
 
 public class SubScreenControl<D, O extends ConfigOption<D>> extends Control<D, O> {
+  private final Function<O, Text> messageFactory;
   private final SubScreenFactory<D, O> subScreenFactory;
   private final ButtonWidget button;
 
@@ -24,12 +26,27 @@ public class SubScreenControl<D, O extends ConfigOption<D>> extends Control<D, O
       int height,
       SubScreenFactory<D, O> subScreenFactory
   ) {
+    this(client, option, left, top, width, height,
+        (value) -> Text.translatable(option.getModId() + ".roundalib.subscreen.label"), subScreenFactory
+    );
+  }
+
+  public SubScreenControl(
+      MinecraftClient client,
+      O option,
+      int left,
+      int top,
+      int width,
+      int height,
+      Function<O, Text> messageFactory,
+      SubScreenFactory<D, O> subScreenFactory
+  ) {
     super(client, option, left, top, width, height);
+    this.messageFactory = messageFactory;
     this.subScreenFactory = subScreenFactory;
 
-    this.button = ButtonWidget.builder(
-        Text.translatable(option.getModId() + ".roundalib.subscreen.label"),
-        (button) -> GuiUtil.setScreen(this.subScreenFactory.create(client.currentScreen, this.option))
+    this.button = ButtonWidget.builder(this.messageFactory.apply(this.getOption()),
+        (button) -> GuiUtil.setScreen(this.subScreenFactory.create(this.client.currentScreen, this.getOption()))
     ).position(this.getWidgetLeft(), this.getWidgetTop()).size(this.getWidgetWidth(), this.getWidgetHeight()).build();
 
     this.update();
@@ -54,6 +71,11 @@ public class SubScreenControl<D, O extends ConfigOption<D>> extends Control<D, O
   @Override
   protected void update() {
     this.button.active = !this.getOption().isDisabled();
+    this.button.setMessage(this.messageFactory.apply(this.getOption()));
+  }
+
+  public static <D, O extends ConfigOption<D>> Function<O, Text> getValueDisplayMessageFactory() {
+    return (option) -> Text.of(option.getPendingValueAsString());
   }
 
   @FunctionalInterface

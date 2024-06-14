@@ -48,7 +48,8 @@ public class TestModClient implements ClientModInitializer {
   private static SubScreenControl<Position, PositionConfigOption> getSubScreenControl(
       MinecraftClient client, PositionConfigOption option, int left, int top, int width, int height
   ) {
-    return new SubScreenControl<>(
-        client, option, left, top, width, height, ExamplePositionEditScreen.getSubScreenFactory());
+    return new SubScreenControl<>(client, option, left, top, width, height,
+        SubScreenControl.getValueDisplayMessageFactory(), ExamplePositionEditScreen.getSubScreenFactory()
+    );
   }
 }

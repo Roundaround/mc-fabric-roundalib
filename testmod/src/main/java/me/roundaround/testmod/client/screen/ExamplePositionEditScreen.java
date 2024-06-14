@@ -31,7 +31,7 @@ public class ExamplePositionEditScreen extends PositionEditScreen {
   }
 
   @Override
-  public void onValueChanged(Position value) {
+  public void onPendingValueChange(Position value) {
     this.valueLabel.setText(Text.of(value.toString()));
   }
 
