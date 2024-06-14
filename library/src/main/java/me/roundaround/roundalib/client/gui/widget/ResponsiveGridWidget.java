@@ -31,7 +31,7 @@ public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidge
   private int rowHeight;
   private int rowSpacing = GuiUtil.PADDING;
   private int columnSpacing = GuiUtil.PADDING;
-  private boolean centered = false;
+  private Float relative = null;
 
   public ResponsiveGridWidget(int width, int height, int columnWidth, int rowHeight) {
     this(0, 0, width, height, columnWidth, rowHeight, Axis.HORIZONTAL);
@@ -99,7 +99,7 @@ public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidge
   }
 
   private Coords getCenteredOffset() {
-    if (!this.centered) {
+    if (this.relative == null) {
       return Coords.zero();
     }
 
@@ -114,7 +114,7 @@ public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidge
     int cellSpacing = this.flowAxis == Axis.HORIZONTAL ? this.columnSpacing : this.rowSpacing;
     int used = actualCount * cellSize + (actualCount - 1) * cellSpacing;
     int available = this.flowAxis == Axis.HORIZONTAL ? this.width : this.height;
-    int offset = (available - used) / 2;
+    int offset = (int) ((available - used) * this.relative);
 
     return this.flowAxis == Axis.HORIZONTAL ? Coords.of(offset, 0) : Coords.of(0, offset);
   }
@@ -157,12 +157,20 @@ public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidge
     return this;
   }
 
-  public ResponsiveGridWidget centered() {
-    return this.centered(true);
+  public ResponsiveGridWidget alignedStart() {
+    return this.aligned(0f);
   }
 
-  public ResponsiveGridWidget centered(boolean centered) {
-    this.centered = centered;
+  public ResponsiveGridWidget centered() {
+    return this.aligned(0.5f);
+  }
+
+  public ResponsiveGridWidget alignedEnd() {
+    return this.aligned(1f);
+  }
+
+  public ResponsiveGridWidget aligned(float relative) {
+    this.relative = relative;
     return this;
   }
 
