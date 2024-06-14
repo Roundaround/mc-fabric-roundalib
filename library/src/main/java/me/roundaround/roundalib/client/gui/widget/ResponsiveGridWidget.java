@@ -68,26 +68,37 @@ public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidge
   public void refreshPositions() {
     LayoutWidget.super.refreshPositions();
 
-    int xOffset = 0;
-    int yOffset = 0;
+    int maxCount = this.maxCountInMainAxis();
+    int main = 0;
+    int other = 0;
 
     for (CellWidget<?> cell : this.cells) {
-      cell.setPosition(this.getX() + xOffset, this.getY() + yOffset, this.columnWidth, this.rowHeight);
+      int column = this.flowAxis == Axis.HORIZONTAL ? main : other;
+      int row = this.flowAxis == Axis.HORIZONTAL ? other : main;
 
-      if (this.flowAxis == Axis.HORIZONTAL) {
-        xOffset += this.columnSpacing + this.columnWidth;
-        if (xOffset > this.width - this.columnWidth) {
-          xOffset = 0;
-          yOffset += this.rowSpacing + this.rowHeight;
-        }
-      } else {
-        yOffset += this.rowSpacing + this.rowHeight;
-        if (yOffset > this.height - this.rowHeight) {
-          yOffset = 0;
-          xOffset += this.columnSpacing + this.columnWidth;
-        }
+      cell.setPosition(this.xPos(column), this.yPos(row), this.columnWidth, this.rowHeight);
+
+      main++;
+      if (main > maxCount - 1) {
+        main = 0;
+        other++;
       }
     }
+  }
+
+  private int maxCountInMainAxis() {
+    return switch (this.flowAxis) {
+      case HORIZONTAL -> (this.width + this.columnSpacing) / (this.columnWidth + this.columnSpacing);
+      case VERTICAL -> (this.height + this.rowSpacing) / (this.rowHeight + this.rowSpacing);
+    };
+  }
+
+  private int xPos(int column) {
+    return this.getX() + column * (this.columnWidth + this.columnSpacing);
+  }
+
+  private int yPos(int row) {
+    return this.getY() + row * (this.rowHeight + this.rowSpacing);
   }
 
   @Override
