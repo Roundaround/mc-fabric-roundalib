@@ -6,6 +6,7 @@ import me.roundaround.roundalib.client.gui.widget.config.ControlRegistry;
 import me.roundaround.roundalib.client.gui.widget.config.SubScreenControl;
 import me.roundaround.roundalib.config.option.PositionConfigOption;
 import me.roundaround.roundalib.config.value.Position;
+import me.roundaround.testmod.client.screen.DemoScreen;
 import me.roundaround.testmod.client.screen.ExamplePositionEditScreen;
 import me.roundaround.testmod.client.screen.IconButtonDemoScreen;
 import me.roundaround.testmod.client.screen.LabelDemoScreen;
@@ -25,7 +26,7 @@ public class TestModClient implements ClientModInitializer {
     }
 
     ScreenInputEvent.EVENT_BUS.register((screen, keyCode, scanCode, modifiers) -> {
-      if (screen instanceof LabelDemoScreen) {
+      if (screen instanceof DemoScreen) {
         return false;
       }
       if (Screen.hasControlDown()) {

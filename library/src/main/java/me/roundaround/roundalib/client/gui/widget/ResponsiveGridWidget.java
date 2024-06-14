@@ -1,12 +1,17 @@
 package me.roundaround.roundalib.client.gui.widget;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.layout.Spacing;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.Drawable;
+import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.widget.ContainerWidget;
 import net.minecraft.client.gui.widget.LayoutWidget;
 import net.minecraft.client.gui.widget.Positioner;
 import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.screen.ScreenTexts;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
 
@@ -15,20 +20,16 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
-public class ResponsiveGridWidget implements LayoutWidget {
+public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidget {
   private final List<CellWidget<?>> cells = new ArrayList<>();
+  private final List<Widget> widgets = new ArrayList<>();
   private final Positioner positioner = Positioner.create();
   private final Axis flowAxis;
 
-  private int x;
-  private int y;
-  private int width;
-  private int height;
   private int columnWidth;
   private int rowHeight;
   private int rowSpacing = GuiUtil.PADDING;
   private int columnSpacing = GuiUtil.PADDING;
-  private Spacing margin = Spacing.zero();
 
   public ResponsiveGridWidget(int width, int height, int columnWidth, int rowHeight) {
     this(0, 0, width, height, columnWidth, rowHeight, Axis.HORIZONTAL);
@@ -43,74 +44,64 @@ public class ResponsiveGridWidget implements LayoutWidget {
   }
 
   public ResponsiveGridWidget(int x, int y, int width, int height, int columnWidth, int rowHeight, Axis flowAxis) {
-    this.x = x;
-    this.y = y;
-    this.width = width;
-    this.height = height;
+    super(x, y, width, height, ScreenTexts.EMPTY);
+
     this.columnWidth = columnWidth;
     this.rowHeight = rowHeight;
     this.flowAxis = flowAxis;
   }
 
   @Override
+  public List<? extends Element> children() {
+    return this.widgets.stream()
+        .filter((widget) -> widget instanceof Element)
+        .map((widget) -> (Element) widget)
+        .toList();
+  }
+
+  @Override
   public void forEachElement(Consumer<Widget> consumer) {
-    this.cells.stream().map(CellWidget::getChild).forEach(consumer);
+    this.widgets.forEach(consumer);
   }
 
   @Override
   public void refreshPositions() {
     LayoutWidget.super.refreshPositions();
 
-    int x = this.margin.left();
-    int y = this.margin.top();
+    int xOffset = 0;
+    int yOffset = 0;
 
     for (CellWidget<?> cell : this.cells) {
-      cell.setPosition(x, y, this.columnWidth, this.rowHeight);
+      cell.setPosition(this.getX() + xOffset, this.getY() + yOffset, this.columnWidth, this.rowHeight);
 
       if (this.flowAxis == Axis.HORIZONTAL) {
-        x += this.columnSpacing + this.columnWidth;
-        if (x > this.width - this.margin.right()) {
-          x = this.margin.left();
-          y += this.rowSpacing + this.rowHeight;
+        xOffset += this.columnSpacing + this.columnWidth;
+        if (xOffset > this.width - this.columnWidth) {
+          xOffset = 0;
+          yOffset += this.rowSpacing + this.rowHeight;
         }
       } else {
-        y += this.rowSpacing + this.rowHeight;
-        if (y > this.height - this.margin.top()) {
-          y = this.margin.top();
-          x += this.columnSpacing + this.columnWidth;
+        yOffset += this.rowSpacing + this.rowHeight;
+        if (yOffset > this.height - this.rowHeight) {
+          yOffset = 0;
+          xOffset += this.columnSpacing + this.columnWidth;
         }
       }
     }
   }
 
   @Override
-  public void setX(int x) {
-    this.x = x;
+  protected void appendClickableNarrations(NarrationMessageBuilder builder) {
+    // TODO: This, getNavigationPath, etc should probably all get implemented.
   }
 
   @Override
-  public void setY(int y) {
-    this.y = y;
-  }
-
-  @Override
-  public int getX() {
-    return this.x;
-  }
-
-  @Override
-  public int getY() {
-    return this.y;
-  }
-
-  @Override
-  public int getWidth() {
-    return this.width;
-  }
-
-  @Override
-  public int getHeight() {
-    return this.height;
+  protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    this.widgets.forEach((widget) -> {
+      if (widget instanceof Drawable drawable) {
+        drawable.render(context, mouseX, mouseY, delta);
+      }
+    });
   }
 
   public ResponsiveGridWidget setRowSpacing(int rowSpacing) {
@@ -127,24 +118,6 @@ public class ResponsiveGridWidget implements LayoutWidget {
     this.rowSpacing = spacing;
     this.columnSpacing = spacing;
     return this;
-  }
-
-  public ResponsiveGridWidget setMargin(Spacing margin) {
-    this.margin = margin;
-    return this;
-  }
-
-  public void setWidth(int width) {
-    this.width = width;
-  }
-
-  public void setHeight(int height) {
-    this.height = height;
-  }
-
-  public void setDimensions(int width, int height) {
-    this.width = width;
-    this.height = height;
   }
 
   public void setColumnWidth(int columnWidth) {
@@ -177,9 +150,15 @@ public class ResponsiveGridWidget implements LayoutWidget {
   }
 
   public <T extends Widget> CellWidget<T> add(T widget, Positioner positioner) {
+    this.widgets.add(widget);
     CellWidget<T> cell = new CellWidget<>(widget, positioner);
     this.cells.add(cell);
     return cell;
+  }
+
+  public void clear() {
+    this.widgets.clear();
+    this.cells.clear();
   }
 
   @Environment(EnvType.CLIENT)

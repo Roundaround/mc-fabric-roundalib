@@ -79,9 +79,36 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     this.contentHeight = 0;
   }
 
+  @Override
+  public List<? extends Element> children() {
+    return List.copyOf(this.entries);
+  }
+
   public void forEachEntry(Consumer<E> consumer) {
     this.entries.forEach(consumer);
   }
+
+  @Override
+  public void forEachElement(Consumer<Widget> consumer) {
+    this.entries.forEach(consumer);
+  }
+
+  @Override
+  public void refreshPositions() {
+    int entryY = this.getY();
+    for (E entry : this.entries) {
+      entry.setPosition(this.getX(), entryY);
+      entry.setWidth(this.getContentWidth());
+      entry.refreshPositions();
+
+      entryY += entry.getHeight();
+    }
+
+    this.setScrollAmount(this.getScrollAmount());
+
+    LayoutWidget.super.refreshPositions();
+  }
+
 
   public int getContentWidth() {
     return this.getWidth() - (this.isScrollbarVisible() ? GuiUtil.SCROLLBAR_WIDTH : 0);
@@ -276,11 +303,6 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     }
 
     return null;
-  }
-
-  @Override
-  public List<? extends Element> children() {
-    return List.copyOf(this.entries);
   }
 
   @Override
@@ -481,28 +503,6 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     double averageHeight = (double) this.getContentHeight() / this.entries.size();
     return averageHeight / 2;
   }
-
-  @Override
-  public void forEachElement(Consumer<Widget> consumer) {
-    this.entries.forEach(consumer);
-  }
-
-  @Override
-  public void refreshPositions() {
-    int entryY = this.getY();
-    for (E entry : this.entries) {
-      entry.setPosition(this.getX(), entryY);
-      entry.setWidth(this.getContentWidth());
-      entry.refreshPositions();
-
-      entryY += entry.getHeight();
-    }
-
-    this.setScrollAmount(this.getScrollAmount());
-
-    LayoutWidget.super.refreshPositions();
-  }
-
   @FunctionalInterface
   public interface EntryFactory<E extends Entry> {
     E create(int index, int left, int top, int width);

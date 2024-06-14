@@ -21,7 +21,7 @@ import java.util.function.Consumer;
 import static me.roundaround.roundalib.client.gui.LabelElement.OverflowBehavior;
 
 @Environment(EnvType.CLIENT)
-public class LabelDemoScreen extends Screen {
+public class LabelDemoScreen extends Screen implements DemoScreen {
   private static final Text TITLE_TEXT = Text.translatable("testmod.labeldemoscreen.title");
 
   private final Screen parent;

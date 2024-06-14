@@ -1,5 +1,6 @@
 package me.roundaround.roundalib.client.gui.widget;
 
+import me.roundaround.roundalib.client.gui.layout.Spacing;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.LayoutWidget;
 import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
@@ -10,10 +11,16 @@ import java.util.function.Consumer;
 public class FullBodyWrapperWidget implements LayoutWidget {
   private final Widget widget;
   private final ThreePartsLayoutWidget layout;
+  private Spacing margin = Spacing.zero();
 
   public FullBodyWrapperWidget(Widget widget, ThreePartsLayoutWidget layout) {
     this.widget = widget;
     this.layout = layout;
+  }
+
+  public FullBodyWrapperWidget margin(Spacing margin) {
+    this.margin = margin;
+    return this;
   }
 
   @Override
@@ -23,9 +30,15 @@ public class FullBodyWrapperWidget implements LayoutWidget {
 
   @Override
   public void refreshPositions() {
-    this.widget.setPosition(this.layout.getX(), this.layout.getY() + this.layout.getHeaderHeight());
-    if (this.widget instanceof ClickableWidget clickable) {
-      clickable.setDimensions(this.layout.getWidth(), this.layout.getContentHeight());
+    this.widget.setPosition(
+        this.layout.getX() + this.margin.left(),
+        this.layout.getY() + this.layout.getHeaderHeight() + this.margin.top()
+    );
+    if (this.widget instanceof ClickableWidget clickableWidget) {
+      clickableWidget.setDimensions(
+          this.layout.getWidth() - this.margin.getHorizontal(),
+          this.layout.getContentHeight() - this.margin.getVertical()
+      );
     }
     LayoutWidget.super.refreshPositions();
   }

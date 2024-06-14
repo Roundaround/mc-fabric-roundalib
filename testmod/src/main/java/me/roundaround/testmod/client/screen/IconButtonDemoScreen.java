@@ -1,10 +1,14 @@
 package me.roundaround.testmod.client.screen;
 
+import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.layout.Spacing;
+import me.roundaround.roundalib.client.gui.widget.FullBodyWrapperWidget;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.ResponsiveGridWidget;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.*;
 import net.minecraft.screen.ScreenTexts;
@@ -14,7 +18,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Environment(EnvType.CLIENT)
-public class IconButtonDemoScreen extends Screen {
+public class IconButtonDemoScreen extends Screen implements DemoScreen {
   private static final Text TITLE_TEXT = Text.translatable("testmod.iconbuttondemoscreen.title");
 
   private final Screen parent;
@@ -52,7 +56,7 @@ public class IconButtonDemoScreen extends Screen {
 
     ResponsiveGridWidget grid = new ResponsiveGridWidget(
         this.width, this.layout.getContentHeight(), this.size, this.size);
-    this.layout.addBody(grid);
+    this.layout.addBody(new FullBodyWrapperWidget(grid, this.layout).margin(Spacing.of(GuiUtil.PADDING)));
 
     for (IconButtonWidget.BuiltinIcon icon : icons) {
       grid.add(IconButtonWidget.builder(icon, TestMod.MOD_ID)
@@ -70,6 +74,11 @@ public class IconButtonDemoScreen extends Screen {
   @Override
   protected void initTabNavigation() {
     this.layout.refreshPositions();
+  }
+
+  @Override
+  public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    super.render(context, mouseX, mouseY, delta);
   }
 
   @Override

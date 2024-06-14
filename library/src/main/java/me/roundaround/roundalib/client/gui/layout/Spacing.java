@@ -15,10 +15,10 @@ public class Spacing implements FourSided<Integer> {
   }
 
   public static Spacing zero() {
-    return constant(0);
+    return of(0);
   }
 
-  public static Spacing constant(int space) {
+  public static Spacing of(int space) {
     return new Spacing(space, space, space, space);
   }
 
