@@ -58,7 +58,7 @@ public record Coords(int x, int y) {
     return new Coords(1, 1);
   }
 
-  public static Coords at(int x, int y) {
+  public static Coords of(int x, int y) {
     return new Coords(x, y);
   }
 

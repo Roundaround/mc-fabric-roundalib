@@ -1,6 +1,7 @@
 package me.roundaround.roundalib.client.gui.widget;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.layout.Coords;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
@@ -23,13 +24,14 @@ import java.util.function.Consumer;
 public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidget {
   private final List<CellWidget<?>> cells = new ArrayList<>();
   private final List<Widget> widgets = new ArrayList<>();
-  private final Positioner positioner = Positioner.create();
+  private final Positioner cellPositioner = Positioner.create();
   private final Axis flowAxis;
 
   private int columnWidth;
   private int rowHeight;
   private int rowSpacing = GuiUtil.PADDING;
   private int columnSpacing = GuiUtil.PADDING;
+  private boolean centered = false;
 
   public ResponsiveGridWidget(int width, int height, int columnWidth, int rowHeight) {
     this(0, 0, width, height, columnWidth, rowHeight, Axis.HORIZONTAL);
@@ -68,15 +70,18 @@ public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidge
   public void refreshPositions() {
     LayoutWidget.super.refreshPositions();
 
-    int maxCount = this.maxCountInMainAxis();
+    int maxCount = this.getMaxCountForMainAxis();
     int main = 0;
     int other = 0;
+
+    Coords offset = this.getCenteredOffset();
 
     for (CellWidget<?> cell : this.cells) {
       int column = this.flowAxis == Axis.HORIZONTAL ? main : other;
       int row = this.flowAxis == Axis.HORIZONTAL ? other : main;
 
-      cell.setPosition(this.xPos(column), this.yPos(row), this.columnWidth, this.rowHeight);
+      cell.setPosition(
+          this.calcPosX(column) + offset.x(), this.calcPosY(row) + offset.y(), this.columnWidth, this.rowHeight);
 
       main++;
       if (main > maxCount - 1) {
@@ -86,18 +91,39 @@ public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidge
     }
   }
 
-  private int maxCountInMainAxis() {
+  private int getMaxCountForMainAxis() {
     return switch (this.flowAxis) {
       case HORIZONTAL -> (this.width + this.columnSpacing) / (this.columnWidth + this.columnSpacing);
       case VERTICAL -> (this.height + this.rowSpacing) / (this.rowHeight + this.rowSpacing);
     };
   }
 
-  private int xPos(int column) {
+  private Coords getCenteredOffset() {
+    if (!this.centered) {
+      return Coords.zero();
+    }
+
+    int maxCount = this.getMaxCountForMainAxis();
+    int actualCount = Math.min(maxCount, this.cells.size());
+
+    if (actualCount <= 0) {
+      return Coords.zero();
+    }
+
+    int cellSize = this.flowAxis == Axis.HORIZONTAL ? this.columnWidth : this.rowHeight;
+    int cellSpacing = this.flowAxis == Axis.HORIZONTAL ? this.columnSpacing : this.rowSpacing;
+    int used = actualCount * cellSize + (actualCount - 1) * cellSpacing;
+    int available = this.flowAxis == Axis.HORIZONTAL ? this.width : this.height;
+    int offset = (available - used) / 2;
+
+    return this.flowAxis == Axis.HORIZONTAL ? Coords.of(offset, 0) : Coords.of(0, offset);
+  }
+
+  private int calcPosX(int column) {
     return this.getX() + column * (this.columnWidth + this.columnSpacing);
   }
 
-  private int yPos(int row) {
+  private int calcPosY(int row) {
     return this.getY() + row * (this.rowHeight + this.rowSpacing);
   }
 
@@ -115,19 +141,28 @@ public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidge
     });
   }
 
-  public ResponsiveGridWidget setRowSpacing(int rowSpacing) {
+  public ResponsiveGridWidget rowSpacing(int rowSpacing) {
     this.rowSpacing = rowSpacing;
     return this;
   }
 
-  public ResponsiveGridWidget setColumnSpacing(int columnSpacing) {
+  public ResponsiveGridWidget columnSpacing(int columnSpacing) {
     this.columnSpacing = columnSpacing;
     return this;
   }
 
-  public ResponsiveGridWidget setSpacing(int spacing) {
+  public ResponsiveGridWidget spacing(int spacing) {
     this.rowSpacing = spacing;
     this.columnSpacing = spacing;
+    return this;
+  }
+
+  public ResponsiveGridWidget centered() {
+    return this.centered(true);
+  }
+
+  public ResponsiveGridWidget centered(boolean centered) {
+    this.centered = centered;
     return this;
   }
 
@@ -144,20 +179,20 @@ public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidge
     this.rowHeight = rowHeight;
   }
 
-  public Positioner copyPositioner() {
-    return this.positioner.copy();
+  public Positioner copyCellPositioner() {
+    return this.cellPositioner.copy();
   }
 
-  public Positioner getPositioner() {
-    return this.positioner;
+  public Positioner getCellPositioner() {
+    return this.cellPositioner;
   }
 
   public <T extends Widget> CellWidget<T> add(T widget) {
-    return this.add(widget, this.copyPositioner());
+    return this.add(widget, this.copyCellPositioner());
   }
 
   public <T extends Widget> CellWidget<T> add(T widget, Consumer<Positioner> consumer) {
-    return this.add(widget, Util.make(this.copyPositioner(), consumer));
+    return this.add(widget, Util.make(this.copyCellPositioner(), consumer));
   }
 
   public <T extends Widget> CellWidget<T> add(T widget, Positioner positioner) {

@@ -55,8 +55,8 @@ public class IconButtonDemoScreen extends Screen implements DemoScreen {
     List<IconButtonWidget.BuiltinIcon> icons = IconButtonWidget.BuiltinIcon.valuesOfSize(iconSize);
 
     ResponsiveGridWidget grid = new ResponsiveGridWidget(
-        this.width, this.layout.getContentHeight(), this.size, this.size);
-    this.layout.addBody(new FullBodyWrapperWidget(grid, this.layout).margin(Spacing.of(GuiUtil.PADDING)));
+        this.width, this.layout.getContentHeight(), this.size, this.size).spacing(GuiUtil.PADDING * 2).centered();
+    this.layout.addBody(new FullBodyWrapperWidget(grid, this.layout).margin(Spacing.of(GuiUtil.PADDING * 2)));
 
     for (IconButtonWidget.BuiltinIcon icon : icons) {
       grid.add(IconButtonWidget.builder(icon, TestMod.MOD_ID)
