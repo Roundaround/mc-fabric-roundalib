@@ -71,7 +71,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
   }
 
   public static class CategoryEntry extends Entry {
-    protected static final int HEIGHT = 20;
+    protected static final int HEIGHT = 22;
 
     protected final LabelElement label;
 
@@ -107,7 +107,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
   }
 
   public static class OptionEntry<D, O extends ConfigOption<D>> extends Entry {
-    protected static final int HEIGHT = 20;
+    protected static final int HEIGHT = 22;
     protected static final int CONTROL_MIN_WIDTH = 100;
 
     protected final O option;
@@ -150,6 +150,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
       this.control.selectableChildren().forEach(this::addSelectableChild);
 
       this.resetButton = IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.UNDO_18, this.getOption().getModId())
+          .vanillaSize()
           .position(this.getResetButtonLeft(), this.getResetButtonTop())
           .messageAndTooltip(Text.translatable(this.getOption().getModId() + ".roundalib.reset.tooltip"))
           .onPress((button) -> this.getOption().setDefault())
@@ -174,11 +175,11 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     }
 
     private int getResetButtonLeft() {
-      return this.getContentRight() - IconButtonWidget.SIZE_L;
+      return this.getContentRight() - IconButtonWidget.SIZE_V;
     }
 
     private int getResetButtonTop() {
-      return this.getContentTop() + (this.getContentHeight() - IconButtonWidget.SIZE_L) / 2;
+      return this.getContentTop() + (this.getContentHeight() - IconButtonWidget.SIZE_V) / 2;
     }
 
     @Override

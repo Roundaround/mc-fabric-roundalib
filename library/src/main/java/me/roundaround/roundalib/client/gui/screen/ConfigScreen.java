@@ -1,5 +1,6 @@
 package me.roundaround.roundalib.client.gui.screen;
 
+import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.FullBodyWrapperWidget;
 import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
 import me.roundaround.roundalib.config.ModConfig;
@@ -13,7 +14,7 @@ import net.minecraft.text.Text;
 public class ConfigScreen extends Screen {
   private static final int FOOTER_BUTTON_WIDTH = 150;
   private static final int FOOTER_BUTTON_HEIGHT = 20;
-  private static final int FOOTER_BUTTON_SPACING = 8;
+  private static final int FOOTER_BUTTON_SPACING = GuiUtil.PADDING * 2;
 
   protected final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this);
 
