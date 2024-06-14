@@ -177,19 +177,15 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       return;
     }
 
-    int top = this.getY();
-    int height = this.getHeight();
-    int contentHeight = this.getContentHeight();
-    double scrollAmount = this.getScrollAmount();
-    int maxScroll = this.getMaxScroll();
-    int scrollbarLeft = this.getScrollbarPositionX();
-
-    int handleHeight = MathHelper.clamp(Math.round((float) height * height / contentHeight), 32, height - 8);
-    int handleTop = top + (int) Math.round(scrollAmount * (height - handleHeight) / maxScroll);
+    int x = this.getScrollbarPositionX();
+    int handleHeight = this.getScrollbarHandleHeight();
+    double yPercent = this.getScrollAmount() / this.getMaxScroll();
+    int movableSpace = this.getHeight() - handleHeight;
+    int handleY = this.getY() + (int) Math.round(yPercent * movableSpace);
 
     RenderSystem.enableBlend();
-    context.drawGuiTexture(SCROLLER_BACKGROUND_TEXTURE, scrollbarLeft, top, GuiUtil.SCROLLBAR_WIDTH, height);
-    context.drawGuiTexture(SCROLLER_TEXTURE, scrollbarLeft, handleTop, GuiUtil.SCROLLBAR_WIDTH, handleHeight);
+    context.drawGuiTexture(SCROLLER_BACKGROUND_TEXTURE, x, this.getY(), GuiUtil.SCROLLBAR_WIDTH, this.getHeight());
+    context.drawGuiTexture(SCROLLER_TEXTURE, x, handleY, GuiUtil.SCROLLBAR_WIDTH, handleHeight);
     RenderSystem.disableBlend();
   }
 
@@ -391,24 +387,22 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       return true;
     }
 
-    // TODO: Clean up
-    if (button == 0 && this.scrolling) {
-      if (mouseY < this.getY()) {
-        this.setScrollAmount(0);
-      } else if (mouseY > this.getBottom()) {
-        this.setScrollAmount(this.getMaxScroll());
-      } else {
-        double d = Math.max(1, this.getMaxScroll());
-        int i = this.height;
-        int j = MathHelper.clamp((int) ((float) (i * i) / this.getContentHeight()), 32, i - 8);
-        double e = Math.max(1.0, d / (double) (i - j));
-        this.setScrollAmount(this.getScrollAmount() + deltaY * e);
-      }
-
-      return true;
+    if (button != 0 || !this.scrolling) {
+      return false;
     }
 
-    return false;
+    if (mouseY < this.getY()) {
+      this.setScrollAmount(0);
+    } else if (mouseY > this.getBottom()) {
+      this.setScrollAmount(this.getMaxScroll());
+    } else {
+      double max = Math.max(1, this.getMaxScroll());
+      int movableSpace = this.getHeight() - this.getScrollbarHandleHeight();
+      double scale = Math.max(1, max / movableSpace);
+      this.setScrollAmount(this.getScrollAmount() + deltaY * scale);
+    }
+
+    return true;
   }
 
   @Override
@@ -475,6 +469,11 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     return this.getRight() - GuiUtil.SCROLLBAR_WIDTH;
   }
 
+  protected int getScrollbarHandleHeight() {
+    int height = this.getHeight();
+    return MathHelper.clamp(height * height / this.getContentHeight(), 32, height - 8);
+  }
+
   private void scroll(int amount) {
     this.setScrollAmount(this.getScrollAmount() + (double) amount);
   }
@@ -503,6 +502,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     double averageHeight = (double) this.getContentHeight() / this.entries.size();
     return averageHeight / 2;
   }
+
   @FunctionalInterface
   public interface EntryFactory<E extends Entry> {
     E create(int index, int left, int top, int width);
