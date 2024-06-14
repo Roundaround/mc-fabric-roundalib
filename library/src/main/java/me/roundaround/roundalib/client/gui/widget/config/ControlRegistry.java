@@ -1,7 +1,8 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
-import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.config.option.*;
+import me.roundaround.roundalib.config.panic.IllegalStatePanic;
+import me.roundaround.roundalib.config.panic.Panic;
 import me.roundaround.roundalib.config.value.*;
 import net.minecraft.client.MinecraftClient;
 
@@ -31,8 +32,7 @@ public class ControlRegistry {
       registerOptionList(GuiAlignmentWithCenter.class);
       registerOptionList(GuiTheme.class);
     } catch (RegistrationException e) {
-      RoundaLib.LOGGER.error("There was an error registering the built-in control factories!", e);
-      System.exit(0);
+      Panic.panic(new IllegalStatePanic("There was an error registering the built-in control factories!", e));
     }
   }
 

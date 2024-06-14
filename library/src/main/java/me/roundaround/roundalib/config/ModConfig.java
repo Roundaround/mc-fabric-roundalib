@@ -3,17 +3,13 @@ package me.roundaround.roundalib.config;
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
-import me.roundaround.roundalib.LoggerOutputStream;
 import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.panic.Panic;
 import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.ModContainer;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.io.PrintStream;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -97,7 +93,7 @@ public abstract class ModConfig {
 
   public void saveToFile() {
     if (this.version == this.configVersion && !this.isDirty()) {
-      RoundaLib.LOGGER.info("Skipping saving config to file because nothing has changed.");
+      RoundaLib.LOGGER.info("Skipping saving {} config to file because nothing has changed.", this.getModId());
       return;
     }
 
@@ -168,38 +164,15 @@ public abstract class ModConfig {
     this.panic(panic, RoundaLib.LOGGER);
   }
 
-  @SuppressWarnings("SameParameterValue")
   public void panic(Panic panic, Logger logger) {
-    String modId = this.getModId();
-
-    Optional<ModContainer> modContainer = FabricLoader.getInstance().getModContainer(modId);
-    String modName = modContainer.map(container -> container.getMetadata().getName()).orElse(null);
-    String issueTracker = modContainer.flatMap(container -> container.getMetadata().getContact().get("issues"))
-        .orElse(null);
-
-    logger.error(
-        "The mod \"{}\" has encountered an unrecoverable error in its config setup due to a misuse of the RoundaLib " +
-            "library. Please report this as a bug to the mod's developer.", modName == null ? modId : modName);
-
-    if (issueTracker != null) {
-      logger.error("Issue tracker: {}", issueTracker);
-    }
-
-    // Try and immediately throw in order to add this panic to the stack trace
-    try {
-      throw panic;
-    } catch (Panic p) {
-      p.printStackTrace(new PrintStream(new LoggerOutputStream(logger, Level.FATAL)));
-    }
-
-    System.exit(1);
+    Panic.panic(panic, this.getModId(), logger);
   }
 
   private File getConfigDirectory() {
     File dir = FabricLoader.getInstance().getConfigDir().toFile();
 
     if (!dir.exists() && !dir.mkdirs()) {
-      RoundaLib.LOGGER.warn("Failed to create config directory '{}'", dir.getAbsolutePath());
+      RoundaLib.LOGGER.error("Failed to create config directory '{}'", dir.getAbsolutePath());
     }
 
     return dir;
