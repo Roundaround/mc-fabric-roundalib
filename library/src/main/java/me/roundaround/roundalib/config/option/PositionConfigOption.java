@@ -3,24 +3,27 @@ package me.roundaround.roundalib.config.option;
 import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.value.Position;
 
+import java.util.List;
+
 public class PositionConfigOption extends ConfigOption<Position> {
   protected PositionConfigOption(Builder builder) {
     super(builder);
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public void deserialize(Object data) {
-    String value = (String) data;
-    String[] split = value.substring(1, value.length() - 1).split(",");
-    int x = Integer.parseInt(split[0]);
-    int y = Integer.parseInt(split[1]);
-    this.setValue(new Position(x, y));
+    if (data instanceof List<?> arrayData) {
+      this.setValue(Position.fromList((List<Integer>) arrayData));
+    } else {
+      this.setValue(Position.fromString((String) data));
+    }
   }
 
   @Override
   public Object serialize() {
     Position value = this.getPendingValue();
-    return String.format("(%d,%d)", value.x(), value.y());
+    return List.of(value.x(), value.y());
   }
 
   public static Builder builder(ModConfig modConfig, String id) {
