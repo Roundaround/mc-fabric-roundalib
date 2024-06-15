@@ -9,10 +9,10 @@ val nightConfig: Configuration by configurations.creating {
 }
 
 dependencies {
-  implementation("com.electronwill.night-config:core:3.6.5")
-  nightConfig("com.electronwill.night-config:core:3.6.5")
-  implementation("com.electronwill.night-config:toml:3.6.5")
-  nightConfig("com.electronwill.night-config:toml:3.6.5")
+  implementation("com.electronwill.night-config:core:3.7.2")
+  nightConfig("com.electronwill.night-config:core:3.7.2")
+  implementation("com.electronwill.night-config:toml:3.7.2")
+  nightConfig("com.electronwill.night-config:toml:3.7.2")
 }
 
 tasks.jar {
