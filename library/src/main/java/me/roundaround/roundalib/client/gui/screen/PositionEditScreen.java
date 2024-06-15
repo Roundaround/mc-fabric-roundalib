@@ -18,7 +18,6 @@ import java.util.List;
 
 public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position, PositionConfigOption> {
   protected static final int CROSSHAIR_SIZE = 9;
-  protected static final int MOVER_SIZE = CROSSHAIR_SIZE + 2 * (IconButtonWidget.SIZE_M + GuiUtil.PADDING);
 
   protected final Text helpMoveSingleText;
   protected final Text helpMoveMultiText;

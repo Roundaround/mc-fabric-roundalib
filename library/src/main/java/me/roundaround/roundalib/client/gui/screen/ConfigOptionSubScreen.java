@@ -27,6 +27,8 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   protected final SimplePositioningWidget body = new SimplePositioningWidget();
   protected final DirectionalLayoutWidget buttonRow = DirectionalLayoutWidget.horizontal().spacing(GuiUtil.PADDING);
 
+  protected IconButtonWidget resetButton;
+
   protected ConfigOptionSubScreen(Text title, Screen parent, O option) {
     super(title);
     this.parent = parent;
@@ -55,7 +57,8 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
     this.layout.forEachChild(this::addDrawableChild);
     this.initTabNavigation();
 
-    this.option.subscribePending(this);
+    this.getOption().subscribePending(this);
+    this.onPendingValueChange(this.getValue());
   }
 
   protected void initHeader() {
@@ -73,8 +76,8 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
         .onPress((button) -> this.close())
         .messageAndTooltip(Text.translatable(this.modId + ".roundalib.back.tooltip"))
         .build());
-    this.buttonRow.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.UNDO_18, this.modId)
-        .onPress((button) -> this.option.setDefault())
+    this.resetButton = this.buttonRow.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.UNDO_18, this.modId)
+        .onPress((button) -> this.resetToDefault())
         .messageAndTooltip(Text.translatable(this.modId + ".roundalib.reset.tooltip"))
         .build());
   }
@@ -92,7 +95,7 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
 
   @Override
   public void close() {
-    this.option.unsubscribePending(this);
+    this.getOption().unsubscribePending(this);
     if (this.client == null) {
       return;
     }
@@ -101,6 +104,7 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
 
   @Override
   public void onPendingValueChange(D value) {
+    this.resetButton.active = !this.isDefault();
   }
 
   @Override
@@ -166,27 +170,31 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
     return List.of(this.helpCloseText, this.helpResetText);
   }
 
+  protected O getOption() {
+    return this.option;
+  }
+
   protected void setValue(D value) {
-    this.option.setValue(value);
+    this.getOption().setValue(value);
   }
 
   protected D getValue() {
-    return this.option.getPendingValue();
+    return this.getOption().getPendingValue();
   }
 
   protected String getValueAsString() {
-    return this.option.getPendingValueAsString();
+    return this.getOption().getPendingValueAsString();
   }
 
   protected void resetToDefault() {
-    this.option.setDefault();
+    this.getOption().setDefault();
   }
 
   protected boolean isDefault() {
-    return this.option.isPendingDefault();
+    return this.getOption().isPendingDefault();
   }
 
   protected boolean isDirty() {
-    return this.option.isDirty();
+    return this.getOption().isDirty();
   }
 }
