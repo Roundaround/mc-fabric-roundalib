@@ -19,8 +19,8 @@ public class FloatTextControl extends Control<Float, FloatConfigOption> {
   public FloatTextControl(MinecraftClient client, FloatConfigOption option, int left, int top, int width, int height) {
     super(client, option, left, top, width, height);
 
-    this.textField = new TextFieldWidget(client.textRenderer, this.getWidgetLeft() + 1, this.getWidgetTop() + 1,
-        this.getWidgetWidth() - 2, this.getWidgetHeight() - 2, this.option.getLabel()
+    this.textField = new TextFieldWidget(client.textRenderer, this.getLeft() + 1, this.getTop() + 1,
+        this.getWidth() - 2, this.getHeight() - 2, this.option.getLabel()
     ) {
       @Override
       public boolean charTyped(char chr, int keyCode) {
@@ -50,8 +50,8 @@ public class FloatTextControl extends Control<Float, FloatConfigOption> {
 
   @Override
   public void refreshPositions() {
-    this.textField.setPosition(this.getWidgetLeft() + 1, this.getWidgetTop() + 1);
-    this.textField.setDimensions(this.getWidgetWidth() - 2, this.getWidgetHeight() - 2);
+    this.textField.setPosition(this.getLeft() + 1, this.getTop() + 1);
+    this.textField.setDimensions(this.getWidth() - 2, this.getHeight() - 2);
   }
 
   @Override

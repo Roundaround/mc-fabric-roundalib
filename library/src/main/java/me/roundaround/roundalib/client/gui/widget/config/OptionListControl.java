@@ -22,7 +22,7 @@ public class OptionListControl<S extends ListOptionValue<S>> extends Control<S, 
             option.getValues())
         .initially(option.getPendingValue())
         .omitKeyText()
-        .build(this.getWidgetLeft(), this.getWidgetTop(), this.getWidgetWidth(), this.getWidgetHeight(), Text.empty(),
+        .build(this.getLeft(), this.getTop(), this.getWidth(), this.getHeight(), Text.empty(),
             this::buttonClicked
         );
 
@@ -36,8 +36,8 @@ public class OptionListControl<S extends ListOptionValue<S>> extends Control<S, 
 
   @Override
   public void refreshPositions() {
-    this.button.setPosition(this.getWidgetLeft(), this.getWidgetTop());
-    this.button.setDimensions(this.getWidgetWidth(), this.getWidgetHeight());
+    this.button.setPosition(this.getLeft(), this.getTop());
+    this.button.setDimensions(this.getWidth(), this.getHeight());
   }
 
   @Override

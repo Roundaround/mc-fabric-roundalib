@@ -47,7 +47,7 @@ public class SubScreenControl<D, O extends ConfigOption<D>> extends Control<D, O
 
     this.button = ButtonWidget.builder(this.messageFactory.apply(this.getOption()),
         (button) -> GuiUtil.setScreen(this.subScreenFactory.create(this.client.currentScreen, this.getOption()))
-    ).position(this.getWidgetLeft(), this.getWidgetTop()).size(this.getWidgetWidth(), this.getWidgetHeight()).build();
+    ).position(this.getLeft(), this.getTop()).size(this.getWidth(), this.getHeight()).build();
 
     this.update();
   }
@@ -59,8 +59,8 @@ public class SubScreenControl<D, O extends ConfigOption<D>> extends Control<D, O
 
   @Override
   public void refreshPositions() {
-    this.button.setPosition(this.getWidgetLeft(), this.getWidgetTop());
-    this.button.setDimensions(this.getWidgetWidth(), this.getWidgetHeight());
+    this.button.setPosition(this.getLeft(), this.getTop());
+    this.button.setDimensions(this.getWidth(), this.getHeight());
   }
 
   @Override

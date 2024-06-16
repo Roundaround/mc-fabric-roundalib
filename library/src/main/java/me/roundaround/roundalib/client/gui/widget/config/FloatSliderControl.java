@@ -24,9 +24,9 @@ public class FloatSliderControl extends Control<Float, FloatConfigOption> {
               "FloatConfigOption must use slider and have min and max values to use FloatSliderControl"));
     }
 
-    this.slider = new FloatSliderWidget(this.getWidgetLeft(), this.getWidgetTop(), this.getWidgetWidth(),
-        this.getWidgetHeight(), this.option.getMinValue(), this.option.getMaxValue(), this.option.getPendingValue(),
-        this::step, this::onSliderChanged, this::getValueAsText
+    this.slider = new FloatSliderWidget(this.getLeft(), this.getTop(), this.getWidth(), this.getHeight(),
+        this.option.getMinValue(), this.option.getMaxValue(), this.option.getPendingValue(), this::step,
+        this::onSliderChanged, this::getValueAsText
     );
 
     this.update();
@@ -39,8 +39,8 @@ public class FloatSliderControl extends Control<Float, FloatConfigOption> {
 
   @Override
   public void refreshPositions() {
-    this.slider.setPosition(this.getWidgetLeft(), this.getWidgetTop());
-    this.slider.setDimensions(this.getWidgetWidth(), this.getWidgetHeight());
+    this.slider.setPosition(this.getLeft(), this.getTop());
+    this.slider.setDimensions(this.getWidth(), this.getHeight());
     super.refreshPositions();
   }
 

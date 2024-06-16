@@ -23,8 +23,8 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
               "IntConfigOption must use slider and have min and max values to use IntSliderControl"));
     }
 
-    this.slider = new IntSliderWidget(this.getWidgetLeft(), this.getWidgetTop(), this.getWidgetWidth(),
-        this.getWidgetHeight(), this.option.getMinValue(), this.option.getMaxValue(), this.option.getPendingValue(),
+    this.slider = new IntSliderWidget(this.getLeft(), this.getTop(), this.getWidth(),
+        this.getHeight(), this.option.getMinValue(), this.option.getMaxValue(), this.option.getPendingValue(),
         this::step, this::onSliderChanged, this::getValueAsText
     );
 
@@ -38,8 +38,8 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
 
   @Override
   public void refreshPositions() {
-    this.slider.setPosition(this.getWidgetLeft(), this.getWidgetTop());
-    this.slider.setDimensions(this.getWidgetWidth(), this.getWidgetHeight());
+    this.slider.setPosition(this.getLeft(), this.getTop());
+    this.slider.setDimensions(this.getWidth(), this.getHeight());
     super.refreshPositions();
   }
 

@@ -15,8 +15,8 @@ public class ToggleControl extends Control<Boolean, BooleanConfigOption> {
     super(client, option, left, top, width, height);
 
     this.button = ButtonWidget.builder(this.option.getValueLabel(), (button) -> this.option.toggle())
-        .position(this.getWidgetLeft(), this.getWidgetTop())
-        .size(this.getWidgetWidth(), this.getWidgetHeight())
+        .position(this.getLeft(), this.getTop())
+        .size(this.getWidth(), this.getHeight())
         .build();
 
     this.update();
@@ -29,8 +29,8 @@ public class ToggleControl extends Control<Boolean, BooleanConfigOption> {
 
   @Override
   public void refreshPositions() {
-    this.button.setPosition(this.getWidgetLeft(), this.getWidgetTop());
-    this.button.setDimensions(this.getWidgetWidth(), this.getWidgetHeight());
+    this.button.setPosition(this.getLeft(), this.getTop());
+    this.button.setDimensions(this.getWidth(), this.getHeight());
   }
 
   @Override

@@ -19,12 +19,12 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
   public IntTextControl(MinecraftClient client, IntConfigOption option, int left, int top, int width, int height) {
     super(client, option, left, top, width, height);
 
-    int widgetLeft = this.getWidgetLeft();
-    int widgetRight = this.getWidgetRight();
-    int widgetTop = this.getWidgetTop();
-    int widgetBottom = this.getWidgetBottom();
-    int widgetWidth = this.getWidgetWidth();
-    int widgetHeight = this.getWidgetHeight();
+    int widgetLeft = this.getLeft();
+    int widgetRight = this.getRight();
+    int widgetTop = this.getTop();
+    int widgetBottom = this.getBottom();
+    int widgetWidth = this.getWidth();
+    int widgetHeight = this.getHeight();
 
     this.textField = new TextFieldWidget(client.textRenderer, widgetLeft + 1, widgetTop + 1, widgetWidth - 2,
         widgetHeight - 2, this.option.getLabel()
@@ -80,12 +80,12 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
 
   @Override
   public void refreshPositions() {
-    int widgetLeft = this.getWidgetLeft();
-    int widgetRight = this.getWidgetRight();
-    int widgetTop = this.getWidgetTop();
-    int widgetBottom = this.getWidgetBottom();
-    int widgetWidth = this.getWidgetWidth();
-    int widgetHeight = this.getWidgetHeight();
+    int widgetLeft = this.getLeft();
+    int widgetRight = this.getRight();
+    int widgetTop = this.getTop();
+    int widgetBottom = this.getBottom();
+    int widgetWidth = this.getWidth();
+    int widgetHeight = this.getHeight();
 
     this.textField.setPosition(widgetLeft + 1, widgetTop + 1);
     this.textField.setDimensions(widgetWidth - 2, widgetHeight - 2);

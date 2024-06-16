@@ -95,30 +95,6 @@ public abstract class Control<D, O extends ConfigOption<D>> extends PositionalWi
   protected void update() {
   }
 
-  protected int getWidgetLeft() {
-    return this.getLeft() + PADDING;
-  }
-
-  protected int getWidgetTop() {
-    return this.getTop() + PADDING;
-  }
-
-  protected int getWidgetRight() {
-    return this.getRight() - PADDING;
-  }
-
-  protected int getWidgetBottom() {
-    return this.getBottom() - PADDING;
-  }
-
-  protected int getWidgetWidth() {
-    return this.getWidth() - 2 * PADDING;
-  }
-
-  protected int getWidgetHeight() {
-    return this.getHeight() - 2 * PADDING;
-  }
-
   @FunctionalInterface
   public interface ControlFactory<D, O extends ConfigOption<D>> {
     Control<D, O> create(MinecraftClient client, O option, int left, int top, int width, int height);
