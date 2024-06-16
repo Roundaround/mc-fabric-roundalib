@@ -16,38 +16,48 @@ import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.text.Text;
 
 public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
+  protected final ModConfig modConfig;
+
   public ConfigListWidget(MinecraftClient client, ThreePartsLayoutWidget layout, ModConfig modConfig) {
     super(client, layout.getX(), layout.getHeaderHeight(), layout.getWidth(), layout.getContentHeight());
 
-    for (var entry : modConfig.getConfigOptions().entrySet()) {
-      if (entry.getValue().stream().noneMatch(ConfigOption::hasGuiControl)) {
-        continue;
+    this.modConfig = modConfig;
+
+    this.modConfig.getConfigOptions().forEach((group, options) -> {
+      if (options.stream().noneMatch(ConfigOption::hasGuiControl)) {
+        return;
       }
 
-      String modId = modConfig.getModId();
-      String group = entry.getKey();
-      if (modConfig.getShowGroupTitles() && !group.equals(modId)) {
-        this.addEntry((index, left, top, width) -> new GroupEntry(this.client.textRenderer,
-            Text.translatable(entry.getKey() + ".title"), index, left, top, width
-        ));
-      }
+      this.addGroupEntry(group);
+      options.forEach(this::addOptionEntry);
+    });
+  }
 
-      for (var option : entry.getValue()) {
-        if (!option.hasGuiControl()) {
-          continue;
-        }
-
-        this.addEntry((index, left, top, width) -> {
-          try {
-            return new OptionEntry<>(this.client, option, index, left, top, width);
-          } catch (ControlRegistry.NotRegisteredException e) {
-            modConfig.panic(
-                new IllegalStatePanic(String.format("Failed to create control for config option: %s", option), e));
-            return null;
-          }
-        });
-      }
+  protected void addGroupEntry(String group) {
+    if (!this.modConfig.getShowGroupTitles() || group.equals(this.modConfig.getModId())) {
+      return;
     }
+
+    this.addEntry(
+        (index, left, top, width) -> new GroupEntry(this.client.textRenderer, Text.translatable(group + ".title"),
+            index, left, top, width
+        ));
+  }
+
+  protected void addOptionEntry(ConfigOption<?> option) {
+    if (!option.hasGuiControl()) {
+      return;
+    }
+
+    this.addEntry((index, left, top, width) -> {
+      try {
+        return new OptionEntry<>(this.client, option, index, left, top, width);
+      } catch (ControlRegistry.NotRegisteredException e) {
+        this.modConfig.panic(
+            new IllegalStatePanic(String.format("Failed to create control for config option: %s", option), e));
+        return null;
+      }
+    });
   }
 
   public void tick() {
