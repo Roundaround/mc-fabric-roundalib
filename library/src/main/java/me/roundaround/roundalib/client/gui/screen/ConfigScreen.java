@@ -12,8 +12,7 @@ import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 
 public class ConfigScreen extends Screen {
-  protected final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(
-      this, GuiUtil.COMPACT_HEADER_HEIGHT, GuiUtil.DEFAULT_HEADER_FOOTER_HEIGHT);
+  protected final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this);
 
   private final Screen parent;
   private final ModConfig modConfig;
