@@ -87,8 +87,8 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
           .hideBackground()
           .build();
 
-      this.addChild(this.label);
-      this.addSelectableChild(new Selectable() {
+      this.addDrawableChild(this.label);
+      this.addSelectable(new Selectable() {
         public Selectable.SelectionType getType() {
           return Selectable.SelectionType.HOVERED;
         }
@@ -131,8 +131,8 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
           .hideBackground()
           .build();
 
-      this.addChild(this.label);
-      this.addSelectableChild(new Selectable() {
+      this.addDrawableChild(this.label);
+      this.addSelectable(new Selectable() {
         public Selectable.SelectionType getType() {
           return Selectable.SelectionType.HOVERED;
         }
@@ -146,8 +146,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
           .create(client, option, this.getControlLeft(), this.getContentTop(), this.getControlWidth(),
               this.getContentHeight()
           );
-      this.control.children().forEach(this::addChild);
-      this.control.selectableChildren().forEach(this::addSelectableChild);
+      this.control.children().forEach(this::addDetectedCapabilityChild);
 
       this.resetButton = IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.UNDO_18, this.getOption().getModId())
           .vanillaSize()
@@ -155,9 +154,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
           .messageAndTooltip(Text.translatable(this.getOption().getModId() + ".roundalib.reset.tooltip"))
           .onPress((button) -> this.getOption().setDefault())
           .build();
-
-      this.addChild(this.resetButton);
-      this.addSelectableChild(this.resetButton);
+      this.addDrawableAndSelectableChild(this.resetButton);
 
       this.update();
     }

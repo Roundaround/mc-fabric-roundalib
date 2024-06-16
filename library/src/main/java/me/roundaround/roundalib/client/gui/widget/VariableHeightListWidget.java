@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.navigation.GuiNavigation;
@@ -29,6 +31,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+@Environment(EnvType.CLIENT)
 public abstract class VariableHeightListWidget<E extends VariableHeightListWidget.Entry> extends ContainerWidget implements
     LayoutWidget {
   private static final Identifier SCROLLER_TEXTURE = new Identifier("widget/scroller");
@@ -81,7 +84,19 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
 
   @Override
   public List<? extends Element> children() {
+    return this.getEntries();
+  }
+
+  public List<E> getEntries() {
     return List.copyOf(this.entries);
+  }
+
+  public E getEntry(int index) {
+    return this.entries.get(index);
+  }
+
+  public int getEntryCount() {
+    return this.entries.size();
   }
 
   public void forEachEntry(Consumer<E> consumer) {
@@ -508,6 +523,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     E create(int index, int left, int top, int width);
   }
 
+  @Environment(EnvType.CLIENT)
   public abstract static class Entry extends PositionalWidget implements ParentElement {
     protected static final int ROW_SHADE_STRENGTH = 50;
     protected static final int DEFAULT_FADE_WIDTH = 10;
@@ -515,7 +531,8 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     protected static final int DEFAULT_MARGIN_VERTICAL = GuiUtil.PADDING / 2;
 
     private final ArrayList<Element> children = new ArrayList<>();
-    private final ArrayList<Selectable> selectableChildren = new ArrayList<>();
+    private final ArrayList<Selectable> selectables = new ArrayList<>();
+    private final ArrayList<Drawable> drawables = new ArrayList<>();
     private final int index;
     private final int contentHeight;
 
@@ -534,12 +551,62 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
       this.contentHeight = contentHeight;
     }
 
-    protected final void addChild(Element child) {
+    @SuppressWarnings("UnusedReturnValue")
+    protected <T extends Element> T addChild(T child) {
       this.children.add(child);
+      return child;
     }
 
-    protected final void addSelectableChild(Selectable selectable) {
-      this.selectableChildren.add(selectable);
+    @SuppressWarnings("UnusedReturnValue")
+    protected <T extends Selectable> T addSelectable(T selectable) {
+      this.selectables.add(selectable);
+      return selectable;
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
+    protected <T extends Drawable> T addDrawable(T drawable) {
+      this.drawables.add(drawable);
+      return drawable;
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
+    protected <T extends Element & Selectable> T addSelectableChild(T child) {
+      this.children.add(child);
+      this.selectables.add(child);
+      return child;
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
+    protected <T extends Element & Drawable> T addDrawableChild(T child) {
+      this.children.add(child);
+      this.drawables.add(child);
+      return child;
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
+    protected <T extends Element & Drawable & Selectable> T addDrawableAndSelectableChild(T child) {
+      this.children.add(child);
+      this.drawables.add(child);
+      this.selectables.add(child);
+      return child;
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
+    protected <T extends Element> T addDetectedCapabilityChild(T child) {
+      this.children.add(child);
+      if (child instanceof Drawable drawable) {
+        this.drawables.add(drawable);
+      }
+      if (child instanceof Selectable selectable) {
+        this.selectables.add(selectable);
+      }
+      return child;
+    }
+
+    protected void clearChildren() {
+      this.children.clear();
+      this.drawables.clear();
+      this.selectables.clear();
     }
 
     @Override
@@ -588,10 +655,8 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     }
 
     public void renderContent(DrawContext drawContext, int mouseX, int mouseY, float delta) {
-      this.children().forEach((child) -> {
-        if (child instanceof Drawable drawable) {
-          drawable.render(drawContext, mouseX, mouseY, delta);
-        }
+      this.drawables.forEach((drawable) -> {
+        drawable.render(drawContext, mouseX, mouseY, delta);
       });
     }
 
@@ -604,7 +669,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
     }
 
     public List<? extends Selectable> selectableChildren() {
-      return ImmutableList.copyOf(this.selectableChildren);
+      return ImmutableList.copyOf(this.selectables);
     }
 
     @Override

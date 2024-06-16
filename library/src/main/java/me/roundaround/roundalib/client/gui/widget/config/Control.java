@@ -5,10 +5,8 @@ import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.ParentElement;
-import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.widget.Widget;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 public abstract class Control<D, O extends ConfigOption<D>> extends PositionalWidget implements ParentElement {
@@ -61,14 +59,6 @@ public abstract class Control<D, O extends ConfigOption<D>> extends PositionalWi
         .stream()
         .filter((child) -> child instanceof Widget)
         .forEach((child) -> consumer.accept((Widget) child));
-  }
-
-  public List<? extends Selectable> selectableChildren() {
-    return this.children()
-        .stream()
-        .filter((child) -> child instanceof Selectable)
-        .map((child) -> (Selectable) child)
-        .toList();
   }
 
   public O getOption() {
