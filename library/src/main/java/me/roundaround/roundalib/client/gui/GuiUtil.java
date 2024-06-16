@@ -4,6 +4,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.client.gui.layout.FourSided;
 import me.roundaround.roundalib.client.gui.layout.TextAlignment;
 import me.roundaround.roundalib.config.ModConfig;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -12,6 +14,7 @@ import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.Window;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
@@ -21,6 +24,7 @@ import net.minecraft.util.Util;
 
 import java.util.List;
 
+@Environment(EnvType.CLIENT)
 public final class GuiUtil {
   private GuiUtil() {
   }
@@ -308,5 +312,13 @@ public final class GuiUtil {
 
   public static int genColorInt(float r, float g, float b, float a) {
     return ((int) (a * 255) << 24) | ((int) (r * 255) << 16) | ((int) (g * 255) << 8) | (int) (b * 255);
+  }
+
+  public static void playClickSound() {
+    playClickSound(1f);
+  }
+
+  public static void playClickSound(float volume) {
+    CLIENT.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, volume));
   }
 }
