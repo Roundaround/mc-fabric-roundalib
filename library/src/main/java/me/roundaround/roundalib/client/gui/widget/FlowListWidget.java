@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.layout.Spacing;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -17,6 +18,7 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;
 import net.minecraft.client.gui.widget.ContainerWidget;
 import net.minecraft.client.gui.widget.LayoutWidget;
+import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.render.*;
 import net.minecraft.screen.ScreenTexts;
@@ -39,31 +41,49 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
       "textures/gui/menu_list_background.png");
   protected static final Identifier INWORLD_MENU_LIST_BACKGROUND_TEXTURE = new Identifier(
       "textures/gui/inworld_menu_list_background.png");
-  protected static final int ROW_SHADE_STRENGTH = 50;
+  protected static final int DEFAULT_SHADE_STRENGTH = 50;
   protected static final int DEFAULT_FADE_WIDTH = 10;
+  protected static final int VANILLA_LIST_WIDTH_S = 220;
+  protected static final int VANILLA_LIST_WIDTH_M = 280;
+  protected static final int VANILLA_LIST_WIDTH_L = 340;
 
   protected final MinecraftClient client;
+  protected final ThreePartsLayoutWidget parentLayout;
 
   protected E hoveredEntry;
   protected Double scrollUnit;
 
   private final LinkedList<E> entries = new LinkedList<>();
+  private final Spacing contentPadding = Spacing.zero();
 
   private int contentHeight = 0;
+  private int rowSpacing = 0;
   private double scrollAmount = 0;
   private boolean scrolling = false;
   private boolean alternatingRowShading = false;
   private int shadeFadeWidth = DEFAULT_FADE_WIDTH;
+  private int shadeStrength = DEFAULT_SHADE_STRENGTH;
+
+  protected FlowListWidget(MinecraftClient client, ThreePartsLayoutWidget layout) {
+    super(0, layout.getHeaderHeight(), layout.getWidth(), layout.getContentHeight(), ScreenTexts.EMPTY);
+
+    this.client = client;
+    this.parentLayout = layout;
+  }
 
   protected FlowListWidget(MinecraftClient client, int x, int y, int width, int height) {
     super(x, y, width, height, ScreenTexts.EMPTY);
 
     this.client = client;
+    this.parentLayout = null;
   }
 
   @SuppressWarnings("UnusedReturnValue")
   public <T extends E> T addEntry(EntryFactory<T> factory) {
-    T entry = factory.create(this.entries.size(), this.getX(), this.getContentHeight(), this.getContentWidth());
+    int spacingOffset = this.entries.isEmpty() ? 0 : this.rowSpacing;
+    T entry = factory.create(
+        this.entries.size(), this.getContentLeft(), this.getContentHeight() + spacingOffset, this.getContentWidth());
+
     if (entry == null) {
       return null;
     }
@@ -71,7 +91,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     boolean wasScrollbarVisible = this.isScrollbarVisible();
 
     this.entries.add(entry);
-    this.contentHeight += entry.getHeight();
+    this.contentHeight += spacingOffset + entry.getHeight();
 
     if (!wasScrollbarVisible && this.isScrollbarVisible()) {
       this.refreshPositions();
@@ -82,7 +102,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
   public void clearEntries() {
     this.entries.clear();
-    this.contentHeight = 0;
+    this.contentHeight = this.contentPadding.getVertical();
   }
 
   @Override
@@ -113,27 +133,30 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
   @Override
   public void refreshPositions() {
-    int entryY = this.getY();
+    if (this.parentLayout != null) {
+      this.setDimensionsAndPosition(
+          this.parentLayout.getWidth(), this.parentLayout.getContentHeight(), 0, this.parentLayout.getHeaderHeight());
+    }
+
+    this.contentHeight = this.contentPadding.getVertical();
+
+    int entryY = this.getY() + this.contentPadding.top();
+    boolean first = true;
     for (E entry : this.entries) {
-      entry.setPosition(this.getX(), entryY);
+      entry.setPosition(this.getContentLeft(), entryY);
       entry.setWidth(this.getContentWidth());
       entry.refreshPositions();
 
-      entryY += entry.getHeight();
+      int addedHeight = entry.getHeight() + (first ? 0 : this.rowSpacing);
+      first = false;
+
+      entryY += addedHeight;
+      this.contentHeight += addedHeight;
     }
 
     this.setScrollAmount(this.getScrollAmount());
 
     LayoutWidget.super.refreshPositions();
-  }
-
-
-  public int getContentWidth() {
-    return this.getWidth() - (this.isScrollbarVisible() ? GuiUtil.SCROLLBAR_WIDTH : 0);
-  }
-
-  public int getContentHeight() {
-    return this.contentHeight;
   }
 
   @Override
@@ -210,19 +233,19 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     int bottom = entry.getBottom();
 
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-    bufferBuilder.vertex(matrix4f, left + this.shadeFadeWidth, top, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+    bufferBuilder.vertex(matrix4f, left + this.shadeFadeWidth, top, 0).color(0, 0, 0, this.shadeStrength).next();
     bufferBuilder.vertex(matrix4f, left, top, 0).color(0, 0, 0, 0).next();
     bufferBuilder.vertex(matrix4f, left, bottom, 0).color(0, 0, 0, 0).next();
-    bufferBuilder.vertex(matrix4f, left + this.shadeFadeWidth, bottom, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+    bufferBuilder.vertex(matrix4f, left + this.shadeFadeWidth, bottom, 0).color(0, 0, 0, this.shadeStrength).next();
 
-    bufferBuilder.vertex(matrix4f, right - this.shadeFadeWidth, top, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
-    bufferBuilder.vertex(matrix4f, left + this.shadeFadeWidth, top, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
-    bufferBuilder.vertex(matrix4f, left + this.shadeFadeWidth, bottom, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
-    bufferBuilder.vertex(matrix4f, right - this.shadeFadeWidth, bottom, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+    bufferBuilder.vertex(matrix4f, right - this.shadeFadeWidth, top, 0).color(0, 0, 0, this.shadeStrength).next();
+    bufferBuilder.vertex(matrix4f, left + this.shadeFadeWidth, top, 0).color(0, 0, 0, this.shadeStrength).next();
+    bufferBuilder.vertex(matrix4f, left + this.shadeFadeWidth, bottom, 0).color(0, 0, 0, this.shadeStrength).next();
+    bufferBuilder.vertex(matrix4f, right - this.shadeFadeWidth, bottom, 0).color(0, 0, 0, this.shadeStrength).next();
 
     bufferBuilder.vertex(matrix4f, right, top, 0).color(0, 0, 0, 0).next();
-    bufferBuilder.vertex(matrix4f, right - this.shadeFadeWidth, top, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
-    bufferBuilder.vertex(matrix4f, right - this.shadeFadeWidth, bottom, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+    bufferBuilder.vertex(matrix4f, right - this.shadeFadeWidth, top, 0).color(0, 0, 0, this.shadeStrength).next();
+    bufferBuilder.vertex(matrix4f, right - this.shadeFadeWidth, bottom, 0).color(0, 0, 0, this.shadeStrength).next();
     bufferBuilder.vertex(matrix4f, right, bottom, 0).color(0, 0, 0, 0).next();
     tessellator.draw();
 
@@ -533,8 +556,70 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     return this.getMaxScroll() > 0;
   }
 
+  public void setContentPaddingX(int paddingX) {
+    this.contentPadding.setHorizontal(paddingX);
+  }
+
+  public void setContentPaddingY(int paddingX) {
+    this.contentPadding.setVertical(paddingX);
+  }
+
+  public void setContentPadding(int padding) {
+    this.contentPadding.set(padding);
+  }
+
+  public void setContentPadding(Spacing padding) {
+    this.contentPadding.set(padding);
+  }
+
+  public void setRowSpacing(int rowSpacing) {
+    this.rowSpacing = rowSpacing;
+  }
+
+  public int getContentWidth() {
+    return Math.min(this.getPreferredContentWidth(), this.getMaxContentWidth());
+  }
+
+  public int getContentHeight() {
+    return this.contentHeight;
+  }
+
+  public int getContentLeft() {
+    return this.getX() + (this.getWidth() - this.getContentWidth()) / 2;
+  }
+
+  public int getContentRight() {
+    return this.getX() + (this.getWidth() + this.getContentWidth()) / 2;
+  }
+
+  protected int getPreferredContentWidth() {
+    if (this.parentLayout == null || this.getWidth() <= VANILLA_LIST_WIDTH_S) {
+      return this.getWidth();
+    }
+    if (this.getWidth() < VANILLA_LIST_WIDTH_L) {
+      return VANILLA_LIST_WIDTH_M;
+    }
+    return VANILLA_LIST_WIDTH_L;
+  }
+
+  protected int getMaxContentWidth() {
+    return this.getMaxContentRight() - this.getMinContentLeft();
+  }
+
+  protected int getMinContentLeft() {
+    return this.getX() + 2 * this.getScrollbarPadding() + GuiUtil.SCROLLBAR_WIDTH + this.contentPadding.left();
+  }
+
+  protected int getMaxContentRight() {
+    return this.getRight() - 2 * this.getScrollbarPadding() - GuiUtil.SCROLLBAR_WIDTH - this.contentPadding.right();
+  }
+
   protected int getScrollbarPositionX() {
-    return this.getRight() - GuiUtil.SCROLLBAR_WIDTH;
+    return this.getContentRight() + this.getScrollbarPadding();
+  }
+
+  protected int getScrollbarPadding() {
+    return GuiUtil.PADDING;
   }
 
   protected int getScrollbarHandleHeight() {
@@ -575,9 +660,16 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     this.alternatingRowShading = alternatingRowShading;
   }
 
-  protected void alternatingRowShading(boolean alternatingRowShading, int shadeFadeWidth) {
-    this.alternatingRowShading = alternatingRowShading;
-    this.shadeFadeWidth = shadeFadeWidth;
+  protected void rowShadeFadeWidth(int width) {
+    this.shadeFadeWidth = Math.max(width, 0);
+  }
+
+  protected void rowShadeStrength(int strength) {
+    this.shadeStrength = Math.clamp(strength, 0, 255);
+  }
+
+  protected void rowShadeStrength(float strength) {
+    this.rowShadeStrength((int) (strength * 255));
   }
 
   @FunctionalInterface
@@ -587,7 +679,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
   @Environment(EnvType.CLIENT)
   public abstract static class Entry extends PositionalWidget implements ParentElement {
-    protected static final int DEFAULT_MARGIN_HORIZONTAL = 10;
+    protected static final int DEFAULT_MARGIN_HORIZONTAL = DEFAULT_FADE_WIDTH;
     protected static final int DEFAULT_MARGIN_VERTICAL = GuiUtil.PADDING / 2;
 
     private final ArrayList<Element> children = new ArrayList<>();
@@ -595,11 +687,8 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     private final ArrayList<Drawable> drawables = new ArrayList<>();
     private final int index;
     private final int contentHeight;
+    private final Spacing margin = Spacing.of(DEFAULT_MARGIN_VERTICAL, DEFAULT_MARGIN_HORIZONTAL);
 
-    private int marginLeft = DEFAULT_MARGIN_HORIZONTAL;
-    private int marginRight = DEFAULT_MARGIN_HORIZONTAL;
-    private int marginTop = DEFAULT_MARGIN_VERTICAL;
-    private int marginBottom = DEFAULT_MARGIN_VERTICAL;
     private Element focused;
     private Selectable focusedSelectable;
     private boolean dragging;
@@ -804,7 +893,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
     @Override
     public int getHeight() {
-      return this.contentHeight + this.getMarginTop() + this.getMarginBottom();
+      return this.contentHeight + this.margin.getVertical();
     }
 
     @Override
@@ -813,81 +902,36 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
           String.format("Cannot change height on %s. Reinitialize instead.", this.getClass().getCanonicalName()));
     }
 
-    public void setMarginLeft(int margin) {
-      this.marginLeft = margin;
+    public void setMarginY(int margin) {
+      this.margin.setVertical(margin);
     }
 
-    public int getMarginLeft() {
-      return this.marginLeft;
+    public void setMarginX(int margin) {
+      this.margin.setHorizontal(margin);
     }
 
-    public void setMarginRight(int margin) {
-      this.marginRight = margin;
-    }
-
-    public int getMarginRight() {
-      return this.marginRight;
-    }
-
-    public void setMarginTop(int margin) {
-      this.marginTop = margin;
-    }
-
-    public int getMarginTop() {
-      return this.marginTop;
-    }
-
-    public void setMarginBottom(int margin) {
-      this.marginBottom = margin;
-    }
-
-    public int getMarginBottom() {
-      return this.marginBottom;
-    }
-
-    public void setMargin(int top, int right, int bottom, int left) {
-      this.setMarginTop(top);
-      this.setMarginRight(right);
-      this.setMarginBottom(bottom);
-      this.setMarginLeft(left);
-    }
-
-    public void setMargin(int top, int horizontal, int bottom) {
-      this.setMargin(top, horizontal, bottom, horizontal);
-    }
-
-    public void setMargin(int vertical, int horizontal) {
-      this.setMargin(vertical, horizontal, vertical, horizontal);
-    }
-
-    public void setMarginVertical(int margin) {
-      this.setMarginTop(margin);
-      this.setMarginBottom(margin);
-    }
-
-    public void setMarginHorizontal(int margin) {
-      this.setMarginLeft(margin);
-      this.setMarginRight(margin);
+    public void setMargin(Spacing margin) {
+      this.margin.set(margin);
     }
 
     public int getContentLeft() {
-      return this.getLeft() + this.getMarginLeft();
+      return this.getLeft() + this.margin.left();
     }
 
     public int getContentRight() {
-      return this.getRight() - this.getMarginRight();
+      return this.getRight() - this.margin.right();
     }
 
     public int getContentWidth() {
-      return this.getWidth() - this.getMarginLeft() - this.getMarginRight();
+      return this.getWidth() - this.margin.getHorizontal();
     }
 
     public int getContentTop() {
-      return this.getTop() + this.getMarginTop();
+      return this.getTop() + this.margin.top();
     }
 
     public int getContentBottom() {
-      return this.getBottom() - this.getMarginBottom();
+      return this.getBottom() - this.margin.bottom();
     }
 
     public int getContentHeight() {

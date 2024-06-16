@@ -16,7 +16,7 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
   protected final ModConfig modConfig;
 
   public ConfigListWidget(MinecraftClient client, ThreePartsLayoutWidget layout, ModConfig modConfig) {
-    super(client, layout.getX(), layout.getHeaderHeight(), layout.getWidth(), layout.getContentHeight());
+    super(client, layout);
 
     this.alternatingRowShading(true);
     this.modConfig = modConfig;
@@ -64,6 +64,11 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
 
   public void update() {
     this.forEachEntry(Entry::update);
+  }
+
+  @Override
+  protected int getPreferredContentWidth() {
+    return this.getWidth();
   }
 
   public abstract static class Entry extends FlowListWidget.Entry {
@@ -118,8 +123,6 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
     protected OptionEntry(MinecraftClient client, O option, int index, int left, int top, int width)
         throws ControlRegistry.NotRegisteredException {
       super(index, left, top, width, HEIGHT);
-
-      this.setMarginHorizontal(DEFAULT_MARGIN_HORIZONTAL + GuiUtil.PADDING);
 
       this.option = option;
 
