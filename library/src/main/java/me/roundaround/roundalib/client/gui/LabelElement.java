@@ -7,7 +7,10 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.screen.narration.NarrationPart;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Text;
 
@@ -237,6 +240,18 @@ public class LabelElement implements Drawable, Element {
     this.bgBounds = this.interactionBounds.expand(this.bgOverflow);
 
     this.layoutDirty = false;
+  }
+
+  public Selectable createSelectable() {
+    return new Selectable() {
+      public Selectable.SelectionType getType() {
+        return Selectable.SelectionType.HOVERED;
+      }
+
+      public void appendNarrations(NarrationMessageBuilder builder) {
+        builder.put(NarrationPart.TITLE, LabelElement.this.getText());
+      }
+    };
   }
 
   public Builder toBuilder() {

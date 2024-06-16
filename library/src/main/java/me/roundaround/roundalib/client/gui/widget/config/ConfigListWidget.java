@@ -9,9 +9,6 @@ import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.panic.IllegalStatePanic;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.Selectable;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.screen.narration.NarrationPart;
 import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.text.Text;
 
@@ -99,15 +96,7 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
           .build();
 
       this.addDrawableChild(this.label);
-      this.addSelectable(new Selectable() {
-        public Selectable.SelectionType getType() {
-          return Selectable.SelectionType.HOVERED;
-        }
-
-        public void appendNarrations(NarrationMessageBuilder builder) {
-          builder.put(NarrationPart.TITLE, GroupEntry.this.label.getText());
-        }
-      });
+      this.addSelectable(this.label.createSelectable());
     }
 
     @Override
@@ -143,15 +132,7 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
           .build();
 
       this.addDrawableChild(this.label);
-      this.addSelectable(new Selectable() {
-        public Selectable.SelectionType getType() {
-          return Selectable.SelectionType.HOVERED;
-        }
-
-        public void appendNarrations(NarrationMessageBuilder builder) {
-          builder.put(NarrationPart.TITLE, OptionEntry.this.label.getText());
-        }
-      });
+      this.addSelectable(this.label.createSelectable());
 
       this.control = ControlRegistry.getControlFactory(option)
           .create(client, option, this.getControlLeft(), this.getContentTop(), this.getControlWidth(),
