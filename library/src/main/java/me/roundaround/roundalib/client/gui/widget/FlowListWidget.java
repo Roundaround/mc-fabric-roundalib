@@ -33,12 +33,14 @@ import java.util.function.Predicate;
 
 @Environment(EnvType.CLIENT)
 public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends ContainerWidget implements LayoutWidget {
-  private static final Identifier SCROLLER_TEXTURE = new Identifier("widget/scroller");
-  private static final Identifier SCROLLER_BACKGROUND_TEXTURE = new Identifier("widget/scroller_background");
-  private static final Identifier MENU_LIST_BACKGROUND_TEXTURE = new Identifier(
+  protected static final Identifier SCROLLER_TEXTURE = new Identifier("widget/scroller");
+  protected static final Identifier SCROLLER_BACKGROUND_TEXTURE = new Identifier("widget/scroller_background");
+  protected static final Identifier MENU_LIST_BACKGROUND_TEXTURE = new Identifier(
       "textures/gui/menu_list_background.png");
-  private static final Identifier INWORLD_MENU_LIST_BACKGROUND_TEXTURE = new Identifier(
+  protected static final Identifier INWORLD_MENU_LIST_BACKGROUND_TEXTURE = new Identifier(
       "textures/gui/inworld_menu_list_background.png");
+  protected static final int ROW_SHADE_STRENGTH = 50;
+  protected static final int DEFAULT_FADE_WIDTH = 10;
 
   protected final MinecraftClient client;
 
@@ -50,6 +52,8 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   private int contentHeight = 0;
   private double scrollAmount = 0;
   private boolean scrolling = false;
+  private boolean alternatingRowShading = false;
+  private int shadeFadeWidth = DEFAULT_FADE_WIDTH;
 
   protected FlowListWidget(MinecraftClient client, int x, int y, int width, int height) {
     super(x, y, width, height, ScreenTexts.EMPTY);
@@ -167,12 +171,62 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     context.getMatrices().push();
     context.getMatrices().translate(0, -scrollAmount, 0);
 
-    this.entries.stream().filter(this::isEntryVisible).forEach((entry) -> {
-      entry.render(context, mouseX, mouseY + scrollAmount, delta);
-    });
+    this.entries.stream()
+        .filter(this::isEntryVisible)
+        .forEach((entry) -> this.renderEntry(context, mouseX, mouseY, delta, entry));
 
     context.getMatrices().pop();
     context.disableScissor();
+  }
+
+  protected void renderEntry(DrawContext context, int mouseX, int mouseY, float delta, E entry) {
+    if (!this.isEntryVisible(entry)) {
+      return;
+    }
+
+    if (this.alternatingRowShading && entry.getIndex() % 2 == 0) {
+      this.renderRowShade(context, entry);
+    }
+
+    entry.render(context, mouseX, mouseY + (int) this.getScrollAmount(), delta);
+  }
+
+  protected void renderRowShade(DrawContext context, E entry) {
+    if (entry.getIndex() % 2 != 0) {
+      return;
+    }
+
+    RenderSystem.enableBlend();
+    RenderSystem.defaultBlendFunc();
+    RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+
+    Tessellator tessellator = Tessellator.getInstance();
+    BufferBuilder bufferBuilder = tessellator.getBuffer();
+    Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
+
+    int left = entry.getLeft();
+    int right = entry.getRight();
+    int top = entry.getTop();
+    int bottom = entry.getBottom();
+
+    bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+    bufferBuilder.vertex(matrix4f, left + this.shadeFadeWidth, top, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+    bufferBuilder.vertex(matrix4f, left, top, 0).color(0, 0, 0, 0).next();
+    bufferBuilder.vertex(matrix4f, left, bottom, 0).color(0, 0, 0, 0).next();
+    bufferBuilder.vertex(matrix4f, left + this.shadeFadeWidth, bottom, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+
+    bufferBuilder.vertex(matrix4f, right - this.shadeFadeWidth, top, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+    bufferBuilder.vertex(matrix4f, left + this.shadeFadeWidth, top, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+    bufferBuilder.vertex(matrix4f, left + this.shadeFadeWidth, bottom, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+    bufferBuilder.vertex(matrix4f, right - this.shadeFadeWidth, bottom, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+
+    bufferBuilder.vertex(matrix4f, right, top, 0).color(0, 0, 0, 0).next();
+    bufferBuilder.vertex(matrix4f, right - this.shadeFadeWidth, top, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+    bufferBuilder.vertex(matrix4f, right - this.shadeFadeWidth, bottom, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
+    bufferBuilder.vertex(matrix4f, right, bottom, 0).color(0, 0, 0, 0).next();
+    tessellator.draw();
+
+    RenderSystem.disableBlend();
   }
 
   protected void renderListBorders(DrawContext context) {
@@ -517,6 +571,15 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     return averageHeight / 2;
   }
 
+  protected void alternatingRowShading(boolean alternatingRowShading) {
+    this.alternatingRowShading = alternatingRowShading;
+  }
+
+  protected void alternatingRowShading(boolean alternatingRowShading, int shadeFadeWidth) {
+    this.alternatingRowShading = alternatingRowShading;
+    this.shadeFadeWidth = shadeFadeWidth;
+  }
+
   @FunctionalInterface
   public interface EntryFactory<E extends Entry> {
     E create(int index, int left, int top, int width);
@@ -524,8 +587,6 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
   @Environment(EnvType.CLIENT)
   public abstract static class Entry extends PositionalWidget implements ParentElement {
-    protected static final int ROW_SHADE_STRENGTH = 50;
-    protected static final int DEFAULT_FADE_WIDTH = 10;
     protected static final int DEFAULT_MARGIN_HORIZONTAL = 10;
     protected static final int DEFAULT_MARGIN_VERTICAL = GuiUtil.PADDING / 2;
 
@@ -539,7 +600,6 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     private int marginRight = DEFAULT_MARGIN_HORIZONTAL;
     private int marginTop = DEFAULT_MARGIN_VERTICAL;
     private int marginBottom = DEFAULT_MARGIN_VERTICAL;
-    private int bgFadeWidth = DEFAULT_FADE_WIDTH;
     private Element focused;
     private Selectable focusedSelectable;
     private boolean dragging;
@@ -609,57 +669,22 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     }
 
     @Override
-    public void renderPositional(DrawContext drawContext, int mouseX, int mouseY, float delta) {
-      this.renderBackground(drawContext, mouseX, mouseY, delta);
-      this.renderContent(drawContext, mouseX, mouseY, delta);
-      this.renderDecorations(drawContext, mouseX, mouseY, delta);
+    public void renderPositional(DrawContext context, int mouseX, int mouseY, float delta) {
+      this.renderBackground(context, mouseX, mouseY, delta);
+      this.renderContent(context, mouseX, mouseY, delta);
+      this.renderDecorations(context, mouseX, mouseY, delta);
     }
 
-    public void renderBackground(DrawContext drawContext, int mouseX, int mouseY, float delta) {
-      if (this.index % 2 != 0) {
-        return;
-      }
-
-      RenderSystem.enableBlend();
-      RenderSystem.defaultBlendFunc();
-      RenderSystem.setShader(GameRenderer::getPositionColorProgram);
-
-      Tessellator tessellator = Tessellator.getInstance();
-      BufferBuilder bufferBuilder = tessellator.getBuffer();
-      Matrix4f matrix4f = drawContext.getMatrices().peek().getPositionMatrix();
-
-      int left = this.getLeft();
-      int right = this.getRight();
-      int top = this.getTop();
-      int bottom = this.getBottom();
-
-      bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-      bufferBuilder.vertex(matrix4f, left + this.bgFadeWidth, top, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
-      bufferBuilder.vertex(matrix4f, left, top, 0).color(0, 0, 0, 0).next();
-      bufferBuilder.vertex(matrix4f, left, bottom, 0).color(0, 0, 0, 0).next();
-      bufferBuilder.vertex(matrix4f, left + this.bgFadeWidth, bottom, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
-
-      bufferBuilder.vertex(matrix4f, right - this.bgFadeWidth, top, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
-      bufferBuilder.vertex(matrix4f, left + this.bgFadeWidth, top, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
-      bufferBuilder.vertex(matrix4f, left + this.bgFadeWidth, bottom, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
-      bufferBuilder.vertex(matrix4f, right - this.bgFadeWidth, bottom, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
-
-      bufferBuilder.vertex(matrix4f, right, top, 0).color(0, 0, 0, 0).next();
-      bufferBuilder.vertex(matrix4f, right - this.bgFadeWidth, top, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
-      bufferBuilder.vertex(matrix4f, right - this.bgFadeWidth, bottom, 0).color(0, 0, 0, ROW_SHADE_STRENGTH).next();
-      bufferBuilder.vertex(matrix4f, right, bottom, 0).color(0, 0, 0, 0).next();
-      tessellator.draw();
-
-      RenderSystem.disableBlend();
+    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
     }
 
-    public void renderContent(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+    public void renderContent(DrawContext context, int mouseX, int mouseY, float delta) {
       this.drawables.forEach((drawable) -> {
-        drawable.render(drawContext, mouseX, mouseY, delta);
+        drawable.render(context, mouseX, mouseY, delta);
       });
     }
 
-    public void renderDecorations(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+    public void renderDecorations(DrawContext context, int mouseX, int mouseY, float delta) {
     }
 
     @Override
@@ -773,8 +798,8 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
       return ParentElement.super.getNavigationPath(navigation);
     }
 
-    public void setBgFadeWidth(int bgFadeWidth) {
-      this.bgFadeWidth = bgFadeWidth;
+    public int getIndex() {
+      return this.index;
     }
 
     @Override

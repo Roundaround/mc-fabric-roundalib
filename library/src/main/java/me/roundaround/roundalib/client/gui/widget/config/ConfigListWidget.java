@@ -21,6 +21,7 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
   public ConfigListWidget(MinecraftClient client, ThreePartsLayoutWidget layout, ModConfig modConfig) {
     super(client, layout.getX(), layout.getHeaderHeight(), layout.getWidth(), layout.getContentHeight());
 
+    this.alternatingRowShading(true);
     this.modConfig = modConfig;
 
     this.modConfig.getConfigOptions().forEach((group, options) -> {
