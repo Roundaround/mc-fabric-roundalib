@@ -54,9 +54,9 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   protected Double scrollUnit;
 
   private final LinkedList<E> entries = new LinkedList<>();
-  private final Spacing contentPadding = Spacing.zero();
 
   private int contentHeight = 0;
+  private Spacing contentPadding = Spacing.zero();
   private int rowSpacing = 0;
   private double scrollAmount = 0;
   private boolean scrolling = false;
@@ -563,19 +563,19 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   public void setContentPaddingX(int paddingX) {
-    this.contentPadding.setHorizontal(paddingX);
+    this.contentPadding = this.contentPadding.setHorizontal(paddingX);
   }
 
   public void setContentPaddingY(int paddingX) {
-    this.contentPadding.setVertical(paddingX);
+    this.contentPadding = this.contentPadding.setVertical(paddingX);
   }
 
   public void setContentPadding(int padding) {
-    this.contentPadding.set(padding);
+    this.contentPadding = Spacing.of(padding);
   }
 
   public void setContentPadding(Spacing padding) {
-    this.contentPadding.set(padding);
+    this.contentPadding = padding;
   }
 
   public void setRowSpacing(int rowSpacing) {
@@ -693,11 +693,11 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     private final ArrayList<Drawable> drawables = new ArrayList<>();
     private final int index;
     private final int contentHeight;
-    private final Spacing margin = Spacing.of(DEFAULT_MARGIN_VERTICAL, DEFAULT_MARGIN_HORIZONTAL);
 
     private Element focused;
     private Selectable focusedSelectable;
     private boolean dragging;
+    private Spacing margin = Spacing.of(DEFAULT_MARGIN_VERTICAL, DEFAULT_MARGIN_HORIZONTAL);
 
     protected Entry(int index, int left, int top, int width, int contentHeight) {
       super(left, top, width, 0);
@@ -909,15 +909,15 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     }
 
     public void setMarginY(int margin) {
-      this.margin.setVertical(margin);
+      this.margin = this.margin.setVertical(margin);
     }
 
     public void setMarginX(int margin) {
-      this.margin.setHorizontal(margin);
+      this.margin = this.margin.setHorizontal(margin);
     }
 
     public void setMargin(Spacing margin) {
-      this.margin.set(margin);
+      this.margin = margin;
     }
 
     public int getContentLeft() {

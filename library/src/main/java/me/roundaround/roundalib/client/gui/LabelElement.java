@@ -292,12 +292,11 @@ public class LabelElement implements Drawable, Element {
     private final Text text;
     private final int x;
     private final int y;
-    private final Spacing padding = Spacing.of(1, 2);
-    private final Spacing bgOverflow = Spacing.of(1, 0, 0, 1);
 
     private int color = GuiUtil.LABEL_COLOR;
     private TextAlignment alignmentH = TextAlignment.START;
     private TextAlignment alignmentV = TextAlignment.CENTER;
+    private Spacing padding = Spacing.of(1, 2);
     private int maxWidth = 0;
     private OverflowBehavior overflowBehavior = OverflowBehavior.SHOW;
     private int scrollMargin = 2;
@@ -305,6 +304,7 @@ public class LabelElement implements Drawable, Element {
     private int lineSpacing = 0;
     private boolean background = true;
     private int bgColor = GuiUtil.BACKGROUND_COLOR;
+    private Spacing bgOverflow = Spacing.of(1, 0, 0, 1);
     private boolean shadow = false;
 
     public Builder(TextRenderer textRenderer, Text text, int x, int y) {
@@ -387,27 +387,17 @@ public class LabelElement implements Drawable, Element {
     }
 
     public Builder padding(int space) {
-      this.padding.set(space);
+      this.padding = Spacing.of(space);
       return this;
     }
 
     public Builder padding(int vertical, int horizontal) {
-      this.padding.set(vertical, horizontal);
-      return this;
-    }
-
-    public Builder padding(int top, int horizontal, int bottom) {
-      this.padding.set(top, horizontal, bottom);
-      return this;
-    }
-
-    public Builder padding(int top, int right, int bottom, int left) {
-      this.padding.set(top, right, bottom, left);
+      this.padding = Spacing.of(vertical, horizontal);
       return this;
     }
 
     public Builder padding(Spacing padding) {
-      this.padding.set(padding);
+      this.padding = padding;
       return this;
     }
 
@@ -434,27 +424,17 @@ public class LabelElement implements Drawable, Element {
     }
 
     public Builder bgOverflow(int space) {
-      this.bgOverflow.set(space);
+      this.bgOverflow = Spacing.of(space);
       return this;
     }
 
     public Builder bgOverflow(int vertical, int horizontal) {
-      this.bgOverflow.set(vertical, horizontal);
-      return this;
-    }
-
-    public Builder bgOverflow(int top, int horizontal, int bottom) {
-      this.bgOverflow.set(top, horizontal, bottom);
-      return this;
-    }
-
-    public Builder bgOverflow(int top, int right, int bottom, int left) {
-      this.bgOverflow.set(top, right, bottom, left);
+      this.bgOverflow = Spacing.of(vertical, horizontal);
       return this;
     }
 
     public Builder bgOverflow(Spacing bgOverflow) {
-      this.bgOverflow.set(bgOverflow);
+      this.bgOverflow = bgOverflow;
       return this;
     }
 
