@@ -500,14 +500,20 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   public boolean mouseScrolled(
       double mouseX, double mouseY, double horizontalAmount, double verticalAmount
   ) {
-    Entry entry = this.getEntryAtPosition(mouseX, mouseY);
-    if (entry != null &&
-        entry.mouseScrolled(mouseX, mouseY + this.getScrollAmount(), horizontalAmount, verticalAmount)) {
-      return true;
+    if (this.allowScrollPassThrough()) {
+      Entry entry = this.getEntryAtPosition(mouseX, mouseY);
+      if (entry != null &&
+          entry.mouseScrolled(mouseX, mouseY + this.getScrollAmount(), horizontalAmount, verticalAmount)) {
+        return true;
+      }
     }
 
     this.setScrollAmount(this.getScrollAmount() - verticalAmount * this.getScrollUnit());
     return true;
+  }
+
+  protected boolean allowScrollPassThrough() {
+    return false;
   }
 
   protected E getEntryAtPosition(double x, double y) {
