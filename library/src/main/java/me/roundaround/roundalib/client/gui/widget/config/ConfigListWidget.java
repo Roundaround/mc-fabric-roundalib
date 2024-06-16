@@ -2,8 +2,8 @@ package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.LabelElement;
-import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.FlowListWidget;
+import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.panic.IllegalStatePanic;
@@ -25,9 +25,9 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
       }
 
       String modId = modConfig.getModId();
-      String category = entry.getKey();
-      if (modConfig.getShowGroupTitles() && !category.equals(modId)) {
-        this.addEntry((index, left, top, width) -> new CategoryEntry(this.client.textRenderer,
+      String group = entry.getKey();
+      if (modConfig.getShowGroupTitles() && !group.equals(modId)) {
+        this.addEntry((index, left, top, width) -> new GroupEntry(this.client.textRenderer,
             Text.translatable(entry.getKey() + ".title"), index, left, top, width
         ));
       }
@@ -70,12 +70,12 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
     }
   }
 
-  public static class CategoryEntry extends Entry {
+  public static class GroupEntry extends Entry {
     protected static final int HEIGHT = 20;
 
     protected final LabelElement label;
 
-    protected CategoryEntry(
+    protected GroupEntry(
         TextRenderer textRenderer, Text label, int index, int left, int top, int width
     ) {
       super(index, left, top, width, HEIGHT);
@@ -94,7 +94,7 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
         }
 
         public void appendNarrations(NarrationMessageBuilder builder) {
-          builder.put(NarrationPart.TITLE, CategoryEntry.this.label.getText());
+          builder.put(NarrationPart.TITLE, GroupEntry.this.label.getText());
         }
       });
     }
