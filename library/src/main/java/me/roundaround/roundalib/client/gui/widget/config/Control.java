@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public abstract class Control<D, O extends ConfigOption<D>> extends PositionalWidget implements ParentElement {
-  protected static final int PADDING = 1;
-
   protected final MinecraftClient client;
   protected final O option;
 
