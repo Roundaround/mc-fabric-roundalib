@@ -37,20 +37,22 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
 
   @Override
   protected void init() {
-    DirectionalLayoutWidget headerLayout = DirectionalLayoutWidget.vertical().spacing(2);
-    this.layout.addHeader(headerLayout);
+    DirectionalLayoutWidget header = DirectionalLayoutWidget.vertical().spacing(GuiUtil.PADDING / 2);
+    this.layout.addHeader(header, (positioner) -> positioner.marginY(GuiUtil.PADDING));
 
-    headerLayout.getMainPositioner().alignHorizontalCenter();
-    headerLayout.add(new EmptyWidget(0, 0));
-    headerLayout.add(new TextWidget(this.getTitle(), this.textRenderer).alignCenter());
-    headerLayout.add(
+    header.getMainPositioner().alignHorizontalCenter();
+    header.add(new EmptyWidget(0, GuiUtil.PADDING / 2));
+    header.add(new TextWidget(this.getTitle(), this.textRenderer).alignCenter());
+    header.add(
         new CyclingButtonWidget.Builder<OverflowBehavior>((value) -> value.getDisplayText(TestMod.MOD_ID)).values(
                 OverflowBehavior.values())
             .initially(this.overflowBehavior)
             .omitKeyText()
-            .build(0, 0, ButtonWidget.DEFAULT_WIDTH, ButtonWidget.DEFAULT_HEIGHT, Text.empty(),
-                this::onOverflowBehaviorChange
-            ));
+            .build(Text.empty(), this::onOverflowBehaviorChange));
+    header.add(new EmptyWidget(0, GuiUtil.PADDING / 2));
+
+    header.refreshPositions();
+    this.layout.setHeaderHeight(header.getHeight());
 
     this.labelRenderers.add(this.addDrawable(new LabelRenderer(
         LabelElement.builder(this.textRenderer, Text.of("== == Left/top == =="), 0, 0)

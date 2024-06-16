@@ -30,7 +30,8 @@ public final class GuiUtil {
   public static final int BACKGROUND_COLOR = genColorInt(0f, 0f, 0f, 0.5f);
   public static final int PADDING = 4;
   public static final int SCROLLBAR_WIDTH = 6;
-  public static final int DEFAULT_HEADER_HEIGHT = 33;
+  public static final int DEFAULT_HEADER_FOOTER_HEIGHT = 33;
+  public static final int COMPACT_HEADER_HEIGHT = 17;
 
   private static final MinecraftClient CLIENT = MinecraftClient.getInstance();
 

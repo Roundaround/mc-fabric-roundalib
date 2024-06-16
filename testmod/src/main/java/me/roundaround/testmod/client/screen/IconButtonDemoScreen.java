@@ -35,17 +35,23 @@ public class IconButtonDemoScreen extends Screen implements DemoScreen {
   protected void init() {
     this.layout = new ThreePartsLayoutWidget(this);
 
-    DirectionalLayoutWidget header = DirectionalLayoutWidget.vertical().spacing(2);
+    DirectionalLayoutWidget header = DirectionalLayoutWidget.vertical().spacing(GuiUtil.PADDING / 2);
     this.layout.addHeader(header);
 
     header.getMainPositioner().alignHorizontalCenter();
-    header.add(new EmptyWidget(0, 0));
-    header.add(new TextWidget(this.getTitle(), this.textRenderer).alignCenter());
+    header.add(new EmptyWidget(0, GuiUtil.PADDING / 2));
+    header.add(new TextWidget(this.getTitle(), this.textRenderer).alignCenter(),
+        (positioner -> positioner.marginTop(GuiUtil.PADDING))
+    );
     header.add(new CyclingButtonWidget.Builder<Integer>((value) -> Text.of(String.format("%sx", value))).values(
             List.of(IconButtonWidget.SIZE_V, IconButtonWidget.SIZE_L, IconButtonWidget.SIZE_M, IconButtonWidget.SIZE_S))
         .initially(this.size)
         .omitKeyText()
-        .build(0, 0, ButtonWidget.DEFAULT_WIDTH, ButtonWidget.DEFAULT_HEIGHT, Text.empty(), this::onSizeChange));
+        .build(Text.empty(), this::onSizeChange), (positioner -> positioner.marginBottom(GuiUtil.PADDING)));
+    header.add(new EmptyWidget(0, GuiUtil.PADDING / 2));
+
+    header.refreshPositions();
+    this.layout.setHeaderHeight(header.getHeight());
 
     int iconSize = switch (this.size) {
       case IconButtonWidget.SIZE_S -> IconButtonWidget.SIZE_S;

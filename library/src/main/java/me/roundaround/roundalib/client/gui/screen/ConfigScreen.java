@@ -12,11 +12,8 @@ import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 
 public class ConfigScreen extends Screen {
-  private static final int FOOTER_BUTTON_WIDTH = 150;
-  private static final int FOOTER_BUTTON_HEIGHT = 20;
-  private static final int FOOTER_BUTTON_SPACING = GuiUtil.PADDING * 2;
-
-  protected final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this);
+  protected final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(
+      this, GuiUtil.COMPACT_HEADER_HEIGHT, GuiUtil.DEFAULT_HEADER_FOOTER_HEIGHT);
 
   private final Screen parent;
   private final ModConfig modConfig;
@@ -50,12 +47,11 @@ public class ConfigScreen extends Screen {
   }
 
   protected void initFooter() {
-    DirectionalLayoutWidget row = DirectionalLayoutWidget.horizontal().spacing(FOOTER_BUTTON_SPACING);
+    DirectionalLayoutWidget row = DirectionalLayoutWidget.horizontal().spacing(GuiUtil.PADDING * 2);
     this.layout.addFooter(row);
 
-    row.add(
-        ButtonWidget.builder(ScreenTexts.CANCEL, this::cancel).size(FOOTER_BUTTON_WIDTH, FOOTER_BUTTON_HEIGHT).build());
-    row.add(ButtonWidget.builder(ScreenTexts.DONE, this::done).size(FOOTER_BUTTON_WIDTH, FOOTER_BUTTON_HEIGHT).build());
+    row.add(ButtonWidget.builder(ScreenTexts.CANCEL, this::cancel).build());
+    row.add(ButtonWidget.builder(ScreenTexts.DONE, this::done).build());
   }
 
   @Override

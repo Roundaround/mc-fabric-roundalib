@@ -260,7 +260,7 @@ public class LabelElement implements Drawable, Element {
   }
 
   public static LabelElement screenTitle(TextRenderer textRenderer, Text text, Screen screen) {
-    return screenTitle(textRenderer, text, screen, GuiUtil.DEFAULT_HEADER_HEIGHT);
+    return screenTitle(textRenderer, text, screen, GuiUtil.DEFAULT_HEADER_FOOTER_HEIGHT);
   }
 
   public static LabelElement screenTitle(TextRenderer textRenderer, Text text, Screen screen, int headerHeight) {
