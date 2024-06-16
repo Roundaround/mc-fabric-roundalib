@@ -3,7 +3,7 @@ package me.roundaround.roundalib.client.gui.widget.config;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.LabelElement;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
-import me.roundaround.roundalib.client.gui.widget.VariableHeightListWidget;
+import me.roundaround.roundalib.client.gui.widget.FlowListWidget;
 import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.panic.IllegalStatePanic;
@@ -15,7 +15,7 @@ import net.minecraft.client.gui.screen.narration.NarrationPart;
 import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.text.Text;
 
-public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.Entry> {
+public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
   public ConfigListWidget(MinecraftClient client, ThreePartsLayoutWidget layout, ModConfig modConfig) {
     super(client, layout.getX(), layout.getHeaderHeight(), layout.getWidth(), layout.getContentHeight());
 
@@ -58,7 +58,7 @@ public class ConfigListWidget extends VariableHeightListWidget<ConfigListWidget.
     this.forEachEntry(Entry::update);
   }
 
-  public abstract static class Entry extends VariableHeightListWidget.Entry {
+  public abstract static class Entry extends FlowListWidget.Entry {
     protected Entry(int index, int left, int top, int width, int contentHeight) {
       super(index, left, top, width, contentHeight);
     }

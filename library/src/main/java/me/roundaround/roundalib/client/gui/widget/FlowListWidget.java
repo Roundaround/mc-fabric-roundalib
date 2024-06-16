@@ -32,8 +32,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 @Environment(EnvType.CLIENT)
-public abstract class VariableHeightListWidget<E extends VariableHeightListWidget.Entry> extends ContainerWidget implements
-    LayoutWidget {
+public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends ContainerWidget implements LayoutWidget {
   private static final Identifier SCROLLER_TEXTURE = new Identifier("widget/scroller");
   private static final Identifier SCROLLER_BACKGROUND_TEXTURE = new Identifier("widget/scroller_background");
   private static final Identifier MENU_LIST_BACKGROUND_TEXTURE = new Identifier(
@@ -52,7 +51,7 @@ public abstract class VariableHeightListWidget<E extends VariableHeightListWidge
   private double scrollAmount = 0;
   private boolean scrolling = false;
 
-  protected VariableHeightListWidget(MinecraftClient client, int x, int y, int width, int height) {
+  protected FlowListWidget(MinecraftClient client, int x, int y, int width, int height) {
     super(x, y, width, height, ScreenTexts.EMPTY);
 
     this.client = client;
