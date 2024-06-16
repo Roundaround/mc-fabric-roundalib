@@ -22,6 +22,7 @@ public class TestModConfig extends ModConfig {
   public final PositionConfigOption TENTH;
   public final PositionConfigOption ELEVENTH;
   public final IntConfigOption TWELFTH;
+  public final BooleanConfigOption THIRTEENTH;
 
   public TestModConfig() {
     super(TestMod.MOD_ID, options(TestMod.MOD_ID).setConfigVersion(2));
@@ -110,6 +111,9 @@ public class TestModConfig extends ModConfig {
         .setStep(5)
         .setUseSlider(true)
         .build());
+
+    this.THIRTEENTH = this.registerConfigOption(
+        BooleanConfigOption.builder(this, "testOption12").setGroup("group3").setDefaultValue(true).build());
   }
 
   @Override

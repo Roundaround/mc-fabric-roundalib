@@ -96,6 +96,8 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
       this.label = LabelElement.builder(textRenderer, label, this.getContentCenterX(), this.getContentCenterY())
           .justifiedCenter()
           .alignedMiddle()
+          .maxWidth(this.getContentWidth())
+          .overflowBehavior(LabelElement.OverflowBehavior.TRUNCATE)
           .showShadow()
           .hideBackground()
           .build();
@@ -107,6 +109,7 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
     @Override
     public void refreshPositions() {
       this.label.setPosition(this.getContentCenterX(), this.getContentCenterY());
+      this.label.setMaxWidth(this.getContentWidth());
       super.refreshPositions();
     }
   }
@@ -130,6 +133,9 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
               client.textRenderer, option.getLabel(), this.getContentLeft(), this.getContentCenterY())
           .justifiedLeft()
           .alignedMiddle()
+          .maxWidth(this.getControlLeft() - this.getContentLeft())
+          .overflowBehavior(LabelElement.OverflowBehavior.WRAP)
+          .maxLines(2)
           .showShadow()
           .hideBackground()
           .build();
@@ -177,6 +183,7 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
     @Override
     public void refreshPositions() {
       this.label.setPosition(this.getContentLeft(), this.getContentCenterY());
+      this.label.setMaxWidth(this.getControlLeft() - this.getContentLeft());
 
       this.control.setPosition(this.getControlLeft(), this.getContentTop());
       this.control.setDimensions(this.getControlWidth(), this.getContentHeight());

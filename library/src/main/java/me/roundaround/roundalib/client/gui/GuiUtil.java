@@ -222,7 +222,7 @@ public final class GuiUtil {
 
     List<OrderedText> lines = textRenderer.wrapLines(text, maxWidth);
     int yCursor = y;
-    for (OrderedText line : lines.subList(0, maxLines)) {
+    for (OrderedText line : lines.subList(0, Math.min(lines.size(), maxLines))) {
       drawText(context, textRenderer, line, x, yCursor, color, shadow, alignment);
       yCursor += textRenderer.fontHeight + lineSpacing;
     }
@@ -274,9 +274,9 @@ public final class GuiUtil {
     double c = Math.sin((Math.PI / 2) * Math.cos(2 * Math.PI * t / T)) / 2 + 0.5;
     double dx = c * X;
 
-    context.enableScissor(left, y - textRenderer.fontHeight, left + maxWidth, y + 2 * textRenderer.fontHeight);
+    enableScissorBypassContext(left, y - textRenderer.fontHeight, left + maxWidth, y + 2 * textRenderer.fontHeight);
     drawText(context, textRenderer, text, left - (int) dx + margin, y, color, shadow, TextAlignment.START);
-    context.disableScissor();
+    disableScissorBypassContext();
   }
 
   public static void enableScissor(DrawContext context, FourSided<Integer> bounds) {
