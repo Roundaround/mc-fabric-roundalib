@@ -189,16 +189,16 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     // track mouse hovering and tooltips, then overwrite that by bypassing DrawContext entirely and enabling
     // the real scissor directly on the RenderSystem.
     context.enableScissor(this.getX(), this.getY() + scrollAmount, this.getRight(), this.getBottom() + scrollAmount);
-    GuiUtil.enableScissorBypassContext(this.getX(), this.getY(), this.getRight(), this.getBottom());
+    GuiUtil.runInTempScissor(this.getX(), this.getY(), this.getRight(), this.getBottom(), context, () -> {
+      context.getMatrices().push();
+      context.getMatrices().translate(0, -scrollAmount, 0);
 
-    context.getMatrices().push();
-    context.getMatrices().translate(0, -scrollAmount, 0);
+      this.entries.stream()
+          .filter(this::isEntryVisible)
+          .forEach((entry) -> this.renderEntry(context, mouseX, mouseY, delta, entry));
 
-    this.entries.stream()
-        .filter(this::isEntryVisible)
-        .forEach((entry) -> this.renderEntry(context, mouseX, mouseY, delta, entry));
-
-    context.getMatrices().pop();
+      context.getMatrices().pop();
+    });
     context.disableScissor();
   }
 

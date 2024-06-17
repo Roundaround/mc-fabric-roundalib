@@ -1,17 +1,19 @@
 package me.roundaround.roundalib.client.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.client.gui.layout.FourSided;
 import me.roundaround.roundalib.client.gui.layout.TextAlignment;
 import me.roundaround.roundalib.config.ModConfig;
+import me.roundaround.roundalib.mixin.DrawContextAccessor;
+import me.roundaround.roundalib.mixin.ScissorStackAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.ScreenRect;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.client.util.Window;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -22,6 +24,8 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.Language;
 import net.minecraft.util.Util;
 
+import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
@@ -274,9 +278,9 @@ public final class GuiUtil {
     double c = Math.sin((Math.PI / 2) * Math.cos(2 * Math.PI * t / T)) / 2 + 0.5;
     double dx = c * X;
 
-    enableScissorBypassContext(left, y - textRenderer.fontHeight, left + maxWidth, y + 2 * textRenderer.fontHeight);
-    drawText(context, textRenderer, text, left - (int) dx + margin, y, color, shadow, TextAlignment.START);
-    disableScissorBypassContext();
+    runInTempScissor(left, y - textRenderer.fontHeight, left + maxWidth, y + 2 * textRenderer.fontHeight, context,
+        () -> drawText(context, textRenderer, text, left - (int) dx + margin, y, color, shadow, TextAlignment.START)
+    );
   }
 
   public static void enableScissor(DrawContext context, FourSided<Integer> bounds) {
@@ -287,23 +291,30 @@ public final class GuiUtil {
     context.disableScissor();
   }
 
-  public static void enableScissorBypassContext(int left, int top, int right, int bottom) {
-    int width = right - left;
-    int height = bottom - top;
-    Window window = CLIENT.getWindow();
-    double windowScale = window.getScaleFactor();
-
-    RenderSystem.enableScissor((int) (left * windowScale), window.getFramebufferHeight() - (int) (bottom * windowScale),
-        Math.max(0, (int) (width * windowScale)), Math.max(0, (int) (height * windowScale))
-    );
+  public static void runInTempScissor(FourSided<Integer> bounds, DrawContext context, Runnable callback) {
+    runInTempScissor(bounds.left(), bounds.top(), bounds.right(), bounds.bottom(), context, callback);
   }
 
-  public static void enableScissorBypassContext(FourSided<Integer> bounds) {
-    enableScissorBypassContext(bounds.left(), bounds.top(), bounds.right(), bounds.bottom());
-  }
+  public static void runInTempScissor(
+      int left, int top, int right, int bottom, DrawContext context, Runnable callback
+  ) {
+    try {
+      Class<?> scissorStackClass = DrawContext.class.getDeclaredClasses()[0];
+      Field scissorStackField = Arrays.stream(DrawContext.class.getDeclaredFields())
+          .filter((field) -> field.getType().equals(scissorStackClass))
+          .findFirst()
+          .orElseThrow();
+      scissorStackField.setAccessible(true);
+      ScissorStackAccessor scissorStack = (ScissorStackAccessor) scissorStackField.get(context);
 
-  public static void disableScissorBypassContext() {
-    RenderSystem.disableScissor();
+      ScreenRect previousScissor = scissorStack.getStack().peek();
+      ((DrawContextAccessor) context).invokeSetScissor(new ScreenRect(left, top, right - left, bottom - top));
+      callback.run();
+      ((DrawContextAccessor) context).invokeSetScissor(previousScissor);
+    } catch (Exception e) {
+      RoundaLib.LOGGER.error("Error trying to render content in a temp scissor context!", e);
+      throw new RuntimeException(e);
+    }
   }
 
   public static int genColorInt(float r, float g, float b) {

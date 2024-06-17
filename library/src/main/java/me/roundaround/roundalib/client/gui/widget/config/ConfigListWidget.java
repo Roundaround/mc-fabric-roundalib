@@ -97,7 +97,7 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
           .justifiedCenter()
           .alignedMiddle()
           .maxWidth(this.getContentWidth())
-          .overflowBehavior(LabelElement.OverflowBehavior.TRUNCATE)
+          .overflowBehavior(LabelElement.OverflowBehavior.SCROLL)
           .showShadow()
           .hideBackground()
           .build();
