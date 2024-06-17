@@ -1,5 +1,6 @@
-package me.roundaround.roundalib.client.gui;
+package me.roundaround.roundalib.client.gui.widget;
 
+import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.IntRect;
 import me.roundaround.roundalib.client.gui.layout.Spacing;
 import me.roundaround.roundalib.client.gui.layout.TextAlignment;
@@ -15,7 +16,7 @@ import net.minecraft.text.Text;
 
 import java.util.function.Consumer;
 
-public class LabelElement implements Drawable, Element, LayoutWidget {
+public class LabelWidget implements Drawable, Element, LayoutWidget {
   private final TextRenderer textRenderer;
   private final TextAlignment alignmentH;
   private final TextAlignment alignmentV;
@@ -38,7 +39,7 @@ public class LabelElement implements Drawable, Element, LayoutWidget {
   private IntRect interactionBounds = IntRect.zero();
   private IntRect bgBounds = IntRect.zero();
 
-  private LabelElement(
+  private LabelWidget(
       TextRenderer textRenderer,
       Text text,
       int color,
@@ -268,7 +269,7 @@ public class LabelElement implements Drawable, Element, LayoutWidget {
       }
 
       public void appendNarrations(NarrationMessageBuilder builder) {
-        builder.put(NarrationPart.TITLE, LabelElement.this.getText());
+        builder.put(NarrationPart.TITLE, LabelWidget.this.getText());
       }
     };
   }
@@ -293,11 +294,11 @@ public class LabelElement implements Drawable, Element, LayoutWidget {
     return new Builder(textRenderer, text, posX, posY);
   }
 
-  public static LabelElement screenTitle(TextRenderer textRenderer, Text text, Screen screen) {
+  public static LabelWidget screenTitle(TextRenderer textRenderer, Text text, Screen screen) {
     return screenTitle(textRenderer, text, screen, GuiUtil.DEFAULT_HEADER_FOOTER_HEIGHT);
   }
 
-  public static LabelElement screenTitle(TextRenderer textRenderer, Text text, Screen screen, int headerHeight) {
+  public static LabelWidget screenTitle(TextRenderer textRenderer, Text text, Screen screen, int headerHeight) {
     return new Builder(textRenderer, text, (int) (screen.width * 0.5f), (int) (headerHeight * 0.5f)).alignedMiddle()
         .justifiedCenter()
         .hideBackground()
@@ -466,8 +467,8 @@ public class LabelElement implements Drawable, Element, LayoutWidget {
       return this;
     }
 
-    public LabelElement build() {
-      return new LabelElement(this.textRenderer, this.text, this.color, this.x, this.y, this.alignmentH,
+    public LabelWidget build() {
+      return new LabelWidget(this.textRenderer, this.text, this.color, this.x, this.y, this.alignmentH,
           this.alignmentV, this.padding.copy(), this.maxWidth, this.overflowBehavior, this.scrollMargin, this.maxLines,
           this.lineSpacing, this.background, this.bgColor, this.bgOverflow.copy(), this.shadow
       );

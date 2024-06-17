@@ -1,7 +1,7 @@
 package me.roundaround.testmod.client.screen;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.LabelElement;
+import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.layout.IntRect;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import static me.roundaround.roundalib.client.gui.LabelElement.OverflowBehavior;
+import static me.roundaround.roundalib.client.gui.widget.LabelWidget.OverflowBehavior;
 
 @Environment(EnvType.CLIENT)
 public class LabelDemoScreen extends Screen implements DemoScreen {
@@ -55,7 +55,7 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
     this.layout.setHeaderHeight(header.getHeight());
 
     this.labelRenderers.add(this.addDrawable(new LabelRenderer(
-        LabelElement.builder(this.textRenderer, Text.of("== == Left/top == =="), 0, 0)
+        LabelWidget.builder(this.textRenderer, Text.of("== == Left/top == =="), 0, 0)
             .justifiedLeft()
             .alignedTop()
             .hideBackground()
@@ -65,7 +65,7 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
             .build(), (label) -> label.setPosition(this.relativeX(0), this.relativeY(0)))));
 
     this.labelRenderers.add(this.addDrawable(new LabelRenderer(
-        LabelElement.builder(this.textRenderer, Text.of("== == Center/top == =="), 0, 0)
+        LabelWidget.builder(this.textRenderer, Text.of("== == Center/top == =="), 0, 0)
             .justifiedCenter()
             .alignedTop()
             .hideBackground()
@@ -75,7 +75,7 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
             .build(), (label) -> label.setPosition(this.relativeX(0.5f), this.relativeY(0)))));
 
     this.labelRenderers.add(this.addDrawable(new LabelRenderer(
-        LabelElement.builder(this.textRenderer, Text.of("== == Right/top == =="), 0, 0)
+        LabelWidget.builder(this.textRenderer, Text.of("== == Right/top == =="), 0, 0)
             .justifiedRight()
             .alignedTop()
             .hideBackground()
@@ -85,7 +85,7 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
             .build(), (label) -> label.setPosition(this.relativeX(1), this.relativeY(0)))));
 
     this.labelRenderers.add(this.addDrawable(new LabelRenderer(
-        LabelElement.builder(this.textRenderer, Text.of("== == Left/middle == =="), 0, 0)
+        LabelWidget.builder(this.textRenderer, Text.of("== == Left/middle == =="), 0, 0)
             .justifiedLeft()
             .alignedMiddle()
             .hideBackground()
@@ -95,7 +95,7 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
             .build(), (label) -> label.setPosition(this.relativeX(0), this.relativeY(0.5f)))));
 
     this.labelRenderers.add(this.addDrawable(new LabelRenderer(
-        LabelElement.builder(this.textRenderer, Text.of("== == Center/middle == =="), 0, 0)
+        LabelWidget.builder(this.textRenderer, Text.of("== == Center/middle == =="), 0, 0)
             .justifiedCenter()
             .alignedMiddle()
             .hideBackground()
@@ -105,7 +105,7 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
             .build(), (label) -> label.setPosition(this.relativeX(0.5f), this.relativeY(0.5f)))));
 
     this.labelRenderers.add(this.addDrawable(new LabelRenderer(
-        LabelElement.builder(this.textRenderer, Text.of("== == Right/middle == =="), 0, 0)
+        LabelWidget.builder(this.textRenderer, Text.of("== == Right/middle == =="), 0, 0)
             .justifiedRight()
             .alignedMiddle()
             .hideBackground()
@@ -115,7 +115,7 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
             .build(), (label) -> label.setPosition(this.relativeX(1), this.relativeY(0.5f)))));
 
     this.labelRenderers.add(this.addDrawable(new LabelRenderer(
-        LabelElement.builder(this.textRenderer, Text.of("== == Left/bottom == =="), 0, 0)
+        LabelWidget.builder(this.textRenderer, Text.of("== == Left/bottom == =="), 0, 0)
             .justifiedLeft()
             .alignedBottom()
             .hideBackground()
@@ -125,7 +125,7 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
             .build(), (label) -> label.setPosition(this.relativeX(0), this.relativeY(1)))));
 
     this.labelRenderers.add(this.addDrawable(new LabelRenderer(
-        LabelElement.builder(this.textRenderer, Text.of("== == Center/bottom == =="), 0, 0)
+        LabelWidget.builder(this.textRenderer, Text.of("== == Center/bottom == =="), 0, 0)
             .justifiedCenter()
             .alignedBottom()
             .hideBackground()
@@ -135,7 +135,7 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
             .build(), (label) -> label.setPosition(this.relativeX(0.5f), this.relativeY(1)))));
 
     this.labelRenderers.add(this.addDrawable(new LabelRenderer(
-        LabelElement.builder(this.textRenderer, Text.of("== == Right/bottom == =="), 0, 0)
+        LabelWidget.builder(this.textRenderer, Text.of("== == Right/bottom == =="), 0, 0)
             .justifiedRight()
             .alignedBottom()
             .hideBackground()
@@ -183,19 +183,19 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
   }
 
   private static class LabelRenderer implements Drawable {
-    private final Consumer<LabelElement> onReflow;
-    private LabelElement label;
+    private final Consumer<LabelWidget> onReflow;
+    private LabelWidget label;
 
-    LabelRenderer(LabelElement label, Consumer<LabelElement> onReflow) {
+    LabelRenderer(LabelWidget label, Consumer<LabelWidget> onReflow) {
       this.label = label;
       this.onReflow = onReflow;
     }
 
-    public LabelElement getLabel() {
+    public LabelWidget getLabel() {
       return this.label;
     }
 
-    public void setLabel(LabelElement label) {
+    public void setLabel(LabelWidget label) {
       this.label = label;
     }
 

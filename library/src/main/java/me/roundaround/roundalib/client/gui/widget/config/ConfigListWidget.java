@@ -1,7 +1,7 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.LabelElement;
+import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.FlowListWidget;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.config.ModConfig;
@@ -86,18 +86,18 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
   public static class GroupEntry extends Entry {
     protected static final int HEIGHT = 20;
 
-    protected final LabelElement label;
+    protected final LabelWidget label;
 
     protected GroupEntry(
         TextRenderer textRenderer, Text label, int index, int left, int top, int width
     ) {
       super(index, left, top, width, HEIGHT);
 
-      this.label = LabelElement.builder(textRenderer, label, this.getContentCenterX(), this.getContentCenterY())
+      this.label = LabelWidget.builder(textRenderer, label, this.getContentCenterX(), this.getContentCenterY())
           .justifiedCenter()
           .alignedMiddle()
           .maxWidth(this.getContentWidth())
-          .overflowBehavior(LabelElement.OverflowBehavior.SCROLL)
+          .overflowBehavior(LabelWidget.OverflowBehavior.SCROLL)
           .showShadow()
           .hideBackground()
           .build();
@@ -120,7 +120,7 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
 
     protected final O option;
     protected final Control<D, O> control;
-    protected final LabelElement label;
+    protected final LabelWidget label;
     protected final IconButtonWidget resetButton;
 
     protected OptionEntry(MinecraftClient client, O option, int index, int left, int top, int width)
@@ -129,12 +129,12 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
 
       this.option = option;
 
-      this.label = LabelElement.builder(
+      this.label = LabelWidget.builder(
               client.textRenderer, option.getLabel(), this.getContentLeft(), this.getContentCenterY())
           .justifiedLeft()
           .alignedMiddle()
           .maxWidth(this.getControlLeft() - this.getContentLeft())
-          .overflowBehavior(LabelElement.OverflowBehavior.WRAP)
+          .overflowBehavior(LabelWidget.OverflowBehavior.WRAP)
           .maxLines(2)
           .showShadow()
           .hideBackground()
