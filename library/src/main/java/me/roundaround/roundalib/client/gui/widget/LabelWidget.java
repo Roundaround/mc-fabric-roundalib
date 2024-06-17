@@ -61,7 +61,8 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
       boolean background,
       int bgColor,
       Spacing bgOverflow,
-      boolean shadow
+      boolean shadow,
+      Tooltip tooltip
   ) {
     this.textRenderer = textRenderer;
     this.text = text;
@@ -81,6 +82,8 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
     this.bgOverflow = bgOverflow;
     this.shadow = shadow;
 
+    this.setTooltip(tooltip);
+
     this.refreshPositions();
   }
 
@@ -98,17 +101,32 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
           this.textRenderer, this.text, this.maxWidth, this.maxLines, this.lineSpacing);
     }
 
-    int textLeft = this.alignmentH.getLeft(this.getPaddedX(), textWidth);
-    int textTop = this.alignmentV.getTop(this.getPaddedY(), textHeight);
+    this.textBounds = IntRect.byDimensions(this.alignmentH.getLeft(this.getPaddedX(), textWidth),
+        this.alignmentV.getTop(this.getPaddedY(), textHeight), textWidth, textHeight
+    );
+    this.bgBounds = this.textBounds.expand(this.padding).expand(this.bgOverflow);
 
-    this.textBounds = IntRect.byDimensions(textLeft, textTop, textWidth, textHeight);
     this.interactionBounds = this.textBounds.expand(this.padding);
-    this.bgBounds = this.interactionBounds.expand(this.bgOverflow);
+    if (this.canBeClipped()) {
+      int currentWidth = this.interactionBounds.getWidth();
+      int interactionWidth = Math.max(currentWidth, this.maxWidth);
+      int widthDiff = interactionWidth - currentWidth;
+
+      this.interactionBounds = switch (this.alignmentH) {
+        case START -> this.interactionBounds.expandRight(widthDiff);
+        case CENTER -> {
+          int left = widthDiff / 2;
+          int right = widthDiff - left;
+          yield this.interactionBounds.expand(left, 0, right, 0);
+        }
+        case END -> this.interactionBounds.expandLeft(widthDiff);
+      };
+    }
   }
 
   @Override
   public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-    this.hovered = context.scissorContains(mouseX, mouseY) && this.interactionBounds.contains(mouseX, mouseY);
+    this.hovered = context.scissorContains(mouseX, mouseY) && this.isMouseOver(mouseX, mouseY);
 
     if (this.background) {
       context.fill(this.bgBounds.left(), this.bgBounds.top(), this.bgBounds.right(), this.bgBounds.bottom(),
@@ -263,8 +281,12 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
     return new ScreenRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
   }
 
+  private boolean canBeClipped() {
+    return this.maxWidth > 0 && this.overflowBehavior != OverflowBehavior.SHOW;
+  }
+
   private int getAvailableWidth() {
-    if (this.maxWidth <= 0) {
+    if (!this.canBeClipped()) {
       return Integer.MAX_VALUE;
     }
     return this.maxWidth - this.padding.getHorizontal();
@@ -350,6 +372,7 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
     private int bgColor = GuiUtil.BACKGROUND_COLOR;
     private Spacing bgOverflow = Spacing.of(1, 0, 0, 1);
     private boolean shadow = false;
+    private Tooltip tooltip;
 
     public Builder(TextRenderer textRenderer, Text text, int x, int y) {
       this.textRenderer = textRenderer;
@@ -491,10 +514,15 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
       return this;
     }
 
+    public Builder tooltip(Tooltip tooltip) {
+      this.tooltip = tooltip;
+      return this;
+    }
+
     public LabelWidget build() {
       return new LabelWidget(this.textRenderer, this.text, this.color, this.x, this.y, this.alignmentH, this.alignmentV,
           this.padding.copy(), this.maxWidth, this.overflowBehavior, this.scrollMargin, this.maxLines, this.lineSpacing,
-          this.background, this.bgColor, this.bgOverflow.copy(), this.shadow
+          this.background, this.bgColor, this.bgOverflow.copy(), this.shadow, this.tooltip
       );
     }
   }

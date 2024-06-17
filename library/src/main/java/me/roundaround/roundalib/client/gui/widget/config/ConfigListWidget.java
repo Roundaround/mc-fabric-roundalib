@@ -9,6 +9,7 @@ import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.panic.IllegalStatePanic;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.text.Text;
 
@@ -138,6 +139,7 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
           .maxLines(2)
           .showShadow()
           .hideBackground()
+          .tooltip(Tooltip.of(this.getOption().getLabel()))
           .build();
 
       this.addDrawableChild(this.label);

@@ -1,14 +1,15 @@
 package me.roundaround.testmod.client.screen;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.layout.IntRect;
+import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.*;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
@@ -62,6 +63,7 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
             .maxWidth(this.overflowBehavior == OverflowBehavior.SHOW ? 0 : 50)
             .overflowBehavior(this.overflowBehavior)
             .maxLines(3)
+            .tooltip(Tooltip.of(Text.of("Left/top")))
             .build(), (label) -> label.setPosition(this.relativeX(0), this.relativeY(0)))));
 
     this.labelRenderers.add(this.addDrawable(new LabelRenderer(
@@ -72,6 +74,7 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
             .maxWidth(this.overflowBehavior == OverflowBehavior.SHOW ? 0 : 50)
             .overflowBehavior(this.overflowBehavior)
             .maxLines(3)
+            .tooltip(Tooltip.of(Text.of("Center/top")))
             .build(), (label) -> label.setPosition(this.relativeX(0.5f), this.relativeY(0)))));
 
     this.labelRenderers.add(this.addDrawable(new LabelRenderer(
@@ -82,6 +85,7 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
             .maxWidth(this.overflowBehavior == OverflowBehavior.SHOW ? 0 : 50)
             .overflowBehavior(this.overflowBehavior)
             .maxLines(3)
+            .tooltip(Tooltip.of(Text.of("Right/top")))
             .build(), (label) -> label.setPosition(this.relativeX(1), this.relativeY(0)))));
 
     this.labelRenderers.add(this.addDrawable(new LabelRenderer(
@@ -92,6 +96,7 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
             .maxWidth(this.overflowBehavior == OverflowBehavior.SHOW ? 0 : 50)
             .overflowBehavior(this.overflowBehavior)
             .maxLines(3)
+            .tooltip(Tooltip.of(Text.of("Left/middle")))
             .build(), (label) -> label.setPosition(this.relativeX(0), this.relativeY(0.5f)))));
 
     this.labelRenderers.add(this.addDrawable(new LabelRenderer(
@@ -102,6 +107,7 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
             .maxWidth(this.overflowBehavior == OverflowBehavior.SHOW ? 0 : 50)
             .overflowBehavior(this.overflowBehavior)
             .maxLines(3)
+            .tooltip(Tooltip.of(Text.of("Center/middle")))
             .build(), (label) -> label.setPosition(this.relativeX(0.5f), this.relativeY(0.5f)))));
 
     this.labelRenderers.add(this.addDrawable(new LabelRenderer(
@@ -112,6 +118,7 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
             .maxWidth(this.overflowBehavior == OverflowBehavior.SHOW ? 0 : 50)
             .overflowBehavior(this.overflowBehavior)
             .maxLines(3)
+            .tooltip(Tooltip.of(Text.of("Right/middle")))
             .build(), (label) -> label.setPosition(this.relativeX(1), this.relativeY(0.5f)))));
 
     this.labelRenderers.add(this.addDrawable(new LabelRenderer(
@@ -122,6 +129,7 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
             .maxWidth(this.overflowBehavior == OverflowBehavior.SHOW ? 0 : 50)
             .overflowBehavior(this.overflowBehavior)
             .maxLines(3)
+            .tooltip(Tooltip.of(Text.of("Left/bottom")))
             .build(), (label) -> label.setPosition(this.relativeX(0), this.relativeY(1)))));
 
     this.labelRenderers.add(this.addDrawable(new LabelRenderer(
@@ -132,6 +140,7 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
             .maxWidth(this.overflowBehavior == OverflowBehavior.SHOW ? 0 : 50)
             .overflowBehavior(this.overflowBehavior)
             .maxLines(3)
+            .tooltip(Tooltip.of(Text.of("Center/bottom")))
             .build(), (label) -> label.setPosition(this.relativeX(0.5f), this.relativeY(1)))));
 
     this.labelRenderers.add(this.addDrawable(new LabelRenderer(
@@ -142,6 +151,7 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
             .maxWidth(this.overflowBehavior == OverflowBehavior.SHOW ? 0 : 50)
             .overflowBehavior(this.overflowBehavior)
             .maxLines(3)
+            .tooltip(Tooltip.of(Text.of("Right/bottom")))
             .build(), (label) -> label.setPosition(this.relativeX(1), this.relativeY(1)))));
 
     this.layout.addFooter(ButtonWidget.builder(ScreenTexts.DONE, (button) -> this.close()).build());
@@ -206,11 +216,15 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-      IntRect bounds = this.getLabel().getTextBounds();
-      context.fill(bounds.left(), bounds.top(), bounds.right(), bounds.bottom(), GuiUtil.genColorInt(0, 0, 0));
-      IntRect border = bounds.expand(1);
-      context.drawBorder(
-          border.left(), border.top(), border.getWidth(), border.getHeight(), GuiUtil.genColorInt(0, 0.3f, 0.8f));
+      IntRect interactionBounds = this.getLabel().getInteractionBounds();
+      context.fill(interactionBounds.left(), interactionBounds.top(), interactionBounds.right(),
+          interactionBounds.bottom(), GuiUtil.genColorInt(0, 0.3f, 0.8f)
+      );
+
+      IntRect textBounds = this.getLabel().getTextBounds();
+      context.fill(textBounds.left(), textBounds.top(), textBounds.right(), textBounds.bottom(),
+          GuiUtil.genColorInt(0, 0, 0, 0.3f)
+      );
 
       this.label.render(context, mouseX, mouseY, delta);
     }
