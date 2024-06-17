@@ -173,8 +173,8 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     RenderSystem.enableBlend();
     Identifier identifier =
         this.client.world == null ? MENU_LIST_BACKGROUND_TEXTURE : INWORLD_MENU_LIST_BACKGROUND_TEXTURE;
-    context.drawTexture(identifier, this.getX(), this.getY(), (float) this.getRight(),
-        this.getBottom() + (float) this.getScrollAmount(), this.getWidth(), this.getHeight(), 32, 32
+    context.drawTexture(identifier, this.getX(), this.getY(), this.getRight(),
+        this.getBottom() + (int) this.getScrollAmount(), this.getWidth(), this.getHeight(), 32, 32
     );
     RenderSystem.disableBlend();
   }
@@ -429,7 +429,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
     E entry = this.getEntryAtPosition(mouseX, mouseY);
     if (entry != null) {
-      if (entry.mouseClicked(mouseX, mouseY + this.getScrollAmount(), button)) {
+      if (entry.mouseClicked(mouseX, mouseY, button)) {
         E focused = this.getFocused();
         if (focused != entry && focused != null) {
           focused.setFocused(null);
@@ -447,17 +447,15 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   @Override
   public boolean mouseReleased(double mouseX, double mouseY, int button) {
     if (this.getFocused() != null) {
-      this.getFocused().mouseReleased(mouseX, mouseY + this.getScrollAmount(), button);
+      this.getFocused().mouseReleased(mouseX, mouseY, button);
     }
 
     return false;
   }
 
   @Override
-  public boolean mouseDragged(
-      double mouseX, double mouseY, int button, double deltaX, double deltaY
-  ) {
-    if (super.mouseDragged(mouseX, mouseY + this.getScrollAmount(), button, deltaX, deltaY)) {
+  public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+    if (super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)) {
       return true;
     }
 
@@ -485,8 +483,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   ) {
     if (this.allowScrollPassThrough()) {
       Entry entry = this.getEntryAtPosition(mouseX, mouseY);
-      if (entry != null &&
-          entry.mouseScrolled(mouseX, mouseY + this.getScrollAmount(), horizontalAmount, verticalAmount)) {
+      if (entry != null && entry.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount)) {
         return true;
       }
     }
@@ -508,9 +505,8 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
       return null;
     }
 
-    double scrolledY = y + this.getScrollAmount();
     for (E entry : this.entries) {
-      if (scrolledY >= entry.getTop() && scrolledY <= entry.getBottom()) {
+      if (y >= entry.getTop() && y <= entry.getBottom()) {
         return entry;
       }
     }
