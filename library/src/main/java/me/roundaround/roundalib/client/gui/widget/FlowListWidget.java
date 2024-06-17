@@ -182,17 +182,17 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   protected void renderList(DrawContext context, int mouseX, int mouseY, float delta) {
     int scrollAmount = (int) this.getScrollAmount();
 
-    GuiUtil.runInScrollableScissor(
-        context, scrollAmount, this.getX(), this.getY(), this.getRight(), this.getBottom(), () -> {
-          context.getMatrices().push();
-          context.getMatrices().translate(0, -scrollAmount, 0);
+    context.getMatrices().push();
+    context.getMatrices().translate(0, -scrollAmount, 0);
 
-          this.entries.stream()
-              .filter(this::isEntryVisible)
-              .forEach((entry) -> this.renderEntry(context, mouseX, mouseY, delta, entry));
+    GuiUtil.SCROLL_TRACKER.enableScrollablePaneScissor(
+        context, scrollAmount, this.getX(), this.getY(), this.getRight(), this.getBottom());
+    this.entries.stream()
+        .filter(this::isEntryVisible)
+        .forEach((entry) -> this.renderEntry(context, mouseX, mouseY, delta, entry));
+    GuiUtil.SCROLL_TRACKER.disableScrollablePaneScissor(context);
 
-          context.getMatrices().pop();
-        });
+    context.getMatrices().pop();
   }
 
   protected void renderEntry(DrawContext context, int mouseX, int mouseY, float delta, E entry) {
@@ -204,7 +204,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
       this.renderRowShade(context, entry);
     }
 
-    entry.render(context, mouseX, mouseY + (int) this.getScrollAmount(), delta);
+    entry.render(context, mouseX, mouseY, delta);
   }
 
   protected void renderRowShade(DrawContext context, E entry) {

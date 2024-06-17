@@ -297,37 +297,6 @@ public final class GuiUtil {
     CLIENT.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, volume));
   }
 
-  public static void runInScrollableScissor(
-      DrawContext context, double scrollAmount, FourSided<Integer> bounds, Runnable callback
-  ) {
-    runInScrollableScissor(context, (int) scrollAmount, bounds, callback);
-  }
-
-  public static void runInScrollableScissor(
-      DrawContext context, int scrollAmount, FourSided<Integer> bounds, Runnable callback
-  ) {
-    runInScrollableScissor(
-        context, scrollAmount, bounds.left(), bounds.top(), bounds.right(), bounds.bottom(), callback);
-  }
-
-  public static void runInScrollableScissor(
-      DrawContext context, double scrollAmount, int left, int top, int right, int bottom, Runnable callback
-  ) {
-    runInScrollableScissor(context, (int) scrollAmount, left, top, right, bottom, callback);
-  }
-
-  public static void runInScrollableScissor(
-      DrawContext context, int scrollAmount, int left, int top, int right, int bottom, Runnable callback
-  ) {
-    SCROLL_TRACKER.enableScrollablePaneScissor(context, scrollAmount, left, top, right, bottom);
-    callback.run();
-    SCROLL_TRACKER.disableScrollablePaneScissor(context);
-  }
-
-  public static boolean scissorContainsIncludingScroll(DrawContext context, int x, int y) {
-    return SCROLL_TRACKER.scissorContains(context, x, y);
-  }
-
   public static class ScrollTracker {
     private boolean inScrollingContext = false;
     private int scrollAmount = 0;
@@ -336,12 +305,8 @@ public final class GuiUtil {
       return this.inScrollingContext;
     }
 
-    public boolean scissorContains(DrawContext context, int x, int y) {
-      int scrollAdjustedY = y;
-      if (this.inScrollingContext) {
-        scrollAdjustedY += this.scrollAmount;
-      }
-      return context.scissorContains(x, scrollAdjustedY);
+    public int getScrollAmount() {
+      return this.inScrollingContext ? this.scrollAmount : 0;
     }
 
     public void enableScrollablePaneScissor(DrawContext context, double scrollAmount, FourSided<Integer> bounds) {
