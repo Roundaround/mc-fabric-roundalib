@@ -182,16 +182,17 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   protected void renderList(DrawContext context, int mouseX, int mouseY, float delta) {
     int scrollAmount = (int) this.getScrollAmount();
 
-    context.enableScissor(this.getX(), this.getY(), this.getRight(), this.getBottom());
-    context.getMatrices().push();
-    context.getMatrices().translate(0, -scrollAmount, 0);
+    GuiUtil.runInScrollableScissor(
+        context, scrollAmount, this.getX(), this.getY(), this.getRight(), this.getBottom(), () -> {
+          context.getMatrices().push();
+          context.getMatrices().translate(0, -scrollAmount, 0);
 
-    this.entries.stream()
-        .filter(this::isEntryVisible)
-        .forEach((entry) -> this.renderEntry(context, mouseX, mouseY, delta, entry));
+          this.entries.stream()
+              .filter(this::isEntryVisible)
+              .forEach((entry) -> this.renderEntry(context, mouseX, mouseY, delta, entry));
 
-    context.getMatrices().pop();
-    context.disableScissor();
+          context.getMatrices().pop();
+        });
   }
 
   protected void renderEntry(DrawContext context, int mouseX, int mouseY, float delta, E entry) {
