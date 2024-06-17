@@ -103,8 +103,9 @@ public class LabelElement implements Drawable, Element {
               this.maxLines, this.lineSpacing, this.alignmentH
           );
       case CLIP -> {
-        context.enableScissor(
-            this.textBounds.left(), this.textBounds.top(), this.textBounds.right(), this.textBounds.bottom());
+        context.enableScissor(this.textBounds.left(), this.textBounds.top(), this.textBounds.right(),
+            this.textBounds.bottom()
+        );
         GuiUtil.drawText(context, this.textRenderer, this.text, x, y, this.color, this.shadow, this.alignmentH);
         context.disableScissor();
       }

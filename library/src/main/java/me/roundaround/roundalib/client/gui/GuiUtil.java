@@ -1,6 +1,5 @@
 package me.roundaround.roundalib.client.gui;
 
-import me.roundaround.roundalib.client.gui.layout.FourSided;
 import me.roundaround.roundalib.client.gui.layout.TextAlignment;
 import me.roundaround.roundalib.config.ModConfig;
 import net.fabricmc.api.EnvType;
@@ -34,8 +33,6 @@ public final class GuiUtil {
   public static final int SCROLLBAR_WIDTH = 6;
   public static final int DEFAULT_HEADER_FOOTER_HEIGHT = 33;
   public static final int COMPACT_HEADER_HEIGHT = 17;
-
-  public static final ScrollTracker SCROLL_TRACKER = new ScrollTracker();
 
   private static final MinecraftClient CLIENT = MinecraftClient.getInstance();
 
@@ -295,47 +292,5 @@ public final class GuiUtil {
 
   public static void playClickSound(float volume) {
     CLIENT.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, volume));
-  }
-
-  public static class ScrollTracker {
-    private boolean inScrollingContext = false;
-    private int scrollAmount = 0;
-
-    public boolean isInScrollingContext() {
-      return this.inScrollingContext;
-    }
-
-    public int getScrollAmount() {
-      return this.inScrollingContext ? this.scrollAmount : 0;
-    }
-
-    public void enableScrollablePaneScissor(DrawContext context, double scrollAmount, FourSided<Integer> bounds) {
-      this.enableScrollablePaneScissor(
-          context, (int) scrollAmount, bounds.left(), bounds.top(), bounds.right(), bounds.bottom());
-    }
-
-    public void enableScrollablePaneScissor(DrawContext context, int scrollAmount, FourSided<Integer> bounds) {
-      this.enableScrollablePaneScissor(
-          context, scrollAmount, bounds.left(), bounds.top(), bounds.right(), bounds.bottom());
-    }
-
-    public void enableScrollablePaneScissor(
-        DrawContext context, double scrollAmount, int left, int top, int right, int bottom
-    ) {
-      this.enableScrollablePaneScissor(context, (int) scrollAmount, left, top, right, bottom);
-    }
-
-    public void enableScrollablePaneScissor(
-        DrawContext context, int scrollAmount, int left, int top, int right, int bottom
-    ) {
-      this.inScrollingContext = true;
-      this.scrollAmount = scrollAmount;
-      context.enableScissor(left, top, right, bottom);
-    }
-
-    public void disableScrollablePaneScissor(DrawContext context) {
-      this.inScrollingContext = false;
-      context.disableScissor();
-    }
   }
 }

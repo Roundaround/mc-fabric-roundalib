@@ -180,19 +180,9 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   protected void renderList(DrawContext context, int mouseX, int mouseY, float delta) {
-    int scrollAmount = (int) this.getScrollAmount();
-
-    context.getMatrices().push();
-    context.getMatrices().translate(0, -scrollAmount, 0);
-
-    GuiUtil.SCROLL_TRACKER.enableScrollablePaneScissor(
-        context, scrollAmount, this.getX(), this.getY(), this.getRight(), this.getBottom());
-    this.entries.stream()
-        .filter(this::isEntryVisible)
-        .forEach((entry) -> this.renderEntry(context, mouseX, mouseY, delta, entry));
-    GuiUtil.SCROLL_TRACKER.disableScrollablePaneScissor(context);
-
-    context.getMatrices().pop();
+    context.enableScissor(this.getX(), this.getY(), this.getRight(), this.getBottom());
+    this.entries.forEach((entry) -> this.renderEntry(context, mouseX, mouseY, delta, entry));
+    context.disableScissor();
   }
 
   protected void renderEntry(DrawContext context, int mouseX, int mouseY, float delta, E entry) {
@@ -529,25 +519,17 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   protected boolean isEntryVisible(E entry) {
-    int scrollAmount = (int) this.getScrollAmount();
-    int scrolledTop = entry.getTop() - scrollAmount;
-    int scrolledBottom = entry.getBottom() - scrollAmount;
-
-    return scrolledTop <= this.getBottom() && scrolledBottom >= this.getY();
+    return entry.getTop() <= this.getBottom() && entry.getBottom() >= this.getY();
   }
 
   protected void ensureVisible(E entry) {
-    int scrollAmount = (int) this.getScrollAmount();
-
-    int scrolledTop = entry.getTop() - scrollAmount;
-    if (scrolledTop < this.getY()) {
-      this.scroll(scrolledTop - this.getY());
+    if (entry.getTop() < this.getY()) {
+      this.scroll(entry.getTop() - this.getY());
       return;
     }
 
-    int scrolledBottom = entry.getBottom() - scrollAmount;
-    if (scrolledBottom > this.getBottom()) {
-      this.scroll(scrolledBottom - this.getBottom());
+    if (entry.getBottom() > this.getBottom()) {
+      this.scroll(entry.getBottom() - this.getBottom());
     }
   }
 
@@ -636,6 +618,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
   public void setScrollAmount(double amount) {
     this.scrollAmount = MathHelper.clamp(amount, 0, this.getMaxScroll());
+    this.entries.forEach((entry) -> entry.setScrollAmount(this.getScrollAmount()));
   }
 
   public int getMaxScroll() {
@@ -690,6 +673,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     private Element focused;
     private Selectable focusedSelectable;
     private boolean dragging;
+    private double scrollAmount;
     private Spacing margin = Spacing.of(DEFAULT_MARGIN_VERTICAL, DEFAULT_MARGIN_HORIZONTAL);
 
     protected Entry(int index, int left, int top, int width, int contentHeight) {
@@ -773,6 +757,11 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     }
 
     public void renderDecorations(DrawContext context, int mouseX, int mouseY, float delta) {
+    }
+
+    protected void setScrollAmount(double scrollAmount) {
+      this.scrollAmount = scrollAmount;
+      this.refreshPositions();
     }
 
     @Override
@@ -911,6 +900,11 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
     public void setMargin(Spacing margin) {
       this.margin = margin;
+    }
+
+    @Override
+    public int getTop() {
+      return super.getTop() - (int) this.scrollAmount;
     }
 
     public int getContentLeft() {
