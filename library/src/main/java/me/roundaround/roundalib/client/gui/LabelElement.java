@@ -102,9 +102,12 @@ public class LabelElement implements Drawable, Element {
           GuiUtil.drawWrappedText(context, this.textRenderer, this.text, x, y, this.color, this.shadow, availableWidth,
               this.maxLines, this.lineSpacing, this.alignmentH
           );
-      case CLIP -> GuiUtil.runInTempScissor(this.textBounds, context,
-          () -> GuiUtil.drawText(context, this.textRenderer, this.text, x, y, this.color, this.shadow, this.alignmentH)
-      );
+      case CLIP -> {
+        context.enableScissor(
+            this.textBounds.left(), this.textBounds.top(), this.textBounds.right(), this.textBounds.bottom());
+        GuiUtil.drawText(context, this.textRenderer, this.text, x, y, this.color, this.shadow, this.alignmentH);
+        context.disableScissor();
+      }
       case SCROLL -> GuiUtil.drawScrollingText(context, this.textRenderer, this.text, x, y, this.color, this.shadow,
           availableWidth, this.scrollMargin, this.alignmentH
       );

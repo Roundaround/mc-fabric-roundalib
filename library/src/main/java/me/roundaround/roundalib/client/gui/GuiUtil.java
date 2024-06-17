@@ -278,43 +278,9 @@ public final class GuiUtil {
     double c = Math.sin((Math.PI / 2) * Math.cos(2 * Math.PI * t / T)) / 2 + 0.5;
     double dx = c * X;
 
-    runInTempScissor(left, y - textRenderer.fontHeight, left + maxWidth, y + 2 * textRenderer.fontHeight, context,
-        () -> drawText(context, textRenderer, text, left - (int) dx + margin, y, color, shadow, TextAlignment.START)
-    );
-  }
-
-  public static void enableScissor(DrawContext context, FourSided<Integer> bounds) {
-    context.enableScissor(bounds.left(), bounds.top(), bounds.right(), bounds.bottom());
-  }
-
-  public static void disableScissor(DrawContext context) {
+    context.enableScissor(left, y - textRenderer.fontHeight, left + maxWidth, y + 2 * textRenderer.fontHeight);
+    drawText(context, textRenderer, text, left - (int) dx + margin, y, color, shadow, TextAlignment.START);
     context.disableScissor();
-  }
-
-  public static void runInTempScissor(FourSided<Integer> bounds, DrawContext context, Runnable callback) {
-    runInTempScissor(bounds.left(), bounds.top(), bounds.right(), bounds.bottom(), context, callback);
-  }
-
-  public static void runInTempScissor(
-      int left, int top, int right, int bottom, DrawContext context, Runnable callback
-  ) {
-    try {
-      Class<?> scissorStackClass = DrawContext.class.getDeclaredClasses()[0];
-      Field scissorStackField = Arrays.stream(DrawContext.class.getDeclaredFields())
-          .filter((field) -> field.getType().equals(scissorStackClass))
-          .findFirst()
-          .orElseThrow();
-      scissorStackField.setAccessible(true);
-      ScissorStackAccessor scissorStack = (ScissorStackAccessor) scissorStackField.get(context);
-
-      ScreenRect previousScissor = scissorStack.getStack().peek();
-      ((DrawContextAccessor) context).invokeSetScissor(new ScreenRect(left, top, right - left, bottom - top));
-      callback.run();
-      ((DrawContextAccessor) context).invokeSetScissor(previousScissor);
-    } catch (Exception e) {
-      RoundaLib.LOGGER.error("Error trying to render content in a temp scissor context!", e);
-      throw new RuntimeException(e);
-    }
   }
 
   public static int genColorInt(float r, float g, float b) {

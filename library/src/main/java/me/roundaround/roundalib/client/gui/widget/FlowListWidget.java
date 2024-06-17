@@ -182,23 +182,15 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   protected void renderList(DrawContext context, int mouseX, int mouseY, float delta) {
     int scrollAmount = (int) this.getScrollAmount();
 
-    // Annoyingly ClickableWidget hover state is determined inside of render, which has no clean way to amend
-    // or hook into. Additionally, the hover state is bounded on the DrawContext's currently registered scissor
-    // so when I translate and adjust the mouseY accordingly, the ClickableWidget thinks we're outside the
-    // scissor. To get around this, we need to "set the scissor" on the DrawContext using the shifted region to
-    // track mouse hovering and tooltips, then overwrite that by bypassing DrawContext entirely and enabling
-    // the real scissor directly on the RenderSystem.
-    context.enableScissor(this.getX(), this.getY() + scrollAmount, this.getRight(), this.getBottom() + scrollAmount);
-    GuiUtil.runInTempScissor(this.getX(), this.getY(), this.getRight(), this.getBottom(), context, () -> {
-      context.getMatrices().push();
-      context.getMatrices().translate(0, -scrollAmount, 0);
+    context.enableScissor(this.getX(), this.getY(), this.getRight(), this.getBottom());
+    context.getMatrices().push();
+    context.getMatrices().translate(0, -scrollAmount, 0);
 
-      this.entries.stream()
-          .filter(this::isEntryVisible)
-          .forEach((entry) -> this.renderEntry(context, mouseX, mouseY, delta, entry));
+    this.entries.stream()
+        .filter(this::isEntryVisible)
+        .forEach((entry) -> this.renderEntry(context, mouseX, mouseY, delta, entry));
 
-      context.getMatrices().pop();
-    });
+    context.getMatrices().pop();
     context.disableScissor();
   }
 
