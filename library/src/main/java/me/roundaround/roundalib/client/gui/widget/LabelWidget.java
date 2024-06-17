@@ -9,11 +9,14 @@ import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;
+import net.minecraft.client.gui.tooltip.Tooltip;
+import net.minecraft.client.gui.tooltip.TooltipState;
 import net.minecraft.client.gui.widget.LayoutWidget;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Text;
 
+import java.time.Duration;
 import java.util.function.Consumer;
 
 public class LabelWidget implements Drawable, Element, LayoutWidget {
@@ -28,6 +31,7 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
   private final boolean background;
   private final Spacing bgOverflow;
   private final boolean shadow;
+  private final TooltipState tooltip = new TooltipState();
 
   private Text text;
   private int color;
@@ -38,6 +42,7 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
   private IntRect textBounds = IntRect.zero();
   private IntRect interactionBounds = IntRect.zero();
   private IntRect bgBounds = IntRect.zero();
+  private boolean hovered;
 
   private LabelWidget(
       TextRenderer textRenderer,
@@ -103,7 +108,7 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
 
   @Override
   public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-    this.refreshPositions();
+    this.hovered = context.scissorContains(mouseX, mouseY) && this.interactionBounds.contains(mouseX, mouseY);
 
     if (this.background) {
       context.fill(this.bgBounds.left(), this.bgBounds.top(), this.bgBounds.right(), this.bgBounds.bottom(),
@@ -136,12 +141,17 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
           availableWidth, this.scrollMargin, this.alignmentH
       );
     }
+
+    this.tooltip.render(this.isHovered(), this.isFocused(), this.getNavigationFocus());
   }
 
   @Override
   public boolean isMouseOver(double mouseX, double mouseY) {
-    this.refreshPositions();
     return this.interactionBounds.contains(mouseX, mouseY);
+  }
+
+  public boolean isHovered() {
+    return this.hovered;
   }
 
   @Override
@@ -158,10 +168,23 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
       return;
     }
     this.text = text;
+    this.refreshPositions();
   }
 
   public Text getText() {
     return this.text.copy();
+  }
+
+  public void setTooltip(Tooltip tooltip) {
+    this.tooltip.setTooltip(tooltip);
+  }
+
+  public Tooltip getTooltip() {
+    return this.tooltip.getTooltip();
+  }
+
+  public void setTooltipDelay(Duration tooltipDelay) {
+    this.tooltip.setDelay(tooltipDelay);
   }
 
   @Override
@@ -200,6 +223,7 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
 
   public void setMaxWidth(int maxWidth) {
     this.maxWidth = maxWidth;
+    this.refreshPositions();
   }
 
   public IntRect getTextBounds() {
@@ -468,9 +492,9 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
     }
 
     public LabelWidget build() {
-      return new LabelWidget(this.textRenderer, this.text, this.color, this.x, this.y, this.alignmentH,
-          this.alignmentV, this.padding.copy(), this.maxWidth, this.overflowBehavior, this.scrollMargin, this.maxLines,
-          this.lineSpacing, this.background, this.bgColor, this.bgOverflow.copy(), this.shadow
+      return new LabelWidget(this.textRenderer, this.text, this.color, this.x, this.y, this.alignmentH, this.alignmentV,
+          this.padding.copy(), this.maxWidth, this.overflowBehavior, this.scrollMargin, this.maxLines, this.lineSpacing,
+          this.background, this.bgColor, this.bgOverflow.copy(), this.shadow
       );
     }
   }

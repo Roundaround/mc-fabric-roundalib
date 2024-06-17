@@ -201,6 +201,7 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
 
     public void reflow() {
       this.onReflow.accept(this.getLabel());
+      this.getLabel().refreshPositions();
     }
 
     @Override
