@@ -258,11 +258,13 @@ public final class GuiUtil {
   ) {
     if (maxWidth <= 0) {
       drawText(context, textRenderer, text, x, y, color, shadow, alignment);
+      return;
     }
 
     int textWidth = textRenderer.getWidth(text);
     if (textWidth < maxWidth) {
       drawText(context, textRenderer, text, x, y, color, shadow, alignment);
+      return;
     }
 
     int left = alignment.getLeft(x, maxWidth);
