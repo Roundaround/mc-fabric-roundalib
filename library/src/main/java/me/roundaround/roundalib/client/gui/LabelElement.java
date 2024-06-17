@@ -4,17 +4,18 @@ import me.roundaround.roundalib.client.gui.layout.IntRect;
 import me.roundaround.roundalib.client.gui.layout.Spacing;
 import me.roundaround.roundalib.client.gui.layout.TextAlignment;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.Selectable;
+import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;
+import net.minecraft.client.gui.widget.LayoutWidget;
+import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Text;
 
-public class LabelElement implements Drawable, Element {
+import java.util.function.Consumer;
+
+public class LabelElement implements Drawable, Element, LayoutWidget {
   private final TextRenderer textRenderer;
   private final TextAlignment alignmentH;
   private final TextAlignment alignmentV;
@@ -33,7 +34,6 @@ public class LabelElement implements Drawable, Element {
   private int y;
   private int maxWidth;
   private int bgColor;
-  private boolean layoutDirty = true;
   private IntRect textBounds = IntRect.zero();
   private IntRect interactionBounds = IntRect.zero();
   private IntRect bgBounds = IntRect.zero();
@@ -75,12 +75,34 @@ public class LabelElement implements Drawable, Element {
     this.bgOverflow = bgOverflow;
     this.shadow = shadow;
 
-    this.updateLayout();
+    this.refreshPositions();
+  }
+
+  @Override
+  public void forEachElement(Consumer<Widget> consumer) {
+  }
+
+  @Override
+  public void refreshPositions() {
+    int textWidth = Math.min(this.textRenderer.getWidth(this.text), this.getAvailableWidth());
+    int textHeight = this.textRenderer.fontHeight;
+
+    if (this.overflowBehavior == OverflowBehavior.WRAP) {
+      textHeight = GuiUtil.measureWrappedTextHeight(
+          this.textRenderer, this.text, this.maxWidth, this.maxLines, this.lineSpacing);
+    }
+
+    int textLeft = this.alignmentH.getLeft(this.getPaddedX(), textWidth);
+    int textTop = this.alignmentV.getTop(this.getPaddedY(), textHeight);
+
+    this.textBounds = IntRect.byDimensions(textLeft, textTop, textWidth, textHeight);
+    this.interactionBounds = this.textBounds.expand(this.padding);
+    this.bgBounds = this.interactionBounds.expand(this.bgOverflow);
   }
 
   @Override
   public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-    this.updateLayout();
+    this.refreshPositions();
 
     if (this.background) {
       context.fill(this.bgBounds.left(), this.bgBounds.top(), this.bgBounds.right(), this.bgBounds.bottom(),
@@ -117,7 +139,7 @@ public class LabelElement implements Drawable, Element {
 
   @Override
   public boolean isMouseOver(double mouseX, double mouseY) {
-    this.updateLayout();
+    this.refreshPositions();
     return this.interactionBounds.contains(mouseX, mouseY);
   }
 
@@ -135,26 +157,20 @@ public class LabelElement implements Drawable, Element {
       return;
     }
     this.text = text;
-    this.layoutDirty = true;
   }
 
   public Text getText() {
     return this.text.copy();
   }
 
+  @Override
   public void setX(int x) {
     this.x = x;
-    this.layoutDirty = true;
   }
 
+  @Override
   public void setY(int y) {
     this.y = y;
-    this.layoutDirty = true;
-  }
-
-  public void setPosition(int x, int y) {
-    this.setX(x);
-    this.setY(y);
   }
 
   public void setColor(int color) {
@@ -183,7 +199,6 @@ public class LabelElement implements Drawable, Element {
 
   public void setMaxWidth(int maxWidth) {
     this.maxWidth = maxWidth;
-    this.layoutDirty = true;
   }
 
   public IntRect getTextBounds() {
@@ -196,6 +211,31 @@ public class LabelElement implements Drawable, Element {
 
   public IntRect getBgBounds() {
     return this.bgBounds;
+  }
+
+  @Override
+  public int getX() {
+    return this.bgBounds.left();
+  }
+
+  @Override
+  public int getY() {
+    return this.bgBounds.top();
+  }
+
+  @Override
+  public int getWidth() {
+    return this.bgBounds.getWidth();
+  }
+
+  @Override
+  public int getHeight() {
+    return this.bgBounds.getHeight();
+  }
+
+  @Override
+  public ScreenRect getNavigationFocus() {
+    return new ScreenRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
   }
 
   private int getAvailableWidth() {
@@ -219,29 +259,6 @@ public class LabelElement implements Drawable, Element {
       case END -> this.y - this.padding.bottom();
       case CENTER -> this.y;
     };
-  }
-
-  public void updateLayout() {
-    if (!this.layoutDirty) {
-      return;
-    }
-
-    int textWidth = Math.min(this.textRenderer.getWidth(this.text), this.getAvailableWidth());
-    int textHeight = this.textRenderer.fontHeight;
-
-    if (this.overflowBehavior == OverflowBehavior.WRAP) {
-      textHeight = GuiUtil.measureWrappedTextHeight(
-          this.textRenderer, this.text, this.maxWidth, this.maxLines, this.lineSpacing);
-    }
-
-    int textLeft = this.alignmentH.getLeft(this.getPaddedX(), textWidth);
-    int textTop = this.alignmentV.getTop(this.getPaddedY(), textHeight);
-
-    this.textBounds = IntRect.byDimensions(textLeft, textTop, textWidth, textHeight);
-    this.interactionBounds = this.textBounds.expand(this.padding);
-    this.bgBounds = this.interactionBounds.expand(this.bgOverflow);
-
-    this.layoutDirty = false;
   }
 
   public Selectable createSelectable() {
