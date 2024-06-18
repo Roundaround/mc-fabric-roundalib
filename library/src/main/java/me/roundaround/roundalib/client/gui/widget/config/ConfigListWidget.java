@@ -13,9 +13,8 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import org.apache.commons.compress.utils.Lists;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
   protected final ModConfig modConfig;
@@ -135,7 +134,7 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
 
       this.option = option;
 
-      List<Text> tooltipLines = Lists.newArrayList();
+      ArrayList<Text> tooltipLines = new ArrayList<>();
       tooltipLines.add(option.getLabel());
       tooltipLines.add(Text.literal(option.getPath()).formatted(Formatting.GRAY));
       this.tooltip = new TooltipWidget(this.getContentLeft(), this.getContentTop(), this.getLabelWidth(),
