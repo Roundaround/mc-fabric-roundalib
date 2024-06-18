@@ -139,7 +139,6 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
           .maxLines(2)
           .showShadow()
           .hideBackground()
-          .tooltip(Tooltip.of(this.getOption().getLabel()))
           .build();
 
       this.addDrawableChild(this.label);

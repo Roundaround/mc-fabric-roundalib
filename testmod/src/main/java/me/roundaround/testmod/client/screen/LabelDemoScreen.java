@@ -9,7 +9,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.*;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
@@ -59,99 +58,81 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
         LabelWidget.builder(this.textRenderer, Text.of("== == Left/top == =="), 0, 0)
             .justifiedLeft()
             .alignedTop()
-            .hideBackground()
-            .maxWidth(this.overflowBehavior == OverflowBehavior.SHOW ? 0 : 50)
+            .maxWidth(50)
             .overflowBehavior(this.overflowBehavior)
             .maxLines(3)
-            .tooltip(Tooltip.of(Text.of("Left/top")))
             .build(), (label) -> label.setPosition(this.relativeX(0), this.relativeY(0)))));
 
     this.labelRenderers.add(this.addDrawable(new LabelRenderer(
         LabelWidget.builder(this.textRenderer, Text.of("== == Center/top == =="), 0, 0)
             .justifiedCenter()
             .alignedTop()
-            .hideBackground()
-            .maxWidth(this.overflowBehavior == OverflowBehavior.SHOW ? 0 : 50)
+            .maxWidth(50)
             .overflowBehavior(this.overflowBehavior)
             .maxLines(3)
-            .tooltip(Tooltip.of(Text.of("Center/top")))
             .build(), (label) -> label.setPosition(this.relativeX(0.5f), this.relativeY(0)))));
 
     this.labelRenderers.add(this.addDrawable(new LabelRenderer(
         LabelWidget.builder(this.textRenderer, Text.of("== == Right/top == =="), 0, 0)
             .justifiedRight()
             .alignedTop()
-            .hideBackground()
-            .maxWidth(this.overflowBehavior == OverflowBehavior.SHOW ? 0 : 50)
+            .maxWidth(50)
             .overflowBehavior(this.overflowBehavior)
             .maxLines(3)
-            .tooltip(Tooltip.of(Text.of("Right/top")))
             .build(), (label) -> label.setPosition(this.relativeX(1), this.relativeY(0)))));
 
     this.labelRenderers.add(this.addDrawable(new LabelRenderer(
         LabelWidget.builder(this.textRenderer, Text.of("== == Left/middle == =="), 0, 0)
             .justifiedLeft()
             .alignedMiddle()
-            .hideBackground()
-            .maxWidth(this.overflowBehavior == OverflowBehavior.SHOW ? 0 : 50)
+            .maxWidth(50)
             .overflowBehavior(this.overflowBehavior)
             .maxLines(3)
-            .tooltip(Tooltip.of(Text.of("Left/middle")))
             .build(), (label) -> label.setPosition(this.relativeX(0), this.relativeY(0.5f)))));
 
     this.labelRenderers.add(this.addDrawable(new LabelRenderer(
         LabelWidget.builder(this.textRenderer, Text.of("== == Center/middle == =="), 0, 0)
             .justifiedCenter()
             .alignedMiddle()
-            .hideBackground()
-            .maxWidth(this.overflowBehavior == OverflowBehavior.SHOW ? 0 : 50)
+            .maxWidth(50)
             .overflowBehavior(this.overflowBehavior)
             .maxLines(3)
-            .tooltip(Tooltip.of(Text.of("Center/middle")))
             .build(), (label) -> label.setPosition(this.relativeX(0.5f), this.relativeY(0.5f)))));
 
     this.labelRenderers.add(this.addDrawable(new LabelRenderer(
         LabelWidget.builder(this.textRenderer, Text.of("== == Right/middle == =="), 0, 0)
             .justifiedRight()
             .alignedMiddle()
-            .hideBackground()
-            .maxWidth(this.overflowBehavior == OverflowBehavior.SHOW ? 0 : 50)
+            .maxWidth(50)
             .overflowBehavior(this.overflowBehavior)
             .maxLines(3)
-            .tooltip(Tooltip.of(Text.of("Right/middle")))
             .build(), (label) -> label.setPosition(this.relativeX(1), this.relativeY(0.5f)))));
 
     this.labelRenderers.add(this.addDrawable(new LabelRenderer(
         LabelWidget.builder(this.textRenderer, Text.of("== == Left/bottom == =="), 0, 0)
             .justifiedLeft()
             .alignedBottom()
-            .hideBackground()
-            .maxWidth(this.overflowBehavior == OverflowBehavior.SHOW ? 0 : 50)
+            .maxWidth(50)
             .overflowBehavior(this.overflowBehavior)
             .maxLines(3)
-            .tooltip(Tooltip.of(Text.of("Left/bottom")))
             .build(), (label) -> label.setPosition(this.relativeX(0), this.relativeY(1)))));
 
     this.labelRenderers.add(this.addDrawable(new LabelRenderer(
         LabelWidget.builder(this.textRenderer, Text.of("== == Center/bottom == =="), 0, 0)
             .justifiedCenter()
             .alignedBottom()
-            .hideBackground()
-            .maxWidth(this.overflowBehavior == OverflowBehavior.SHOW ? 0 : 50)
+            .maxWidth(50)
             .overflowBehavior(this.overflowBehavior)
             .maxLines(3)
-            .tooltip(Tooltip.of(Text.of("Center/bottom")))
             .build(), (label) -> label.setPosition(this.relativeX(0.5f), this.relativeY(1)))));
 
     this.labelRenderers.add(this.addDrawable(new LabelRenderer(
         LabelWidget.builder(this.textRenderer, Text.of("== == Right/bottom == =="), 0, 0)
             .justifiedRight()
             .alignedBottom()
-            .hideBackground()
-            .maxWidth(this.overflowBehavior == OverflowBehavior.SHOW ? 0 : 50)
+            .maxWidth(50)
             .overflowBehavior(this.overflowBehavior)
             .maxLines(3)
-            .tooltip(Tooltip.of(Text.of("Right/bottom")))
             .build(), (label) -> label.setPosition(this.relativeX(1), this.relativeY(1)))));
 
     this.layout.addFooter(ButtonWidget.builder(ScreenTexts.DONE, (button) -> this.close()).build());
@@ -173,11 +154,14 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
   }
 
   private int relativeX(float scale) {
-    return (int) (this.width * scale);
+    int paddedContentWidth = this.width - 2 * GuiUtil.PADDING;
+    ;
+    return GuiUtil.PADDING + (int) (paddedContentWidth * scale);
   }
 
   private int relativeY(float scale) {
-    return this.layout.getHeaderHeight() + GuiUtil.PADDING + (int) (this.layout.getContentHeight() * scale);
+    int paddedContentHeight = this.layout.getContentHeight() - 2 * GuiUtil.PADDING;
+    return this.layout.getHeaderHeight() + GuiUtil.PADDING + (int) (paddedContentHeight * scale);
   }
 
   private void onOverflowBehaviorChange(CyclingButtonWidget<OverflowBehavior> button, OverflowBehavior value) {
@@ -216,14 +200,9 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-      IntRect interactionBounds = this.getLabel().getInteractionBounds();
-      context.fill(interactionBounds.left(), interactionBounds.top(), interactionBounds.right(),
-          interactionBounds.bottom(), GuiUtil.genColorInt(0, 0.3f, 0.8f)
-      );
-
       IntRect textBounds = this.getLabel().getTextBounds();
       context.fill(textBounds.left(), textBounds.top(), textBounds.right(), textBounds.bottom(),
-          GuiUtil.genColorInt(0, 0, 0, 0.3f)
+          GuiUtil.genColorInt(0, 0.4f, 0.9f)
       );
 
       this.label.render(context, mouseX, mouseY, delta);
