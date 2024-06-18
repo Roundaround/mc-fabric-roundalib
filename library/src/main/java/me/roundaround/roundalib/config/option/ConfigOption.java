@@ -6,6 +6,7 @@ import me.roundaround.roundalib.config.SavedValueListener;
 import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
 import me.roundaround.roundalib.config.panic.IllegalStatePanic;
 import net.minecraft.text.Text;
+import org.apache.commons.compress.utils.Lists;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -95,6 +96,20 @@ public abstract class ConfigOption<D> {
 
   public String getGroup() {
     return this.group;
+  }
+
+  public List<String> getPathParts() {
+    List<String> parts = Lists.newArrayList();
+    parts.add(this.getModId());
+    if (this.getGroup() != null) {
+      parts.add(this.getGroup());
+    }
+    parts.add(this.getId());
+    return parts;
+  }
+
+  public String getPath() {
+    return String.join(".", this.getPathParts());
   }
 
   public Text getLabel() {

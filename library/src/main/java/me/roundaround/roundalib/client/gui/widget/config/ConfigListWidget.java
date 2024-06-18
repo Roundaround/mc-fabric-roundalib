@@ -1,17 +1,21 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.FlowListWidget;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
+import me.roundaround.roundalib.client.gui.widget.LabelWidget;
+import me.roundaround.roundalib.client.gui.widget.TooltipWidget;
 import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.panic.IllegalStatePanic;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import org.apache.commons.compress.utils.Lists;
+
+import java.util.List;
 
 public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
   protected final ModConfig modConfig;
@@ -120,8 +124,9 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
     protected static final int CONTROL_MIN_WIDTH = 100;
 
     protected final O option;
-    protected final Control<D, O> control;
+    protected final TooltipWidget tooltip;
     protected final LabelWidget label;
+    protected final Control<D, O> control;
     protected final IconButtonWidget resetButton;
 
     protected OptionEntry(MinecraftClient client, O option, int index, int left, int top, int width)
@@ -130,11 +135,20 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
 
       this.option = option;
 
+      List<Text> tooltipLines = Lists.newArrayList();
+      tooltipLines.add(option.getLabel());
+      tooltipLines.add(Text.literal(option.getPath()).formatted(Formatting.GRAY));
+      this.tooltip = new TooltipWidget(this.getContentLeft(), this.getContentTop(), this.getLabelWidth(),
+          this.getContentHeight(), tooltipLines
+      );
+
+      this.addDrawable(this.tooltip);
+
       this.label = LabelWidget.builder(
               client.textRenderer, option.getLabel(), this.getContentLeft(), this.getContentCenterY())
           .justifiedLeft()
           .alignedMiddle()
-          .maxWidth(this.getControlLeft() - this.getContentLeft())
+          .maxWidth(this.getLabelWidth())
           .overflowBehavior(LabelWidget.OverflowBehavior.WRAP)
           .maxLines(2)
           .showShadow()
@@ -165,6 +179,10 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
       return this.option;
     }
 
+    private int getLabelWidth() {
+      return this.getControlLeft() - this.getContentLeft() - GuiUtil.PADDING;
+    }
+
     private int getControlWidth() {
       return Math.max(CONTROL_MIN_WIDTH, Math.round(this.getContentWidth() * 0.3f));
     }
@@ -183,8 +201,12 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
 
     @Override
     public void refreshPositions() {
+      this.tooltip.setDimensionsAndPosition(this.getLabelWidth(), this.getContentHeight(), this.getContentLeft(),
+          this.getContentTop()
+      );
+
       this.label.setPosition(this.getContentLeft(), this.getContentCenterY());
-      this.label.setMaxWidth(this.getControlLeft() - this.getContentLeft());
+      this.label.setMaxWidth(this.getLabelWidth());
 
       this.control.setPosition(this.getControlLeft(), this.getContentTop());
       this.control.setDimensions(this.getControlWidth(), this.getContentHeight());
