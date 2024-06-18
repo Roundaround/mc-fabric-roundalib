@@ -8,10 +8,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ContainerWidget;
-import net.minecraft.client.gui.widget.LayoutWidget;
-import net.minecraft.client.gui.widget.Positioner;
-import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.gui.widget.*;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
@@ -68,8 +65,6 @@ public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidge
 
   @Override
   public void refreshPositions() {
-    LayoutWidget.super.refreshPositions();
-
     int maxCount = this.getMaxCountForMainAxis();
     int main = 0;
     int other = 0;
@@ -89,6 +84,8 @@ public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidge
         other++;
       }
     }
+
+    LayoutWidget.super.refreshPositions();
   }
 
   private int getMaxCountForMainAxis() {
@@ -129,7 +126,11 @@ public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidge
 
   @Override
   protected void appendClickableNarrations(NarrationMessageBuilder builder) {
-    // TODO: This, getNavigationPath, etc should probably all get implemented.
+    this.widgets.forEach((widget) -> {
+      if (widget instanceof ClickableWidget clickableWidget) {
+        clickableWidget.appendNarrations(builder);
+      }
+    });
   }
 
   @Override

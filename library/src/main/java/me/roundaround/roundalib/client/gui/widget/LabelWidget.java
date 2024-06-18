@@ -37,7 +37,6 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
   private int bgColor;
   private IntRect textBounds = IntRect.zero();
   private IntRect bgBounds = IntRect.zero();
-  private boolean hovered;
 
   private LabelWidget(
       TextRenderer textRenderer,
