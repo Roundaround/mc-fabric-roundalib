@@ -10,6 +10,7 @@ import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.panic.IllegalStatePanic;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -68,6 +69,14 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
 
   public void update() {
     this.forEachEntry(Entry::update);
+  }
+
+  @Override
+  public void setFocused(Element focused) {
+    super.setFocused(focused);
+    if (this.getFocused() == null) {
+      this.setSelected(null);
+    }
   }
 
   @Override

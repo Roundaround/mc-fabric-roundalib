@@ -51,6 +51,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   protected final ThreePartsLayoutWidget parentLayout;
 
   protected E hoveredEntry;
+  protected E selectedEntry;
   protected Double scrollUnit;
 
   private final LinkedList<E> entries = new LinkedList<>();
@@ -103,6 +104,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   public void clearEntries() {
     this.entries.clear();
     this.contentHeight = this.contentPadding.getVertical();
+    this.selectedEntry = null;
   }
 
   @Override
@@ -165,7 +167,6 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
     this.renderListBackground(context);
     this.renderList(context, mouseX, mouseY, delta);
-    this.renderScrollBar(context);
     this.renderListBorders(context);
   }
 
@@ -182,6 +183,9 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   protected void renderList(DrawContext context, int mouseX, int mouseY, float delta) {
     context.enableScissor(this.getX(), this.getY(), this.getRight(), this.getBottom());
     this.entries.forEach((entry) -> this.renderEntry(context, mouseX, mouseY, delta, entry));
+
+    this.renderDecorations(context, mouseX, mouseY, delta);
+    this.renderScrollBar(context);
     context.disableScissor();
   }
 
@@ -235,6 +239,9 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     RenderSystem.disableBlend();
   }
 
+  protected void renderDecorations(DrawContext context, int mouseX, int mouseY, float delta) {
+  }
+
   protected void renderListBorders(DrawContext context) {
     Identifier headerSepTex =
         this.client.world == null ? Screen.HEADER_SEPARATOR_TEXTURE : Screen.INWORLD_HEADER_SEPARATOR_TEXTURE;
@@ -279,9 +286,18 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
       return;
     }
 
+    this.setSelected(entry);
     if (this.client.getNavigationType().isKeyboard()) {
       this.ensureVisible(entry);
     }
+  }
+
+  public E getSelected() {
+    return this.selectedEntry;
+  }
+
+  public void setSelected(E entry) {
+    this.selectedEntry = entry;
   }
 
   @Override
@@ -338,12 +354,10 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   protected E getNeighboringEntry(NavigationDirection direction, Predicate<E> predicate) {
-    return this.getNeighboringEntry(direction, predicate, this.getFocused());
+    return this.getNeighboringEntry(direction, predicate, this.getSelected());
   }
 
-  protected E getNeighboringEntry(
-      NavigationDirection direction, Predicate<E> predicate, E focused
-  ) {
+  protected E getNeighboringEntry(NavigationDirection direction, Predicate<E> predicate, E focused) {
     if (this.entries.isEmpty()) {
       return null;
     }
@@ -656,7 +670,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   @Environment(EnvType.CLIENT)
-  public abstract static class Entry extends PositionalWidget implements ParentElement {
+  public abstract static class Entry extends PositionalWidget implements ParentElement, Narratable {
     protected static final int DEFAULT_MARGIN_HORIZONTAL = DEFAULT_FADE_WIDTH;
     protected static final int DEFAULT_MARGIN_VERTICAL = GuiUtil.PADDING / 2;
 
@@ -806,7 +820,8 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
       return this.dragging;
     }
 
-    protected void appendNarrations(NarrationMessageBuilder builder) {
+    @Override
+    public void appendNarrations(NarrationMessageBuilder builder) {
       List<? extends Selectable> list = this.selectableChildren();
       Screen.SelectedElementNarrationData data = Screen.findSelectedElementData(list, this.focusedSelectable);
 

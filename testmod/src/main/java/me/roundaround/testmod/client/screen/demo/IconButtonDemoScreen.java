@@ -1,4 +1,4 @@
-package me.roundaround.testmod.client.screen;
+package me.roundaround.testmod.client.screen.demo;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.Spacing;

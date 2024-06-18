@@ -1,4 +1,6 @@
 {
+  "testmod.demoselectscreen.title": "Select a demo",
+  "testmod.demoselectscreen.filler": "Filler row #%s",
   "testmod.iconbuttondemoscreen.title": "Icon Button Demo",
   "testmod.labeldemoscreen.title": "Label Demo",
   "testmod.config.title": "Testmod Config",
