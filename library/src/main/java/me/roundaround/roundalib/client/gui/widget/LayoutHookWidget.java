@@ -6,13 +6,13 @@ import net.minecraft.client.gui.widget.Widget;
 
 import java.util.function.Consumer;
 
-public final class LayoutHookWidget<T extends LayoutWidget> implements LayoutWidget {
+public class LayoutHookWidget<T extends LayoutWidget> implements LayoutWidget {
   private final T wrapped;
 
   private PreLayoutHook<T> preLayoutHook = PreLayoutHook.noop();
   private PostLayoutHook<T> postLayoutHook = PostLayoutHook.noop();
 
-  private LayoutHookWidget(T wrapped) {
+  protected LayoutHookWidget(T wrapped) {
     assert wrapped != null;
     this.wrapped = wrapped;
   }
@@ -80,25 +80,5 @@ public final class LayoutHookWidget<T extends LayoutWidget> implements LayoutWid
   @Override
   public int getHeight() {
     return this.wrapped.getHeight();
-  }
-
-  @FunctionalInterface
-  public interface PreLayoutHook<T extends LayoutWidget> {
-    void run(T wrapped);
-
-    static <T extends LayoutWidget> PreLayoutHook<T> noop() {
-      return (wrapped) -> {
-      };
-    }
-  }
-
-  @FunctionalInterface
-  public interface PostLayoutHook<T extends LayoutWidget> {
-    void run(T wrapped);
-
-    static <T extends LayoutWidget> PostLayoutHook<T> noop() {
-      return (wrapped) -> {
-      };
-    }
   }
 }
