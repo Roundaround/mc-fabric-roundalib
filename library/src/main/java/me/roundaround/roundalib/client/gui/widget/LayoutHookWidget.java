@@ -9,8 +9,8 @@ import java.util.function.Consumer;
 public class LayoutHookWidget<T extends LayoutWidget> implements LayoutWidget {
   private final T wrapped;
 
-  private PreLayoutHook<T> preLayoutHook = PreLayoutHook.noop();
-  private PostLayoutHook<T> postLayoutHook = PostLayoutHook.noop();
+  private LayoutHook preLayoutHook = LayoutHook.noop();
+  private LayoutHook postLayoutHook = LayoutHook.noop();
 
   protected LayoutHookWidget(T wrapped) {
     assert wrapped != null;
@@ -21,12 +21,12 @@ public class LayoutHookWidget<T extends LayoutWidget> implements LayoutWidget {
     return new LayoutHookWidget<>(wrapped);
   }
 
-  public LayoutHookWidget<T> withPreLayoutHook(PreLayoutHook<T> preLayoutHook) {
+  public LayoutHookWidget<T> withPreLayoutHook(LayoutHook preLayoutHook) {
     this.preLayoutHook = preLayoutHook;
     return this;
   }
 
-  public LayoutHookWidget<T> withPostLayoutHook(PostLayoutHook<T> postLayoutHook) {
+  public LayoutHookWidget<T> withPostLayoutHook(LayoutHook postLayoutHook) {
     this.postLayoutHook = postLayoutHook;
     return this;
   }
@@ -47,9 +47,9 @@ public class LayoutHookWidget<T extends LayoutWidget> implements LayoutWidget {
 
   @Override
   public void refreshPositions() {
-    this.preLayoutHook.run(this.wrapped);
+    this.preLayoutHook.run();
     this.wrapped.refreshPositions();
-    this.postLayoutHook.run(this.wrapped);
+    this.postLayoutHook.run();
   }
 
   @Override

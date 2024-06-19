@@ -3,16 +3,18 @@ package me.roundaround.roundalib.client.gui.widget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.gui.widget.LayoutWidget;
 import net.minecraft.client.gui.widget.Widget;
 
 import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
-public class FillerWidget implements Widget {
+public class FillerWidget implements LayoutWidget {
   private int x;
   private int y;
   private int width;
   private int height;
+  private LayoutHook layoutHook = LayoutHook.noop();
 
   public FillerWidget(int width, int height) {
     this(0, 0, width, height);
@@ -35,6 +37,21 @@ public class FillerWidget implements Widget {
 
   public static FillerWidget ofSize(int width, int height) {
     return new FillerWidget(width, height);
+  }
+
+  public static FillerWidget withLayoutHook(LayoutHook layoutHook) {
+    FillerWidget widget = new FillerWidget(0, 0);
+    widget.setLayoutHook(layoutHook);
+    return widget;
+  }
+
+  @Override
+  public void forEachElement(Consumer<Widget> consumer) {
+  }
+
+  @Override
+  public void refreshPositions() {
+    this.layoutHook.run();
   }
 
   @Override
@@ -87,5 +104,9 @@ public class FillerWidget implements Widget {
   public void setDimensionsAndPosition(int width, int height, int x, int y) {
     this.setDimensions(width, height);
     this.setPosition(x, y);
+  }
+
+  public void setLayoutHook(LayoutHook preLayoutHook) {
+    this.layoutHook = preLayoutHook;
   }
 }
