@@ -7,8 +7,12 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.Narratable;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.*;
+import net.minecraft.client.gui.widget.ContainerWidget;
+import net.minecraft.client.gui.widget.LayoutWidget;
+import net.minecraft.client.gui.widget.Positioner;
+import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
@@ -38,11 +42,13 @@ public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidge
     this(x, y, width, height, columnWidth, rowHeight, Axis.HORIZONTAL);
   }
 
-  public ResponsiveGridWidget(int width, int height, int columnWidth, int rowHeight, Axis flowAxis) {
+  public ResponsiveGridWidget(
+      int width, int height, int columnWidth, int rowHeight, Axis flowAxis) {
     this(0, 0, width, height, columnWidth, rowHeight, flowAxis);
   }
 
-  public ResponsiveGridWidget(int x, int y, int width, int height, int columnWidth, int rowHeight, Axis flowAxis) {
+  public ResponsiveGridWidget(
+      int x, int y, int width, int height, int columnWidth, int rowHeight, Axis flowAxis) {
     super(x, y, width, height, ScreenTexts.EMPTY);
 
     this.columnWidth = columnWidth;
@@ -75,8 +81,10 @@ public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidge
       int column = this.flowAxis == Axis.HORIZONTAL ? main : other;
       int row = this.flowAxis == Axis.HORIZONTAL ? other : main;
 
-      cell.setPosition(
-          this.calcPosX(column) + offset.x(), this.calcPosY(row) + offset.y(), this.columnWidth, this.rowHeight);
+      cell.setPosition(this.calcPosX(column) + offset.x(),
+          this.calcPosY(row) + offset.y(),
+          this.columnWidth,
+          this.rowHeight);
 
       main++;
       if (main > maxCount - 1) {
@@ -90,7 +98,8 @@ public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidge
 
   private int getMaxCountForMainAxis() {
     return switch (this.flowAxis) {
-      case HORIZONTAL -> (this.width + this.columnSpacing) / (this.columnWidth + this.columnSpacing);
+      case HORIZONTAL ->
+          (this.width + this.columnSpacing) / (this.columnWidth + this.columnSpacing);
       case VERTICAL -> (this.height + this.rowSpacing) / (this.rowHeight + this.rowSpacing);
     };
   }
@@ -127,8 +136,8 @@ public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidge
   @Override
   protected void appendClickableNarrations(NarrationMessageBuilder builder) {
     this.widgets.forEach((widget) -> {
-      if (widget instanceof ClickableWidget clickableWidget) {
-        clickableWidget.appendNarrations(builder);
+      if (widget instanceof Narratable narratable) {
+        narratable.appendNarrations(builder);
       }
     });
   }
@@ -218,7 +227,8 @@ public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidge
 
   @Environment(EnvType.CLIENT)
   public enum Axis {
-    HORIZONTAL, VERTICAL;
+    HORIZONTAL,
+    VERTICAL;
   }
 
   @Environment(EnvType.CLIENT)
