@@ -4,6 +4,8 @@ import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.IntRect;
 import me.roundaround.roundalib.client.gui.layout.Spacing;
 import me.roundaround.roundalib.client.gui.layout.TextAlignment;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.screen.Screen;
@@ -16,6 +18,7 @@ import net.minecraft.text.Text;
 
 import java.util.function.Consumer;
 
+@Environment(EnvType.CLIENT)
 public class LabelWidget implements Drawable, Element, LayoutWidget {
   private final TextRenderer textRenderer;
   private final TextAlignment alignmentH;
@@ -303,6 +306,7 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
   }
 
   @SuppressWarnings("unused")
+  @Environment(EnvType.CLIENT)
   public static class Builder {
     private final TextRenderer textRenderer;
     private final Text text;
@@ -471,6 +475,7 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
     }
   }
 
+  @Environment(EnvType.CLIENT)
   public enum OverflowBehavior {
     SHOW("show"), TRUNCATE("truncate"), WRAP("wrap"), CLIP("clip"), SCROLL("scroll");
 
