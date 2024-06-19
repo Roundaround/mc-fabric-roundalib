@@ -106,7 +106,7 @@ public class FillerWidget implements LayoutWidget {
     this.setPosition(x, y);
   }
 
-  public void setLayoutHook(LayoutHook preLayoutHook) {
-    this.layoutHook = preLayoutHook;
+  public void setLayoutHook(LayoutHook layoutHook) {
+    this.layoutHook = layoutHook;
   }
 }
