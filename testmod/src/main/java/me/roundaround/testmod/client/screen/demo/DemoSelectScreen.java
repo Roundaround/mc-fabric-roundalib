@@ -32,7 +32,8 @@ public class DemoSelectScreen extends Screen implements DemoScreen {
   protected void init() {
     this.layout.addHeader(this.getTitle(), this.textRenderer);
 
-    DemoSelectListWidget list = this.layout.addBody(new DemoSelectListWidget(this.client, this.layout));
+    DemoSelectListWidget list =
+        this.layout.addBody(new DemoSelectListWidget(this.client, this.layout));
 
     list.addEntry((index, left, top, width) -> new DemoSelectListWidget.Entry(this.textRenderer,
         Text.translatable("testmod.iconbuttondemoscreen.title"), () -> {
@@ -44,6 +45,12 @@ public class DemoSelectScreen extends Screen implements DemoScreen {
         Text.translatable("testmod.labeldemoscreen.title"), () -> {
       GuiUtil.playClickSound();
       this.navigate(new LabelDemoScreen(this));
+    }, index, left, top, width
+    ));
+    list.addEntry((index, left, top, width) -> new DemoSelectListWidget.Entry(this.textRenderer,
+        Text.translatable("testmod.advancedlayoutdemoscreen.title"), () -> {
+      GuiUtil.playClickSound();
+      this.navigate(new AdvancedLayoutDemoScreen(this));
     }, index, left, top, width
     ));
 
@@ -75,7 +82,8 @@ public class DemoSelectScreen extends Screen implements DemoScreen {
     Objects.requireNonNull(this.client).setScreen(screen);
   }
 
-  public static class DemoSelectListWidget extends AlwaysSelectedFlowListWidget<DemoSelectListWidget.Entry> {
+  public static class DemoSelectListWidget
+      extends AlwaysSelectedFlowListWidget<DemoSelectListWidget.Entry> {
     public DemoSelectListWidget(MinecraftClient client, ThreePartsLayoutWidget layout) {
       super(client, layout);
     }
@@ -88,13 +96,22 @@ public class DemoSelectScreen extends Screen implements DemoScreen {
       private final LabelWidget label;
 
       public Entry(
-          TextRenderer textRenderer, Text text, DemoSelectAction action, int index, int left, int top, int width
+          TextRenderer textRenderer,
+          Text text,
+          DemoSelectAction action,
+          int index,
+          int left,
+          int top,
+          int width
       ) {
         super(index, left, top, width, HEIGHT);
         this.text = text;
         this.action = action;
 
-        this.label = LabelWidget.builder(textRenderer, this.text, this.getContentCenterX(), this.getContentCenterY())
+        this.label = LabelWidget.builder(textRenderer,
+                this.text,
+                this.getContentCenterX(),
+                this.getContentCenterY())
             .justifiedCenter()
             .alignedMiddle()
             .maxWidth(this.getContentWidth())

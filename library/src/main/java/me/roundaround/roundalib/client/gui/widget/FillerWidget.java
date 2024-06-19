@@ -27,6 +27,10 @@ public class FillerWidget implements LayoutWidget {
     this.height = height;
   }
 
+  public static FillerWidget empty() {
+    return new FillerWidget(0, 0);
+  }
+
   public static FillerWidget ofWidth(int width) {
     return new FillerWidget(width, 0);
   }
