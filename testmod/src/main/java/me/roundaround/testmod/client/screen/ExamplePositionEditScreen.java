@@ -2,7 +2,6 @@ package me.roundaround.testmod.client.screen;
 
 import me.roundaround.roundalib.client.gui.screen.PositionEditScreen;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
-import me.roundaround.roundalib.client.gui.widget.LayoutHookWidget;
 import me.roundaround.roundalib.client.gui.widget.config.SubScreenControl;
 import me.roundaround.roundalib.config.option.PositionConfigOption;
 import me.roundaround.roundalib.config.value.Position;
@@ -18,18 +17,21 @@ public class ExamplePositionEditScreen extends PositionEditScreen {
 
   @Override
   protected void initBody() {
-    this.valueLabel = LabelWidget.builder(this.textRenderer, Text.of(this.getValueAsString()))
-        .positionMode(LabelWidget.PositionMode.REFERENCE)
+    this.valueLabel = this.addDrawableChild(LabelWidget.builder(this.textRenderer, Text.of(this.getValueAsString()))
+        .refPosition(this.getCenterX(), this.getCenterY())
+        .dimensions(this.width, this.layout.getContentHeight())
         .justifiedCenter()
         .alignedMiddle()
-        .build();
-
-    this.body.add(LayoutHookWidget.wrapping(this.valueLabel).withPreLayoutHook(() -> {
-      this.valueLabel.setPosition(this.getCenterX(), this.getCenterY());
-      this.valueLabel.setDimensions(this.width, this.layout.getContentHeight());
-    }));
+        .build());
 
     super.initBody();
+  }
+
+  @Override
+  protected void initTabNavigation() {
+    super.initTabNavigation();
+    this.valueLabel.setPosition(this.getCenterX(), this.getCenterY());
+    this.valueLabel.setDimensions(this.width, this.layout.getContentHeight());
   }
 
   @Override
