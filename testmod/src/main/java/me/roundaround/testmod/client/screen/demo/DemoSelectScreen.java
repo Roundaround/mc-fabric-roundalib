@@ -41,9 +41,15 @@ public class DemoSelectScreen extends Screen implements DemoScreen {
     }, index, left, top, width
     ));
     list.addEntry((index, left, top, width) -> new DemoSelectListWidget.Entry(this.textRenderer,
-        Text.translatable("testmod.labeldemoscreen.title"), () -> {
+        Text.translatable("testmod.refposlabeldemoscreen.title"), () -> {
       GuiUtil.playClickSound();
-      this.navigate(new LabelDemoScreen(this));
+      this.navigate(new RefPosLabelDemoScreen(this));
+    }, index, left, top, width
+    ));
+    list.addEntry((index, left, top, width) -> new DemoSelectListWidget.Entry(this.textRenderer,
+        Text.translatable("testmod.absposlabeldemoscreen.title"), () -> {
+      GuiUtil.playClickSound();
+      this.navigate(new AbsPosLabelDemoScreen(this));
     }, index, left, top, width
     ));
     list.addEntry((index, left, top, width) -> new DemoSelectListWidget.Entry(this.textRenderer,

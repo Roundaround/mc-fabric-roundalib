@@ -12,7 +12,6 @@ import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
@@ -28,17 +27,16 @@ import java.util.Objects;
 import static me.roundaround.roundalib.client.gui.widget.LabelWidget.OverflowBehavior;
 
 @Environment(EnvType.CLIENT)
-public class LabelDemoScreen extends Screen implements DemoScreen {
-  private static final Text TITLE_TEXT = Text.translatable("testmod.labeldemoscreen.title");
+public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
+  private static final Text TITLE_TEXT = Text.translatable("testmod.refposlabeldemoscreen.title");
 
   private final Screen parent;
   private final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this);
   private final ArrayList<LabelWidget> labels = new ArrayList<>();
-  private final ArrayList<Drawable> labelDebugDrawables = new ArrayList<>();
 
   private boolean debug = false;
 
-  public LabelDemoScreen(Screen parent) {
+  public RefPosLabelDemoScreen(Screen parent) {
     super(TITLE_TEXT);
     this.parent = parent;
   }
@@ -106,7 +104,6 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
       }
     }
   }
-
 
 
   private void addLabel(NoopContainerLayoutWidget labelsContainer, TextAlignment alignmentX, TextAlignment alignmentY) {
