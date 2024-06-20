@@ -25,9 +25,7 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
   private static final int BUTTON_HEIGHT = 20;
 
   private final Screen parent;
-  private final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this, GuiUtil.COMPACT_HEADER_HEIGHT,
-      GuiUtil.DEFAULT_HEADER_FOOTER_HEIGHT
-  );
+  private final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this);
 
   public AdvancedLayoutDemoScreen(Screen parent) {
     super(TITLE_TEXT);
@@ -38,22 +36,22 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
   protected void init() {
     this.layout.addHeader(this.title, this.textRenderer);
 
-    LinearLayoutWidget body = LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING);
+    LinearLayoutWidget body = LinearLayoutWidget.horizontal().spacing(2 * GuiUtil.PADDING);
     this.layout.addBody(new FullBodyWrapperWidget(body, this.layout));
 
     LinearLayoutWidget leftPane = body.add(LinearLayoutWidget.vertical().spacing(GuiUtil.PADDING), (parent, self) -> {
       Divider divider = new Divider(parent.getWidth() - parent.getSpacing(), 2);
-      self.setWidth(divider.nextInt());
-      self.setHeight(parent.getHeight());
+      self.setDimensions(divider.nextInt(), parent.getHeight());
     });
+    leftPane.getMainPositioner().alignRight();
 
     LinearLayoutWidget searchRow = leftPane.add(LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING),
-        (parent, self) -> self.setDimensions(parent.getWidth(), BUTTON_HEIGHT), Positioner::alignVerticalCenter
+        (parent, self) -> self.setDimensions(parent.getWidth() - GuiUtil.PADDING, BUTTON_HEIGHT),
+        Positioner::alignVerticalCenter
     );
 
     searchRow.add(new TextFieldWidget(this.textRenderer, 0, BUTTON_HEIGHT, Text.of("Search")),
-        (parent, self) -> self.setWidth(parent.getWidth() - parent.getSpacing() - IconButtonWidget.SIZE_V),
-        (positioner -> positioner.marginLeft(GuiUtil.PADDING))
+        (parent, self) -> self.setWidth(parent.getWidth() - parent.getSpacing() - IconButtonWidget.SIZE_V)
     );
 
     searchRow.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.FILTER_18, TestMod.MOD_ID)
@@ -73,15 +71,21 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
     LinearLayoutWidget rightPane = body.add(LinearLayoutWidget.vertical().spacing(GuiUtil.PADDING), (parent, self) -> {
       Divider divider = new Divider(parent.getWidth() - parent.getSpacing(), 2);
       divider.skip(1);
-      self.setWidth(divider.nextInt());
-      self.setHeight(parent.getHeight());
-    }, Positioner::alignHorizontalCenter);
+      self.setDimensions(divider.nextInt(), parent.getHeight());
+    });
+    rightPane.getMainPositioner().alignHorizontalCenter();
 
-    LabelWidget label = rightPane.add(
-        LabelWidget.builder(this.textRenderer, Text.of("Label")).hideBackground().showShadow().build());
+    LabelWidget label = rightPane.add(LabelWidget.builder(this.textRenderer, Text.of("Label"))
+        .justifiedCenter()
+        .alignedMiddle()
+        .hideBackground()
+        .showShadow()
+        .build(), (parent, self) -> self.setDimensions(parent.getWidth(),
+        LabelWidget.getDefaultSingleLineHeight(this.textRenderer)
+    ));
 
     FillerWidget paintingPlaceholder = rightPane.add(FillerWidget.empty(),
-        (parent, self) -> self.setDimensions(parent.getWidth(),
+        (parent, self) -> self.setDimensions(parent.getWidth() - 2 * GuiUtil.PADDING,
             parent.getHeight() - label.getHeight() - IconButtonWidget.SIZE_V - 2 * parent.getSpacing()
         )
     );
@@ -96,9 +100,9 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
     });
 
     LinearLayoutWidget controlsRow = rightPane.add(LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING),
-        (parent, self) -> self.setDimensions(parent.getWidth(), IconButtonWidget.SIZE_V),
-        Positioner::alignVerticalCenter
+        (parent, self) -> self.setDimensions(parent.getWidth() - 4 * GuiUtil.PADDING, IconButtonWidget.SIZE_V)
     );
+    controlsRow.getMainPositioner().alignVerticalCenter();
 
     controlsRow.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.PREV_18, TestMod.MOD_ID)
         .vanillaSize()
@@ -107,9 +111,16 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
 
     controlsRow.add(
         LabelWidget.builder(this.textRenderer, Text.of(String.format("%s total items", listWidget.getEntryCount())))
-            .alignedMiddle()
             .justifiedCenter()
-            .build());
+            .alignedMiddle()
+            .hideBackground()
+            .showShadow()
+            .overflowBehavior(LabelWidget.OverflowBehavior.SCROLL)
+            .build(),
+        (parent, self) -> self.setDimensions(parent.getWidth() - 2 * (GuiUtil.PADDING + IconButtonWidget.SIZE_V),
+            parent.getHeight()
+        )
+    );
 
     controlsRow.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.NEXT_18, TestMod.MOD_ID)
         .vanillaSize()
@@ -149,12 +160,6 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
       }
     }
 
-    public void selectFirst() {
-      if (this.getEntryCount() > 0) {
-        this.setSelected(this.getEntry(0));
-      }
-    }
-
     @Environment(value = EnvType.CLIENT)
     public static class Entry extends AlwaysSelectedFlowListWidget.Entry {
       private final LabelWidget label;
@@ -170,6 +175,8 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
             .hideBackground()
             .showShadow()
             .build();
+
+        this.addDrawableChild(this.label);
       }
 
       @Override

@@ -20,12 +20,17 @@ public abstract class AlwaysSelectedFlowListWidget<E extends AlwaysSelectedFlowL
 
   protected AlwaysSelectedFlowListWidget(MinecraftClient client, ThreePartsLayoutWidget layout) {
     super(client, layout);
-
-    this.setContentPadding(2);
+    this.setDefaultPaddingAndSpacing();
   }
 
   protected AlwaysSelectedFlowListWidget(MinecraftClient client, int x, int y, int width, int height) {
     super(client, x, y, width, height);
+    this.setDefaultPaddingAndSpacing();
+  }
+
+  protected void setDefaultPaddingAndSpacing() {
+    this.setContentPadding(2);
+    this.setRowSpacing(3);
   }
 
   @Override

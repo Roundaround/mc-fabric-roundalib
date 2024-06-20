@@ -6,6 +6,7 @@ import me.roundaround.roundalib.client.gui.layout.Spacing;
 import me.roundaround.roundalib.client.gui.layout.TextAlignment;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.navigation.GuiNavigation;
@@ -363,6 +364,10 @@ public class LabelWidget extends ClickableWidget {
         .hideBackground()
         .showShadow()
         .build();
+  }
+
+  public static int getDefaultSingleLineHeight(TextRenderer textRenderer) {
+    return textRenderer.fontHeight + DEFAULT_PADDING.getVertical();
   }
 
   @Environment(EnvType.CLIENT)

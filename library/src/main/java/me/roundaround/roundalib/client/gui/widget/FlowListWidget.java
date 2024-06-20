@@ -79,23 +79,25 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     this.parentLayout = null;
   }
 
-  @SuppressWarnings("UnusedReturnValue")
   public <T extends E> T addEntry(EntryFactory<T> factory) {
-    int spacingOffset = this.entries.isEmpty() ? 0 : this.rowSpacing;
-    T entry = factory.create(
-        this.entries.size(), this.getContentLeft(), this.getContentHeight() + spacingOffset, this.getContentWidth());
+    int lastBottom = this.getLastEntryBottom();
+    T entry = factory.create(this.entries.size(), this.getContentLeft(), lastBottom + this.rowSpacing,
+        this.getContentWidth()
+    );
 
     if (entry == null) {
       return null;
     }
 
-    boolean wasScrollbarVisible = this.isScrollbarVisible();
-
     this.entries.add(entry);
-    this.contentHeight += spacingOffset + entry.getHeight();
+    this.contentHeight += entry.getHeight();
 
-    if (!wasScrollbarVisible && this.isScrollbarVisible()) {
-      this.refreshPositions();
+    if (this.entries.size() > 1) {
+      this.contentHeight += this.rowSpacing;
+    }
+
+    if (this.selectedEntry != null) {
+      this.ensureVisible(this.selectedEntry);
     }
 
     return entry;
@@ -140,20 +142,12 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
           this.parentLayout.getWidth(), this.parentLayout.getContentHeight(), 0, this.parentLayout.getHeaderHeight());
     }
 
-    this.contentHeight = this.contentPadding.getVertical();
-
-    int entryY = this.getY() + this.contentPadding.top();
-    boolean first = true;
+    int lastBottom = this.getContentTop() - this.rowSpacing;
     for (E entry : this.entries) {
-      entry.setPosition(this.getContentLeft(), entryY);
+      entry.setPosition(this.getContentLeft(), lastBottom + this.rowSpacing);
       entry.setWidth(this.getContentWidth());
       entry.refreshPositions();
-
-      int addedHeight = entry.getHeight() + (first ? 0 : this.rowSpacing);
-      first = false;
-
-      entryY += addedHeight;
-      this.contentHeight += addedHeight;
+      lastBottom = entry.getBottom();
     }
 
     this.setScrollAmount(this.getScrollAmount());
@@ -298,6 +292,12 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
   public void setSelected(E entry) {
     this.selectedEntry = entry;
+  }
+
+  public void selectFirst() {
+    if (this.getEntryCount() > 0) {
+      this.setSelected(this.getEntry(0));
+    }
   }
 
   @Override
@@ -529,17 +529,17 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   protected boolean isEntryVisible(E entry) {
-    return entry.getTop() <= this.getBottom() && entry.getBottom() >= this.getY();
+    return entry.getTop() <= this.getContentBottom() && entry.getBottom() >= this.getContentTop();
   }
 
   protected void ensureVisible(E entry) {
-    if (entry.getTop() < this.getY()) {
-      this.scroll(entry.getTop() - this.getY());
+    if (entry.getTop() < this.getContentTop()) {
+      this.scroll(entry.getTop() - this.getContentTop());
       return;
     }
 
-    if (entry.getBottom() > this.getBottom()) {
-      this.scroll(entry.getBottom() - this.getBottom());
+    if (entry.getBottom() > this.getContentBottom()) {
+      this.scroll(entry.getBottom() - this.getContentBottom());
     }
   }
 
@@ -571,8 +571,16 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     return Math.min(this.getPreferredContentWidth(), this.getMaxContentWidth());
   }
 
-  public int getContentHeight() {
-    return this.contentHeight;
+  public int getScrollPaneHeight() {
+    return this.contentHeight + this.contentPadding.getVertical();
+  }
+
+  public int getContentTop() {
+    return this.getY() + this.contentPadding.top();
+  }
+
+  public int getContentBottom() {
+    return this.getBottom() - this.contentPadding.bottom();
   }
 
   public int getContentLeft() {
@@ -581,6 +589,13 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
   public int getContentRight() {
     return this.getX() + (this.getWidth() + this.getContentWidth()) / 2;
+  }
+
+  protected int getLastEntryBottom() {
+    if (this.entries.isEmpty()) {
+      return this.getContentTop() - this.rowSpacing;
+    }
+    return this.entries.getLast().getBottom();
   }
 
   protected int getPreferredContentWidth() {
@@ -606,7 +621,8 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   protected int getScrollbarPositionX() {
-    return this.getContentRight() + this.getScrollbarPadding();
+    return this.getContentRight() +
+        (this.getWidth() < VANILLA_LIST_WIDTH_L ? 2 * this.getScrollbarPadding() : this.getScrollbarPadding());
   }
 
   protected int getScrollbarPadding() {
@@ -615,7 +631,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
   protected int getScrollbarHandleHeight() {
     int height = this.getHeight();
-    return MathHelper.clamp(height * height / this.getContentHeight(), 32, height - 8);
+    return MathHelper.clamp(height * height / this.getScrollPaneHeight(), 32, height - 8);
   }
 
   private void scroll(int amount) {
@@ -632,7 +648,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   public int getMaxScroll() {
-    return Math.max(0, this.getContentHeight() - this.getHeight());
+    return Math.max(0, this.getScrollPaneHeight() - this.getHeight());
   }
 
   protected void updateScrollingState(double mouseX, double mouseY, int button) {
@@ -644,7 +660,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     if (this.scrollUnit != null) {
       return this.scrollUnit;
     }
-    double averageHeight = (double) this.getContentHeight() / this.entries.size();
+    double averageHeight = (double) this.contentHeight / this.entries.size();
     return averageHeight / 2;
   }
 
@@ -692,39 +708,33 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
       this.contentHeight = contentHeight;
     }
 
-    @SuppressWarnings("UnusedReturnValue")
     protected <T extends Element> T addChild(T child) {
       this.children.add(child);
       return child;
     }
 
-    @SuppressWarnings("UnusedReturnValue")
     protected <T extends Selectable> T addSelectable(T selectable) {
       this.selectables.add(selectable);
       return selectable;
     }
 
-    @SuppressWarnings("UnusedReturnValue")
     protected <T extends Drawable> T addDrawable(T drawable) {
       this.drawables.add(drawable);
       return drawable;
     }
 
-    @SuppressWarnings("UnusedReturnValue")
     protected <T extends Element & Selectable> T addSelectableChild(T child) {
       this.children.add(child);
       this.selectables.add(child);
       return child;
     }
 
-    @SuppressWarnings("UnusedReturnValue")
     protected <T extends Element & Drawable> T addDrawableChild(T child) {
       this.children.add(child);
       this.drawables.add(child);
       return child;
     }
 
-    @SuppressWarnings("UnusedReturnValue")
     protected <T extends Element & Drawable & Selectable> T addDrawableAndSelectableChild(T child) {
       this.children.add(child);
       this.drawables.add(child);
@@ -732,7 +742,6 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
       return child;
     }
 
-    @SuppressWarnings("UnusedReturnValue")
     protected <T extends Element> T addDetectedCapabilityChild(T child) {
       this.children.add(child);
       if (child instanceof Drawable drawable) {
