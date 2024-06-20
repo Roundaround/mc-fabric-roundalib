@@ -1,5 +1,6 @@
 package me.roundaround.roundalib.client.gui.widget;
 
+import me.roundaround.roundalib.client.gui.layout.Coords;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.widget.ClickableWidget;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
-public class LinearLayoutWidget extends SizableLayoutWidget {
+public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> {
   private final Positioner positioner = Positioner.create();
   private final List<Widget> widgets = new ArrayList<>();
   private final List<CellWidget<?>> cells = new ArrayList<>();
@@ -23,7 +24,7 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
   private int totalSpacing;
   private int contentSize;
 
-  public LinearLayoutWidget(Axis flowAxis, DimensionsSupplier dimensionsSupplier) {
+  public LinearLayoutWidget(Axis flowAxis, DimensionsSupplier<LinearLayoutWidget> dimensionsSupplier) {
     this(flowAxis, 0, 0, 0, 0, dimensionsSupplier);
   }
 
@@ -36,7 +37,7 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
   }
 
   private LinearLayoutWidget(
-      Axis flowAxis, int x, int y, int width, int height, DimensionsSupplier dimensionsSupplier
+      Axis flowAxis, int x, int y, int width, int height, DimensionsSupplier<LinearLayoutWidget> dimensionsSupplier
   ) {
     super(x, y, width, height, dimensionsSupplier);
 
@@ -47,7 +48,7 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
     return horizontal(null);
   }
 
-  public static LinearLayoutWidget horizontal(DimensionsSupplier dimensionsSupplier) {
+  public static LinearLayoutWidget horizontal(DimensionsSupplier<LinearLayoutWidget> dimensionsSupplier) {
     return new LinearLayoutWidget(Axis.HORIZONTAL, dimensionsSupplier);
   }
 
@@ -55,7 +56,7 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
     return vertical(null);
   }
 
-  public static LinearLayoutWidget vertical(DimensionsSupplier dimensionsSupplier) {
+  public static LinearLayoutWidget vertical(DimensionsSupplier<LinearLayoutWidget> dimensionsSupplier) {
     return new LinearLayoutWidget(Axis.VERTICAL, dimensionsSupplier);
   }
 
@@ -188,6 +189,13 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
   @Environment(EnvType.CLIENT)
   public enum Axis {
     HORIZONTAL, VERTICAL;
+
+    public Coords getCoords(int main, int off) {
+      return switch (this) {
+        case HORIZONTAL -> Coords.of(main, off);
+        case VERTICAL -> Coords.of(off, main);
+      };
+    }
 
     public int getDimension(Widget widget) {
       return switch (this) {

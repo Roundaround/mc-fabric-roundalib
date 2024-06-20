@@ -6,19 +6,19 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.widget.LayoutWidget;
 
 @Environment(EnvType.CLIENT)
-public abstract class SizableLayoutWidget implements LayoutWidget {
-  protected final DimensionsSupplier dimensionsSupplier;
+public abstract class SizableLayoutWidget<T extends SizableLayoutWidget<T>> implements LayoutWidget {
+  protected final DimensionsSupplier<T> dimensionsSupplier;
 
   protected int x;
   protected int y;
   protected int width;
   protected int height;
 
-  protected SizableLayoutWidget(DimensionsSupplier dimensionsSupplier) {
+  protected SizableLayoutWidget(DimensionsSupplier<T> dimensionsSupplier) {
     this(0, 0, dimensionsSupplier);
   }
 
-  protected SizableLayoutWidget(int x, int y, DimensionsSupplier dimensionsSupplier) {
+  protected SizableLayoutWidget(int x, int y, DimensionsSupplier<T> dimensionsSupplier) {
     this(x, y, 0, 0, dimensionsSupplier);
   }
 
@@ -31,7 +31,8 @@ public abstract class SizableLayoutWidget implements LayoutWidget {
   }
 
   protected SizableLayoutWidget(
-      int x, int y, int width, int height, DimensionsSupplier dimensionsSupplier) {
+      int x, int y, int width, int height, DimensionsSupplier<T> dimensionsSupplier
+  ) {
     this.x = x;
     this.y = y;
     this.width = width;
@@ -99,14 +100,19 @@ public abstract class SizableLayoutWidget implements LayoutWidget {
       return;
     }
 
-    Coords dimensions = this.dimensionsSupplier.supply();
+    Coords dimensions = this.dimensionsSupplier.supply(this.self());
     this.width = dimensions.x();
     this.height = dimensions.y();
   }
 
+  @SuppressWarnings("unchecked")
+  protected T self() {
+    return (T) this;
+  }
+
   @Environment(EnvType.CLIENT)
   @FunctionalInterface
-  public interface DimensionsSupplier {
-    Coords supply();
+  public interface DimensionsSupplier<T extends SizableLayoutWidget<T>> {
+    Coords supply(T self);
   }
 }

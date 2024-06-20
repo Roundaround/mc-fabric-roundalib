@@ -43,9 +43,8 @@ public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
 
   @Override
   protected void init() {
-    LinearLayoutWidget header = LinearLayoutWidget.vertical(() -> Coords.of(this.width, this.layout.getHeaderHeight()))
-        .spacing(GuiUtil.PADDING / 2)
-        .centered();
+    LinearLayoutWidget header = LinearLayoutWidget.vertical(
+        (self) -> Coords.of(this.width, this.layout.getHeaderHeight())).spacing(GuiUtil.PADDING / 2).centered();
     header.getMainPositioner().alignHorizontalCenter();
     this.layout.addHeader(header);
 
