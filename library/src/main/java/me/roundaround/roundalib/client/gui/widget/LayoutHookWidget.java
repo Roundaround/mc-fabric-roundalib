@@ -13,11 +13,14 @@ public class LayoutHookWidget<T extends Widget> implements LayoutWidget {
   private LayoutHook postLayoutHook = LayoutHook.noop();
 
   protected LayoutHookWidget(T wrapped) {
-    assert wrapped != null;
     this.wrapped = wrapped;
   }
 
-  public static <T extends Widget> LayoutHookWidget<T> from(T wrapped) {
+  public static LayoutHookWidget<?> empty(LayoutHook preLayoutHook) {
+    return new LayoutHookWidget<>(null).withPreLayoutHook(preLayoutHook);
+  }
+
+  public static <T extends Widget> LayoutHookWidget<T> wrapping(T wrapped) {
     return new LayoutHookWidget<>(wrapped);
   }
 
@@ -37,20 +40,22 @@ public class LayoutHookWidget<T extends Widget> implements LayoutWidget {
 
   @Override
   public void forEachElement(Consumer<Widget> consumer) {
-    if (this.wrapped instanceof LayoutWidget layoutWidget) {
+    if (this.wrapped != null && this.wrapped instanceof LayoutWidget layoutWidget) {
       layoutWidget.forEachElement(consumer);
     }
   }
 
   @Override
   public void forEachChild(Consumer<ClickableWidget> consumer) {
-    this.wrapped.forEachChild(consumer);
+    if (this.wrapped != null) {
+      this.wrapped.forEachChild(consumer);
+    }
   }
 
   @Override
   public void refreshPositions() {
     this.preLayoutHook.run();
-    if (this.wrapped instanceof LayoutWidget layoutWidget) {
+    if (this.wrapped != null && this.wrapped instanceof LayoutWidget layoutWidget) {
       layoutWidget.refreshPositions();
     }
     this.postLayoutHook.run();
@@ -58,31 +63,47 @@ public class LayoutHookWidget<T extends Widget> implements LayoutWidget {
 
   @Override
   public void setX(int x) {
-    this.wrapped.setX(x);
+    if (this.wrapped != null) {
+      this.wrapped.setX(x);
+    }
   }
 
   @Override
   public void setY(int y) {
-    this.wrapped.setY(y);
+    if (this.wrapped != null) {
+      this.wrapped.setY(y);
+    }
   }
 
   @Override
   public int getX() {
-    return this.wrapped.getX();
+    if (this.wrapped != null) {
+      return this.wrapped.getX();
+    }
+    return 0;
   }
 
   @Override
   public int getY() {
-    return this.wrapped.getY();
+    if (this.wrapped != null) {
+      return this.wrapped.getY();
+    }
+    return 0;
   }
 
   @Override
   public int getWidth() {
-    return this.wrapped.getWidth();
+    if (this.wrapped != null) {
+      return this.wrapped.getWidth();
+    }
+    return 0;
   }
 
   @Override
   public int getHeight() {
-    return this.wrapped.getHeight();
+    if (this.wrapped != null) {
+      return this.wrapped.getHeight();
+    }
+    return 0;
   }
 }

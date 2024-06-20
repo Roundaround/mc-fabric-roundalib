@@ -20,6 +20,8 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
   private Axis flowAxis;
   private int spacing;
   private Float relative = null;
+  private int totalSpacing;
+  private int contentSize;
 
   public LinearLayoutWidget(Axis flowAxis, DimensionsSupplier dimensionsSupplier) {
     this(flowAxis, 0, 0, 0, 0, dimensionsSupplier);
@@ -100,6 +102,9 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
   public void beforeRefreshPositions() {
     super.beforeRefreshPositions();
 
+    this.totalSpacing = Math.max(0, this.widgets.size() - 1) * this.spacing;
+    this.contentSize = this.cells.stream().mapToInt(this.flowAxis::getDimension).sum() + this.totalSpacing;
+
     int offSize = this.flowAxis.getOffDimension(this);
     int pos = this.getRelativeOffset() - this.spacing;
 
@@ -164,15 +169,20 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
     return this.relative;
   }
 
+  public int getTotalSpacing() {
+    return this.totalSpacing;
+  }
+
+  public int getContentSize() {
+    return this.contentSize;
+  }
+
   protected int getRelativeOffset() {
     if (this.relative == null || this.widgets.isEmpty()) {
       return 0;
     }
 
-    int totalSpacing = Math.max(0, this.widgets.size() - 1) * this.spacing;
-    int contentSize = this.cells.stream().mapToInt(this.flowAxis::getDimension).sum() + totalSpacing;
-
-    return (int) ((this.flowAxis.getDimension(this) - contentSize) * this.relative);
+    return (int) ((this.flowAxis.getDimension(this) - this.contentSize) * this.relative);
   }
 
   @Environment(EnvType.CLIENT)

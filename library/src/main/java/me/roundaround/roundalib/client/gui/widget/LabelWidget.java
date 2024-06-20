@@ -23,21 +23,21 @@ public class LabelWidget extends ClickableWidget {
   private final TextAlignment alignmentX;
   private final TextAlignment alignmentY;
   private final Spacing padding;
-  private final OverflowBehavior overflowBehavior;
   private final int scrollMargin;
   private final int maxLines;
   private final int lineSpacing;
-  private final boolean background;
   private final Spacing bgOverflow;
   private final boolean shadow;
 
   private Text text;
   private int color;
   private int bgColor;
+  private boolean showBackground;
+  private OverflowBehavior overflowBehavior;
   private IntRect textBounds = IntRect.zero();
   private IntRect bgBounds = IntRect.zero();
-  private int layoutX;
-  private int layoutY;
+  private int referenceX;
+  private int referenceY;
 
   private LabelWidget(
       TextRenderer textRenderer,
@@ -55,7 +55,7 @@ public class LabelWidget extends ClickableWidget {
       int scrollMargin,
       int maxLines,
       int lineSpacing,
-      boolean background,
+      boolean showBackground,
       int bgColor,
       Spacing bgOverflow,
       boolean shadow
@@ -73,13 +73,12 @@ public class LabelWidget extends ClickableWidget {
     this.scrollMargin = scrollMargin;
     this.maxLines = maxLines;
     this.lineSpacing = lineSpacing;
-    this.background = background;
+    this.showBackground = showBackground;
     this.bgColor = bgColor;
     this.bgOverflow = bgOverflow;
     this.shadow = shadow;
 
-    this.setLayoutX(x);
-    this.setLayoutY(y);
+    this.calculateBounds();
   }
 
   @Override
@@ -87,8 +86,15 @@ public class LabelWidget extends ClickableWidget {
   }
 
   @Override
-  public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-    int x = this.getTextRefX();
+  public boolean isNarratable() {
+    return false;
+  }
+
+  public void calculateBounds() {
+    this.referenceX = this.getReferenceX();
+    this.referenceY = this.getReferenceY();
+    super.setX(this.getAbsoluteX());
+    super.setY(this.getAbsoluteY());
 
     int textWidth = this.textRenderer.getWidth(this.text);
     int textHeight = this.textRenderer.fontHeight;
@@ -101,16 +107,21 @@ public class LabelWidget extends ClickableWidget {
     textWidth = Math.min(textWidth, this.getAvailableWidth());
     textHeight = Math.min(textHeight, this.getAvailableHeight());
 
-    IntRect textBounds = IntRect.byDimensions(this.alignmentX.getLeft(x, textWidth),
-        this.alignmentY.getTop(this.getTextRefY(), textHeight), textWidth, textHeight
+    this.textBounds = IntRect.byDimensions(this.alignmentX.getLeft(this.referenceX, textWidth),
+        this.alignmentY.getTop(this.referenceY, textHeight), textWidth, textHeight
     );
-    IntRect bgBounds = textBounds.expand(this.padding).expand(this.bgOverflow);
+    this.bgBounds = this.textBounds.expand(this.padding).expand(this.bgOverflow);
+  }
 
-    if (this.background) {
-      context.fill(bgBounds.left(), bgBounds.top(), bgBounds.right(), bgBounds.bottom(), this.bgColor);
+  @Override
+  public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    if (this.showBackground) {
+      context.fill(
+          this.bgBounds.left(), this.bgBounds.top(), this.bgBounds.right(), this.bgBounds.bottom(), this.bgColor);
     }
 
-    int y = textBounds.top();
+    int x = this.referenceX;
+    int y = this.textBounds.top();
     int availableWidth = this.getAvailableWidth();
 
     switch (this.overflowBehavior) {
@@ -124,7 +135,8 @@ public class LabelWidget extends ClickableWidget {
               this.maxLines, this.lineSpacing, this.alignmentX
           );
       case CLIP -> {
-        context.enableScissor(textBounds.left(), textBounds.top(), textBounds.right(), textBounds.bottom());
+        context.enableScissor(
+            this.textBounds.left(), this.textBounds.top(), this.textBounds.right(), this.textBounds.bottom());
         GuiUtil.drawText(context, this.textRenderer, this.text, x, y, this.color, this.shadow, this.alignmentX);
         context.disableScissor();
       }
@@ -132,9 +144,6 @@ public class LabelWidget extends ClickableWidget {
           availableWidth, this.scrollMargin, this.alignmentX
       );
     }
-
-    this.textBounds = textBounds;
-    this.bgBounds = bgBounds;
   }
 
   @Override
@@ -148,6 +157,7 @@ public class LabelWidget extends ClickableWidget {
 
   public void setText(Text text) {
     this.text = text;
+    this.calculateBounds();
   }
 
   public Text getText() {
@@ -178,54 +188,57 @@ public class LabelWidget extends ClickableWidget {
     this.setBgColor(GuiUtil.genColorInt(r, g, b, a));
   }
 
+  public void setShowBackground(boolean showBackground) {
+    this.showBackground = showBackground;
+  }
+
+  public void setOverflowBehavior(OverflowBehavior overflowBehavior) {
+    this.overflowBehavior = overflowBehavior;
+    this.calculateBounds();
+  }
+
+  @Override
+  public void setX(int x) {
+    switch (this.positionMode) {
+      case ABSOLUTE -> super.setX(x);
+      case REFERENCE -> this.referenceX = x;
+    }
+    this.calculateBounds();
+  }
+
+  @Override
+  public void setY(int y) {
+    switch (this.positionMode) {
+      case ABSOLUTE -> super.setY(y);
+      case REFERENCE -> this.referenceY = y;
+    }
+    this.calculateBounds();
+  }
+
+  @Override
+  public void setWidth(int width) {
+    super.setWidth(width);
+    this.calculateBounds();
+  }
+
+  @Override
+  public void setHeight(int height) {
+    super.setHeight(height);
+    this.calculateBounds();
+  }
+
+  @Override
+  public void setDimensions(int width, int height) {
+    super.setDimensions(width, height);
+    this.calculateBounds();
+  }
+
   public IntRect getTextBounds() {
     return this.textBounds;
   }
 
   public IntRect getBgBounds() {
     return this.bgBounds;
-  }
-
-  @Override
-  public void setX(int x) {
-    super.setX(x);
-    this.setLayoutX(x);
-  }
-
-  @Override
-  public void setY(int y) {
-    super.setY(y);
-    this.setLayoutY(y);
-  }
-
-  @Override
-  public void setWidth(int width) {
-    super.setWidth(width);
-    this.setLayoutX(this.getX());
-  }
-
-  @Override
-  public void setHeight(int height) {
-    super.setHeight(height);
-    this.setLayoutY(height);
-  }
-
-  @Override
-  public int getX() {
-    return this.layoutX;
-  }
-
-  @Override
-  public int getY() {
-    return this.layoutY;
-  }
-
-  protected void setLayoutX(int x) {
-    this.layoutX = this.positionMode == PositionMode.ABSOLUTE ? x : this.alignmentX.getLeft(x, this.getWidth());
-  }
-
-  protected void setLayoutY(int y) {
-    this.layoutY = this.positionMode == PositionMode.ABSOLUTE ? y : this.alignmentY.getTop(y, this.getHeight());
   }
 
   protected int getAvailableWidth() {
@@ -240,20 +253,6 @@ public class LabelWidget extends ClickableWidget {
       return Integer.MAX_VALUE;
     }
     return this.getHeight() - this.padding.getVertical();
-  }
-
-  protected int getTextRefX() {
-    return switch (this.positionMode) {
-      case ABSOLUTE -> this.getRefX();
-      case REFERENCE -> this.getX();
-    };
-  }
-
-  protected int getTextRefY() {
-    return switch (this.positionMode) {
-      case ABSOLUTE -> this.getRefY();
-      case REFERENCE -> this.getY();
-    };
   }
 
   protected int getRefX() {
@@ -272,6 +271,50 @@ public class LabelWidget extends ClickableWidget {
     };
   }
 
+  protected int getReferenceX() {
+    if (this.positionMode == PositionMode.REFERENCE) {
+      return this.referenceX;
+    }
+    return switch (this.alignmentX) {
+      case START -> this.getX();
+      case CENTER -> this.getX() + this.getWidth() / 2;
+      case END -> this.getX() + this.getWidth();
+    };
+  }
+
+  protected int getReferenceY() {
+    if (this.positionMode == PositionMode.REFERENCE) {
+      return this.referenceY;
+    }
+    return switch (this.alignmentY) {
+      case START -> this.getY();
+      case CENTER -> this.getY() + this.getHeight() / 2;
+      case END -> this.getY() + this.getHeight();
+    };
+  }
+
+  protected int getAbsoluteX() {
+    if (this.positionMode == PositionMode.ABSOLUTE) {
+      return this.getX();
+    }
+    return switch (this.alignmentX) {
+      case START -> this.referenceX;
+      case CENTER -> this.referenceX - this.getWidth() / 2;
+      case END -> this.referenceX - this.getWidth();
+    };
+  }
+
+  protected int getAbsoluteY() {
+    if (this.positionMode == PositionMode.ABSOLUTE) {
+      return this.getY();
+    }
+    return switch (this.alignmentY) {
+      case START -> this.referenceY;
+      case CENTER -> this.referenceY - this.getHeight() / 2;
+      case END -> this.referenceY - this.getHeight();
+    };
+  }
+
   public Builder toBuilder() {
     return new Builder(this.textRenderer, this.text).position(this.getX(), this.getY())
         .positionMode(this.positionMode)
@@ -284,7 +327,7 @@ public class LabelWidget extends ClickableWidget {
         .justifiedHorizontally(this.alignmentX)
         .alignedVertically(this.alignmentY)
         .padding(this.padding)
-        .background(this.background)
+        .background(this.showBackground)
         .bgColor(this.bgColor)
         .bgOverflow(this.bgOverflow)
         .shadow(this.shadow);
@@ -308,7 +351,6 @@ public class LabelWidget extends ClickableWidget {
         .build();
   }
 
-  @SuppressWarnings("unused")
   @Environment(EnvType.CLIENT)
   public static class Builder {
     private final TextRenderer textRenderer;

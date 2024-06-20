@@ -24,7 +24,7 @@ public class ExamplePositionEditScreen extends PositionEditScreen {
         .alignedMiddle()
         .build();
 
-    this.body.add(LayoutHookWidget.from(this.valueLabel).withPreLayoutHook(() -> {
+    this.body.add(LayoutHookWidget.wrapping(this.valueLabel).withPreLayoutHook(() -> {
       this.valueLabel.setPosition(this.getCenterX(), this.getCenterY());
       this.valueLabel.setDimensions(this.width, this.layout.getContentHeight());
     }));
