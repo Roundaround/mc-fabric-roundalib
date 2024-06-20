@@ -40,6 +40,12 @@ public class FullBodyWrapperWidget implements LayoutWidget {
           this.layout.getContentHeight() - this.margin.getVertical()
       );
     }
+    if (this.widget instanceof SizableLayoutWidget sizableLayoutWidget) {
+      sizableLayoutWidget.setDimensions(
+          this.layout.getWidth() - this.margin.getHorizontal(),
+          this.layout.getContentHeight() - this.margin.getVertical()
+      );
+    }
     LayoutWidget.super.refreshPositions();
   }
 
