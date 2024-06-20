@@ -8,11 +8,14 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.navigation.GuiNavigation;
+import net.minecraft.client.gui.navigation.GuiNavigationPath;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
 public class LabelWidget extends ClickableWidget {
@@ -88,6 +91,17 @@ public class LabelWidget extends ClickableWidget {
   @Override
   public boolean isNarratable() {
     return false;
+  }
+
+  @Override
+  protected boolean isValidClickButton(int button) {
+    return false;
+  }
+
+  @Override
+  @Nullable
+  public GuiNavigationPath getNavigationPath(GuiNavigation navigation) {
+    return null;
   }
 
   public void calculateBounds() {
