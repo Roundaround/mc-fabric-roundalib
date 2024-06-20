@@ -84,20 +84,19 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
         LabelWidget.getDefaultSingleLineHeight(this.textRenderer)
     ));
 
-    FillerWidget paintingPlaceholder = rightPane.add(FillerWidget.empty(),
-        (parent, self) -> self.setDimensions(parent.getWidth() - 2 * GuiUtil.PADDING,
-            parent.getHeight() - label.getHeight() - IconButtonWidget.SIZE_V - 2 * parent.getSpacing()
-        )
-    );
-
-    this.addDrawable((context, mouseX, mouseY, delta) -> {
-      int left = paintingPlaceholder.getX();
-      int top = paintingPlaceholder.getY();
-      int width = paintingPlaceholder.getWidth();
-      int height = paintingPlaceholder.getHeight();
-      context.fill(left, top, left + width, top + height, GuiUtil.genColorInt(0, 0, 0));
-      context.drawBorder(left, top, width, height, GuiUtil.genColorInt(0.8f, 0.2f, 0.6f));
-    });
+    rightPane.add(new DrawableWidget() {
+      @Override
+      protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+        int left = this.getX();
+        int top = this.getY();
+        int width = this.getWidth();
+        int height = this.getHeight();
+        context.fill(left, top, left + width, top + height, GuiUtil.genColorInt(0, 0, 0));
+        context.drawBorder(left, top, width, height, GuiUtil.genColorInt(0.8f, 0.2f, 0.6f));
+      }
+    }, (parent, self) -> self.setDimensions(parent.getWidth() - 2 * GuiUtil.PADDING,
+        parent.getHeight() - label.getHeight() - IconButtonWidget.SIZE_V - 2 * parent.getSpacing()
+    ));
 
     LinearLayoutWidget controlsRow = rightPane.add(LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING),
         (parent, self) -> self.setDimensions(parent.getWidth() - 4 * GuiUtil.PADDING, IconButtonWidget.SIZE_V)

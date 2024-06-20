@@ -6,20 +6,14 @@ import me.roundaround.roundalib.client.gui.layout.Spacing;
 import me.roundaround.roundalib.client.gui.layout.TextAlignment;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.navigation.GuiNavigation;
-import net.minecraft.client.gui.navigation.GuiNavigationPath;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Text;
-import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
-public class LabelWidget extends ClickableWidget {
+public class LabelWidget extends DrawableWidget {
   public static final Spacing DEFAULT_PADDING = Spacing.of(1, 2);
 
   private final TextRenderer textRenderer;
@@ -85,26 +79,6 @@ public class LabelWidget extends ClickableWidget {
     this.calculateBounds();
   }
 
-  @Override
-  protected void appendClickableNarrations(NarrationMessageBuilder builder) {
-  }
-
-  @Override
-  public boolean isNarratable() {
-    return false;
-  }
-
-  @Override
-  protected boolean isValidClickButton(int button) {
-    return false;
-  }
-
-  @Override
-  @Nullable
-  public GuiNavigationPath getNavigationPath(GuiNavigation navigation) {
-    return null;
-  }
-
   public void calculateBounds() {
     this.referenceX = this.getReferenceX();
     this.referenceY = this.getReferenceY();
@@ -159,15 +133,6 @@ public class LabelWidget extends ClickableWidget {
           availableWidth, this.scrollMargin, this.alignmentX
       );
     }
-  }
-
-  @Override
-  public boolean isFocused() {
-    return false;
-  }
-
-  @Override
-  public void setFocused(boolean focused) {
   }
 
   public void setText(Text text) {
