@@ -106,23 +106,23 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
     ) {
       super(index, left, top, width, HEIGHT);
 
-      this.label = LabelWidget.builder(textRenderer, label, this.getContentCenterX(), this.getContentCenterY())
+      this.label = LabelWidget.builder(textRenderer, label)
+          .refPosition(this.getContentCenterX(), this.getContentCenterY())
+          .dimensions(this.getContentWidth(), this.getContentHeight())
           .justifiedCenter()
           .alignedMiddle()
-          .maxWidth(this.getContentWidth())
           .overflowBehavior(LabelWidget.OverflowBehavior.SCROLL)
           .showShadow()
           .hideBackground()
           .build();
 
       this.addDrawableChild(this.label);
-      this.addSelectable(this.label.createSelectable());
     }
 
     @Override
     public void refreshPositions() {
       this.label.setPosition(this.getContentCenterX(), this.getContentCenterY());
-      this.label.setMaxWidth(this.getContentWidth());
+      this.label.setDimensions(this.getContentWidth(), this.getContentHeight());
       super.refreshPositions();
     }
   }
@@ -152,11 +152,11 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
 
       this.addDrawable(this.tooltip);
 
-      this.label = LabelWidget.builder(
-              client.textRenderer, option.getLabel(), this.getContentLeft(), this.getContentCenterY())
+      this.label = LabelWidget.builder(client.textRenderer, option.getLabel())
+          .refPosition(this.getContentLeft(), this.getContentCenterY())
+          .dimensions(this.getLabelWidth(), this.getContentHeight())
           .justifiedLeft()
           .alignedMiddle()
-          .maxWidth(this.getLabelWidth())
           .overflowBehavior(LabelWidget.OverflowBehavior.WRAP)
           .maxLines(2)
           .showShadow()
@@ -164,7 +164,6 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
           .build();
 
       this.addDrawableChild(this.label);
-      this.addSelectable(this.label.createSelectable());
 
       this.control = ControlRegistry.getControlFactory(option)
           .create(client, option, this.getControlLeft(), this.getContentTop(), this.getControlWidth(),
@@ -214,7 +213,7 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
       );
 
       this.label.setPosition(this.getContentLeft(), this.getContentCenterY());
-      this.label.setMaxWidth(this.getLabelWidth());
+      this.label.setDimensions(this.getLabelWidth(), this.getContentHeight());
 
       this.control.setPosition(this.getControlLeft(), this.getContentTop());
       this.control.setDimensions(this.getControlWidth(), this.getContentHeight());

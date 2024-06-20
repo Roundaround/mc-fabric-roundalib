@@ -7,22 +7,21 @@ import me.roundaround.roundalib.client.gui.layout.TextAlignment;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.screen.narration.NarrationPart;
-import net.minecraft.client.gui.widget.LayoutWidget;
-import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Text;
 
-import java.util.function.Consumer;
-
 @Environment(EnvType.CLIENT)
-public class LabelWidget implements Drawable, Element, LayoutWidget {
+public class LabelWidget extends ClickableWidget {
+  public static final Spacing DEFAULT_PADDING = Spacing.of(1, 2);
+
   private final TextRenderer textRenderer;
-  private final TextAlignment alignmentH;
-  private final TextAlignment alignmentV;
+  private final PositionMode positionMode;
+  private final TextAlignment alignmentX;
+  private final TextAlignment alignmentY;
   private final Spacing padding;
   private final OverflowBehavior overflowBehavior;
   private final int scrollMargin;
@@ -34,23 +33,24 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
 
   private Text text;
   private int color;
-  private int x;
-  private int y;
-  private int maxWidth;
   private int bgColor;
   private IntRect textBounds = IntRect.zero();
   private IntRect bgBounds = IntRect.zero();
+  private int layoutX;
+  private int layoutY;
 
   private LabelWidget(
       TextRenderer textRenderer,
       Text text,
       int color,
+      PositionMode positionMode,
       int x,
       int y,
-      TextAlignment alignmentH,
-      TextAlignment alignmentV,
+      int width,
+      int height,
+      TextAlignment alignmentX,
+      TextAlignment alignmentY,
       Spacing padding,
-      int maxWidth,
       OverflowBehavior overflowBehavior,
       int scrollMargin,
       int maxLines,
@@ -60,15 +60,15 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
       Spacing bgOverflow,
       boolean shadow
   ) {
+    super(x, y, width, height, text);
+
     this.textRenderer = textRenderer;
     this.text = text;
     this.color = color;
-    this.x = x;
-    this.y = y;
-    this.alignmentH = alignmentH;
-    this.alignmentV = alignmentV;
+    this.positionMode = positionMode;
+    this.alignmentX = alignmentX;
+    this.alignmentY = alignmentY;
     this.padding = padding;
-    this.maxWidth = maxWidth;
     this.overflowBehavior = overflowBehavior;
     this.scrollMargin = scrollMargin;
     this.maxLines = maxLines;
@@ -78,67 +78,63 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
     this.bgOverflow = bgOverflow;
     this.shadow = shadow;
 
-    this.refreshPositions();
+    this.setLayoutX(x);
+    this.setLayoutY(y);
   }
 
   @Override
-  public void forEachElement(Consumer<Widget> consumer) {
+  protected void appendClickableNarrations(NarrationMessageBuilder builder) {
   }
 
   @Override
-  public void refreshPositions() {
-    int textWidth = Math.min(this.textRenderer.getWidth(this.text), this.getAvailableWidth());
+  public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    int x = this.getTextRefX();
+
+    int textWidth = this.textRenderer.getWidth(this.text);
     int textHeight = this.textRenderer.fontHeight;
 
     if (this.overflowBehavior == OverflowBehavior.WRAP) {
       textHeight = GuiUtil.measureWrappedTextHeight(
-          this.textRenderer, this.text, this.maxWidth, this.maxLines, this.lineSpacing);
+          this.textRenderer, this.text, this.getAvailableWidth(), this.maxLines, this.lineSpacing);
     }
 
-    this.textBounds = IntRect.byDimensions(this.alignmentH.getLeft(this.getPaddedX(), textWidth),
-        this.alignmentV.getTop(this.getPaddedY(), textHeight), textWidth, textHeight
+    textWidth = Math.min(textWidth, this.getAvailableWidth());
+    textHeight = Math.min(textHeight, this.getAvailableHeight());
+
+    IntRect textBounds = IntRect.byDimensions(this.alignmentX.getLeft(x, textWidth),
+        this.alignmentY.getTop(this.getTextRefY(), textHeight), textWidth, textHeight
     );
-    this.bgBounds = this.textBounds.expand(this.padding).expand(this.bgOverflow);
-  }
+    IntRect bgBounds = textBounds.expand(this.padding).expand(this.bgOverflow);
 
-  @Override
-  public void render(DrawContext context, int mouseX, int mouseY, float delta) {
     if (this.background) {
-      context.fill(this.bgBounds.left(), this.bgBounds.top(), this.bgBounds.right(), this.bgBounds.bottom(),
-          this.bgColor
-      );
+      context.fill(bgBounds.left(), bgBounds.top(), bgBounds.right(), bgBounds.bottom(), this.bgColor);
     }
 
-    int x = this.getPaddedX();
-    int y = this.textBounds.top();
+    int y = textBounds.top();
     int availableWidth = this.getAvailableWidth();
 
     switch (this.overflowBehavior) {
       case SHOW ->
-          GuiUtil.drawText(context, this.textRenderer, this.text, x, y, this.color, this.shadow, this.alignmentH);
+          GuiUtil.drawText(context, this.textRenderer, this.text, x, y, this.color, this.shadow, this.alignmentX);
       case TRUNCATE -> GuiUtil.drawTruncatedText(context, this.textRenderer, this.text, x, y, this.color, this.shadow,
-          availableWidth, this.alignmentH
+          availableWidth, this.alignmentX
       );
       case WRAP ->
           GuiUtil.drawWrappedText(context, this.textRenderer, this.text, x, y, this.color, this.shadow, availableWidth,
-              this.maxLines, this.lineSpacing, this.alignmentH
+              this.maxLines, this.lineSpacing, this.alignmentX
           );
       case CLIP -> {
-        context.enableScissor(this.textBounds.left(), this.textBounds.top(), this.textBounds.right(),
-            this.textBounds.bottom()
-        );
-        GuiUtil.drawText(context, this.textRenderer, this.text, x, y, this.color, this.shadow, this.alignmentH);
+        context.enableScissor(textBounds.left(), textBounds.top(), textBounds.right(), textBounds.bottom());
+        GuiUtil.drawText(context, this.textRenderer, this.text, x, y, this.color, this.shadow, this.alignmentX);
         context.disableScissor();
       }
       case SCROLL -> GuiUtil.drawScrollingText(context, this.textRenderer, this.text, x, y, this.color, this.shadow,
-          availableWidth, this.scrollMargin, this.alignmentH
+          availableWidth, this.scrollMargin, this.alignmentX
       );
     }
-  }
 
-  @Override
-  public boolean isMouseOver(double mouseX, double mouseY) {
-    return this.bgBounds.contains(mouseX, mouseY);
+    this.textBounds = textBounds;
+    this.bgBounds = bgBounds;
   }
 
   @Override
@@ -151,25 +147,11 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
   }
 
   public void setText(Text text) {
-    if (this.text != null && text.getString().equals(this.text.getString())) {
-      return;
-    }
     this.text = text;
-    this.refreshPositions();
   }
 
   public Text getText() {
-    return this.text.copy();
-  }
-
-  @Override
-  public void setX(int x) {
-    this.x = x;
-  }
-
-  @Override
-  public void setY(int y) {
-    this.y = y;
+    return this.text;
   }
 
   public void setColor(int color) {
@@ -196,11 +178,6 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
     this.setBgColor(GuiUtil.genColorInt(r, g, b, a));
   }
 
-  public void setMaxWidth(int maxWidth) {
-    this.maxWidth = maxWidth;
-    this.refreshPositions();
-  }
-
   public IntRect getTextBounds() {
     return this.textBounds;
   }
@@ -210,78 +187,102 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
   }
 
   @Override
+  public void setX(int x) {
+    super.setX(x);
+    this.setLayoutX(x);
+  }
+
+  @Override
+  public void setY(int y) {
+    super.setY(y);
+    this.setLayoutY(y);
+  }
+
+  @Override
+  public void setWidth(int width) {
+    super.setWidth(width);
+    this.setLayoutX(this.getX());
+  }
+
+  @Override
+  public void setHeight(int height) {
+    super.setHeight(height);
+    this.setLayoutY(height);
+  }
+
+  @Override
   public int getX() {
-    return this.bgBounds.left();
+    return this.layoutX;
   }
 
   @Override
   public int getY() {
-    return this.bgBounds.top();
+    return this.layoutY;
   }
 
-  @Override
-  public int getWidth() {
-    return this.bgBounds.getWidth();
+  protected void setLayoutX(int x) {
+    this.layoutX = this.positionMode == PositionMode.ABSOLUTE ? x : this.alignmentX.getLeft(x, this.getWidth());
   }
 
-  @Override
-  public int getHeight() {
-    return this.bgBounds.getHeight();
+  protected void setLayoutY(int y) {
+    this.layoutY = this.positionMode == PositionMode.ABSOLUTE ? y : this.alignmentY.getTop(y, this.getHeight());
   }
 
-  @Override
-  public ScreenRect getNavigationFocus() {
-    return new ScreenRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-  }
-
-  private boolean canBeClipped() {
-    return this.maxWidth > 0 && this.overflowBehavior != OverflowBehavior.SHOW;
-  }
-
-  private int getAvailableWidth() {
-    if (!this.canBeClipped()) {
+  protected int getAvailableWidth() {
+    if (this.overflowBehavior == OverflowBehavior.SHOW) {
       return Integer.MAX_VALUE;
     }
-    return this.maxWidth - this.padding.getHorizontal();
+    return this.getWidth() - this.padding.getHorizontal();
   }
 
-  private int getPaddedX() {
-    return switch (this.alignmentH) {
-      case START -> this.x + this.padding.left();
-      case END -> this.x - this.padding.right();
-      case CENTER -> this.x;
+  protected int getAvailableHeight() {
+    if (this.overflowBehavior == OverflowBehavior.SHOW) {
+      return Integer.MAX_VALUE;
+    }
+    return this.getHeight() - this.padding.getVertical();
+  }
+
+  protected int getTextRefX() {
+    return switch (this.positionMode) {
+      case ABSOLUTE -> this.getRefX();
+      case REFERENCE -> this.getX();
     };
   }
 
-  private int getPaddedY() {
-    return switch (this.alignmentV) {
-      case START -> this.y + this.padding.top();
-      case END -> this.y - this.padding.bottom();
-      case CENTER -> this.y;
+  protected int getTextRefY() {
+    return switch (this.positionMode) {
+      case ABSOLUTE -> this.getRefY();
+      case REFERENCE -> this.getY();
     };
   }
 
-  public Selectable createSelectable() {
-    return new Selectable() {
-      public Selectable.SelectionType getType() {
-        return Selectable.SelectionType.HOVERED;
-      }
+  protected int getRefX() {
+    return switch (this.alignmentX) {
+      case START -> this.getX();
+      case CENTER -> this.getX() + this.getWidth() / 2;
+      case END -> this.getX() + this.getWidth();
+    };
+  }
 
-      public void appendNarrations(NarrationMessageBuilder builder) {
-        builder.put(NarrationPart.TITLE, LabelWidget.this.getText());
-      }
+  protected int getRefY() {
+    return switch (this.alignmentY) {
+      case START -> this.getY();
+      case CENTER -> this.getY() + this.getHeight() / 2;
+      case END -> this.getY() + this.getHeight();
     };
   }
 
   public Builder toBuilder() {
-    return new Builder(this.textRenderer, this.text, this.x, this.y).color(this.color)
-        .maxWidth(this.maxWidth)
+    return new Builder(this.textRenderer, this.text).position(this.getX(), this.getY())
+        .positionMode(this.positionMode)
+        .dimensions(this.getWidth(), this.getHeight())
+        .color(this.color)
         .overflowBehavior(this.overflowBehavior)
         .scrollMargin(this.scrollMargin)
         .maxLines(this.maxLines)
         .lineSpacing(this.lineSpacing)
-        .justifiedHorizontally(this.alignmentH)
-        .alignedVertically(this.alignmentV)
+        .justifiedHorizontally(this.alignmentX)
+        .alignedVertically(this.alignmentY)
         .padding(this.padding)
         .background(this.background)
         .bgColor(this.bgColor)
@@ -289,8 +290,8 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
         .shadow(this.shadow);
   }
 
-  public static Builder builder(TextRenderer textRenderer, Text text, int posX, int posY) {
-    return new Builder(textRenderer, text, posX, posY);
+  public static Builder builder(TextRenderer textRenderer, Text text) {
+    return new Builder(textRenderer, text);
   }
 
   public static LabelWidget screenTitle(TextRenderer textRenderer, Text text, Screen screen) {
@@ -298,7 +299,9 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
   }
 
   public static LabelWidget screenTitle(TextRenderer textRenderer, Text text, Screen screen, int headerHeight) {
-    return new Builder(textRenderer, text, (int) (screen.width * 0.5f), (int) (headerHeight * 0.5f)).alignedMiddle()
+    return new Builder(textRenderer, text).refPosition(screen.width / 2, headerHeight / 2)
+        .dimensions(screen.width, headerHeight / 2)
+        .alignedMiddle()
         .justifiedCenter()
         .hideBackground()
         .showShadow()
@@ -310,14 +313,16 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
   public static class Builder {
     private final TextRenderer textRenderer;
     private final Text text;
-    private final int x;
-    private final int y;
 
+    private PositionMode positionMode = PositionMode.ABSOLUTE;
+    private int x;
+    private int y;
+    private int width;
+    private int height;
     private int color = GuiUtil.LABEL_COLOR;
     private TextAlignment alignmentH = TextAlignment.START;
     private TextAlignment alignmentV = TextAlignment.CENTER;
-    private Spacing padding = Spacing.of(1, 2);
-    private int maxWidth = 0;
+    private Spacing padding = DEFAULT_PADDING;
     private OverflowBehavior overflowBehavior = OverflowBehavior.SHOW;
     private int scrollMargin = 2;
     private int maxLines = 0;
@@ -327,11 +332,43 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
     private Spacing bgOverflow = Spacing.of(1, 0, 0, 1);
     private boolean shadow = false;
 
-    public Builder(TextRenderer textRenderer, Text text, int x, int y) {
+    public Builder(TextRenderer textRenderer, Text text) {
       this.textRenderer = textRenderer;
       this.text = text;
+    }
+
+    public Builder position(int x, int y) {
       this.x = x;
       this.y = y;
+      return this;
+    }
+
+    public Builder positionMode(PositionMode positionMode) {
+      this.positionMode = positionMode;
+      return this;
+    }
+
+    public Builder refPosition(int refX, int refY) {
+      this.positionMode = PositionMode.REFERENCE;
+      this.x = refX;
+      this.y = refY;
+      return this;
+    }
+
+    public Builder width(int width) {
+      this.width = width;
+      return this;
+    }
+
+    public Builder height(int height) {
+      this.height = height;
+      return this;
+    }
+
+    public Builder dimensions(int width, int height) {
+      this.width = width;
+      this.height = height;
+      return this;
     }
 
     public Builder color(int color) {
@@ -345,11 +382,6 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
 
     public Builder color(int r, int g, int b, int a) {
       return this.color(GuiUtil.genColorInt(r, g, b, a));
-    }
-
-    public Builder maxWidth(int maxWidth) {
-      this.maxWidth = maxWidth;
-      return this;
     }
 
     public Builder overflowBehavior(OverflowBehavior overflowBehavior) {
@@ -468,11 +500,16 @@ public class LabelWidget implements Drawable, Element, LayoutWidget {
     }
 
     public LabelWidget build() {
-      return new LabelWidget(this.textRenderer, this.text, this.color, this.x, this.y, this.alignmentH, this.alignmentV,
-          this.padding.copy(), this.maxWidth, this.overflowBehavior, this.scrollMargin, this.maxLines, this.lineSpacing,
-          this.background, this.bgColor, this.bgOverflow.copy(), this.shadow
+      return new LabelWidget(this.textRenderer, this.text, this.color, this.positionMode, this.x, this.y, this.width,
+          this.height, this.alignmentH, this.alignmentV, this.padding.copy(), this.overflowBehavior, this.scrollMargin,
+          this.maxLines, this.lineSpacing, this.background, this.bgColor, this.bgOverflow.copy(), this.shadow
       );
     }
+  }
+
+  @Environment(EnvType.CLIENT)
+  public enum PositionMode {
+    REFERENCE, ABSOLUTE
   }
 
   @Environment(EnvType.CLIENT)

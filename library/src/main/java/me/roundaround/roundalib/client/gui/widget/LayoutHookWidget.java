@@ -6,7 +6,7 @@ import net.minecraft.client.gui.widget.Widget;
 
 import java.util.function.Consumer;
 
-public class LayoutHookWidget<T extends LayoutWidget> implements LayoutWidget {
+public class LayoutHookWidget<T extends Widget> implements LayoutWidget {
   private final T wrapped;
 
   private LayoutHook preLayoutHook = LayoutHook.noop();
@@ -17,7 +17,7 @@ public class LayoutHookWidget<T extends LayoutWidget> implements LayoutWidget {
     this.wrapped = wrapped;
   }
 
-  public static <T extends LayoutWidget> LayoutHookWidget<T> from(T wrapped) {
+  public static <T extends Widget> LayoutHookWidget<T> from(T wrapped) {
     return new LayoutHookWidget<>(wrapped);
   }
 
@@ -37,7 +37,9 @@ public class LayoutHookWidget<T extends LayoutWidget> implements LayoutWidget {
 
   @Override
   public void forEachElement(Consumer<Widget> consumer) {
-    this.wrapped.forEachElement(consumer);
+    if (this.wrapped instanceof LayoutWidget layoutWidget) {
+      layoutWidget.forEachElement(consumer);
+    }
   }
 
   @Override
@@ -48,7 +50,9 @@ public class LayoutHookWidget<T extends LayoutWidget> implements LayoutWidget {
   @Override
   public void refreshPositions() {
     this.preLayoutHook.run();
-    this.wrapped.refreshPositions();
+    if (this.wrapped instanceof LayoutWidget layoutWidget) {
+      layoutWidget.refreshPositions();
+    }
     this.postLayoutHook.run();
   }
 

@@ -21,14 +21,13 @@ import java.util.Objects;
 
 @Environment(EnvType.CLIENT)
 public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
-  private static final Text TITLE_TEXT =
-      Text.translatable("testmod.advancedlayoutdemoscreen.title");
+  private static final Text TITLE_TEXT = Text.translatable("testmod.advancedlayoutdemoscreen.title");
   private static final int BUTTON_HEIGHT = 20;
 
   private final Screen parent;
-  private final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this,
-      GuiUtil.COMPACT_HEADER_HEIGHT,
-      GuiUtil.DEFAULT_HEADER_FOOTER_HEIGHT);
+  private final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this, GuiUtil.COMPACT_HEADER_HEIGHT,
+      GuiUtil.DEFAULT_HEADER_FOOTER_HEIGHT
+  );
 
   public AdvancedLayoutDemoScreen(Screen parent) {
     super(TITLE_TEXT);
@@ -42,22 +41,20 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
     LinearLayoutWidget body = LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING);
     this.layout.addBody(new FullBodyWrapperWidget(body, this.layout));
 
-    LinearLayoutWidget leftPane =
-        body.add(LinearLayoutWidget.vertical().spacing(GuiUtil.PADDING), (parent, self) -> {
-          Divider divider = new Divider(parent.getWidth() - parent.getSpacing(), 2);
-          self.setWidth(divider.nextInt());
-          self.setHeight(parent.getHeight());
-        });
+    LinearLayoutWidget leftPane = body.add(LinearLayoutWidget.vertical().spacing(GuiUtil.PADDING), (parent, self) -> {
+      Divider divider = new Divider(parent.getWidth() - parent.getSpacing(), 2);
+      self.setWidth(divider.nextInt());
+      self.setHeight(parent.getHeight());
+    });
 
-    LinearLayoutWidget searchRow =
-        leftPane.add(LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING),
-            (parent, self) -> self.setDimensions(parent.getWidth(), BUTTON_HEIGHT),
-            Positioner::alignVerticalCenter);
+    LinearLayoutWidget searchRow = leftPane.add(LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING),
+        (parent, self) -> self.setDimensions(parent.getWidth(), BUTTON_HEIGHT), Positioner::alignVerticalCenter
+    );
 
     searchRow.add(new TextFieldWidget(this.textRenderer, 0, BUTTON_HEIGHT, Text.of("Search")),
-        (parent, self) -> self.setWidth(
-            parent.getWidth() - parent.getSpacing() - IconButtonWidget.SIZE_V),
-        (positioner -> positioner.marginLeft(GuiUtil.PADDING)));
+        (parent, self) -> self.setWidth(parent.getWidth() - parent.getSpacing() - IconButtonWidget.SIZE_V),
+        (positioner -> positioner.marginLeft(GuiUtil.PADDING))
+    );
 
     searchRow.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.FILTER_18, TestMod.MOD_ID)
         .vanillaSize()
@@ -67,27 +64,27 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
 
     PlaceholderListWidget listWidget = leftPane.add(new PlaceholderListWidget(this.client),
         (parent, self) -> self.setDimensions(parent.getWidth(),
-            parent.getHeight() - parent.getSpacing() - BUTTON_HEIGHT));
+            parent.getHeight() - parent.getSpacing() - BUTTON_HEIGHT
+        )
+    );
     listWidget.addRows(15);
     listWidget.selectFirst();
 
-    LinearLayoutWidget rightPane =
-        body.add(LinearLayoutWidget.vertical().spacing(GuiUtil.PADDING), (parent, self) -> {
-          Divider divider = new Divider(parent.getWidth() - parent.getSpacing(), 2);
-          divider.skip(1);
-          self.setWidth(divider.nextInt());
-          self.setHeight(parent.getHeight());
-        }, Positioner::alignHorizontalCenter);
+    LinearLayoutWidget rightPane = body.add(LinearLayoutWidget.vertical().spacing(GuiUtil.PADDING), (parent, self) -> {
+      Divider divider = new Divider(parent.getWidth() - parent.getSpacing(), 2);
+      divider.skip(1);
+      self.setWidth(divider.nextInt());
+      self.setHeight(parent.getHeight());
+    }, Positioner::alignHorizontalCenter);
 
-    LabelWidget label = rightPane.add(LabelWidget.builder(this.textRenderer, Text.of("Label"), 0, 0)
-        .hideBackground()
-        .showShadow()
-        .build());
+    LabelWidget label = rightPane.add(
+        LabelWidget.builder(this.textRenderer, Text.of("Label")).hideBackground().showShadow().build());
 
     FillerWidget paintingPlaceholder = rightPane.add(FillerWidget.empty(),
         (parent, self) -> self.setDimensions(parent.getWidth(),
-            parent.getHeight() - label.getHeight() - IconButtonWidget.SIZE_V -
-                2 * parent.getSpacing()));
+            parent.getHeight() - label.getHeight() - IconButtonWidget.SIZE_V - 2 * parent.getSpacing()
+        )
+    );
 
     this.addDrawable((context, mouseX, mouseY, delta) -> {
       int left = paintingPlaceholder.getX();
@@ -98,20 +95,21 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
       context.drawBorder(left, top, width, height, GuiUtil.genColorInt(0.8f, 0.2f, 0.6f));
     });
 
-    LinearLayoutWidget controlsRow =
-        rightPane.add(LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING),
-            (parent, self) -> self.setDimensions(parent.getWidth(), IconButtonWidget.SIZE_V),
-            Positioner::alignVerticalCenter);
+    LinearLayoutWidget controlsRow = rightPane.add(LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING),
+        (parent, self) -> self.setDimensions(parent.getWidth(), IconButtonWidget.SIZE_V),
+        Positioner::alignVerticalCenter
+    );
 
     controlsRow.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.PREV_18, TestMod.MOD_ID)
         .vanillaSize()
         .messageAndTooltip(Text.of("Previous"))
         .build());
 
-    controlsRow.add(LabelWidget.builder(this.textRenderer,
-        Text.of(String.format("%s total items", listWidget.getEntryCount())),
-        0,
-        0).alignedMiddle().justifiedCenter().build());
+    controlsRow.add(
+        LabelWidget.builder(this.textRenderer, Text.of(String.format("%s total items", listWidget.getEntryCount())))
+            .alignedMiddle()
+            .justifiedCenter()
+            .build());
 
     controlsRow.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.NEXT_18, TestMod.MOD_ID)
         .vanillaSize()
@@ -140,19 +138,14 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
   }
 
   @Environment(value = EnvType.CLIENT)
-  public static class PlaceholderListWidget
-      extends AlwaysSelectedFlowListWidget<PlaceholderListWidget.Entry> {
+  public static class PlaceholderListWidget extends AlwaysSelectedFlowListWidget<PlaceholderListWidget.Entry> {
     public PlaceholderListWidget(MinecraftClient client) {
       super(client, 0, 0, 0, 0);
     }
 
     public void addRows(int num) {
       for (int i = 0; i < num; i++) {
-        this.addEntry((index, left, top, width) -> new Entry(this.client.textRenderer,
-            index,
-            left,
-            top,
-            width));
+        this.addEntry((index, left, top, width) -> new Entry(this.client.textRenderer, index, left, top, width));
       }
     }
 
@@ -169,10 +162,9 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
       public Entry(TextRenderer textRenderer, int index, int left, int top, int width) {
         super(index, left, top, width, 20);
 
-        this.label = LabelWidget.builder(textRenderer,
-                Text.of(String.format("Row #%s", index)),
-                this.getContentCenterX(),
-                this.getContentCenterY())
+        this.label = LabelWidget.builder(textRenderer, Text.of(String.format("Row #%s", index)))
+            .refPosition(this.getContentCenterX(), this.getContentCenterY())
+            .dimensions(this.getContentWidth(), this.getContentHeight())
             .justifiedCenter()
             .alignedMiddle()
             .hideBackground()
@@ -188,15 +180,14 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
       @Override
       public void refreshPositions() {
         this.label.setPosition(this.getContentCenterX(), this.getContentCenterY());
+        this.label.setDimensions(this.getContentWidth(), this.getContentHeight());
       }
 
       @Override
       public void renderDecorations(DrawContext context, int mouseX, int mouseY, float delta) {
-        context.drawBorder(this.getX(),
-            this.getY(),
-            this.getWidth(),
-            this.getHeight(),
-            GuiUtil.genColorInt(0.8f, 0.2f, 0.6f));
+        context.drawBorder(this.getX(), this.getY(), this.getWidth(), this.getHeight(),
+            GuiUtil.genColorInt(0.8f, 0.2f, 0.6f)
+        );
       }
     }
   }
