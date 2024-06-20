@@ -97,6 +97,7 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
       return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
+    GuiUtil.playClickSound();
     this.move(direction);
     return true;
   }
