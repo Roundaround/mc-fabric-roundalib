@@ -112,7 +112,7 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
           this.flowAxis.getOffRelative(cell.positioner));
       int off = offRef + this.flowAxis.getOffLeadingMargin(cell.positioner);
 
-      this.flowAxis.setPosition(cell, main, off);
+      this.flowAxis.setPosition(cell, this.getX(), this.getY(), main, off);
 
       pos += this.flowAxis.getDimension(cell) + this.spacing;
     }
@@ -214,10 +214,10 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
       };
     }
 
-    public void setPosition(Widget widget, int main, int off) {
+    public void setPosition(Widget widget, int baseX, int baseY, int main, int off) {
       switch (this) {
-        case HORIZONTAL -> widget.setPosition(main, off);
-        case VERTICAL -> widget.setPosition(off, main);
+        case HORIZONTAL -> widget.setPosition(baseX + main, baseY + off);
+        case VERTICAL -> widget.setPosition(baseX + off, baseY + main);
       }
     }
   }
