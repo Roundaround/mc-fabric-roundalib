@@ -142,13 +142,19 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
           this.parentLayout.getWidth(), this.parentLayout.getContentHeight(), 0, this.parentLayout.getHeaderHeight());
     }
 
-    int lastBottom = this.getContentTop() - this.rowSpacing;
+    this.contentHeight = this.contentPadding.getVertical();
+
+    int entryY = this.getContentTop();
     for (E entry : this.entries) {
-      entry.setPosition(this.getContentLeft(), lastBottom + this.rowSpacing);
+      entry.setPosition(this.getContentLeft(), entryY);
       entry.setWidth(this.getContentWidth());
       entry.refreshPositions();
-      lastBottom = entry.getBottom();
+
+      entryY += entry.getHeight() + this.rowSpacing;
+      this.contentHeight += entry.getHeight() + this.rowSpacing;
     }
+
+    this.contentHeight -= this.rowSpacing;
 
     this.setScrollAmount(this.getScrollAmount());
 
