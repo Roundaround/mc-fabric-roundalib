@@ -103,11 +103,11 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
   }
 
   @Override
-  protected List<Text> getHelpLong(int mouseX, int mouseY, float partialTicks) {
+  protected List<Text> getHelpLong() {
     ArrayList<Text> full = new ArrayList<>();
     full.add(this.helpMoveSingleText);
     full.add(this.helpMoveMultiText);
-    full.addAll(super.getHelpLong(mouseX, mouseY, partialTicks));
+    full.addAll(super.getHelpLong());
     return full;
   }
 

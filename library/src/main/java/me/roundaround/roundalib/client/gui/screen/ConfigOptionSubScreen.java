@@ -2,6 +2,7 @@ package me.roundaround.roundalib.client.gui.screen;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
+import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.config.PendingValueListener;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.minecraft.client.MinecraftClient;
@@ -27,7 +28,9 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   protected final SimplePositioningWidget body = new SimplePositioningWidget();
   protected final DirectionalLayoutWidget buttonRow = DirectionalLayoutWidget.horizontal().spacing(GuiUtil.PADDING);
 
+  protected LabelWidget helpLabel;
   protected IconButtonWidget resetButton;
+  protected boolean prevShiftDown;
 
   protected ConfigOptionSubScreen(Text title, Screen parent, O option) {
     super(title);
@@ -46,6 +49,8 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
         .alignRight()
         .marginBottom(GuiUtil.PADDING)
         .marginRight(GuiUtil.PADDING);
+
+    this.prevShiftDown = hasShiftDown();
   }
 
   @Override
@@ -67,6 +72,15 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
 
   protected void initBody() {
     this.layout.addBody(this.body);
+
+    this.helpLabel = this.addDrawableChild(LabelWidget.builder(this.textRenderer, this.getHelpShort())
+        .refPosition(GuiUtil.PADDING, this.height - GuiUtil.PADDING)
+        .lineSpacing(2)
+        .hideBackground()
+        .showShadow()
+        .justifiedLeft()
+        .alignedBottom()
+        .build());
   }
 
   protected void initFooter() {
@@ -91,6 +105,7 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   protected void prepLayoutForRefresh() {
     this.footer.setDimensions(this.layout.getWidth(), this.layout.getFooterHeight());
     this.body.setDimensions(this.layout.getWidth(), this.layout.getContentHeight());
+    this.helpLabel.setPosition(GuiUtil.PADDING, this.height - GuiUtil.PADDING);
   }
 
   @Override
@@ -127,46 +142,20 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
 
   @Override
   public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    boolean shiftDown = hasShiftDown();
+    if (shiftDown != this.prevShiftDown) {
+      this.helpLabel.setText(shiftDown ? this.getHelpLong() : this.getHelpShort());
+      this.prevShiftDown = shiftDown;
+    }
+
     super.render(context, mouseX, mouseY, delta);
-    this.renderHelp(context, mouseX, mouseY, delta);
   }
 
-  protected void renderHelp(DrawContext context, int mouseX, int mouseY, float delta) {
-    if (hasShiftDown()) {
-      this.renderHelpExpanded(context, mouseX, mouseY, delta);
-    } else {
-      this.renderHelpPrompt(context, mouseX, mouseY, delta);
-    }
-  }
-
-  protected void renderHelpPrompt(
-      DrawContext context, int mouseX, int mouseY, float delta
-  ) {
-    this.renderHelpLines(context, this.getHelpShort(mouseX, mouseY, delta));
-  }
-
-  protected void renderHelpExpanded(
-      DrawContext context, int mouseX, int mouseY, float delta
-  ) {
-    this.renderHelpLines(context, this.getHelpLong(mouseX, mouseY, delta));
-  }
-
-  private void renderHelpLines(DrawContext context, List<Text> lines) {
-    int startingOffset =
-        this.height - 4 - this.textRenderer.fontHeight - (lines.size() - 1) * (this.textRenderer.fontHeight + 2);
-
-    for (int i = 0; i < lines.size(); i++) {
-      context.drawTextWithShadow(this.textRenderer, lines.get(i), 4,
-          startingOffset + i * (this.textRenderer.fontHeight + 2), GuiUtil.LABEL_COLOR
-      );
-    }
-  }
-
-  protected List<Text> getHelpShort(int mouseX, int mouseY, float delta) {
+  protected List<Text> getHelpShort() {
     return List.of(this.helpShortText);
   }
 
-  protected List<Text> getHelpLong(int mouseX, int mouseY, float delta) {
+  protected List<Text> getHelpLong() {
     return List.of(this.helpCloseText, this.helpResetText);
   }
 

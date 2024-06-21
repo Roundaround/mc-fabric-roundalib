@@ -10,7 +10,13 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.resource.language.I18n;
+import net.minecraft.screen.ScreenTexts;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public class LabelWidget extends DrawableWidget {
@@ -19,7 +25,7 @@ public class LabelWidget extends DrawableWidget {
   private final TextRenderer textRenderer;
   private final PositionMode positionMode;
 
-  private Text text;
+  private List<Text> lines;
   private int color;
   private TextAlignment alignmentX;
   private TextAlignment alignmentY;
@@ -40,7 +46,7 @@ public class LabelWidget extends DrawableWidget {
 
   private LabelWidget(
       TextRenderer textRenderer,
-      Text text,
+      List<Text> lines,
       int color,
       PositionMode positionMode,
       int x,
@@ -59,10 +65,10 @@ public class LabelWidget extends DrawableWidget {
       Spacing bgOverflow,
       boolean shadow
   ) {
-    super(x, y, width, height, text);
+    super(x, y, width, height, ScreenTexts.EMPTY);
 
     this.textRenderer = textRenderer;
-    this.text = text;
+    this.lines = new ArrayList<>(lines);
     this.color = color;
     this.positionMode = positionMode;
     this.alignmentX = alignmentX;
@@ -90,12 +96,19 @@ public class LabelWidget extends DrawableWidget {
     super.setX(this.getAbsoluteX());
     super.setY(this.getAbsoluteY());
 
-    int textWidth = this.textRenderer.getWidth(this.text);
-    int textHeight = this.textRenderer.fontHeight;
+    if (this.lines.isEmpty()) {
+      this.textBounds = IntRect.zero();
+      this.bgBounds = IntRect.zero();
+      return;
+    }
 
-    if (this.overflowBehavior == OverflowBehavior.WRAP) {
+    int lineCount = this.lines.size();
+    int textWidth = this.lines.stream().mapToInt(this.textRenderer::getWidth).max().orElse(0);
+    int textHeight = lineCount * this.textRenderer.fontHeight + (lineCount - 1) * this.lineSpacing;
+
+    if (lineCount == 1 && this.overflowBehavior == OverflowBehavior.WRAP) {
       textHeight = GuiUtil.measureWrappedTextHeight(
-          this.textRenderer, this.text, this.getAvailableWidth(), this.maxLines, this.lineSpacing);
+          this.textRenderer, this.lines.getFirst(), this.getAvailableWidth(), this.maxLines, this.lineSpacing);
     }
 
     textWidth = Math.min(textWidth, this.getAvailableWidth());
@@ -109,39 +122,74 @@ public class LabelWidget extends DrawableWidget {
 
   @Override
   public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    if (this.lines.isEmpty()) {
+      return;
+    }
+
     if (this.showBackground) {
       context.fill(
           this.bgBounds.left(), this.bgBounds.top(), this.bgBounds.right(), this.bgBounds.bottom(), this.bgColor);
+    }
+
+    OverflowBehavior overflowBehavior = this.overflowBehavior;
+    if (this.lines.size() > 1 && overflowBehavior != OverflowBehavior.SHOW &&
+        overflowBehavior != OverflowBehavior.CLIP) {
+      overflowBehavior = OverflowBehavior.SHOW;
+    }
+
+    if (overflowBehavior == OverflowBehavior.CLIP) {
+      context.enableScissor(
+          this.textBounds.left(), this.textBounds.top(), this.textBounds.right(), this.textBounds.bottom());
     }
 
     int x = this.referenceX;
     int y = this.textBounds.top();
     int availableWidth = this.getAvailableWidth();
 
+    for (Text line : this.lines) {
+      this.renderLine(line, x, y, availableWidth, context, mouseX, mouseY, delta);
+      y += this.textRenderer.fontHeight + this.lineSpacing;
+    }
+
+    if (overflowBehavior == OverflowBehavior.CLIP) {
+      context.disableScissor();
+    }
+  }
+
+  protected void renderLine(
+      Text line, int x, int y, int availableWidth, DrawContext context, int mouseX, int mouseY, float delta
+  ) {
     switch (this.overflowBehavior) {
-      case SHOW ->
-          GuiUtil.drawText(context, this.textRenderer, this.text, x, y, this.color, this.shadow, this.alignmentX);
-      case TRUNCATE -> GuiUtil.drawTruncatedText(context, this.textRenderer, this.text, x, y, this.color, this.shadow,
-          availableWidth, this.alignmentX
-      );
+      case SHOW, CLIP ->
+          GuiUtil.drawText(context, this.textRenderer, line, x, y, this.color, this.shadow, this.alignmentX);
+      case TRUNCATE ->
+          GuiUtil.drawTruncatedText(context, this.textRenderer, line, x, y, this.color, this.shadow, availableWidth,
+              this.alignmentX
+          );
       case WRAP ->
-          GuiUtil.drawWrappedText(context, this.textRenderer, this.text, x, y, this.color, this.shadow, availableWidth,
+          GuiUtil.drawWrappedText(context, this.textRenderer, line, x, y, this.color, this.shadow, availableWidth,
               this.maxLines, this.lineSpacing, this.alignmentX
           );
-      case CLIP -> {
-        context.enableScissor(
-            this.textBounds.left(), this.textBounds.top(), this.textBounds.right(), this.textBounds.bottom());
-        GuiUtil.drawText(context, this.textRenderer, this.text, x, y, this.color, this.shadow, this.alignmentX);
-        context.disableScissor();
-      }
-      case SCROLL -> GuiUtil.drawScrollingText(context, this.textRenderer, this.text, x, y, this.color, this.shadow,
-          availableWidth, this.scrollMargin, this.alignmentX
-      );
+      case SCROLL ->
+          GuiUtil.drawScrollingText(context, this.textRenderer, line, x, y, this.color, this.shadow, availableWidth,
+              this.scrollMargin, this.alignmentX
+          );
     }
   }
 
   public Text getText() {
-    return this.text;
+    if (this.lines.isEmpty()) {
+      return Text.empty();
+    }
+
+    Iterator<Text> iter = this.lines.iterator();
+    MutableText builder = iter.next().copy();
+    while (iter.hasNext()) {
+      builder.append(ScreenTexts.LINE_BREAK);
+      builder.append(iter.next());
+    }
+
+    return builder;
   }
 
   public void batchUpdates(Runnable runnable) {
@@ -155,7 +203,17 @@ public class LabelWidget extends DrawableWidget {
   }
 
   public void setText(Text text) {
-    this.text = text;
+    this.lines = List.of(text);
+    this.calculateBounds();
+  }
+
+  public void setText(List<Text> lines) {
+    this.lines = new ArrayList<>(lines);
+    this.calculateBounds();
+  }
+
+  public void appendLine(Text text) {
+    this.lines.add(text);
     this.calculateBounds();
   }
 
@@ -334,7 +392,7 @@ public class LabelWidget extends DrawableWidget {
   }
 
   public Builder toBuilder() {
-    return new Builder(this.textRenderer, this.text).position(this.getX(), this.getY())
+    return new Builder(this.textRenderer, this.lines).position(this.getX(), this.getY())
         .positionMode(this.positionMode)
         .dimensions(this.getWidth(), this.getHeight())
         .color(this.color)
@@ -353,6 +411,10 @@ public class LabelWidget extends DrawableWidget {
 
   public static Builder builder(TextRenderer textRenderer, Text text) {
     return new Builder(textRenderer, text);
+  }
+
+  public static Builder builder(TextRenderer textRenderer, List<Text> lines) {
+    return new Builder(textRenderer, lines);
   }
 
   public static LabelWidget screenTitle(TextRenderer textRenderer, Text text, Screen screen) {
@@ -376,7 +438,7 @@ public class LabelWidget extends DrawableWidget {
   @Environment(EnvType.CLIENT)
   public static class Builder {
     private final TextRenderer textRenderer;
-    private final Text text;
+    private final List<Text> lines;
 
     private PositionMode positionMode = PositionMode.ABSOLUTE;
     private int x;
@@ -396,9 +458,17 @@ public class LabelWidget extends DrawableWidget {
     private Spacing bgOverflow = Spacing.of(1, 0, 0, 1);
     private boolean shadow = false;
 
+    public Builder(TextRenderer textRenderer) {
+      this(textRenderer, List.of());
+    }
+
     public Builder(TextRenderer textRenderer, Text text) {
+      this(textRenderer, List.of(text));
+    }
+
+    public Builder(TextRenderer textRenderer, List<Text> lines) {
       this.textRenderer = textRenderer;
-      this.text = text;
+      this.lines = new ArrayList<>(lines);
     }
 
     public Builder position(int x, int y) {
@@ -564,7 +634,7 @@ public class LabelWidget extends DrawableWidget {
     }
 
     public LabelWidget build() {
-      return new LabelWidget(this.textRenderer, this.text, this.color, this.positionMode, this.x, this.y, this.width,
+      return new LabelWidget(this.textRenderer, this.lines, this.color, this.positionMode, this.x, this.y, this.width,
           this.height, this.alignmentH, this.alignmentV, this.padding.copy(), this.overflowBehavior, this.scrollMargin,
           this.maxLines, this.lineSpacing, this.background, this.bgColor, this.bgOverflow.copy(), this.shadow
       );
