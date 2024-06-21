@@ -18,24 +18,25 @@ public class LabelWidget extends DrawableWidget {
 
   private final TextRenderer textRenderer;
   private final PositionMode positionMode;
-  private final TextAlignment alignmentX;
-  private final TextAlignment alignmentY;
-  private final Spacing padding;
-  private final int scrollMargin;
-  private final int maxLines;
-  private final int lineSpacing;
-  private final Spacing bgOverflow;
-  private final boolean shadow;
 
   private Text text;
   private int color;
-  private int bgColor;
-  private boolean showBackground;
+  private TextAlignment alignmentX;
+  private TextAlignment alignmentY;
+  private Spacing padding;
   private OverflowBehavior overflowBehavior;
+  private int scrollMargin;
+  private int maxLines;
+  private int lineSpacing;
+  private boolean showBackground;
+  private Spacing bgOverflow;
+  private int bgColor;
+  private boolean shadow;
   private IntRect textBounds = IntRect.zero();
   private IntRect bgBounds = IntRect.zero();
   private int referenceX;
   private int referenceY;
+  private boolean inBatchUpdate = false;
 
   private LabelWidget(
       TextRenderer textRenderer,
@@ -80,6 +81,10 @@ public class LabelWidget extends DrawableWidget {
   }
 
   public void calculateBounds() {
+    if (this.inBatchUpdate) {
+      return;
+    }
+
     this.referenceX = this.getReferenceX();
     this.referenceY = this.getReferenceY();
     super.setX(this.getAbsoluteX());
@@ -135,46 +140,79 @@ public class LabelWidget extends DrawableWidget {
     }
   }
 
+  public Text getText() {
+    return this.text;
+  }
+
+  public void batchUpdates(Runnable runnable) {
+    this.inBatchUpdate = true;
+    try {
+      runnable.run();
+    } finally {
+      this.inBatchUpdate = false;
+      this.calculateBounds();
+    }
+  }
+
   public void setText(Text text) {
     this.text = text;
     this.calculateBounds();
-  }
-
-  public Text getText() {
-    return this.text;
   }
 
   public void setColor(int color) {
     this.color = color;
   }
 
-  public void setColor(int r, int g, int b) {
-    this.setColor(GuiUtil.genColorInt(r, g, b));
+  public void setAlignmentX(TextAlignment alignmentX) {
+    this.alignmentX = alignmentX;
+    this.calculateBounds();
   }
 
-  public void setColor(int r, int g, int b, int a) {
-    this.setColor(GuiUtil.genColorInt(r, g, b, a));
+  public void setAlignmentY(TextAlignment alignmentY) {
+    this.alignmentY = alignmentY;
+    this.calculateBounds();
   }
 
-  public void setBgColor(int bgColor) {
-    this.bgColor = bgColor;
+  public void setPadding(Spacing padding) {
+    this.padding = padding;
+    this.calculateBounds();
   }
 
-  public void setBgColor(int r, int g, int b) {
-    this.setBgColor(GuiUtil.genColorInt(r, g, b));
+  public void setOverflowBehavior(OverflowBehavior overflowBehavior) {
+    this.overflowBehavior = overflowBehavior;
+    this.calculateBounds();
   }
 
-  public void setBgColor(int r, int g, int b, int a) {
-    this.setBgColor(GuiUtil.genColorInt(r, g, b, a));
+  public void setScrollMargin(int scrollMargin) {
+    this.scrollMargin = scrollMargin;
+    this.calculateBounds();
+  }
+
+  public void setMaxLines(int maxLines) {
+    this.maxLines = maxLines;
+    this.calculateBounds();
+  }
+
+  public void setLineSpacing(int lineSpacing) {
+    this.lineSpacing = lineSpacing;
+    this.calculateBounds();
   }
 
   public void setShowBackground(boolean showBackground) {
     this.showBackground = showBackground;
   }
 
-  public void setOverflowBehavior(OverflowBehavior overflowBehavior) {
-    this.overflowBehavior = overflowBehavior;
+  public void setBgColor(int bgColor) {
+    this.bgColor = bgColor;
+  }
+
+  public void setBgOverflow(Spacing bgOverflow) {
+    this.bgOverflow = bgOverflow;
     this.calculateBounds();
+  }
+
+  public void setShadow(boolean shadow) {
+    this.shadow = shadow;
   }
 
   @Override

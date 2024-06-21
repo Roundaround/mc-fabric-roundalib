@@ -30,8 +30,10 @@ public class ExamplePositionEditScreen extends PositionEditScreen {
   @Override
   protected void initTabNavigation() {
     super.initTabNavigation();
-    this.valueLabel.setPosition(this.getCenterX(), this.getCenterY());
-    this.valueLabel.setDimensions(this.width, this.layout.getContentHeight());
+    this.valueLabel.batchUpdates(() -> {
+      this.valueLabel.setPosition(this.getCenterX(), this.getCenterY());
+      this.valueLabel.setDimensions(this.width, this.layout.getContentHeight());
+    });
   }
 
   @Override

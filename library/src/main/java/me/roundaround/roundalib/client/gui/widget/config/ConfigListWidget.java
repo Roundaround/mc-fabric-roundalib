@@ -121,9 +121,11 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
 
     @Override
     public void refreshPositions() {
-      this.label.setPosition(this.getContentCenterX(), this.getContentCenterY());
-      this.label.setDimensions(this.getContentWidth(), this.getContentHeight());
       super.refreshPositions();
+      this.label.batchUpdates(() -> {
+        this.label.setPosition(this.getContentCenterX(), this.getContentCenterY());
+        this.label.setDimensions(this.getContentWidth(), this.getContentHeight());
+      });
     }
   }
 
@@ -212,8 +214,10 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
           this.getContentTop()
       );
 
-      this.label.setPosition(this.getContentLeft(), this.getContentCenterY());
-      this.label.setDimensions(this.getLabelWidth(), this.getContentHeight());
+      this.label.batchUpdates(() -> {
+        this.label.setPosition(this.getContentLeft(), this.getContentCenterY());
+        this.label.setDimensions(this.getLabelWidth(), this.getContentHeight());
+      });
 
       this.control.setPosition(this.getControlLeft(), this.getContentTop());
       this.control.setDimensions(this.getControlWidth(), this.getContentHeight());
