@@ -1,6 +1,5 @@
 package me.roundaround.roundalib.client.gui.widget;
 
-import me.roundaround.roundalib.client.gui.layout.Coords;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.widget.LayoutWidget;
@@ -106,11 +105,5 @@ public abstract class SizableLayoutWidget<T extends SizableLayoutWidget<T>> impl
   @SuppressWarnings("unchecked")
   protected T self() {
     return (T) this;
-  }
-
-  @Environment(EnvType.CLIENT)
-  @FunctionalInterface
-  public interface DimensionsSupplier<T extends SizableLayoutWidget<T>> {
-    Coords supply(T self);
   }
 }
