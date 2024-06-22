@@ -635,8 +635,8 @@ public class LabelWidget extends DrawableWidget {
 
     public LabelWidget build() {
       return new LabelWidget(this.textRenderer, this.lines, this.color, this.positionMode, this.x, this.y, this.width,
-          this.height, this.alignmentH, this.alignmentV, this.padding.copy(), this.overflowBehavior, this.scrollMargin,
-          this.maxLines, this.lineSpacing, this.background, this.bgColor, this.bgOverflow.copy(), this.shadow
+          this.height, this.alignmentH, this.alignmentV, this.padding, this.overflowBehavior, this.scrollMargin,
+          this.maxLines, this.lineSpacing, this.background, this.bgColor, this.bgOverflow, this.shadow
       );
     }
   }
