@@ -165,7 +165,7 @@ public final class GuiUtil {
       TextAlignment alignment
   ) {
     if (maxWidth <= 0 || textRenderer.getWidth(text) < maxWidth) {
-      context.drawText(textRenderer, text, x, y, color, shadow);
+      drawText(context, textRenderer, text, x, y, color, shadow, alignment);
       return;
     }
 
@@ -212,8 +212,8 @@ public final class GuiUtil {
       int lineSpacing,
       TextAlignment alignment
   ) {
-    if (maxWidth <= 0) {
-      context.drawText(textRenderer, text, x, y, color, shadow);
+    if (maxWidth <= 0 || textRenderer.getWidth(text) < maxWidth) {
+      drawText(context, textRenderer, text, x, y, color, shadow, alignment);
       return;
     }
 
@@ -253,13 +253,8 @@ public final class GuiUtil {
       int margin,
       TextAlignment alignment
   ) {
-    if (maxWidth <= 0) {
-      drawText(context, textRenderer, text, x, y, color, shadow, alignment);
-      return;
-    }
-
     int textWidth = textRenderer.getWidth(text);
-    if (textWidth < maxWidth) {
+    if (maxWidth <= 0 || textWidth < maxWidth) {
       drawText(context, textRenderer, text, x, y, color, shadow, alignment);
       return;
     }

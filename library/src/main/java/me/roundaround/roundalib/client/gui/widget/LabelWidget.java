@@ -146,7 +146,7 @@ public class LabelWidget extends DrawableWidget {
     int availableWidth = this.getAvailableWidth();
 
     for (Text line : this.lines) {
-      this.renderLine(line, x, y, availableWidth, context, mouseX, mouseY, delta);
+      this.renderLine(line, x, y, availableWidth, context, mouseX, mouseY, delta, overflowBehavior);
       y += this.textRenderer.fontHeight + this.lineSpacing;
     }
 
@@ -156,9 +156,17 @@ public class LabelWidget extends DrawableWidget {
   }
 
   protected void renderLine(
-      Text line, int x, int y, int availableWidth, DrawContext context, int mouseX, int mouseY, float delta
+      Text line,
+      int x,
+      int y,
+      int availableWidth,
+      DrawContext context,
+      int mouseX,
+      int mouseY,
+      float delta,
+      OverflowBehavior overflowBehavior
   ) {
-    switch (this.overflowBehavior) {
+    switch (overflowBehavior) {
       case SHOW, CLIP ->
           GuiUtil.drawText(context, this.textRenderer, line, x, y, this.color, this.shadow, this.alignmentX);
       case TRUNCATE ->
