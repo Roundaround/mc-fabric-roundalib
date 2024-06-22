@@ -40,11 +40,7 @@ public abstract class AlwaysSelectedFlowListWidget<E extends AlwaysSelectedFlowL
       return null;
     }
 
-    if (this.isFocused()) {
-      if (!(navigation instanceof GuiNavigation.Arrow arrow)) {
-        return null;
-      }
-
+    if (this.isFocused() && navigation instanceof GuiNavigation.Arrow arrow) {
       E neighbor = this.getNeighboringEntry(arrow.direction());
       if (neighbor != null) {
         return GuiNavigationPath.of(this, GuiNavigationPath.of(neighbor));
@@ -53,14 +49,18 @@ public abstract class AlwaysSelectedFlowListWidget<E extends AlwaysSelectedFlowL
       return null;
     }
 
-    E reference = this.getSelected();
-    if (reference == null) {
-      reference = this.getNeighboringEntry(navigation.getDirection());
+    if (!this.isFocused()) {
+      E reference = this.getSelected();
+      if (reference == null) {
+        reference = this.getNeighboringEntry(navigation.getDirection());
+      }
+      if (reference == null) {
+        return null;
+      }
+      return GuiNavigationPath.of(this, GuiNavigationPath.of(reference));
     }
-    if (reference == null) {
-      return null;
-    }
-    return GuiNavigationPath.of(this, GuiNavigationPath.of(reference));
+
+    return null;
   }
 
   @Override
@@ -100,7 +100,8 @@ public abstract class AlwaysSelectedFlowListWidget<E extends AlwaysSelectedFlowL
   }
 
   protected void drawSelectionHighlight(DrawContext context, E entry) {
-    context.drawBorder(entry.getX(), entry.getY(), entry.getWidth(), entry.getHeight(), Colors.GRAY);
+    context.drawBorder(
+        entry.getX(), entry.getY(), entry.getWidth(), entry.getHeight(), this.isFocused() ? Colors.WHITE : Colors.GRAY);
   }
 
   protected void highlightSelection(boolean highlightSelection) {
@@ -136,7 +137,6 @@ public abstract class AlwaysSelectedFlowListWidget<E extends AlwaysSelectedFlowL
 
     @Override
     public void setFocused(Element focused) {
-      this.focused = focused == this;
     }
 
     @Override

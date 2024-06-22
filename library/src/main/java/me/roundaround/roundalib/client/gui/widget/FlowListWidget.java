@@ -267,25 +267,19 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     RenderSystem.disableBlend();
   }
 
-  @Override
   @SuppressWarnings("unchecked")
-  public E getFocused() {
-    // Suppress warning because we know that the focused element will only ever be an entry
-    return (E) super.getFocused();
-  }
-
   @Override
   public void setFocused(Element focused) {
     super.setFocused(focused);
 
-    E entry = this.getFocused();
-    if (entry == null) {
+    Element element = this.getFocused();
+    if (!(element instanceof Entry entry)) {
       return;
     }
 
-    this.setSelected(entry);
+    this.setSelected((E) entry);
     if (this.client.getNavigationType().isKeyboard()) {
-      this.ensureVisible(entry);
+      this.ensureVisible((E) entry);
     }
   }
 
@@ -304,8 +298,9 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public GuiNavigationPath getNavigationPath(GuiNavigation navigation) {
-    if (this.entries.isEmpty()) {
+    if (this.getEntryCount() == 0) {
       return null;
     }
 
@@ -313,7 +308,12 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
       return super.getNavigationPath(navigation);
     }
 
-    E entry = this.getFocused();
+    Element element = this.getFocused();
+    if (!(element == null || element instanceof Entry)) {
+      return super.getNavigationPath(navigation);
+    }
+
+    E entry = (E) element;
 
     if (arrow.direction().getAxis() == NavigationAxis.HORIZONTAL && entry != null) {
       return GuiNavigationPath.of(this, entry.getNavigationPath(navigation));
@@ -342,7 +342,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
     GuiNavigationPath path;
     do {
-      entry = this.getNeighboringEntry(direction, (element) -> !element.children().isEmpty());
+      entry = this.getNeighboringEntry(direction, (e) -> !e.children().isEmpty());
       if (entry == null) {
         return null;
       }
@@ -415,16 +415,17 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public void appendClickableNarrations(NarrationMessageBuilder builder) {
     E hovered = this.getHoveredEntry();
     if (hovered != null) {
       hovered.appendNarrations(builder.nextMessage());
       this.appendNarrations(builder, hovered);
     } else {
-      E focused = this.getFocused();
-      if (focused != null) {
+      Element focusedElement = this.getFocused();
+      if (focusedElement instanceof Entry focused) {
         focused.appendNarrations(builder.nextMessage());
-        this.appendNarrations(builder, focused);
+        this.appendNarrations(builder, (E) focused);
       }
     }
 
@@ -455,9 +456,9 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     E entry = this.getEntryAtPosition(mouseX, mouseY);
     if (entry != null) {
       if (entry.mouseClicked(mouseX, mouseY, button)) {
-        E focused = this.getFocused();
-        if (focused != entry && focused != null) {
-          focused.setFocused(null);
+        Element focused = this.getFocused();
+        if (focused != entry && focused instanceof ParentElement parent) {
+          parent.setFocused(null);
         }
 
         this.setFocused(entry);
