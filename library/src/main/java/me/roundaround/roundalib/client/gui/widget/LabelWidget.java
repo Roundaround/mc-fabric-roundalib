@@ -436,7 +436,11 @@ public class LabelWidget extends DrawableWidget {
   }
 
   public static int getDefaultHeight(TextRenderer textRenderer, int lines) {
-    return lines * textRenderer.fontHeight + DEFAULT_PADDING.getVertical();
+    return getDefaultHeight(textRenderer, lines, DEFAULT_PADDING.getVertical(), 0);
+  }
+
+  public static int getDefaultHeight(TextRenderer textRenderer, int lines, int padding, int spacing) {
+    return lines * textRenderer.fontHeight + (lines - 1) * spacing + padding;
   }
 
   @Environment(EnvType.CLIENT)
