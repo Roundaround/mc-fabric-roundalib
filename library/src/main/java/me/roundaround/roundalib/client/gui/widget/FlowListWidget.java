@@ -577,7 +577,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   public int getScrollPaneHeight() {
-    return this.contentHeight + this.contentPadding.getVertical();
+    return this.contentHeight;
   }
 
   public int getContentTop() {
