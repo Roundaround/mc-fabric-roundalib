@@ -4,13 +4,17 @@ import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.Spacing;
 import me.roundaround.roundalib.client.gui.widget.FullBodyWrapperWidget;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
+import me.roundaround.roundalib.client.gui.widget.LinearLayoutWidget;
 import me.roundaround.roundalib.client.gui.widget.ResponsiveGridWidget;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.*;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.CyclingButtonWidget;
+import net.minecraft.client.gui.widget.TextWidget;
+import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 
@@ -35,23 +39,21 @@ public class IconButtonDemoScreen extends Screen implements DemoScreen {
   protected void init() {
     this.layout = new ThreePartsLayoutWidget(this);
 
-    DirectionalLayoutWidget header = DirectionalLayoutWidget.vertical().spacing(GuiUtil.PADDING / 2);
+    LinearLayoutWidget header = LinearLayoutWidget.vertical((self) -> {
+      self.setDimensions(this.width, this.layout.getHeaderHeight());
+    }).spacing(GuiUtil.PADDING / 2).centered();
+    header.getMainPositioner().alignHorizontalCenter();
     this.layout.addHeader(header);
 
-    header.getMainPositioner().alignHorizontalCenter();
-    header.add(new EmptyWidget(0, GuiUtil.PADDING / 2));
-    header.add(new TextWidget(this.getTitle(), this.textRenderer).alignCenter(),
-        (positioner -> positioner.marginTop(GuiUtil.PADDING))
-    );
+    header.add(new TextWidget(this.getTitle(), this.textRenderer).alignCenter());
     header.add(new CyclingButtonWidget.Builder<Integer>((value) -> Text.of(String.format("%sx", value))).values(
             List.of(IconButtonWidget.SIZE_V, IconButtonWidget.SIZE_L, IconButtonWidget.SIZE_M, IconButtonWidget.SIZE_S))
         .initially(this.size)
         .omitKeyText()
-        .build(Text.empty(), this::onSizeChange), (positioner -> positioner.marginBottom(GuiUtil.PADDING)));
-    header.add(new EmptyWidget(0, GuiUtil.PADDING / 2));
+        .build(Text.empty(), this::onSizeChange));
 
     header.refreshPositions();
-    this.layout.setHeaderHeight(header.getHeight());
+    this.layout.setHeaderHeight(header.getContentSize() + 2 * GuiUtil.PADDING);
 
     int iconSize = switch (this.size) {
       case IconButtonWidget.SIZE_S -> IconButtonWidget.SIZE_S;

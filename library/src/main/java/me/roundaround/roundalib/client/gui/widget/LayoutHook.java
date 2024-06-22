@@ -5,11 +5,11 @@ import net.fabricmc.api.Environment;
 
 @Environment(EnvType.CLIENT)
 @FunctionalInterface
-public interface LayoutHook {
-  void run();
+public interface LayoutHook<T> {
+  void run(T self);
 
-  static LayoutHook noop() {
-    return () -> {
+  static <T> LayoutHook<T> noop() {
+    return (self) -> {
     };
   }
 }

@@ -14,9 +14,12 @@ import net.minecraft.client.gui.widget.Positioner;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.screen.ScreenTexts;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.util.Colors;
 import net.minecraft.util.math.Divider;
 
+import java.util.List;
 import java.util.Objects;
 
 @Environment(EnvType.CLIENT)
@@ -138,11 +141,6 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
   }
 
   @Override
-  public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-    super.render(context, mouseX, mouseY, delta);
-  }
-
-  @Override
   public void close() {
     Objects.requireNonNull(this.client).setScreen(this.parent);
   }
@@ -161,39 +159,48 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
 
     @Environment(value = EnvType.CLIENT)
     public static class Entry extends AlwaysSelectedFlowListWidget.Entry {
-      private final LabelWidget label;
-
       public Entry(TextRenderer textRenderer, int index, int left, int top, int width) {
-        super(index, left, top, width, 20);
+        super(index, left, top, width, 36);
 
-        this.label = LabelWidget.builder(textRenderer, Text.of(String.format("Row #%s", index)))
-            .refPosition(this.getContentCenterX(), this.getContentCenterY())
-            .dimensions(this.getContentWidth(), this.getContentHeight())
-            .justifiedCenter()
+        LinearLayoutWidget layout = this.addLayout(LinearLayoutWidget.horizontal((self) -> {
+          self.setPosition(this.getContentLeft(), this.getContentTop());
+          self.setDimensions(this.getContentWidth(), this.getContentHeight());
+        }).spacing(GuiUtil.PADDING));
+
+        layout.add(new DrawableWidget() {
+          @Override
+          protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+            int rectWidth = (int) (0.7f * this.getWidth());
+            int left = this.getX() + (this.getWidth() - rectWidth) / 2;
+            context.fill(left, this.getY(), left + rectWidth, this.getBottom(), Colors.BLACK);
+            context.drawBorder(left, this.getY(), rectWidth, this.getHeight(), GuiUtil.genColorInt(0.8f, 0.2f, 0.6f));
+          }
+        }, (parent, self) -> self.setDimensions(this.getContentHeight(), this.getContentHeight()));
+
+        int num = index + 1;
+        List<Text> lines = List.of(Text.of(String.format("Row #%s", num)),
+            Text.of(String.format("%s * %s = %s", num, num, num * num)),
+            Text.literal("Very long line of text that is sure to overflow outside the container")
+                .setStyle(Style.EMPTY.withItalic(true).withColor(Colors.GRAY))
+        );
+        LabelWidget label = LabelWidget.builder(textRenderer, lines)
+            .justifiedLeft()
             .alignedMiddle()
+            .overflowBehavior(LabelWidget.OverflowBehavior.CLIP)
             .hideBackground()
             .showShadow()
             .build();
+        layout.add(label, (parent, self) -> {
+          self.setDimensions(
+              this.getContentWidth() - GuiUtil.PADDING - this.getContentHeight(), this.getContentHeight());
+        });
 
-        this.addDrawableChild(this.label);
+        layout.forEachChild(this::addDrawableChild);
       }
 
       @Override
       public Text getNarration() {
         return ScreenTexts.EMPTY;
-      }
-
-      @Override
-      public void refreshPositions() {
-        this.label.setPosition(this.getContentCenterX(), this.getContentCenterY());
-        this.label.setDimensions(this.getContentWidth(), this.getContentHeight());
-      }
-
-      @Override
-      public void renderDecorations(DrawContext context, int mouseX, int mouseY, float delta) {
-        context.drawBorder(this.getX(), this.getY(), this.getWidth(), this.getHeight(),
-            GuiUtil.genColorInt(0.8f, 0.2f, 0.6f)
-        );
       }
     }
   }

@@ -1,8 +1,6 @@
 package me.roundaround.roundalib.client.gui.widget;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
-import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.Spacing;
 import net.fabricmc.api.EnvType;
@@ -148,7 +146,6 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     for (E entry : this.entries) {
       entry.setPosition(this.getContentLeft(), entryY);
       entry.setWidth(this.getContentWidth());
-      entry.refreshPositions();
 
       entryY += entry.getHeight() + this.rowSpacing;
       this.contentHeight += entry.getHeight() + this.rowSpacing;
@@ -163,7 +160,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
   @Override
   public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-    this.hoveredEntry = this.isMouseOver(mouseX, mouseY) ? this.getEntryAtPosition(mouseX, mouseY) : null;
+    this.hoveredEntry = this.getEntryAtPosition(mouseX, mouseY);
 
     this.renderListBackground(context);
     this.renderList(context, mouseX, mouseY, delta);
@@ -182,18 +179,21 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
   protected void renderList(DrawContext context, int mouseX, int mouseY, float delta) {
     context.enableScissor(this.getX(), this.getY(), this.getRight(), this.getBottom());
-    this.entries.forEach((entry) -> this.renderEntry(context, mouseX, mouseY, delta, entry));
-
-    this.renderDecorations(context, mouseX, mouseY, delta);
+    this.renderEntries(context, mouseX, mouseY, delta);
     this.renderScrollBar(context);
     context.disableScissor();
   }
 
-  protected void renderEntry(DrawContext context, int mouseX, int mouseY, float delta, E entry) {
-    if (!this.isEntryVisible(entry)) {
-      return;
-    }
+  protected void renderEntries(DrawContext context, int mouseX, int mouseY, float delta) {
+    this.entries.forEach((entry) -> {
+      if (!this.isEntryVisible(entry)) {
+        return;
+      }
+      this.renderEntry(context, mouseX, mouseY, delta, entry);
+    });
+  }
 
+  protected void renderEntry(DrawContext context, int mouseX, int mouseY, float delta, E entry) {
     if (this.alternatingRowShading && entry.getIndex() % 2 == 0) {
       this.renderRowShade(context, entry);
     }
@@ -214,9 +214,9 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     BufferBuilder bufferBuilder = tessellator.getBuffer();
     Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
 
-    int left = entry.getLeft();
+    int left = entry.getX();
     int right = entry.getRight();
-    int top = entry.getTop();
+    int top = entry.getY();
     int bottom = entry.getBottom();
 
     bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
@@ -237,9 +237,6 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     tessellator.draw();
 
     RenderSystem.disableBlend();
-  }
-
-  protected void renderDecorations(DrawContext context, int mouseX, int mouseY, float delta) {
   }
 
   protected void renderListBorders(DrawContext context) {
@@ -439,8 +436,16 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     return mouseX >= this.getX() && mouseX <= this.getRight() && mouseY >= this.getY() && mouseY <= this.getBottom();
   }
 
+  protected boolean isSelectButton(int button) {
+    return button == 0;
+  }
+
   @Override
   public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    if (!this.isSelectButton(button)) {
+      return false;
+    }
+
     this.updateScrollingState(mouseX, mouseY, button);
 
     if (!this.isMouseOver(mouseX, mouseY)) {
@@ -479,7 +484,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
       return true;
     }
 
-    if (button != 0 || !this.scrolling) {
+    if (!this.isSelectButton(button) || !this.scrolling) {
       return false;
     }
 
@@ -498,11 +503,9 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   @Override
-  public boolean mouseScrolled(
-      double mouseX, double mouseY, double horizontalAmount, double verticalAmount
-  ) {
+  public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
     if (this.allowScrollPassThrough()) {
-      Entry entry = this.getEntryAtPosition(mouseX, mouseY);
+      E entry = this.getEntryAtPosition(mouseX, mouseY);
       if (entry != null && entry.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount)) {
         return true;
       }
@@ -517,16 +520,12 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   protected E getEntryAtPosition(double x, double y) {
-    if (x < this.getX() || x > this.getRight()) {
-      return null;
-    }
-
-    if (y < this.getY() || y > this.getBottom()) {
+    if (!this.isMouseOver(x, y)) {
       return null;
     }
 
     for (E entry : this.entries) {
-      if (y >= entry.getTop() && y <= entry.getBottom()) {
+      if (y >= entry.getY() && y <= entry.getBottom()) {
         return entry;
       }
     }
@@ -535,12 +534,12 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   protected boolean isEntryVisible(E entry) {
-    return entry.getTop() <= this.getContentBottom() && entry.getBottom() >= this.getContentTop();
+    return entry.getY() <= this.getContentBottom() && entry.getBottom() >= this.getContentTop();
   }
 
   protected void ensureVisible(E entry) {
-    if (entry.getTop() < this.getContentTop()) {
-      this.scroll(entry.getTop() - this.getContentTop());
+    if (entry.getY() < this.getContentTop()) {
+      this.scroll(entry.getY() - this.getContentTop());
       return;
     }
 
@@ -692,36 +691,56 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   @Environment(EnvType.CLIENT)
-  public abstract static class Entry extends PositionalWidget implements ParentElement, Narratable {
-    protected static final int DEFAULT_MARGIN_HORIZONTAL = DEFAULT_FADE_WIDTH;
-    protected static final int DEFAULT_MARGIN_VERTICAL = GuiUtil.PADDING / 2;
+  public abstract static class Entry implements Drawable, LayoutWidget, ParentElement, Narratable {
+    protected static final Spacing DEFAULT_MARGIN = Spacing.of(GuiUtil.PADDING / 2);
 
+    private final ArrayList<WrappedLayoutWidget<? extends LayoutWidget>> layouts = new ArrayList<>();
     private final ArrayList<Element> children = new ArrayList<>();
     private final ArrayList<Selectable> selectables = new ArrayList<>();
     private final ArrayList<Drawable> drawables = new ArrayList<>();
     private final int index;
     private final int contentHeight;
 
+    private int x;
+    private int y;
+    private int width;
     private Element focused;
     private Selectable focusedSelectable;
     private boolean dragging;
     private double scrollAmount;
-    private Spacing margin = Spacing.of(DEFAULT_MARGIN_VERTICAL, DEFAULT_MARGIN_HORIZONTAL);
+    private Spacing margin = DEFAULT_MARGIN;
 
-    protected Entry(int index, int left, int top, int width, int contentHeight) {
-      super(left, top, width, 0);
+    protected Entry(int index, int x, int y, int width, int contentHeight) {
       this.index = index;
+      this.x = x;
+      this.y = y;
+      this.width = width;
       this.contentHeight = contentHeight;
+    }
+
+    protected <T extends LayoutWidget> T addLayout(T layout) {
+      return this.addLayout(layout, LayoutHook.noop());
+    }
+
+    protected <T extends LayoutWidget> T addLayout(T layout, LayoutHook<T> layoutHook) {
+      this.layouts.add(new WrappedLayoutWidget<>(layout, layoutHook));
+      return layout;
     }
 
     protected <T extends Element> T addChild(T child) {
       this.children.add(child);
+      if (child instanceof Drawable drawable) {
+        this.drawables.add(drawable);
+      }
+      if (child instanceof Selectable selectable) {
+        this.selectables.add(selectable);
+      }
       return child;
     }
 
-    protected <T extends Selectable> T addSelectable(T selectable) {
-      this.selectables.add(selectable);
-      return selectable;
+    protected <T extends Element & Drawable & Selectable> T addDrawableChild(T child) {
+      this.drawables.add(child);
+      return this.addSelectableChild(child);
     }
 
     protected <T extends Drawable> T addDrawable(T drawable) {
@@ -735,76 +754,57 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
       return child;
     }
 
-    protected <T extends Element & Drawable> T addDrawableChild(T child) {
-      this.children.add(child);
-      this.drawables.add(child);
-      return child;
-    }
-
-    protected <T extends Element & Drawable & Selectable> T addDrawableAndSelectableChild(T child) {
-      this.children.add(child);
-      this.drawables.add(child);
-      this.selectables.add(child);
-      return child;
-    }
-
-    protected <T extends Element> T addDetectedCapabilityChild(T child) {
-      this.children.add(child);
-      if (child instanceof Drawable drawable) {
-        this.drawables.add(drawable);
-      }
-      if (child instanceof Selectable selectable) {
-        this.selectables.add(selectable);
-      }
-      return child;
-    }
-
     protected void clearChildren() {
+      this.layouts.clear();
       this.children.clear();
       this.drawables.clear();
       this.selectables.clear();
     }
 
     @Override
-    public void renderPositional(DrawContext context, int mouseX, int mouseY, float delta) {
-      this.renderBackground(context, mouseX, mouseY, delta);
-      this.renderContent(context, mouseX, mouseY, delta);
-      this.renderDecorations(context, mouseX, mouseY, delta);
-    }
-
-    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
-    }
-
-    public void renderContent(DrawContext context, int mouseX, int mouseY, float delta) {
-      this.drawables.forEach((drawable) -> {
-        drawable.render(context, mouseX, mouseY, delta);
-      });
-    }
-
-    public void renderDecorations(DrawContext context, int mouseX, int mouseY, float delta) {
-    }
-
-    protected void setScrollAmount(double scrollAmount) {
-      this.scrollAmount = scrollAmount;
-      this.refreshPositions();
-    }
-
-    @Override
     public List<? extends Element> children() {
-      return ImmutableList.copyOf(this.children);
+      return this.children;
     }
 
     public List<? extends Selectable> selectableChildren() {
-      return ImmutableList.copyOf(this.selectables);
+      return this.selectables;
     }
 
     @Override
     public void forEachElement(Consumer<Widget> consumer) {
+      this.layouts.forEach((wrapped) -> wrapped.apply(consumer));
       this.children().forEach((child) -> {
         if (child instanceof Widget widget) {
           consumer.accept(widget);
         }
       });
+    }
+
+    @Override
+    public void refreshPositions() {
+      this.layouts.forEach(WrappedLayoutWidget::refreshPositions);
+    }
+
+    @Override
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+      this.renderBackground(context, mouseX, mouseY, delta);
+      this.renderContent(context, mouseX, mouseY, delta);
+      this.renderDecorations(context, mouseX, mouseY, delta);
+    }
+
+    protected void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
+    }
+
+    protected void renderContent(DrawContext context, int mouseX, int mouseY, float delta) {
+      this.drawables.forEach((drawable) -> drawable.render(context, mouseX, mouseY, delta));
+    }
+
+    protected void renderDecorations(DrawContext context, int mouseX, int mouseY, float delta) {
+    }
+
+    protected void setScrollAmount(double scrollAmount) {
+      this.scrollAmount = scrollAmount;
+      this.refreshPositions();
     }
 
     @Override
@@ -860,7 +860,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
     @Override
     public ScreenRect getNavigationFocus() {
-      return new ScreenRect(this.getLeft(), this.getTop(), this.getWidth(), this.getHeight());
+      return new ScreenRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
     }
 
     public GuiNavigationPath getNavigationPath(GuiNavigation navigation, int index) {
@@ -906,14 +906,45 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     }
 
     @Override
-    public int getHeight() {
-      return this.contentHeight + this.margin.getVertical();
+    public int getWidth() {
+      return this.width;
+    }
+
+    public void setWidth(int width) {
+      this.width = width;
     }
 
     @Override
-    public final void setHeight(int height) {
-      RoundaLib.LOGGER.error(
-          String.format("Cannot change height on %s. Reinitialize instead.", this.getClass().getCanonicalName()));
+    public int getHeight() {
+      return this.getContentHeight() + this.margin.getVertical();
+    }
+
+    @Override
+    public int getX() {
+      return this.x;
+    }
+
+    @Override
+    public void setX(int x) {
+      this.x = x;
+    }
+
+    @Override
+    public int getY() {
+      return this.y - (int) this.scrollAmount;
+    }
+
+    @Override
+    public void setY(int y) {
+      this.y = y;
+    }
+
+    public int getRight() {
+      return this.getX() + this.getWidth();
+    }
+
+    public int getBottom() {
+      return this.getY() + this.getHeight();
     }
 
     public void setMarginY(int margin) {
@@ -924,17 +955,16 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
       this.margin = this.margin.setHorizontal(margin);
     }
 
+    public void setMargin(int margin) {
+      this.margin = Spacing.of(margin);
+    }
+
     public void setMargin(Spacing margin) {
       this.margin = margin;
     }
 
-    @Override
-    public int getTop() {
-      return super.getTop() - (int) this.scrollAmount;
-    }
-
     public int getContentLeft() {
-      return this.getLeft() + this.margin.left();
+      return this.getX() + this.margin.left();
     }
 
     public int getContentRight() {
@@ -946,7 +976,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     }
 
     public int getContentTop() {
-      return this.getTop() + this.margin.top();
+      return this.getY() + this.margin.top();
     }
 
     public int getContentBottom() {
@@ -963,6 +993,26 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
     public int getContentCenterY() {
       return this.getContentTop() + this.getContentHeight() / 2;
+    }
+
+    @Environment(EnvType.CLIENT)
+    public static class WrappedLayoutWidget<T extends LayoutWidget> {
+      private final T wrapped;
+      private final LayoutHook<T> hook;
+
+      public WrappedLayoutWidget(T wrapped, LayoutHook<T> hook) {
+        this.wrapped = wrapped;
+        this.hook = hook;
+      }
+
+      public void refreshPositions() {
+        this.hook.run(this.wrapped);
+        this.wrapped.refreshPositions();
+      }
+
+      public void apply(Consumer<Widget> consumer) {
+        consumer.accept(this.wrapped);
+      }
     }
   }
 }

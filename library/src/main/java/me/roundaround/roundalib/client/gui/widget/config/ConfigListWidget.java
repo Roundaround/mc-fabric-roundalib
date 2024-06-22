@@ -171,7 +171,7 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
           .create(client, option, this.getControlLeft(), this.getContentTop(), this.getControlWidth(),
               this.getContentHeight()
           );
-      this.control.children().forEach(this::addDetectedCapabilityChild);
+      this.control.children().forEach(this::addChild);
 
       this.resetButton = IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.UNDO_18, this.getOption().getModId())
           .vanillaSize()
@@ -179,7 +179,7 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
           .messageAndTooltip(Text.translatable(this.getOption().getModId() + ".roundalib.reset.tooltip"))
           .onPress((button) -> this.getOption().setDefault())
           .build();
-      this.addDrawableAndSelectableChild(this.resetButton);
+      this.addDrawableChild(this.resetButton);
 
       this.update();
     }

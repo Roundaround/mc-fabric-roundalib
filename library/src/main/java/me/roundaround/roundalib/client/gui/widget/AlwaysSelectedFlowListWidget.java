@@ -11,6 +11,7 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;
 import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.text.Text;
+import net.minecraft.util.Colors;
 
 @Environment(EnvType.CLIENT)
 public abstract class AlwaysSelectedFlowListWidget<E extends AlwaysSelectedFlowListWidget.Entry> extends FlowListWidget<E> {
@@ -83,21 +84,23 @@ public abstract class AlwaysSelectedFlowListWidget<E extends AlwaysSelectedFlowL
   }
 
   @Override
-  public void renderDecorations(DrawContext context, int mouseX, int mouseY, float delta) {
-    E selectedEntry = this.getSelected();
-    if (selectedEntry != null && this.highlightSelection) {
-      this.drawSelectionHighlight(context, selectedEntry, this.isFocused() ? -1 : -8355712, -16777216);
+  protected void renderEntry(DrawContext context, int mouseX, int mouseY, float delta, E entry) {
+    boolean renderSelected = this.highlightSelection && entry == this.getSelected();
+    if (renderSelected) {
+      this.drawSelectionBackground(context, entry);
+    }
+    super.renderEntry(context, mouseX, mouseY, delta, entry);
+    if (renderSelected) {
+      this.drawSelectionHighlight(context, entry);
     }
   }
 
-  protected void drawSelectionHighlight(DrawContext context, E entry, int borderColor, int fillColor) {
-    int left = entry.getLeft();
-    int right = entry.getRight();
-    int top = entry.getTop();
-    int bottom = entry.getBottom();
+  protected void drawSelectionBackground(DrawContext context, E entry) {
+    context.fill(entry.getX(), entry.getY(), entry.getRight(), entry.getBottom(), Colors.BLACK);
+  }
 
-    context.fill(left, top - 2, right, bottom + 2, borderColor);
-    context.fill(left + 1, top - 1, right - 1, bottom + 1, fillColor);
+  protected void drawSelectionHighlight(DrawContext context, E entry) {
+    context.drawBorder(entry.getX(), entry.getY(), entry.getWidth(), entry.getHeight(), Colors.GRAY);
   }
 
   protected void highlightSelection(boolean highlightSelection) {
@@ -110,6 +113,8 @@ public abstract class AlwaysSelectedFlowListWidget<E extends AlwaysSelectedFlowL
 
     public Entry(int index, int left, int top, int width, int height) {
       super(index, left, top, width, height);
+
+      this.setMargin(DEFAULT_MARGIN.expand(2));
     }
 
     public abstract Text getNarration();
@@ -137,6 +142,11 @@ public abstract class AlwaysSelectedFlowListWidget<E extends AlwaysSelectedFlowL
     @Override
     public Element getFocused() {
       return null;
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+      return true;
     }
   }
 }

@@ -24,8 +24,8 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
   private int totalSpacing;
   private int contentSize;
 
-  public LinearLayoutWidget(Axis flowAxis, DimensionsSupplier<LinearLayoutWidget> dimensionsSupplier) {
-    this(flowAxis, 0, 0, 0, 0, dimensionsSupplier);
+  public LinearLayoutWidget(Axis flowAxis, LayoutHook<LinearLayoutWidget> layoutHook) {
+    this(flowAxis, 0, 0, 0, 0, layoutHook);
   }
 
   public LinearLayoutWidget(Axis flowAxis, int width, int height) {
@@ -37,9 +37,9 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
   }
 
   private LinearLayoutWidget(
-      Axis flowAxis, int x, int y, int width, int height, DimensionsSupplier<LinearLayoutWidget> dimensionsSupplier
+      Axis flowAxis, int x, int y, int width, int height, LayoutHook<LinearLayoutWidget> layoutHook
   ) {
-    super(x, y, width, height, dimensionsSupplier);
+    super(x, y, width, height, layoutHook);
 
     this.flowAxis = flowAxis;
   }
@@ -48,20 +48,20 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
     return horizontal(null);
   }
 
-  public static LinearLayoutWidget horizontal(DimensionsSupplier<LinearLayoutWidget> dimensionsSupplier) {
-    return new LinearLayoutWidget(Axis.HORIZONTAL, dimensionsSupplier);
+  public static LinearLayoutWidget horizontal(LayoutHook<LinearLayoutWidget> layoutHook) {
+    return new LinearLayoutWidget(Axis.HORIZONTAL, layoutHook);
   }
 
   public static LinearLayoutWidget vertical() {
     return vertical(null);
   }
 
-  public static LinearLayoutWidget vertical(DimensionsSupplier<LinearLayoutWidget> dimensionsSupplier) {
-    return new LinearLayoutWidget(Axis.VERTICAL, dimensionsSupplier);
+  public static LinearLayoutWidget vertical(LayoutHook<LinearLayoutWidget> layoutHook) {
+    return new LinearLayoutWidget(Axis.VERTICAL, layoutHook);
   }
 
   public <T extends Widget> T add(T widget) {
-    return this.add(widget, LayoutHookWithRefs.noop());
+    return this.add(widget, LayoutHookWithParent.noop());
   }
 
   public <T extends Widget> T add(T widget, Consumer<Positioner> consumer) {
@@ -69,21 +69,21 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
   }
 
   public <T extends Widget> T add(T widget, Positioner positioner) {
-    return this.add(widget, LayoutHookWithRefs.noop(), positioner);
+    return this.add(widget, LayoutHookWithParent.noop(), positioner);
   }
 
-  public <T extends Widget> T add(T widget, LayoutHookWithRefs<LinearLayoutWidget, T> layoutHook) {
+  public <T extends Widget> T add(T widget, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook) {
     return this.add(widget, layoutHook, this.copyPositioner());
   }
 
   public <T extends Widget> T add(
-      T widget, LayoutHookWithRefs<LinearLayoutWidget, T> layoutHook, Consumer<Positioner> consumer
+      T widget, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook, Consumer<Positioner> consumer
   ) {
     return this.add(widget, layoutHook, Util.make(this.copyPositioner(), consumer));
   }
 
   public <T extends Widget> T add(
-      T widget, LayoutHookWithRefs<LinearLayoutWidget, T> layoutHook, Positioner positioner
+      T widget, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook, Positioner positioner
   ) {
     this.widgets.add(widget);
     this.cells.add(new CellWidget<>(widget, layoutHook, positioner));
@@ -243,10 +243,10 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
   @Environment(EnvType.CLIENT)
   public static class CellWidget<T extends Widget> implements Widget {
     private final T child;
-    private final LayoutHookWithRefs<LinearLayoutWidget, T> layoutHook;
+    private final LayoutHookWithParent<LinearLayoutWidget, T> layoutHook;
     private final Positioner.Impl positioner;
 
-    public CellWidget(T child, LayoutHookWithRefs<LinearLayoutWidget, T> layoutHook, Positioner positioner) {
+    public CellWidget(T child, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook, Positioner positioner) {
       this.child = child;
       this.layoutHook = layoutHook;
       this.positioner = positioner.toImpl();

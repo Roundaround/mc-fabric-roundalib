@@ -1,7 +1,6 @@
 package me.roundaround.testmod.client.screen.demo;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.layout.Coords;
 import me.roundaround.roundalib.client.gui.layout.IntRect;
 import me.roundaround.roundalib.client.gui.layout.Spacing;
 import me.roundaround.roundalib.client.gui.layout.TextAlignment;
@@ -44,8 +43,9 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
 
   @Override
   protected void init() {
-    LinearLayoutWidget header = LinearLayoutWidget.vertical(
-        (self) -> Coords.of(this.width, this.layout.getHeaderHeight())).spacing(GuiUtil.PADDING / 2).centered();
+    LinearLayoutWidget header = LinearLayoutWidget.vertical((self) -> {
+      self.setDimensions(this.width, this.layout.getHeaderHeight());
+    }).spacing(GuiUtil.PADDING / 2).centered();
     header.getMainPositioner().alignHorizontalCenter();
     this.layout.addHeader(header);
 

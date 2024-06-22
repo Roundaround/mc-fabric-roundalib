@@ -1,6 +1,5 @@
 package me.roundaround.roundalib.client.gui.layout;
 
-@SuppressWarnings("unused")
 public record Spacing(Integer top, Integer right, Integer bottom, Integer left) implements FourSided<Integer> {
   public static Spacing zero() {
     return of(0);
@@ -22,14 +21,6 @@ public record Spacing(Integer top, Integer right, Integer bottom, Integer left) 
     return new Spacing(top, right, bottom, left);
   }
 
-  public static Spacing copyOf(Spacing other) {
-    return new Spacing(other.top, other.right, other.bottom, other.left);
-  }
-
-  public Spacing copy() {
-    return copyOf(this);
-  }
-
   public int getVertical() {
     return this.top() + this.bottom();
   }
@@ -46,11 +37,19 @@ public record Spacing(Integer top, Integer right, Integer bottom, Integer left) 
     return Spacing.of(this.top, space, this.bottom, space);
   }
 
+  public Spacing expand(int by) {
+    return this.expand(Spacing.of(by));
+  }
+
   public Spacing expand(FourSided<Integer> by) {
-    return Spacing.of(this.top - by.top(), this.right + by.right(), this.bottom + by.bottom(), this.left - by.left());
+    return Spacing.of(this.top + by.top(), this.right + by.right(), this.bottom + by.bottom(), this.left + by.left());
+  }
+
+  public Spacing reduce(int by) {
+    return this.reduce(Spacing.of(by));
   }
 
   public Spacing reduce(FourSided<Integer> by) {
-    return Spacing.of(this.top + by.top(), this.right - by.right(), this.bottom - by.bottom(), this.left + by.left());
+    return Spacing.of(this.top - by.top(), this.right - by.right(), this.bottom - by.bottom(), this.left - by.left());
   }
 }

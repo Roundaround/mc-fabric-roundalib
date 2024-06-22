@@ -5,7 +5,6 @@ import me.roundaround.roundalib.client.gui.layout.Coords;
 import me.roundaround.roundalib.client.gui.layout.IntRect;
 import me.roundaround.roundalib.client.gui.layout.TextAlignment;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
-import me.roundaround.roundalib.client.gui.widget.LayoutHookWidget;
 import me.roundaround.roundalib.client.gui.widget.LinearLayoutWidget;
 import me.roundaround.roundalib.client.gui.widget.NoopContainerLayoutWidget;
 import me.roundaround.testmod.TestMod;
@@ -43,8 +42,9 @@ public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
 
   @Override
   protected void init() {
-    LinearLayoutWidget header = LinearLayoutWidget.vertical(
-        (self) -> Coords.of(this.width, this.layout.getHeaderHeight())).spacing(GuiUtil.PADDING / 2).centered();
+    LinearLayoutWidget header = LinearLayoutWidget.vertical((self) -> {
+      self.setDimensions(this.width, this.layout.getHeaderHeight());
+    }).spacing(GuiUtil.PADDING / 2).centered();
     header.getMainPositioner().alignHorizontalCenter();
     this.layout.addHeader(header);
 
@@ -113,18 +113,17 @@ public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
             this.textRenderer, Text.of(String.format("== == %s/%s == ==", nameX(alignmentX), nameY(alignmentY))))
         .justifiedHorizontally(alignmentX)
         .alignedVertically(alignmentY)
-        .refPosition(this.relativeX(relativeX), this.relativeY(relativeY))
-        .dimensions(this.columnWidth(), this.rowHeight())
+        .positionMode(LabelWidget.PositionMode.REFERENCE)
         .overflowBehavior(OverflowBehavior.SHOW)
         .maxLines(3)
         .build();
 
     this.labels.add(label);
 
-    labelsContainer.add(LayoutHookWidget.wrapping(label).withPreLayoutHook(() -> {
-      label.setPosition(this.relativeX(relativeX), this.relativeY(relativeY));
-      label.setDimensions(this.columnWidth(), this.rowHeight());
-    }));
+    labelsContainer.add(label, (parent, self) -> {
+      self.setPosition(this.relativeX(relativeX), this.relativeY(relativeY));
+      self.setDimensions(this.columnWidth(), this.rowHeight());
+    });
   }
 
   @Override

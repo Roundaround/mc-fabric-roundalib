@@ -30,6 +30,11 @@ public class NoopContainerLayoutWidget implements LayoutWidget {
     return widget;
   }
 
+  public <T extends Widget> T add(T widget, LayoutHookWithParent<NoopContainerLayoutWidget, T> layoutHook) {
+    this.children.add(new WrappedWidget<>(widget, layoutHook));
+    return widget;
+  }
+
   @Override
   public void forEachElement(Consumer<Widget> consumer) {
     this.children.forEach((wrappedWidget) -> consumer.accept(wrappedWidget.getWidget()));
@@ -73,13 +78,13 @@ public class NoopContainerLayoutWidget implements LayoutWidget {
   @Environment(EnvType.CLIENT)
   public static class WrappedWidget<T extends Widget> {
     private final T widget;
-    private final LayoutHookWithRefs<NoopContainerLayoutWidget, T> layoutHook;
+    private final LayoutHookWithParent<NoopContainerLayoutWidget, T> layoutHook;
 
     public WrappedWidget(T widget) {
-      this(widget, LayoutHookWithRefs.noop());
+      this(widget, LayoutHookWithParent.noop());
     }
 
-    public WrappedWidget(T widget, LayoutHookWithRefs<NoopContainerLayoutWidget, T> layoutHook) {
+    public WrappedWidget(T widget, LayoutHookWithParent<NoopContainerLayoutWidget, T> layoutHook) {
       this.widget = widget;
       this.layoutHook = layoutHook;
     }

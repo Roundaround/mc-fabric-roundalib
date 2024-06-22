@@ -93,8 +93,6 @@ public class DemoSelectScreen extends Screen implements DemoScreen {
     }
 
     public static class Entry extends AlwaysSelectedFlowListWidget.Entry {
-      private static final int HEIGHT = 20;
-
       private final Text text;
       private final DemoSelectAction action;
       private final LabelWidget label;
@@ -102,7 +100,7 @@ public class DemoSelectScreen extends Screen implements DemoScreen {
       public Entry(
           TextRenderer textRenderer, Text text, DemoSelectAction action, int index, int left, int top, int width
       ) {
-        super(index, left, top, width, HEIGHT);
+        super(index, left, top, width, textRenderer.fontHeight + GuiUtil.PADDING);
         this.text = text;
         this.action = action;
 

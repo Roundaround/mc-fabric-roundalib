@@ -7,19 +7,18 @@ import net.minecraft.client.gui.widget.LayoutWidget;
 
 @Environment(EnvType.CLIENT)
 public abstract class SizableLayoutWidget<T extends SizableLayoutWidget<T>> implements LayoutWidget {
-  protected final DimensionsSupplier<T> dimensionsSupplier;
-
+  protected LayoutHook<T> layoutHook;
   protected int x;
   protected int y;
   protected int width;
   protected int height;
 
-  protected SizableLayoutWidget(DimensionsSupplier<T> dimensionsSupplier) {
-    this(0, 0, dimensionsSupplier);
+  protected SizableLayoutWidget(LayoutHook<T> layoutHook) {
+    this(0, 0, layoutHook);
   }
 
-  protected SizableLayoutWidget(int x, int y, DimensionsSupplier<T> dimensionsSupplier) {
-    this(x, y, 0, 0, dimensionsSupplier);
+  protected SizableLayoutWidget(int x, int y, LayoutHook<T> layoutHook) {
+    this(x, y, 0, 0, layoutHook);
   }
 
   protected SizableLayoutWidget(int width, int height) {
@@ -31,15 +30,13 @@ public abstract class SizableLayoutWidget<T extends SizableLayoutWidget<T>> impl
   }
 
   protected SizableLayoutWidget(
-      int x, int y, int width, int height, DimensionsSupplier<T> dimensionsSupplier
+      int x, int y, int width, int height, LayoutHook<T> layoutHook
   ) {
     this.x = x;
     this.y = y;
     this.width = width;
     this.height = height;
-    this.dimensionsSupplier = dimensionsSupplier;
-
-    this.updateDimensions();
+    this.layoutHook = layoutHook;
   }
 
   @Override
@@ -49,7 +46,9 @@ public abstract class SizableLayoutWidget<T extends SizableLayoutWidget<T>> impl
   }
 
   protected void beforeRefreshPositions() {
-    this.updateDimensions();
+    if (this.layoutHook != null) {
+      this.layoutHook.run(this.self());
+    }
   }
 
   @Override
@@ -95,14 +94,13 @@ public abstract class SizableLayoutWidget<T extends SizableLayoutWidget<T>> impl
     this.setHeight(height);
   }
 
-  public void updateDimensions() {
-    if (this.dimensionsSupplier == null) {
-      return;
-    }
+  public void setDimensionsAndPosition(int width, int height, int x, int y) {
+    this.setDimensions(width, height);
+    this.setPosition(x, y);
+  }
 
-    Coords dimensions = this.dimensionsSupplier.supply(this.self());
-    this.width = dimensions.x();
-    this.height = dimensions.y();
+  public void setLayoutHook(LayoutHook<T> layoutHook) {
+    this.layoutHook = layoutHook;
   }
 
   @SuppressWarnings("unchecked")
