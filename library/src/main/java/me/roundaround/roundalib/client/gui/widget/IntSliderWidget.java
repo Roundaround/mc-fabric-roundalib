@@ -18,6 +18,31 @@ public class IntSliderWidget extends SliderWidget {
   private int intValue;
 
   public IntSliderWidget(
+      int width,
+      int height,
+      int min,
+      int max,
+      int value,
+      Function<Integer, Integer> stepHandler,
+      Consumer<Integer> valueChanged
+  ) {
+    this(0, 0, width, height, min, max, value, stepHandler, valueChanged);
+  }
+
+  public IntSliderWidget(
+      int width,
+      int height,
+      int min,
+      int max,
+      int value,
+      Function<Integer, Integer> stepHandler,
+      Consumer<Integer> valueChanged,
+      Function<Integer, Text> formatter
+  ) {
+    this(0, 0, width, height, min, max, value, stepHandler, valueChanged, formatter);
+  }
+
+  public IntSliderWidget(
       int x,
       int y,
       int width,

@@ -7,9 +7,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.*;
-import net.minecraft.client.gui.navigation.GuiNavigation;
-import net.minecraft.client.gui.navigation.GuiNavigationPath;
-import net.minecraft.client.gui.navigation.NavigationAxis;
 import net.minecraft.client.gui.navigation.NavigationDirection;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
@@ -28,19 +25,12 @@ import org.joml.Matrix4f;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 @Environment(EnvType.CLIENT)
 public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends ContainerWidget implements LayoutWidget {
-  protected static final Identifier SCROLLER_TEXTURE = new Identifier("widget/scroller");
-  protected static final Identifier SCROLLER_BACKGROUND_TEXTURE = new Identifier("widget/scroller_background");
-  protected static final Identifier MENU_LIST_BACKGROUND_TEXTURE = new Identifier(
-      "textures/gui/menu_list_background.png");
-  protected static final Identifier INWORLD_MENU_LIST_BACKGROUND_TEXTURE = new Identifier(
-      "textures/gui/inworld_menu_list_background.png");
-  protected static final int DEFAULT_SHADE_STRENGTH = 50;
-  protected static final int DEFAULT_FADE_WIDTH = 10;
   protected static final int VANILLA_LIST_WIDTH_S = 220;
   protected static final int VANILLA_LIST_WIDTH_M = 280;
   protected static final int VANILLA_LIST_WIDTH_L = 340;
@@ -49,19 +39,16 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   protected final ThreePartsLayoutWidget parentLayout;
 
   protected E hoveredEntry;
-  protected E selectedEntry;
+  protected E selected;
   protected Double scrollUnit;
 
-  private final LinkedList<E> entries = new LinkedList<>();
+  protected final LinkedList<E> entries = new LinkedList<>();
 
-  private int contentHeight = 0;
-  private Spacing contentPadding = Spacing.zero();
-  private int rowSpacing = 0;
-  private double scrollAmount = 0;
-  private boolean scrolling = false;
-  private boolean alternatingRowShading = false;
-  private int shadeFadeWidth = DEFAULT_FADE_WIDTH;
-  private int shadeStrength = DEFAULT_SHADE_STRENGTH;
+  protected int contentHeight = 0;
+  protected Spacing contentPadding = Spacing.zero();
+  protected int rowSpacing = 0;
+  protected double scrollAmount = 0;
+  protected boolean scrolling = false;
 
   protected FlowListWidget(MinecraftClient client, ThreePartsLayoutWidget layout) {
     super(0, layout.getHeaderHeight(), layout.getWidth(), layout.getContentHeight(), ScreenTexts.EMPTY);
@@ -94,8 +81,9 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
       this.contentHeight += this.rowSpacing;
     }
 
-    if (this.selectedEntry != null) {
-      this.ensureVisible(this.selectedEntry);
+    E selected = this.getSelected();
+    if (selected != null) {
+      this.ensureVisible(selected);
     }
 
     return entry;
@@ -104,20 +92,20 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   public void clearEntries() {
     this.entries.clear();
     this.contentHeight = this.contentPadding.getVertical();
-    this.selectedEntry = null;
+    this.selected = null;
   }
 
   @Override
-  public List<? extends Element> children() {
-    return this.getEntries();
-  }
-
-  public List<E> getEntries() {
-    return List.copyOf(this.entries);
+  public List<E> children() {
+    return this.entries;
   }
 
   public E getEntry(int index) {
     return this.entries.get(index);
+  }
+
+  public E getFirst() {
+    return this.entries.getFirst();
   }
 
   public int getEntryCount() {
@@ -169,9 +157,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
   protected void renderListBackground(DrawContext context) {
     RenderSystem.enableBlend();
-    Identifier identifier =
-        this.client.world == null ? MENU_LIST_BACKGROUND_TEXTURE : INWORLD_MENU_LIST_BACKGROUND_TEXTURE;
-    context.drawTexture(identifier, this.getX(), this.getY(), this.getRight(),
+    context.drawTexture(Textures.listBg(this.client), this.getX(), this.getY(), this.getRight(),
         this.getBottom() + (int) this.getScrollAmount(), this.getWidth(), this.getHeight(), 32, 32
     );
     RenderSystem.disableBlend();
@@ -194,60 +180,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   protected void renderEntry(DrawContext context, int mouseX, int mouseY, float delta, E entry) {
-    if (this.alternatingRowShading && entry.getIndex() % 2 == 0) {
-      this.renderRowShade(context, entry);
-    }
-
     entry.render(context, mouseX, mouseY, delta);
-  }
-
-  protected void renderRowShade(DrawContext context, E entry) {
-    if (entry.getIndex() % 2 != 0) {
-      return;
-    }
-
-    RenderSystem.enableBlend();
-    RenderSystem.defaultBlendFunc();
-    RenderSystem.setShader(GameRenderer::getPositionColorProgram);
-
-    Tessellator tessellator = Tessellator.getInstance();
-    BufferBuilder bufferBuilder = tessellator.getBuffer();
-    Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
-
-    int left = entry.getX();
-    int right = entry.getRight();
-    int top = entry.getY();
-    int bottom = entry.getBottom();
-
-    bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-    bufferBuilder.vertex(matrix4f, left + this.shadeFadeWidth, top, 0).color(0, 0, 0, this.shadeStrength).next();
-    bufferBuilder.vertex(matrix4f, left, top, 0).color(0, 0, 0, 0).next();
-    bufferBuilder.vertex(matrix4f, left, bottom, 0).color(0, 0, 0, 0).next();
-    bufferBuilder.vertex(matrix4f, left + this.shadeFadeWidth, bottom, 0).color(0, 0, 0, this.shadeStrength).next();
-
-    bufferBuilder.vertex(matrix4f, right - this.shadeFadeWidth, top, 0).color(0, 0, 0, this.shadeStrength).next();
-    bufferBuilder.vertex(matrix4f, left + this.shadeFadeWidth, top, 0).color(0, 0, 0, this.shadeStrength).next();
-    bufferBuilder.vertex(matrix4f, left + this.shadeFadeWidth, bottom, 0).color(0, 0, 0, this.shadeStrength).next();
-    bufferBuilder.vertex(matrix4f, right - this.shadeFadeWidth, bottom, 0).color(0, 0, 0, this.shadeStrength).next();
-
-    bufferBuilder.vertex(matrix4f, right, top, 0).color(0, 0, 0, 0).next();
-    bufferBuilder.vertex(matrix4f, right - this.shadeFadeWidth, top, 0).color(0, 0, 0, this.shadeStrength).next();
-    bufferBuilder.vertex(matrix4f, right - this.shadeFadeWidth, bottom, 0).color(0, 0, 0, this.shadeStrength).next();
-    bufferBuilder.vertex(matrix4f, right, bottom, 0).color(0, 0, 0, 0).next();
-    tessellator.draw();
-
-    RenderSystem.disableBlend();
-  }
-
-  protected void renderListBorders(DrawContext context) {
-    Identifier headerSepTex =
-        this.client.world == null ? Screen.HEADER_SEPARATOR_TEXTURE : Screen.INWORLD_HEADER_SEPARATOR_TEXTURE;
-    Identifier footerSepTex =
-        this.client.world == null ? Screen.FOOTER_SEPARATOR_TEXTURE : Screen.INWORLD_FOOTER_SEPARATOR_TEXTURE;
-    RenderSystem.enableBlend();
-    context.drawTexture(headerSepTex, this.getX(), this.getY() - 2, 0, 0, this.getWidth(), 2, 32, 2);
-    context.drawTexture(footerSepTex, this.getX(), this.getBottom(), 0, 0, this.getWidth(), 2, 32, 2);
-    RenderSystem.disableBlend();
   }
 
   protected void renderScrollBar(DrawContext context) {
@@ -262,94 +195,53 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     int handleY = this.getY() + (int) Math.round(yPercent * movableSpace);
 
     RenderSystem.enableBlend();
-    context.drawGuiTexture(SCROLLER_BACKGROUND_TEXTURE, x, this.getY(), GuiUtil.SCROLLBAR_WIDTH, this.getHeight());
-    context.drawGuiTexture(SCROLLER_TEXTURE, x, handleY, GuiUtil.SCROLLBAR_WIDTH, handleHeight);
+    context.drawGuiTexture(Textures.SCROLLBAR_BG, x, this.getY(), GuiUtil.SCROLLBAR_WIDTH, this.getHeight());
+    context.drawGuiTexture(Textures.SCROLLBAR, x, handleY, GuiUtil.SCROLLBAR_WIDTH, handleHeight);
     RenderSystem.disableBlend();
   }
 
-  @SuppressWarnings("unchecked")
+  protected void renderListBorders(DrawContext context) {
+    RenderSystem.enableBlend();
+    context.drawTexture(Textures.borderTop(this.client), this.getX(), this.getY() - 2, 0, 0, this.getWidth(), 2, 32, 2);
+    context.drawTexture(
+        Textures.borderBottom(this.client), this.getX(), this.getBottom(), 0, 0, this.getWidth(), 2, 32, 2);
+    RenderSystem.disableBlend();
+  }
+
   @Override
+  @SuppressWarnings("unchecked")
+  public E getFocused() {
+    return (E) super.getFocused();
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
   public void setFocused(Element focused) {
     super.setFocused(focused);
-
-    Element element = this.getFocused();
-    if (!(element instanceof Entry entry)) {
-      return;
-    }
-
-    this.setSelected((E) entry);
-    if (this.client.getNavigationType().isKeyboard()) {
-      this.ensureVisible((E) entry);
+    if (focused instanceof Entry entry) {
+      this.setSelected((E) entry);
+      if (this.client.getNavigationType().isKeyboard()) {
+        this.ensureVisible((E) entry);
+      }
     }
   }
 
   public E getSelected() {
-    return this.selectedEntry;
+    return this.selected;
   }
 
   public void setSelected(E entry) {
-    this.selectedEntry = entry;
+    this.selected = entry;
+  }
+
+  protected boolean isSelectedEntry(int index) {
+    return Objects.equals(this.getSelected(), this.children().get(index));
   }
 
   public void selectFirst() {
     if (this.getEntryCount() > 0) {
       this.setSelected(this.getEntry(0));
     }
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public GuiNavigationPath getNavigationPath(GuiNavigation navigation) {
-    if (this.getEntryCount() == 0) {
-      return null;
-    }
-
-    if (!(navigation instanceof GuiNavigation.Arrow arrow)) {
-      return super.getNavigationPath(navigation);
-    }
-
-    Element element = this.getFocused();
-    if (!(element == null || element instanceof Entry)) {
-      return super.getNavigationPath(navigation);
-    }
-
-    E entry = (E) element;
-
-    if (arrow.direction().getAxis() == NavigationAxis.HORIZONTAL && entry != null) {
-      return GuiNavigationPath.of(this, entry.getNavigationPath(navigation));
-    }
-
-    int index = -1;
-    NavigationDirection direction = arrow.direction();
-
-    if (entry != null) {
-      index = entry.children().indexOf(entry.getFocused());
-    }
-
-    if (index == -1) {
-      switch (direction) {
-        case LEFT -> {
-          index = Integer.MAX_VALUE;
-          direction = NavigationDirection.DOWN;
-        }
-        case RIGHT -> {
-          index = 0;
-          direction = NavigationDirection.DOWN;
-        }
-        default -> index = 0;
-      }
-    }
-
-    GuiNavigationPath path;
-    do {
-      entry = this.getNeighboringEntry(direction, (e) -> !e.children().isEmpty());
-      if (entry == null) {
-        return null;
-      }
-      path = entry.getNavigationPath(arrow, index);
-    } while (path == null);
-
-    return GuiNavigationPath.of(this, path);
   }
 
   protected E getNeighboringEntry(NavigationDirection direction) {
@@ -360,7 +252,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     return this.getNeighboringEntry(direction, predicate, this.getSelected());
   }
 
-  protected E getNeighboringEntry(NavigationDirection direction, Predicate<E> predicate, E focused) {
+  protected E getNeighboringEntry(NavigationDirection direction, Predicate<E> predicate, E selected) {
     if (this.entries.isEmpty()) {
       return null;
     }
@@ -376,10 +268,10 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     }
 
     int index;
-    if (focused == null) {
+    if (selected == null) {
       index = delta > 0 ? 0 : this.entries.size() - 1;
     } else {
-      index = this.entries.indexOf(focused) + delta;
+      index = selected.getIndex() + delta;
     }
 
     for (int i = index; i >= 0 && i < this.entries.size(); i += delta) {
@@ -406,30 +298,11 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   protected void appendNarrations(NarrationMessageBuilder builder, E entry) {
-    if (this.entries.size() > 1) {
-      int i = this.entries.indexOf(entry);
-      if (i != -1) {
-        builder.put(NarrationPart.POSITION, Text.translatable("narrator.position.list", i + 1, this.entries.size()));
-      }
+    int count = this.getEntryCount();
+    if (count > 1) {
+      int num = entry.getIndex() + 1;
+      builder.put(NarrationPart.POSITION, Text.translatable("narrator.position.list", num, count));
     }
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public void appendClickableNarrations(NarrationMessageBuilder builder) {
-    E hovered = this.getHoveredEntry();
-    if (hovered != null) {
-      hovered.appendNarrations(builder.nextMessage());
-      this.appendNarrations(builder, hovered);
-    } else {
-      Element focusedElement = this.getFocused();
-      if (focusedElement instanceof Entry focused) {
-        focused.appendNarrations(builder.nextMessage());
-        this.appendNarrations(builder, (E) focused);
-      }
-    }
-
-    builder.put(NarrationPart.USAGE, Text.translatable("narration.component_list.usage"));
   }
 
   @Override
@@ -456,7 +329,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     E entry = this.getEntryAtPosition(mouseX, mouseY);
     if (entry != null) {
       if (entry.mouseClicked(mouseX, mouseY, button)) {
-        Element focused = this.getFocused();
+        E focused = this.getFocused();
         if (focused != entry && focused instanceof ParentElement parent) {
           parent.setFocused(null);
         }
@@ -485,7 +358,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
       return true;
     }
 
-    if (!this.isSelectButton(button) || !this.scrolling) {
+    if (button != 0 || !this.scrolling) {
       return false;
     }
 
@@ -536,6 +409,10 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
   protected boolean isEntryVisible(E entry) {
     return entry.getY() <= this.getContentBottom() && entry.getBottom() >= this.getContentTop();
+  }
+
+  protected void centerScrollOn(E entry) {
+    this.setScrollAmount(entry.getContentCenterY() - this.height * 0.5);
   }
 
   protected void ensureVisible(E entry) {
@@ -670,46 +547,27 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     return averageHeight / 2;
   }
 
-  protected void alternatingRowShading(boolean alternatingRowShading) {
-    this.alternatingRowShading = alternatingRowShading;
-  }
-
-  protected void rowShadeFadeWidth(int width) {
-    this.shadeFadeWidth = Math.max(width, 0);
-  }
-
-  protected void rowShadeStrength(int strength) {
-    this.shadeStrength = Math.clamp(strength, 0, 255);
-  }
-
-  protected void rowShadeStrength(float strength) {
-    this.rowShadeStrength((int) (strength * 255));
-  }
-
-  @FunctionalInterface
-  public interface EntryFactory<E extends Entry> {
-    E create(int index, int left, int top, int width);
-  }
-
   @Environment(EnvType.CLIENT)
-  public abstract static class Entry implements Drawable, LayoutWidget, ParentElement, Narratable {
+  public abstract static class Entry implements Drawable, LayoutWidget, Element {
     protected static final Spacing DEFAULT_MARGIN = Spacing.of(GuiUtil.PADDING / 2);
+    protected static final int DEFAULT_SHADE_STRENGTH = 50;
+    protected static final int DEFAULT_FADE_WIDTH = 10;
 
-    private final ArrayList<WrappedLayoutWidget<? extends LayoutWidget>> layouts = new ArrayList<>();
-    private final ArrayList<Element> children = new ArrayList<>();
-    private final ArrayList<Selectable> selectables = new ArrayList<>();
-    private final ArrayList<Drawable> drawables = new ArrayList<>();
-    private final int index;
-    private final int contentHeight;
+    protected final ArrayList<LayoutWrapper<?>> layouts = new ArrayList<>();
+    protected final ArrayList<Drawable> drawables = new ArrayList<>();
+    protected final int index;
+    protected final int contentHeight;
 
-    private int x;
-    private int y;
-    private int width;
-    private Element focused;
-    private Selectable focusedSelectable;
-    private boolean dragging;
-    private double scrollAmount;
-    private Spacing margin = DEFAULT_MARGIN;
+    protected int x;
+    protected int y;
+    protected int width;
+    protected double scrollAmount = 0;
+    protected boolean alternatingRowShading = false;
+    protected boolean forceRowShading = false;
+    protected int shadeFadeWidth = DEFAULT_FADE_WIDTH;
+    protected int shadeStrength = DEFAULT_SHADE_STRENGTH;
+    protected Spacing margin = DEFAULT_MARGIN;
+    protected boolean autoPadForShading = true;
 
     protected Entry(int index, int x, int y, int width, int contentHeight) {
       this.index = index;
@@ -724,24 +582,8 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     }
 
     protected <T extends LayoutWidget> T addLayout(T layout, LayoutHook<T> layoutHook) {
-      this.layouts.add(new WrappedLayoutWidget<>(layout, layoutHook));
+      this.layouts.add(new LayoutWrapper<>(layout, layoutHook));
       return layout;
-    }
-
-    protected <T extends Element> T addChild(T child) {
-      this.children.add(child);
-      if (child instanceof Drawable drawable) {
-        this.drawables.add(drawable);
-      }
-      if (child instanceof Selectable selectable) {
-        this.selectables.add(selectable);
-      }
-      return child;
-    }
-
-    protected <T extends Element & Drawable & Selectable> T addDrawableChild(T child) {
-      this.drawables.add(child);
-      return this.addSelectableChild(child);
     }
 
     protected <T extends Drawable> T addDrawable(T drawable) {
@@ -749,41 +591,27 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
       return drawable;
     }
 
-    protected <T extends Element & Selectable> T addSelectableChild(T child) {
-      this.children.add(child);
-      this.selectables.add(child);
-      return child;
-    }
-
     protected void clearChildren() {
       this.layouts.clear();
-      this.children.clear();
       this.drawables.clear();
-      this.selectables.clear();
     }
 
-    @Override
-    public List<? extends Element> children() {
-      return this.children;
+    public List<Drawable> drawables() {
+      return this.drawables;
     }
 
-    public List<? extends Selectable> selectableChildren() {
-      return this.selectables;
+    public List<? extends LayoutWidget> layoutWidgets() {
+      return this.layouts.stream().map(LayoutWrapper::getWrapped).toList();
     }
 
     @Override
     public void forEachElement(Consumer<Widget> consumer) {
-      this.layouts.forEach((wrapped) -> wrapped.apply(consumer));
-      this.children().forEach((child) -> {
-        if (child instanceof Widget widget) {
-          consumer.accept(widget);
-        }
-      });
+      this.layouts.forEach((wrapper) -> consumer.accept(wrapper.getWrapped()));
     }
 
     @Override
     public void refreshPositions() {
-      this.layouts.forEach(WrappedLayoutWidget::refreshPositions);
+      this.layouts.forEach(LayoutWrapper::refreshPositions);
     }
 
     @Override
@@ -794,6 +622,43 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     }
 
     protected void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
+      if (this.hasRowShading()) {
+        this.renderRowShade(context);
+      }
+    }
+
+    protected void renderRowShade(DrawContext context) {
+      RenderSystem.enableBlend();
+      RenderSystem.defaultBlendFunc();
+      RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+
+      Tessellator tessellator = Tessellator.getInstance();
+      BufferBuilder bufferBuilder = tessellator.getBuffer();
+      Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
+
+      int left = this.getX();
+      int right = this.getRight();
+      int top = this.getY();
+      int bottom = this.getBottom();
+
+      bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+      bufferBuilder.vertex(matrix4f, left + this.shadeFadeWidth, top, 0).color(0, 0, 0, this.shadeStrength).next();
+      bufferBuilder.vertex(matrix4f, left, top, 0).color(0, 0, 0, 0).next();
+      bufferBuilder.vertex(matrix4f, left, bottom, 0).color(0, 0, 0, 0).next();
+      bufferBuilder.vertex(matrix4f, left + this.shadeFadeWidth, bottom, 0).color(0, 0, 0, this.shadeStrength).next();
+
+      bufferBuilder.vertex(matrix4f, right - this.shadeFadeWidth, top, 0).color(0, 0, 0, this.shadeStrength).next();
+      bufferBuilder.vertex(matrix4f, left + this.shadeFadeWidth, top, 0).color(0, 0, 0, this.shadeStrength).next();
+      bufferBuilder.vertex(matrix4f, left + this.shadeFadeWidth, bottom, 0).color(0, 0, 0, this.shadeStrength).next();
+      bufferBuilder.vertex(matrix4f, right - this.shadeFadeWidth, bottom, 0).color(0, 0, 0, this.shadeStrength).next();
+
+      bufferBuilder.vertex(matrix4f, right, top, 0).color(0, 0, 0, 0).next();
+      bufferBuilder.vertex(matrix4f, right - this.shadeFadeWidth, top, 0).color(0, 0, 0, this.shadeStrength).next();
+      bufferBuilder.vertex(matrix4f, right - this.shadeFadeWidth, bottom, 0).color(0, 0, 0, this.shadeStrength).next();
+      bufferBuilder.vertex(matrix4f, right, bottom, 0).color(0, 0, 0, 0).next();
+      tessellator.draw();
+
+      RenderSystem.disableBlend();
     }
 
     protected void renderContent(DrawContext context, int mouseX, int mouseY, float delta) {
@@ -809,102 +674,13 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     }
 
     @Override
-    public void setFocused(Element focused) {
-      if (this.focused != null) {
-        this.focused.setFocused(false);
-      }
-
-      if (focused != null) {
-        focused.setFocused(true);
-      }
-
-      this.focused = focused;
-    }
-
-    @Override
-    public Element getFocused() {
-      return this.focused;
-    }
-
-    @Override
     public boolean isMouseOver(double mouseX, double mouseY) {
       return mouseX >= this.getX() && mouseX <= this.getRight() && mouseY >= this.getY() && mouseY <= this.getBottom();
     }
 
     @Override
-    public void setDragging(boolean dragging) {
-      this.dragging = dragging;
-    }
-
-    @Override
-    public boolean isDragging() {
-      return this.dragging;
-    }
-
-    @Override
-    public void appendNarrations(NarrationMessageBuilder builder) {
-      List<? extends Selectable> list = this.selectableChildren();
-      Screen.SelectedElementNarrationData data = Screen.findSelectedElementData(list, this.focusedSelectable);
-
-      if (data != null) {
-        if (data.selectType.isFocused()) {
-          this.focusedSelectable = data.selectable;
-        }
-
-        if (list.size() > 1) {
-          builder.put(NarrationPart.POSITION,
-              Text.translatable("narrator.position.object_list", data.index + 1, list.size())
-          );
-          if (data.selectType == Selectable.SelectionType.FOCUSED) {
-            builder.put(NarrationPart.USAGE, Text.translatable("narration.component_list.usage"));
-          }
-        }
-
-        data.selectable.appendNarrations(builder.nextMessage());
-      }
-    }
-
-    @Override
     public ScreenRect getNavigationFocus() {
       return new ScreenRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-    }
-
-    public GuiNavigationPath getNavigationPath(GuiNavigation navigation, int index) {
-      if (this.children().isEmpty()) {
-        return null;
-      }
-
-      Element child = this.children().get(Math.min(index, this.children().size() - 1));
-      GuiNavigationPath path = child.getNavigationPath(navigation);
-      return GuiNavigationPath.of(this, path);
-    }
-
-    @Override
-    public GuiNavigationPath getNavigationPath(GuiNavigation navigation) {
-      if (!(navigation instanceof GuiNavigation.Arrow arrow)) {
-        return ParentElement.super.getNavigationPath(navigation);
-      }
-
-      int delta = switch (arrow.direction()) {
-        case LEFT -> -1;
-        case RIGHT -> 1;
-        default -> 0;
-      };
-
-      if (delta == 0) {
-        return null;
-      }
-
-      int index = MathHelper.clamp(delta + this.children().indexOf(this.getFocused()), 0, this.children().size() - 1);
-
-      for (int i = index; i >= 0 && i < this.children().size(); i += delta) {
-        GuiNavigationPath path = this.children().get(i).getNavigationPath(navigation);
-        if (path != null) {
-          return GuiNavigationPath.of(this, path);
-        }
-      }
-
-      return ParentElement.super.getNavigationPath(navigation);
     }
 
     public int getIndex() {
@@ -970,15 +746,15 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     }
 
     public int getContentLeft() {
-      return this.getX() + this.margin.left();
+      return this.getX() + this.margin.left() + this.getShadingPadding();
     }
 
     public int getContentRight() {
-      return this.getRight() - this.margin.right();
+      return this.getRight() - this.margin.right() - this.getShadingPadding();
     }
 
     public int getContentWidth() {
-      return this.getWidth() - this.margin.getHorizontal();
+      return this.getWidth() - this.margin.getHorizontal() - 2 * this.getShadingPadding();
     }
 
     public int getContentTop() {
@@ -1001,24 +777,82 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
       return this.getContentTop() + this.getContentHeight() / 2;
     }
 
-    @Environment(EnvType.CLIENT)
-    public static class WrappedLayoutWidget<T extends LayoutWidget> {
-      private final T wrapped;
-      private final LayoutHook<T> hook;
+    public int getShadingPadding() {
+      return this.hasRowShading() ? this.shadeFadeWidth : 0;
+    }
 
-      public WrappedLayoutWidget(T wrapped, LayoutHook<T> hook) {
-        this.wrapped = wrapped;
-        this.hook = hook;
-      }
+    public boolean hasRowShading() {
+      return (this.alternatingRowShading && this.index % 2 == 0) || this.forceRowShading;
+    }
 
-      public void refreshPositions() {
-        this.hook.run(this.wrapped);
-        this.wrapped.refreshPositions();
-      }
+    protected void setForceRowShading(boolean forceRowShading) {
+      this.forceRowShading = forceRowShading;
+    }
 
-      public void apply(Consumer<Widget> consumer) {
-        consumer.accept(this.wrapped);
-      }
+    protected void setAlternatingRowShading(boolean alternatingRowShading) {
+      this.alternatingRowShading = alternatingRowShading;
+    }
+
+    protected void setRowShadeFadeWidth(int width) {
+      this.shadeFadeWidth = Math.max(width, 0);
+    }
+
+    protected void setRowShadeStrength(int strength) {
+      this.shadeStrength = Math.clamp(strength, 0, 255);
+    }
+
+    protected void setRowShadeStrength(float strength) {
+      this.setRowShadeStrength((int) (strength * 255));
+    }
+  }
+
+  @Environment(EnvType.CLIENT)
+  @FunctionalInterface
+  public interface EntryFactory<E extends Entry> {
+    E create(int index, int left, int top, int width);
+  }
+
+  @Environment(EnvType.CLIENT)
+  public final static class LayoutWrapper<T extends LayoutWidget> {
+    private final T wrapped;
+    private final LayoutHook<T> hook;
+
+    public LayoutWrapper(T wrapped, LayoutHook<T> hook) {
+      this.wrapped = wrapped;
+      this.hook = hook;
+    }
+
+    public void refreshPositions() {
+      this.hook.run(this.wrapped);
+      this.wrapped.refreshPositions();
+    }
+
+    public T getWrapped() {
+      return this.wrapped;
+    }
+  }
+
+  @Environment(EnvType.CLIENT)
+  protected final static class Textures {
+    static final Identifier SCROLLBAR_BG = new Identifier("widget/scroller_background");
+    static final Identifier SCROLLBAR = new Identifier("widget/scroller");
+    static final Identifier LIST_BG = new Identifier("textures/gui/menu_list_background.png");
+    static final Identifier BORDER_TOP = Screen.HEADER_SEPARATOR_TEXTURE;
+    static final Identifier BORDER_BOTTOM = Screen.FOOTER_SEPARATOR_TEXTURE;
+    static final Identifier IN_WORLD_LIST_BG = new Identifier("textures/gui/inworld_menu_list_background.png");
+    static final Identifier IN_WORLD_BORDER_TOP = Screen.INWORLD_HEADER_SEPARATOR_TEXTURE;
+    static final Identifier IN_WORLD_BORDER_BOTTOM = Screen.INWORLD_FOOTER_SEPARATOR_TEXTURE;
+
+    static Identifier borderTop(MinecraftClient client) {
+      return client.world == null ? BORDER_TOP : IN_WORLD_BORDER_TOP;
+    }
+
+    static Identifier borderBottom(MinecraftClient client) {
+      return client.world == null ? BORDER_BOTTOM : IN_WORLD_BORDER_BOTTOM;
+    }
+
+    static Identifier listBg(MinecraftClient client) {
+      return client.world == null ? LIST_BG : IN_WORLD_LIST_BG;
     }
   }
 }

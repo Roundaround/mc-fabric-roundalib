@@ -1,21 +1,27 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
+import me.roundaround.roundalib.client.gui.widget.FillerWidget;
+import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.IntSliderWidget;
+import me.roundaround.roundalib.client.gui.widget.LinearLayoutWidget;
 import me.roundaround.roundalib.config.option.IntConfigOption;
 import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Element;
 import net.minecraft.text.Text;
 
-import java.util.List;
 import java.util.Objects;
 
 public class IntSliderControl extends Control<Integer, IntConfigOption> {
   private final IntSliderWidget slider;
+  private final IconButtonWidget plusButton;
+  private final IconButtonWidget minusButton;
 
-  public IntSliderControl(MinecraftClient client, IntConfigOption option, int left, int top, int width, int height) {
-    super(client, option, left, top, width, height);
+  public IntSliderControl(MinecraftClient client, IntConfigOption option, int width, int height) {
+    this(client, option, 0, 0, width, height);
+  }
+
+  public IntSliderControl(MinecraftClient client, IntConfigOption option, int x, int y, int width, int height) {
+    super(client, option, x, y, width, height);
 
     if (!this.option.useSlider() || this.option.getMinValue() == null || this.option.getMaxValue() == null) {
       this.option.getModConfig()
@@ -23,38 +29,63 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
               "IntConfigOption must use slider and have min and max values to use IntSliderControl"));
     }
 
-    this.slider = new IntSliderWidget(this.getLeft(), this.getTop(), this.getWidth(),
-        this.getHeight(), this.option.getMinValue(), this.option.getMaxValue(), this.option.getPendingValue(),
-        this::step, this::onSliderChanged, this::getValueAsText
-    );
+    this.slider = this.add(new IntSliderWidget(width, height, this.option.getMinValue(), this.option.getMaxValue(),
+        this.option.getPendingValue(), this::step, this::onSliderChanged, this::getValueAsText
+    ), (parent, self) -> {
+      int sliderWidth = parent.getWidth();
+      if (this.option.showStepButtons()) {
+        sliderWidth -= IconButtonWidget.SIZE_S + parent.getSpacing();
+      }
+
+      self.setDimensions(sliderWidth, parent.getHeight());
+    });
+
+    if (this.option.showStepButtons()) {
+      LinearLayoutWidget stepColumn = this.add(LinearLayoutWidget.vertical(), (parent, self) -> {
+        self.setDimensions(IconButtonWidget.SIZE_S, parent.getHeight());
+      });
+
+      String modId = this.getOption().getModId();
+      int step = this.getOption().getStep();
+
+      this.plusButton = stepColumn.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.PLUS_9, modId)
+          .small()
+          .messageAndTooltip(Text.translatable(modId + ".roundalib.step_up.tooltip", step))
+          .onPress((button) -> this.getOption().increment())
+          .build());
+
+      stepColumn.add(FillerWidget.empty(), (parent, self) -> {
+        self.setHeight(parent.getHeight() - 2 * IconButtonWidget.SIZE_S);
+      });
+
+      this.minusButton = stepColumn.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.MINUS_9, modId)
+          .small()
+          .messageAndTooltip(Text.translatable(modId + ".roundalib.step_down.tooltip", step))
+          .onPress((button) -> this.getOption().decrement())
+          .build());
+    } else {
+      this.plusButton = null;
+      this.minusButton = null;
+    }
 
     this.update();
   }
 
   @Override
-  public List<? extends Element> children() {
-    return List.of(this.slider);
-  }
-
-  @Override
-  public void refreshPositions() {
-    this.slider.setPosition(this.getLeft(), this.getTop());
-    this.slider.setDimensions(this.getWidth(), this.getHeight());
-    super.refreshPositions();
-  }
-
-  @Override
-  public void renderPositional(DrawContext drawContext, int mouseX, int mouseY, float delta) {
-    this.slider.render(drawContext, mouseX, mouseY, delta);
-  }
-
-  @Override
   protected void update() {
-    this.slider.active = !this.getOption().isDisabled();
+    IntConfigOption option = this.getOption();
+    boolean disabled = option.isDisabled();
 
-    int value = this.getOption().getPendingValue();
+    this.slider.active = !disabled;
+
+    int value = option.getPendingValue();
     if (!Objects.equals(value, this.slider.getIntValue())) {
       this.slider.setIntValue(value);
+    }
+
+    if (option.showStepButtons()) {
+      this.plusButton.active = !disabled && option.canIncrement();
+      this.minusButton.active = !disabled && option.canDecrement();
     }
   }
 

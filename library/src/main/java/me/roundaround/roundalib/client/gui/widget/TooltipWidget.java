@@ -30,6 +30,14 @@ public class TooltipWidget implements Drawable, Widget {
   private long renderCheckTime;
   private boolean prevShouldRender;
 
+  public TooltipWidget(Text content) {
+    this(0, 0, List.of(content));
+  }
+
+  public TooltipWidget(List<Text> content) {
+    this(0, 0, content);
+  }
+
   public TooltipWidget(int width, int height, Text content) {
     this(width, height, List.of(content));
   }

@@ -28,9 +28,7 @@ public abstract class SizableLayoutWidget<T extends SizableLayoutWidget<T>> impl
     this(x, y, width, height, null);
   }
 
-  protected SizableLayoutWidget(
-      int x, int y, int width, int height, LayoutHook<T> layoutHook
-  ) {
+  protected SizableLayoutWidget(int x, int y, int width, int height, LayoutHook<T> layoutHook) {
     this.x = x;
     this.y = y;
     this.width = width;
@@ -100,6 +98,11 @@ public abstract class SizableLayoutWidget<T extends SizableLayoutWidget<T>> impl
 
   public void setLayoutHook(LayoutHook<T> layoutHook) {
     this.layoutHook = layoutHook;
+  }
+
+  public T withLayoutHook(LayoutHook<T> layoutHook) {
+    this.setLayoutHook(layoutHook);
+    return this.self();
   }
 
   @SuppressWarnings("unchecked")

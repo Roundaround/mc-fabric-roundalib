@@ -9,40 +9,40 @@ import java.util.ArrayList;
 import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
-public class NoopContainerLayoutWidget implements LayoutWidget {
-  protected final ArrayList<WrappedWidget<?>> children = new ArrayList<>();
+public class LayoutCollectionWidget implements LayoutWidget {
+  protected final ArrayList<Wrapper<?>> wrappers = new ArrayList<>();
 
-  protected NoopContainerLayoutWidget() {
+  protected LayoutCollectionWidget() {
   }
 
-  public static NoopContainerLayoutWidget create() {
-    return new NoopContainerLayoutWidget();
+  public static LayoutCollectionWidget create() {
+    return new LayoutCollectionWidget();
   }
 
-  public static NoopContainerLayoutWidget create(Iterable<Widget> widgets) {
-    NoopContainerLayoutWidget container = new NoopContainerLayoutWidget();
+  public static LayoutCollectionWidget create(Iterable<Widget> widgets) {
+    LayoutCollectionWidget container = new LayoutCollectionWidget();
     widgets.forEach(container::add);
     return container;
   }
 
   public <T extends Widget> T add(T widget) {
-    this.children.add(new WrappedWidget<>(widget));
+    this.wrappers.add(new Wrapper<>(widget));
     return widget;
   }
 
-  public <T extends Widget> T add(T widget, LayoutHookWithParent<NoopContainerLayoutWidget, T> layoutHook) {
-    this.children.add(new WrappedWidget<>(widget, layoutHook));
+  public <T extends Widget> T add(T widget, LayoutHookWithParent<LayoutCollectionWidget, T> layoutHook) {
+    this.wrappers.add(new Wrapper<>(widget, layoutHook));
     return widget;
   }
 
   @Override
   public void forEachElement(Consumer<Widget> consumer) {
-    this.children.forEach((wrappedWidget) -> consumer.accept(wrappedWidget.getWidget()));
+    this.wrappers.forEach((wrapper) -> consumer.accept(wrapper.getWidget()));
   }
 
   @Override
   public void refreshPositions() {
-    this.children.forEach((wrappedWidget) -> wrappedWidget.runHook(this));
+    this.wrappers.forEach((wrapper) -> wrapper.runHook(this));
   }
 
   @Override
@@ -76,15 +76,15 @@ public class NoopContainerLayoutWidget implements LayoutWidget {
   }
 
   @Environment(EnvType.CLIENT)
-  public static class WrappedWidget<T extends Widget> {
+  public static class Wrapper<T extends Widget> {
     private final T widget;
-    private final LayoutHookWithParent<NoopContainerLayoutWidget, T> layoutHook;
+    private final LayoutHookWithParent<LayoutCollectionWidget, T> layoutHook;
 
-    public WrappedWidget(T widget) {
+    public Wrapper(T widget) {
       this(widget, LayoutHookWithParent.noop());
     }
 
-    public WrappedWidget(T widget, LayoutHookWithParent<NoopContainerLayoutWidget, T> layoutHook) {
+    public Wrapper(T widget, LayoutHookWithParent<LayoutCollectionWidget, T> layoutHook) {
       this.widget = widget;
       this.layoutHook = layoutHook;
     }
@@ -93,7 +93,7 @@ public class NoopContainerLayoutWidget implements LayoutWidget {
       return this.widget;
     }
 
-    public void runHook(NoopContainerLayoutWidget parent) {
+    public void runHook(LayoutCollectionWidget parent) {
       this.layoutHook.run(parent, this.widget);
       if (this.widget instanceof LayoutWidget layoutWidget) {
         layoutWidget.refreshPositions();

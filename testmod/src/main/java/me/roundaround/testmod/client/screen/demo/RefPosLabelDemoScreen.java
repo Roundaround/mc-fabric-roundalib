@@ -1,12 +1,11 @@
 package me.roundaround.testmod.client.screen.demo;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.layout.Coords;
 import me.roundaround.roundalib.client.gui.layout.IntRect;
 import me.roundaround.roundalib.client.gui.layout.TextAlignment;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.LinearLayoutWidget;
-import me.roundaround.roundalib.client.gui.widget.NoopContainerLayoutWidget;
+import me.roundaround.roundalib.client.gui.widget.LayoutCollectionWidget;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -59,7 +58,7 @@ public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
     header.refreshPositions();
     this.layout.setHeaderHeight(header.getContentSize() + 2 * GuiUtil.PADDING);
 
-    NoopContainerLayoutWidget labelsContainer = this.layout.addBody(NoopContainerLayoutWidget.create());
+    LayoutCollectionWidget labelsContainer = this.layout.addBody(LayoutCollectionWidget.create());
     for (TextAlignment alignmentX : TextAlignment.values()) {
       for (TextAlignment alignmentY : TextAlignment.values()) {
         this.addLabel(labelsContainer, alignmentX, alignmentY);
@@ -105,7 +104,7 @@ public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
   }
 
 
-  private void addLabel(NoopContainerLayoutWidget labelsContainer, TextAlignment alignmentX, TextAlignment alignmentY) {
+  private void addLabel(LayoutCollectionWidget labelsContainer, TextAlignment alignmentX, TextAlignment alignmentY) {
     float relativeX = relative(alignmentX);
     float relativeY = relative(alignmentY);
 

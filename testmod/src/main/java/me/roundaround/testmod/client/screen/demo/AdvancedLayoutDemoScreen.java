@@ -146,7 +146,7 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
   }
 
   @Environment(value = EnvType.CLIENT)
-  public static class PlaceholderListWidget extends AlwaysSelectedFlowListWidget<PlaceholderListWidget.Entry> {
+  public static class PlaceholderListWidget extends NarratableEntryListWidget<PlaceholderListWidget.Entry> {
     public PlaceholderListWidget(MinecraftClient client) {
       super(client, 0, 0, 0, 0);
     }
@@ -158,7 +158,7 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
     }
 
     @Environment(value = EnvType.CLIENT)
-    public static class Entry extends AlwaysSelectedFlowListWidget.Entry {
+    public static class Entry extends NarratableEntryListWidget.Entry {
       public Entry(TextRenderer textRenderer, int index, int left, int top, int width) {
         super(index, left, top, width, 36);
 
@@ -195,7 +195,7 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
               this.getContentWidth() - GuiUtil.PADDING - this.getContentHeight(), this.getContentHeight());
         });
 
-        layout.forEachChild(this::addDrawableChild);
+        layout.forEachChild(this::addDrawable);
       }
 
       @Override

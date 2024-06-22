@@ -1,29 +1,24 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.widget.FlowListWidget;
-import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
-import me.roundaround.roundalib.client.gui.widget.LabelWidget;
-import me.roundaround.roundalib.client.gui.widget.TooltipWidget;
+import me.roundaround.roundalib.client.gui.widget.*;
 import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.panic.IllegalStatePanic;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 import java.util.ArrayList;
 
-public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
+public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWidget.Entry> {
   protected final ModConfig modConfig;
 
   public ConfigListWidget(MinecraftClient client, ThreePartsLayoutWidget layout, ModConfig modConfig) {
     super(client, layout);
 
-    this.alternatingRowShading(true);
     this.modConfig = modConfig;
 
     this.modConfig.getConfigOptions().forEach((group, options) -> {
@@ -72,19 +67,11 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
   }
 
   @Override
-  public void setFocused(Element focused) {
-    super.setFocused(focused);
-    if (this.getFocused() == null) {
-      this.setSelected(null);
-    }
-  }
-
-  @Override
   protected int getPreferredContentWidth() {
     return this.getWidth();
   }
 
-  public abstract static class Entry extends FlowListWidget.Entry {
+  public abstract static class Entry extends ParentElementEntryListWidget.Entry {
     protected Entry(int index, int left, int top, int width, int contentHeight) {
       super(index, left, top, width, contentHeight);
 
@@ -108,6 +95,8 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
     ) {
       super(index, left, top, width, HEIGHT);
 
+      this.alternatingRowShading = true;
+
       this.label = LabelWidget.builder(textRenderer, label)
           .refPosition(this.getContentCenterX(), this.getContentCenterY())
           .dimensions(this.getContentWidth(), this.getContentHeight())
@@ -123,7 +112,6 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
 
     @Override
     public void refreshPositions() {
-      super.refreshPositions();
       this.label.batchUpdates(() -> {
         this.label.setPosition(this.getContentCenterX(), this.getContentCenterY());
         this.label.setDimensions(this.getContentWidth(), this.getContentHeight());
@@ -150,15 +138,12 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
       ArrayList<Text> tooltipLines = new ArrayList<>();
       tooltipLines.add(option.getLabel());
       tooltipLines.add(Text.literal(option.getPath()).formatted(Formatting.GRAY));
-      this.tooltip = new TooltipWidget(this.getContentLeft(), this.getContentTop(), this.getLabelWidth(),
-          this.getContentHeight(), tooltipLines
-      );
+      this.tooltip = this.addDrawable(new TooltipWidget(tooltipLines));
 
-      this.addDrawable(this.tooltip);
+      LinearLayoutWidget layout = LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING);
+      layout.getMainPositioner().alignVerticalCenter();
 
       this.label = LabelWidget.builder(client.textRenderer, option.getLabel())
-          .refPosition(this.getContentLeft(), this.getContentCenterY())
-          .dimensions(this.getLabelWidth(), this.getContentHeight())
           .justifiedLeft()
           .alignedMiddle()
           .overflowBehavior(LabelWidget.OverflowBehavior.WRAP)
@@ -166,22 +151,28 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
           .showShadow()
           .hideBackground()
           .build();
-
-      this.addDrawableChild(this.label);
+      layout.add(this.label, (parent, self) -> {
+        self.setDimensions(this.getLabelWidth(parent), this.getContentHeight());
+      });
 
       this.control = ControlRegistry.getControlFactory(option)
-          .create(client, option, this.getControlLeft(), this.getContentTop(), this.getControlWidth(),
-              this.getContentHeight()
-          );
-      this.control.children().forEach(this::addChild);
+          .create(client, option, this.getControlWidth(layout), this.getContentHeight());
+      layout.add(this.control, (parent, self) -> {
+        self.setDimensions(this.getControlWidth(parent), this.getContentHeight());
+      });
 
       this.resetButton = IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.UNDO_18, this.getOption().getModId())
           .vanillaSize()
-          .position(this.getResetButtonLeft(), this.getResetButtonTop())
           .messageAndTooltip(Text.translatable(this.getOption().getModId() + ".roundalib.reset.tooltip"))
           .onPress((button) -> this.getOption().setDefault())
           .build();
-      this.addDrawableChild(this.resetButton);
+      layout.add(this.resetButton);
+
+      this.addLayout(layout, (self) -> {
+        self.setDimensionsAndPosition(
+            this.getContentWidth(), this.getContentHeight(), this.getContentLeft(), this.getContentTop());
+      });
+      layout.forEachChild(this::addDrawableChild);
 
       this.update();
     }
@@ -190,44 +181,19 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
       return this.option;
     }
 
-    private int getLabelWidth() {
-      return this.getControlLeft() - this.getContentLeft() - GuiUtil.PADDING;
+    private int getLabelWidth(LinearLayoutWidget layout) {
+      return layout.getWidth() - 2 * layout.getSpacing() - this.getControlWidth(layout) - IconButtonWidget.SIZE_V;
     }
 
-    private int getControlWidth() {
-      return Math.max(CONTROL_MIN_WIDTH, Math.round(this.getContentWidth() * 0.3f));
-    }
-
-    private int getControlLeft() {
-      return this.getResetButtonLeft() - GuiUtil.PADDING - this.getControlWidth();
-    }
-
-    private int getResetButtonLeft() {
-      return this.getContentRight() - IconButtonWidget.SIZE_V;
-    }
-
-    private int getResetButtonTop() {
-      return this.getContentTop() + (this.getContentHeight() - IconButtonWidget.SIZE_V) / 2;
+    private int getControlWidth(LinearLayoutWidget layout) {
+      return Math.max(CONTROL_MIN_WIDTH, Math.round(layout.getWidth() * 0.3f));
     }
 
     @Override
     public void refreshPositions() {
-      this.tooltip.setDimensionsAndPosition(this.getLabelWidth(), this.getContentHeight(), this.getContentLeft(),
-          this.getContentTop()
-      );
-
-      this.label.batchUpdates(() -> {
-        this.label.setPosition(this.getContentLeft(), this.getContentCenterY());
-        this.label.setDimensions(this.getLabelWidth(), this.getContentHeight());
-      });
-
-      this.control.setPosition(this.getControlLeft(), this.getContentTop());
-      this.control.setDimensions(this.getControlWidth(), this.getContentHeight());
-      this.control.refreshPositions();
-
-      this.resetButton.setPosition(this.getResetButtonLeft(), this.getResetButtonTop());
-
       super.refreshPositions();
+      this.tooltip.setDimensionsAndPosition(
+          this.label.getWidth(), this.label.getHeight(), this.label.getX(), this.label.getY());
     }
 
     @Override

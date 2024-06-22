@@ -1,64 +1,30 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
-import me.roundaround.roundalib.client.gui.widget.PositionalWidget;
+import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.widget.LinearLayoutWidget;
 import me.roundaround.roundalib.config.option.ConfigOption;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.ParentElement;
-import net.minecraft.client.gui.widget.Widget;
 
-import java.util.function.Consumer;
-
-public abstract class Control<D, O extends ConfigOption<D>> extends PositionalWidget implements ParentElement {
+public abstract class Control<D, O extends ConfigOption<D>> extends LinearLayoutWidget {
   protected final MinecraftClient client;
   protected final O option;
 
   protected boolean valid;
 
-  private Element focused;
-  private boolean dragging;
+  protected Control(MinecraftClient client, O option, int width, int height) {
+    this(client, option, 0, 0, width, height);
+  }
 
-  protected Control(MinecraftClient client, O option, int left, int top, int width, int height) {
-    super(left, top, width, height);
+  protected Control(MinecraftClient client, O option, int x, int y, int width, int height) {
+    super(Axis.HORIZONTAL, x, y, width, height);
 
     this.client = client;
     this.option = option;
-  }
 
-  @Override
-  public void setDragging(boolean dragging) {
-    this.dragging = dragging;
-  }
-
-  @Override
-  public boolean isDragging() {
-    return this.dragging;
-  }
-
-  @Override
-  public void setFocused(Element focused) {
-    if (this.focused != null) {
-      this.focused.setFocused(false);
-    }
-
-    if (focused != null) {
-      focused.setFocused(true);
-    }
-
-    this.focused = focused;
-  }
-
-  @Override
-  public Element getFocused() {
-    return this.focused;
-  }
-
-  @Override
-  public void forEachElement(Consumer<Widget> consumer) {
-    this.children()
-        .stream()
-        .filter((child) -> child instanceof Widget)
-        .forEach((child) -> consumer.accept((Widget) child));
+    this.spacing(GuiUtil.PADDING / 2).alignedEnd();
+    this.getMainPositioner().alignVerticalCenter();
   }
 
   public O getOption() {
@@ -83,8 +49,9 @@ public abstract class Control<D, O extends ConfigOption<D>> extends PositionalWi
   protected void update() {
   }
 
+  @Environment(EnvType.CLIENT)
   @FunctionalInterface
   public interface ControlFactory<D, O extends ConfigOption<D>> {
-    Control<D, O> create(MinecraftClient client, O option, int left, int top, int width, int height);
+    Control<D, O> create(MinecraftClient client, O option, int width, int height);
   }
 }

@@ -3,42 +3,27 @@ package me.roundaround.roundalib.client.gui.widget.config;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.config.option.StringConfigOption;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-
-import java.util.List;
 
 public class TextControl extends Control<String, StringConfigOption> {
   private final TextFieldWidget textField;
 
-  public TextControl(MinecraftClient client, StringConfigOption option, int left, int top, int width, int height) {
-    super(client, option, left, top, width, height);
+  public TextControl(MinecraftClient client, StringConfigOption option, int width, int height) {
+    this(client, option, 0, 0, width, height);
+  }
 
-    this.textField = new TextFieldWidget(client.textRenderer, this.getLeft() + 1, this.getTop() + 1,
-        this.getWidth() - 2, this.getHeight() - 2, this.option.getLabel()
-    );
+  public TextControl(MinecraftClient client, StringConfigOption option, int x, int y, int width, int height) {
+    super(client, option, x, y, width, height);
+
+    this.textField = this.add(
+        new TextFieldWidget(client.textRenderer, width, height, this.option.getLabel()), (parent, self) -> {
+          self.setDimensions(parent.getWidth(), parent.getHeight());
+        });
 
     this.textField.setText(this.option.getPendingValue());
     this.textField.setChangedListener(this::onTextChanged);
 
     this.update();
-  }
-
-  @Override
-  public List<? extends Element> children() {
-    return List.of(this.textField);
-  }
-
-  @Override
-  public void refreshPositions() {
-    this.textField.setPosition(this.getLeft() + 1, this.getTop() + 1);
-    this.textField.setDimensions(this.getWidth() - 2, this.getHeight() - 2);
-  }
-
-  @Override
-  public void renderPositional(DrawContext drawContext, int mouseX, int mouseY, float delta) {
-    this.textField.render(drawContext, mouseX, mouseY, delta);
   }
 
   @Override

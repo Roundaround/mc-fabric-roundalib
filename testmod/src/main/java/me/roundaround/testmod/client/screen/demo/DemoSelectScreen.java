@@ -1,8 +1,8 @@
 package me.roundaround.testmod.client.screen.demo;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.widget.AlwaysSelectedFlowListWidget;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
+import me.roundaround.roundalib.client.gui.widget.NarratableEntryListWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -87,12 +87,12 @@ public class DemoSelectScreen extends Screen implements DemoScreen {
     Objects.requireNonNull(this.client).setScreen(screen);
   }
 
-  public static class DemoSelectListWidget extends AlwaysSelectedFlowListWidget<DemoSelectListWidget.Entry> {
+  public static class DemoSelectListWidget extends NarratableEntryListWidget<DemoSelectListWidget.Entry> {
     public DemoSelectListWidget(MinecraftClient client, ThreePartsLayoutWidget layout) {
       super(client, layout);
     }
 
-    public static class Entry extends AlwaysSelectedFlowListWidget.Entry {
+    public static class Entry extends NarratableEntryListWidget.Entry {
       private final Text text;
       private final DemoSelectAction action;
       private final LabelWidget label;
@@ -114,13 +114,15 @@ public class DemoSelectScreen extends Screen implements DemoScreen {
             .hideBackground()
             .build();
 
-        this.addDrawableChild(this.label);
+        this.addDrawable(this.label);
       }
 
       @Override
       public void refreshPositions() {
-        this.label.setPosition(this.getContentCenterX(), this.getContentCenterY());
-        this.label.setDimensions(this.getContentWidth(), this.getContentHeight());
+        this.label.batchUpdates(() -> {
+          this.label.setPosition(this.getContentCenterX(), this.getContentCenterY());
+          this.label.setDimensions(this.getContentWidth(), this.getContentHeight());
+        });
 
         super.refreshPositions();
       }

@@ -37,7 +37,7 @@ public class FillerWidget extends SizableLayoutWidget<FillerWidget> {
     return new FillerWidget(width, height);
   }
 
-  public static FillerWidget withLayoutHook(LayoutHook<FillerWidget> layoutHook) {
+  public static FillerWidget ofHook(LayoutHook<FillerWidget> layoutHook) {
     FillerWidget widget = new FillerWidget(0, 0);
     widget.setLayoutHook(layoutHook);
     return widget;
@@ -45,11 +45,6 @@ public class FillerWidget extends SizableLayoutWidget<FillerWidget> {
 
   @Override
   public void forEachElement(Consumer<Widget> consumer) {
-  }
-
-  @Override
-  public void refreshPositions() {
-    this.layoutHook.run(this);
   }
 
   @Override

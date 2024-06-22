@@ -6,6 +6,7 @@ import me.roundaround.roundalib.config.panic.Panic;
 import me.roundaround.roundalib.config.value.*;
 import net.minecraft.client.MinecraftClient;
 
+import java.io.Serial;
 import java.util.HashMap;
 
 public class ControlRegistry {
@@ -91,26 +92,30 @@ public class ControlRegistry {
   }
 
   public static class RegistrationException extends Exception {
+    @Serial
+    private static final long serialVersionUID = 6700515423205896696L;
   }
 
   public static class NotRegisteredException extends Exception {
+    @Serial
+    private static final long serialVersionUID = -860661609717794905L;
   }
 
   private static Control<Integer, IntConfigOption> intControlFactory(
-      MinecraftClient client, IntConfigOption option, int left, int top, int width, int height
+      MinecraftClient client, IntConfigOption option, int width, int height
   ) {
     Control.ControlFactory<Integer, IntConfigOption> constructor = option.useSlider() ?
         IntSliderControl::new :
         IntTextControl::new;
-    return constructor.create(client, option, left, top, width, height);
+    return constructor.create(client, option, width, height);
   }
 
   private static Control<Float, FloatConfigOption> floatControlFactory(
-      MinecraftClient client, FloatConfigOption option, int left, int top, int width, int height
+      MinecraftClient client, FloatConfigOption option, int width, int height
   ) {
     Control.ControlFactory<Float, FloatConfigOption> constructor = option.useSlider() ?
         FloatSliderControl::new :
         FloatTextControl::new;
-    return constructor.create(client, option, left, top, width, height);
+    return constructor.create(client, option, width, height);
   }
 }

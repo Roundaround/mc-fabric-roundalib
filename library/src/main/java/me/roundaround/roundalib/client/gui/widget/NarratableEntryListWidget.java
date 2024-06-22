@@ -1,10 +1,10 @@
 package me.roundaround.roundalib.client.gui.widget;
 
+import me.roundaround.roundalib.client.gui.layout.Spacing;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.navigation.GuiNavigation;
 import net.minecraft.client.gui.navigation.GuiNavigationPath;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
@@ -14,24 +14,23 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
 
 @Environment(EnvType.CLIENT)
-public abstract class AlwaysSelectedFlowListWidget<E extends AlwaysSelectedFlowListWidget.Entry> extends FlowListWidget<E> {
+public abstract class NarratableEntryListWidget<E extends NarratableEntryListWidget.Entry> extends FlowListWidget<E> {
   protected static final Text SELECTION_USAGE_TEXT = Text.translatable("narration.selection.usage");
 
   private boolean highlightSelection = true;
 
-  protected AlwaysSelectedFlowListWidget(MinecraftClient client, ThreePartsLayoutWidget layout) {
+  protected NarratableEntryListWidget(MinecraftClient client, ThreePartsLayoutWidget layout) {
     super(client, layout);
-    this.setDefaultPaddingAndSpacing();
+
+    this.contentPadding = Spacing.of(2);
+    this.rowSpacing = 3;
   }
 
-  protected AlwaysSelectedFlowListWidget(MinecraftClient client, int x, int y, int width, int height) {
+  protected NarratableEntryListWidget(MinecraftClient client, int x, int y, int width, int height) {
     super(client, x, y, width, height);
-    this.setDefaultPaddingAndSpacing();
-  }
 
-  protected void setDefaultPaddingAndSpacing() {
-    this.setContentPadding(2);
-    this.setRowSpacing(3);
+    this.contentPadding = Spacing.of(2);
+    this.rowSpacing = 3;
   }
 
   @Override
@@ -85,42 +84,33 @@ public abstract class AlwaysSelectedFlowListWidget<E extends AlwaysSelectedFlowL
 
   @Override
   protected void renderEntry(DrawContext context, int mouseX, int mouseY, float delta, E entry) {
-    boolean renderSelected = this.highlightSelection && entry == this.getSelected();
-    if (renderSelected) {
-      this.drawSelectionBackground(context, entry);
+    boolean showSelected = this.highlightSelection && entry == this.getSelected();
+    if (showSelected) {
+      entry.renderSelectionBackground(context);
     }
     super.renderEntry(context, mouseX, mouseY, delta, entry);
-    if (renderSelected) {
-      this.drawSelectionHighlight(context, entry);
+    if (showSelected) {
+      entry.renderSelectionHighlight(context);
     }
   }
 
-  protected void drawSelectionBackground(DrawContext context, E entry) {
-    context.fill(entry.getX(), entry.getY(), entry.getRight(), entry.getBottom(), Colors.BLACK);
-  }
-
-  protected void drawSelectionHighlight(DrawContext context, E entry) {
-    context.drawBorder(
-        entry.getX(), entry.getY(), entry.getWidth(), entry.getHeight(), this.isFocused() ? Colors.WHITE : Colors.GRAY);
-  }
-
-  protected void highlightSelection(boolean highlightSelection) {
+  protected void setHighlightSelection(boolean highlightSelection) {
     this.highlightSelection = highlightSelection;
   }
 
   @Environment(EnvType.CLIENT)
   public static abstract class Entry extends FlowListWidget.Entry {
+    protected static final Spacing DEFAULT_MARGIN = FlowListWidget.Entry.DEFAULT_MARGIN.expand(2);
+
     private boolean focused;
 
-    public Entry(int index, int left, int top, int width, int height) {
-      super(index, left, top, width, height);
-
-      this.setMargin(DEFAULT_MARGIN.expand(2));
+    public Entry(int index, int left, int top, int width, int contentHeight) {
+      super(index, left, top, width, contentHeight);
+      this.margin = DEFAULT_MARGIN;
     }
 
     public abstract Text getNarration();
 
-    @Override
     public void appendNarrations(NarrationMessageBuilder builder) {
       builder.put(NarrationPart.TITLE, this.getNarration());
     }
@@ -136,17 +126,17 @@ public abstract class AlwaysSelectedFlowListWidget<E extends AlwaysSelectedFlowL
     }
 
     @Override
-    public void setFocused(Element focused) {
-    }
-
-    @Override
-    public Element getFocused() {
-      return null;
-    }
-
-    @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
       return true;
+    }
+
+    protected void renderSelectionBackground(DrawContext context) {
+      context.fill(this.getX(), this.getY(), this.getRight(), this.getBottom(), Colors.BLACK);
+    }
+
+    protected void renderSelectionHighlight(DrawContext context) {
+      context.drawBorder(
+          this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.isFocused() ? Colors.WHITE : Colors.GRAY);
     }
   }
 }

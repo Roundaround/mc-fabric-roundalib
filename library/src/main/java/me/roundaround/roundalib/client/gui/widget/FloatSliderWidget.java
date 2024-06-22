@@ -18,6 +18,31 @@ public class FloatSliderWidget extends SliderWidget {
   private float floatValue;
 
   public FloatSliderWidget(
+      int width,
+      int height,
+      float min,
+      float max,
+      float value,
+      Function<Integer, Float> stepHandler,
+      Consumer<Float> valueChanged
+  ) {
+    this(0, 0, width, height, min, max, value, stepHandler, valueChanged);
+  }
+
+  public FloatSliderWidget(
+      int width,
+      int height,
+      float min,
+      float max,
+      float value,
+      Function<Integer, Float> stepHandler,
+      Consumer<Float> valueChanged,
+      Function<Float, Text> formatter
+  ) {
+    this(0, 0, width, height, min, max, value, stepHandler, valueChanged, formatter);
+  }
+
+  public FloatSliderWidget(
       int x,
       int y,
       int width,

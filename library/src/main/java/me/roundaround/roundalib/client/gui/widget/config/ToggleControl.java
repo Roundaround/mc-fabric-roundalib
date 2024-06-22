@@ -2,40 +2,24 @@ package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.config.option.BooleanConfigOption;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.widget.ButtonWidget;
-
-import java.util.List;
 
 public class ToggleControl extends Control<Boolean, BooleanConfigOption> {
   private final ButtonWidget button;
 
-  public ToggleControl(MinecraftClient client, BooleanConfigOption option, int left, int top, int width, int height) {
-    super(client, option, left, top, width, height);
+  public ToggleControl(MinecraftClient client, BooleanConfigOption option, int width, int height) {
+    this(client, option, 0, 0, width, height);
+  }
 
-    this.button = ButtonWidget.builder(this.option.getValueLabel(), (button) -> this.option.toggle())
-        .position(this.getLeft(), this.getTop())
-        .size(this.getWidth(), this.getHeight())
-        .build();
+  public ToggleControl(MinecraftClient client, BooleanConfigOption option, int x, int y, int width, int height) {
+    super(client, option, x, y, width, height);
+
+    this.button = this.add(
+        ButtonWidget.builder(this.option.getValueLabel(), (button) -> this.option.toggle()).build(), (parent, self) -> {
+          self.setDimensionsAndPosition(parent.getWidth(), parent.getHeight(), parent.getX(), parent.getY());
+        });
 
     this.update();
-  }
-
-  @Override
-  public List<? extends Element> children() {
-    return List.of(this.button);
-  }
-
-  @Override
-  public void refreshPositions() {
-    this.button.setPosition(this.getLeft(), this.getTop());
-    this.button.setDimensions(this.getWidth(), this.getHeight());
-  }
-
-  @Override
-  public void renderPositional(DrawContext drawContext, int mouseX, int mouseY, float delta) {
-    this.button.render(drawContext, mouseX, mouseY, delta);
   }
 
   @Override
