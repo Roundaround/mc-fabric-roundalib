@@ -84,7 +84,7 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
         .hideBackground()
         .showShadow()
         .build(), (parent, self) -> self.setDimensions(parent.getWidth(),
-        LabelWidget.getDefaultSingleLineHeight(this.textRenderer)
+        LabelWidget.getDefaultHeight(this.textRenderer)
     ));
 
     rightPane.add(new DrawableWidget() {

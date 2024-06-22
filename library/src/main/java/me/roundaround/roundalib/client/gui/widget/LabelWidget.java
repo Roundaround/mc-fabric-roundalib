@@ -431,8 +431,12 @@ public class LabelWidget extends DrawableWidget {
         .build();
   }
 
-  public static int getDefaultSingleLineHeight(TextRenderer textRenderer) {
-    return textRenderer.fontHeight + DEFAULT_PADDING.getVertical();
+  public static int getDefaultHeight(TextRenderer textRenderer) {
+    return getDefaultHeight(textRenderer, 1);
+  }
+
+  public static int getDefaultHeight(TextRenderer textRenderer, int lines) {
+    return lines * textRenderer.fontHeight + DEFAULT_PADDING.getVertical();
   }
 
   @Environment(EnvType.CLIENT)
@@ -469,6 +473,7 @@ public class LabelWidget extends DrawableWidget {
     public Builder(TextRenderer textRenderer, List<Text> lines) {
       this.textRenderer = textRenderer;
       this.lines = new ArrayList<>(lines);
+      this.height = getDefaultHeight(textRenderer, lines.size());
     }
 
     public Builder position(int x, int y) {
