@@ -12,10 +12,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.CyclingButtonWidget;
-import net.minecraft.client.gui.widget.TextWidget;
-import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
+import net.minecraft.client.gui.widget.*;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Divider;
@@ -60,14 +57,17 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
     header.refreshPositions();
     this.layout.setHeaderHeight(header.getContentSize() + 2 * GuiUtil.PADDING);
 
-    LinearLayoutWidget body = LinearLayoutWidget.horizontal().spacing(40);
-    this.layout.addBody(new FullBodyWrapperWidget(body, this.layout).margin(Spacing.of(GuiUtil.PADDING)));
+    LinearLayoutWidget body = this.layout.addBody(LinearLayoutWidget.horizontal((self) -> {
+      int totalWidth = this.width - 2 * GuiUtil.PADDING;
+      int contentWidth = 3 * columnWidth(totalWidth) + 2 * columnSpacing(totalWidth);
+      self.setPosition((this.width - contentWidth) / 2, this.layout.getHeaderHeight());
+      self.setDimensions(contentWidth, this.layout.getContentHeight());
+      self.spacing(columnSpacing(totalWidth));
+    }));
 
-    int index = 0;
     for (TextAlignment alignmentX : TextAlignment.values()) {
-      int colIndex = index++;
       LinearLayoutWidget column = body.add(LinearLayoutWidget.vertical().spacing(20),
-          (parent, self) -> self.setDimensions(columnWidth(parent, colIndex), parent.getHeight())
+          (parent, self) -> self.setDimensions(columnWidth(parent.getWidth()), parent.getHeight())
       );
 
       for (TextAlignment alignmentY : TextAlignment.values()) {
@@ -144,10 +144,13 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
     this.initTabNavigation();
   }
 
-  private static int columnWidth(LinearLayoutWidget parent, int index) {
-    Divider divider = new Divider(parent.getWidth() - 2 * parent.getSpacing(), 3);
-    divider.skip(index);
-    return divider.nextInt();
+  private static int columnWidth(int parentWidth) {
+    return Math.min((parentWidth - 4 * GuiUtil.PADDING) / 3, 70);
+  }
+
+  private static int columnSpacing(int parentWidth) {
+    int totalSpacing = parentWidth - 3 * columnWidth(parentWidth);
+    return totalSpacing / 2;
   }
 
   private static int rowHeight(LinearLayoutWidget parent, int index) {

@@ -120,8 +120,10 @@ public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
     this.labels.add(label);
 
     labelsContainer.add(label, (parent, self) -> {
-      self.setPosition(this.relativeX(relativeX), this.relativeY(relativeY));
-      self.setDimensions(this.columnWidth(), this.rowHeight());
+      label.batchUpdates(() -> {
+        self.setPosition(this.relativeX(relativeX), this.relativeY(relativeY));
+        self.setDimensions(this.columnWidth(), this.rowHeight());
+      });
     });
   }
 
