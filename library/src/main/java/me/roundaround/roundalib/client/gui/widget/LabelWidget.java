@@ -191,6 +191,19 @@ public class LabelWidget extends DrawableWidget {
     return builder;
   }
 
+  public List<Text> getLines() {
+    return this.lines;
+  }
+
+  public int getLineCount() {
+    return this.lines.size();
+  }
+
+  public int getDefaultHeight() {
+    int lines = Math.max(1, this.getLineCount());
+    return lines * this.textRenderer.fontHeight + (lines - 1) * this.lineSpacing + this.padding.getVertical();
+  }
+
   public void batchUpdates(Runnable runnable) {
     this.inBatchUpdate = true;
     try {
