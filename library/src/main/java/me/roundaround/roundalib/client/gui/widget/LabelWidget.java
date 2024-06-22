@@ -132,8 +132,7 @@ public class LabelWidget extends DrawableWidget {
     }
 
     OverflowBehavior overflowBehavior = this.overflowBehavior;
-    if (this.lines.size() > 1 && overflowBehavior != OverflowBehavior.SHOW &&
-        overflowBehavior != OverflowBehavior.CLIP) {
+    if (this.lines.size() > 1 && !overflowBehavior.supportsMultiline()) {
       overflowBehavior = OverflowBehavior.SHOW;
     }
 
@@ -657,12 +656,14 @@ public class LabelWidget extends DrawableWidget {
 
   @Environment(EnvType.CLIENT)
   public enum OverflowBehavior {
-    SHOW("show"), TRUNCATE("truncate"), WRAP("wrap"), CLIP("clip"), SCROLL("scroll");
+    SHOW("show", true), TRUNCATE("truncate", true), WRAP("wrap", false), CLIP("clip", true), SCROLL("scroll", false);
 
     private final String id;
+    private final boolean supportsMultiline;
 
-    OverflowBehavior(String id) {
+    OverflowBehavior(String id, boolean supportsMultiline) {
       this.id = id;
+      this.supportsMultiline = supportsMultiline;
     }
 
     public String getI18nKey(String modId) {
@@ -675,6 +676,10 @@ public class LabelWidget extends DrawableWidget {
 
     public String getDisplayString(String modId) {
       return I18n.translate(this.getI18nKey(modId));
+    }
+
+    public boolean supportsMultiline() {
+      return this.supportsMultiline;
     }
   }
 }

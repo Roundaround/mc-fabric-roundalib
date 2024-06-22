@@ -79,13 +79,13 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
     rightPane.getMainPositioner().alignHorizontalCenter();
 
     LabelWidget label = rightPane.add(LabelWidget.builder(this.textRenderer, Text.of("Label"))
-        .justifiedCenter()
-        .alignedMiddle()
-        .hideBackground()
-        .showShadow()
-        .build(), (parent, self) -> self.setDimensions(parent.getWidth(),
-        LabelWidget.getDefaultHeight(this.textRenderer)
-    ));
+            .justifiedCenter()
+            .alignedMiddle()
+            .hideBackground()
+            .showShadow()
+            .build(),
+        (parent, self) -> self.setDimensions(parent.getWidth(), LabelWidget.getDefaultHeight(this.textRenderer))
+    );
 
     rightPane.add(new DrawableWidget() {
       @Override
@@ -186,7 +186,7 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
         LabelWidget label = LabelWidget.builder(textRenderer, lines)
             .justifiedLeft()
             .alignedMiddle()
-            .overflowBehavior(LabelWidget.OverflowBehavior.CLIP)
+            .overflowBehavior(LabelWidget.OverflowBehavior.TRUNCATE)
             .hideBackground()
             .showShadow()
             .build();
