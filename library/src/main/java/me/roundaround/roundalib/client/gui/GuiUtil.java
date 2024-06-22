@@ -12,6 +12,7 @@ import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
@@ -163,16 +164,15 @@ public final class GuiUtil {
       int maxWidth,
       TextAlignment alignment
   ) {
-    if (maxWidth <= 0) {
+    if (maxWidth <= 0 || textRenderer.getWidth(text) < maxWidth) {
       context.drawText(textRenderer, text, x, y, color, shadow);
       return;
     }
 
     StringVisitable trimmed = text;
-    if (textRenderer.getWidth(text) > maxWidth) {
-      trimmed = textRenderer.trimToWidth(text, maxWidth - textRenderer.getWidth(ScreenTexts.ELLIPSIS));
-      trimmed = StringVisitable.concat(trimmed, ScreenTexts.ELLIPSIS);
-    }
+    MutableText ellipsis = ScreenTexts.ELLIPSIS.copy().setStyle(text.getStyle());
+    trimmed = textRenderer.trimToWidth(text, maxWidth - textRenderer.getWidth(ellipsis));
+    trimmed = StringVisitable.concat(trimmed, ellipsis);
 
     drawText(context, textRenderer, Language.getInstance().reorder(trimmed), x, y, color, shadow, alignment);
   }
