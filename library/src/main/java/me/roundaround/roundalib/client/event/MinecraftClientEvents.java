@@ -8,11 +8,11 @@ import net.fabricmc.api.Environment;
 @FunctionalInterface
 public interface MinecraftClientEvents {
   EventBus<MinecraftClientEvents> AFTER_INIT_EVENT_BUS = new EventBus<>(
-      (listeners) -> () -> listeners.stream().anyMatch(MinecraftClientEvents::handle));
+      (listeners) -> () -> listeners.forEach(MinecraftClientEvents::handle));
   EventBus<MinecraftClientEvents> ON_CLOSE_EVENT_BUS = new EventBus<>(
-      (listeners) -> () -> listeners.stream().anyMatch(MinecraftClientEvents::handle));
+      (listeners) -> () -> listeners.forEach(MinecraftClientEvents::handle));
   EventBus<MinecraftClientEvents> ON_INPUT_EVENT_BUS = new EventBus<>(
-      (listeners) -> () -> listeners.stream().anyMatch(MinecraftClientEvents::handle));
+      (listeners) -> () -> listeners.forEach(MinecraftClientEvents::handle));
 
-  boolean handle();
+  void handle();
 }
