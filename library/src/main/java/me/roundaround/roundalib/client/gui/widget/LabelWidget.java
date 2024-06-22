@@ -677,7 +677,7 @@ public class LabelWidget extends DrawableWidget {
 
   @Environment(EnvType.CLIENT)
   public enum OverflowBehavior {
-    SHOW("show", true), TRUNCATE("truncate", true), WRAP("wrap", false), CLIP("clip", true), SCROLL("scroll", false);
+    SHOW("show", true), TRUNCATE("truncate", true), WRAP("wrap", false), CLIP("clip", true), SCROLL("scroll", true);
 
     private final String id;
     private final boolean supportsMultiline;
