@@ -87,6 +87,8 @@ public class ConfigListWidget extends FlowListWidget<ConfigListWidget.Entry> {
   public abstract static class Entry extends FlowListWidget.Entry {
     protected Entry(int index, int left, int top, int width, int contentHeight) {
       super(index, left, top, width, contentHeight);
+
+      this.setMarginX(DEFAULT_FADE_WIDTH);
     }
 
     public void tick() {
