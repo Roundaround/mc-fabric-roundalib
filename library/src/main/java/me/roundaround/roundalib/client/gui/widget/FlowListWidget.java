@@ -525,7 +525,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     }
 
     for (E entry : this.entries) {
-      if (y >= entry.getY() && y <= entry.getBottom()) {
+      if (entry.isMouseOver(x, y)) {
         return entry;
       }
     }
@@ -823,6 +823,11 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     @Override
     public Element getFocused() {
       return this.focused;
+    }
+
+    @Override
+    public boolean isMouseOver(double mouseX, double mouseY) {
+      return mouseX >= this.getX() && mouseX <= this.getRight() && mouseY >= this.getY() && mouseY <= this.getBottom();
     }
 
     @Override
