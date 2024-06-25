@@ -96,6 +96,7 @@ public class DemoSelectScreen extends Screen implements DemoScreen {
   public static class DemoSelectListWidget extends NarratableEntryListWidget<DemoSelectListWidget.Entry> {
     public DemoSelectListWidget(MinecraftClient client, ThreePartsLayoutWidget layout) {
       super(client, layout);
+      this.setAlternatingRowShading(true);
     }
 
     public static class Entry extends NarratableEntryListWidget.Entry {
@@ -111,9 +112,9 @@ public class DemoSelectScreen extends Screen implements DemoScreen {
         this.action = action;
 
         this.label = LabelWidget.builder(textRenderer, this.text)
-            .refPosition(this.getContentCenterX(), this.getContentCenterY())
+            .refPosition(this.getContentLeft(), this.getContentCenterY())
             .dimensions(this.getContentWidth(), this.getContentHeight())
-            .justifiedCenter()
+            .justifiedLeft()
             .alignedMiddle()
             .overflowBehavior(LabelWidget.OverflowBehavior.SCROLL)
             .showShadow()
@@ -126,7 +127,7 @@ public class DemoSelectScreen extends Screen implements DemoScreen {
       @Override
       public void refreshPositions() {
         this.label.batchUpdates(() -> {
-          this.label.setPosition(this.getContentCenterX(), this.getContentCenterY());
+          this.label.setPosition(this.getContentLeft(), this.getContentCenterY());
           this.label.setDimensions(this.getContentWidth(), this.getContentHeight());
         });
 

@@ -74,8 +74,6 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
   public abstract static class Entry extends ParentElementEntryListWidget.Entry {
     protected Entry(int index, int left, int top, int width, int contentHeight) {
       super(index, left, top, width, contentHeight);
-
-      this.setMarginX(DEFAULT_FADE_WIDTH);
     }
 
     public void tick() {
@@ -95,7 +93,8 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     ) {
       super(index, left, top, width, HEIGHT);
 
-      this.alternatingRowShading = true;
+      this.setForceRowShading(true);
+      this.setRowShadeStrength(DEFAULT_SHADE_STRENGTH_STRONG);
 
       this.label = LabelWidget.builder(textRenderer, label)
           .refPosition(this.getContentCenterX(), this.getContentCenterY())

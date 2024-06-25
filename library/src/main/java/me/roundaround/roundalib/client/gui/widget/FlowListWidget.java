@@ -34,6 +34,9 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   protected static final int VANILLA_LIST_WIDTH_S = 220;
   protected static final int VANILLA_LIST_WIDTH_M = 280;
   protected static final int VANILLA_LIST_WIDTH_L = 340;
+  protected static final int DEFAULT_SHADE_STRENGTH = 50;
+  protected static final int DEFAULT_SHADE_STRENGTH_STRONG = 150;
+  protected static final int DEFAULT_SHADE_FADE_WIDTH = 10;
 
   protected final MinecraftClient client;
   protected final ThreePartsLayoutWidget parentLayout;
@@ -44,6 +47,10 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
   protected final LinkedList<E> entries = new LinkedList<>();
 
+  protected boolean alternatingRowShading = false;
+  protected int shadeFadeWidth = DEFAULT_SHADE_FADE_WIDTH;
+  protected int shadeStrength = DEFAULT_SHADE_STRENGTH;
+  protected boolean autoPadForShading = true;
   protected int contentHeight = 0;
   protected Spacing contentPadding = Spacing.zero();
   protected int rowSpacing = 0;
@@ -73,6 +80,11 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     if (entry == null) {
       return null;
     }
+
+    entry.setAlternatingRowShading(this.alternatingRowShading);
+    entry.setRowShadeFadeWidth(this.shadeFadeWidth);
+    entry.setRowShadeStrength(this.shadeStrength);
+    entry.setAutoPadForShading(this.autoPadForShading);
 
     this.entries.add(entry);
     this.contentHeight += entry.getHeight();
@@ -547,11 +559,41 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     return averageHeight / 2;
   }
 
+  protected void setAlternatingRowShading(boolean alternatingRowShading) {
+    this.alternatingRowShading = alternatingRowShading;
+    this.forEachEntry((entry) -> {
+      entry.setAlternatingRowShading(this.alternatingRowShading);
+    });
+  }
+
+  protected void setRowShadeFadeWidth(int width) {
+    this.shadeFadeWidth = Math.max(width, 0);
+    this.forEachEntry((entry) -> {
+      entry.setRowShadeFadeWidth(this.shadeFadeWidth);
+    });
+  }
+
+  protected void setRowShadeStrength(int strength) {
+    this.shadeStrength = Math.clamp(strength, 0, 255);
+    this.forEachEntry((entry) -> {
+      entry.setRowShadeStrength(this.shadeStrength);
+    });
+  }
+
+  protected void setRowShadeStrength(float strength) {
+    this.setRowShadeStrength((int) (strength * 255));
+  }
+
+  protected void setAutoPadForShading(boolean autoPad) {
+    this.autoPadForShading = autoPad;
+    this.forEachEntry((entry) -> {
+      entry.setAutoPadForShading(this.autoPadForShading);
+    });
+  }
+
   @Environment(EnvType.CLIENT)
   public abstract static class Entry implements Drawable, LayoutWidget, Element {
     protected static final Spacing DEFAULT_MARGIN = Spacing.of(GuiUtil.PADDING / 2);
-    protected static final int DEFAULT_SHADE_STRENGTH = 50;
-    protected static final int DEFAULT_FADE_WIDTH = 10;
 
     protected final ArrayList<LayoutWrapper<?>> layouts = new ArrayList<>();
     protected final ArrayList<Drawable> drawables = new ArrayList<>();
@@ -562,11 +604,11 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     protected int y;
     protected int width;
     protected double scrollAmount = 0;
-    protected boolean alternatingRowShading = false;
-    protected boolean forceRowShading = false;
-    protected int shadeFadeWidth = DEFAULT_FADE_WIDTH;
-    protected int shadeStrength = DEFAULT_SHADE_STRENGTH;
     protected Spacing margin = DEFAULT_MARGIN;
+    protected boolean forceRowShading = false;
+    protected boolean alternatingRowShading = false;
+    protected int shadeFadeWidth = DEFAULT_SHADE_FADE_WIDTH;
+    protected int shadeStrength = DEFAULT_SHADE_STRENGTH;
     protected boolean autoPadForShading = true;
 
     protected Entry(int index, int x, int y, int width, int contentHeight) {
@@ -778,7 +820,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     }
 
     public int getShadingPadding() {
-      return this.hasRowShading() ? this.shadeFadeWidth : 0;
+      return (this.alternatingRowShading || this.forceRowShading) && this.autoPadForShading ? this.shadeFadeWidth : 0;
     }
 
     public boolean hasRowShading() {
@@ -794,15 +836,15 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     }
 
     protected void setRowShadeFadeWidth(int width) {
-      this.shadeFadeWidth = Math.max(width, 0);
+      this.shadeFadeWidth = width;
     }
 
     protected void setRowShadeStrength(int strength) {
-      this.shadeStrength = Math.clamp(strength, 0, 255);
+      this.shadeStrength = strength;
     }
 
-    protected void setRowShadeStrength(float strength) {
-      this.setRowShadeStrength((int) (strength * 255));
+    protected void setAutoPadForShading(boolean autoPad) {
+      this.autoPadForShading = autoPad;
     }
   }
 
