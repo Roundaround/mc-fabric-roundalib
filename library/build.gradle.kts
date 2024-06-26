@@ -1,5 +1,6 @@
 plugins {
-  id("roundalib") version "0.5.3"
+  id("io.github.goooler.shadow") version "8.1.7"
+  id("roundalib")
 }
 
 val nightConfig: Configuration by configurations.creating {
