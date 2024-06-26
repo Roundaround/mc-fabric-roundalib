@@ -66,11 +66,6 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     this.forEachEntry(Entry::update);
   }
 
-  @Override
-  protected int getPreferredContentWidth() {
-    return this.getWidth();
-  }
-
   public abstract static class Entry extends ParentElementEntryListWidget.Entry {
     protected Entry(int index, int left, int top, int width, int contentHeight) {
       super(index, left, top, width, contentHeight);

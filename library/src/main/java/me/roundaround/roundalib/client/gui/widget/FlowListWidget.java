@@ -53,6 +53,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   protected boolean autoPadForShading = true;
   protected int contentHeight = 0;
   protected Spacing contentPadding = Spacing.zero();
+  protected int contentMargin = GuiUtil.PADDING;
   protected int rowSpacing = 0;
   protected double scrollAmount = 0;
   protected boolean scrolling = false;
@@ -86,11 +87,17 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     entry.setRowShadeStrength(this.shadeStrength);
     entry.setAutoPadForShading(this.autoPadForShading);
 
+    boolean wasScrollbarVisible = this.isScrollbarVisible();
+
     this.entries.add(entry);
     this.contentHeight += entry.getHeight();
 
     if (this.entries.size() > 1) {
       this.contentHeight += this.rowSpacing;
+    }
+
+    if (this.isScrollbarVisible() && !wasScrollbarVisible) {
+      this.refreshPositions();
     }
 
     E selected = this.getSelected();
@@ -140,7 +147,8 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
           this.parentLayout.getWidth(), this.parentLayout.getContentHeight(), 0, this.parentLayout.getHeaderHeight());
     }
 
-    this.contentHeight = this.contentPadding.getVertical();
+    this.contentHeight = this.contentPadding.getVertical() + this.entries.stream().mapToInt(Entry::getHeight).sum() +
+        Math.max(0, this.getEntryCount() - 1) * this.rowSpacing;
 
     int entryY = this.getContentTop();
     for (E entry : this.entries) {
@@ -148,10 +156,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
       entry.setWidth(this.getContentWidth());
 
       entryY += entry.getHeight() + this.rowSpacing;
-      this.contentHeight += entry.getHeight() + this.rowSpacing;
     }
-
-    this.contentHeight -= this.rowSpacing;
 
     this.setScrollAmount(this.getScrollAmount());
 
@@ -200,7 +205,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
       return;
     }
 
-    int x = this.getScrollbarPositionX();
+    int x = this.getScrollbarX();
     int handleHeight = this.getScrollbarHandleHeight();
     double yPercent = this.getScrollAmount() / this.getMaxScroll();
     int movableSpace = this.getHeight() - handleHeight;
@@ -466,7 +471,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     return Math.min(this.getPreferredContentWidth(), this.getMaxContentWidth());
   }
 
-  public int getScrollPaneHeight() {
+  public int getContentHeight() {
     return this.contentHeight;
   }
 
@@ -479,10 +484,16 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   public int getContentLeft() {
+    if (this.doesContentFillWidth()) {
+      return this.getX() + this.getContentMarginLeft();
+    }
     return this.getX() + (this.getWidth() - this.getContentWidth()) / 2;
   }
 
   public int getContentRight() {
+    if (this.doesContentFillWidth()) {
+      return this.getRight() - this.getContentMarginRight();
+    }
     return this.getX() + (this.getWidth() + this.getContentWidth()) / 2;
   }
 
@@ -503,33 +514,46 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     return VANILLA_LIST_WIDTH_L;
   }
 
+  protected int getFullGutterWidth() {
+    if (!this.isScrollbarVisible()) {
+      return this.contentMargin;
+    }
+    return GuiUtil.SCROLLBAR_WIDTH + 2 * this.contentMargin;
+  }
+
+  protected boolean doesContentFillWidth() {
+    return this.getPreferredContentWidth() >= this.getWidth() - 2 * this.getFullGutterWidth();
+  }
+
+  protected int getGutterWidth() {
+    if (!this.isScrollbarVisible()) {
+      return this.contentMargin;
+    }
+    return GuiUtil.SCROLLBAR_WIDTH + (this.doesContentFillWidth() ? 1 : 2) * this.contentMargin;
+  }
+
+  protected int getContentMarginLeft() {
+    return this.doesContentFillWidth() ? this.contentMargin : this.getGutterWidth();
+  }
+
+  protected int getContentMarginRight() {
+    return this.getGutterWidth();
+  }
+
   protected int getMaxContentWidth() {
-    return this.getMaxContentRight() - this.getMinContentLeft();
+    return this.getWidth() - this.getContentMarginLeft() - this.getContentMarginRight();
   }
 
-  protected int getMinContentLeft() {
-    return this.getX() + 2 * this.getScrollbarPadding() + GuiUtil.SCROLLBAR_WIDTH + this.contentPadding.left();
-  }
-
-  protected int getMaxContentRight() {
-    return this.getRight() - 2 * this.getScrollbarPadding() - GuiUtil.SCROLLBAR_WIDTH - this.contentPadding.right();
-  }
-
-  protected int getScrollbarPositionX() {
-    return this.getContentRight() +
-        (this.getWidth() < VANILLA_LIST_WIDTH_L ? 2 * this.getScrollbarPadding() : this.getScrollbarPadding());
-  }
-
-  protected int getScrollbarPadding() {
-    return GuiUtil.PADDING;
+  protected int getScrollbarX() {
+    return this.getContentRight() + this.contentMargin;
   }
 
   protected int getScrollbarHandleHeight() {
     int height = this.getHeight();
-    return MathHelper.clamp(height * height / this.getScrollPaneHeight(), 32, height - 8);
+    return MathHelper.clamp(height * height / this.getContentHeight(), 32, height - 8);
   }
 
-  private void scroll(int amount) {
+  protected void scroll(int amount) {
     this.setScrollAmount(this.getScrollAmount() + (double) amount);
   }
 
@@ -542,13 +566,17 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     this.entries.forEach((entry) -> entry.setScrollAmount(this.getScrollAmount()));
   }
 
+  public void refreshScrollAmount() {
+    this.scrollAmount = MathHelper.clamp(this.getScrollAmount(), 0, this.getMaxScroll());
+  }
+
   public int getMaxScroll() {
-    return Math.max(0, this.getScrollPaneHeight() - this.getHeight());
+    return Math.max(0, this.getContentHeight() - this.getHeight());
   }
 
   protected void updateScrollingState(double mouseX, double mouseY, int button) {
-    this.scrolling = button == 0 && mouseX >= (double) this.getScrollbarPositionX() &&
-        mouseX < (this.getScrollbarPositionX() + GuiUtil.SCROLLBAR_WIDTH);
+    this.scrolling = button == 0 && mouseX >= (double) this.getScrollbarX() &&
+        mouseX < (this.getScrollbarX() + GuiUtil.SCROLLBAR_WIDTH);
   }
 
   protected double getScrollUnit() {
