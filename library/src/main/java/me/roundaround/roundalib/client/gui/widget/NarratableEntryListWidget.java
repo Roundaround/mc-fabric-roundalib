@@ -34,6 +34,13 @@ public abstract class NarratableEntryListWidget<E extends NarratableEntryListWid
   }
 
   @Override
+  public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    Entry selected = this.getSelected();
+    return selected != null && selected.keyPressed(keyCode, scanCode, modifiers) ||
+        super.keyPressed(keyCode, scanCode, modifiers);
+  }
+
+  @Override
   public GuiNavigationPath getNavigationPath(GuiNavigation navigation) {
     if (this.getEntryCount() == 0) {
       return null;
