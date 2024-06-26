@@ -57,6 +57,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   protected int rowSpacing = 0;
   protected double scrollAmount = 0;
   protected boolean scrolling = false;
+  protected int scrollbarX;
 
   protected FlowListWidget(MinecraftClient client, ThreePartsLayoutWidget layout) {
     super(0, layout.getHeaderHeight(), layout.getWidth(), layout.getContentHeight(), ScreenTexts.EMPTY);
@@ -150,6 +151,8 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     this.contentHeight = this.contentPadding.getVertical() + this.entries.stream().mapToInt(Entry::getHeight).sum() +
         Math.max(0, this.getEntryCount() - 1) * this.rowSpacing;
 
+    this.scrollbarX = this.getScrollbarX();
+
     int entryY = this.getContentTop();
     for (E entry : this.entries) {
       entry.setPosition(this.getContentLeft(), entryY);
@@ -205,15 +208,15 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
       return;
     }
 
-    int x = this.getScrollbarX();
     int handleHeight = this.getScrollbarHandleHeight();
     double yPercent = this.getScrollAmount() / this.getMaxScroll();
     int movableSpace = this.getHeight() - handleHeight;
     int handleY = this.getY() + (int) Math.round(yPercent * movableSpace);
 
     RenderSystem.enableBlend();
-    context.drawGuiTexture(Textures.SCROLLBAR_BG, x, this.getY(), GuiUtil.SCROLLBAR_WIDTH, this.getHeight());
-    context.drawGuiTexture(Textures.SCROLLBAR, x, handleY, GuiUtil.SCROLLBAR_WIDTH, handleHeight);
+    context.drawGuiTexture(
+        Textures.SCROLLBAR_BG, this.scrollbarX, this.getY(), GuiUtil.SCROLLBAR_WIDTH, this.getHeight());
+    context.drawGuiTexture(Textures.SCROLLBAR, this.scrollbarX, handleY, GuiUtil.SCROLLBAR_WIDTH, handleHeight);
     RenderSystem.disableBlend();
   }
 
@@ -575,8 +578,8 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   protected void updateScrollingState(double mouseX, double mouseY, int button) {
-    this.scrolling = button == 0 && mouseX >= (double) this.getScrollbarX() &&
-        mouseX < (this.getScrollbarX() + GuiUtil.SCROLLBAR_WIDTH);
+    this.scrolling =
+        button == 0 && mouseX >= (double) this.scrollbarX && mouseX < (this.scrollbarX + GuiUtil.SCROLLBAR_WIDTH);
   }
 
   protected double getScrollUnit() {
