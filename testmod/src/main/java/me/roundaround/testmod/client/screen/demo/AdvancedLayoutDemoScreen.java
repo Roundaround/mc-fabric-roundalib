@@ -9,10 +9,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.Positioner;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
+import net.minecraft.client.gui.widget.*;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -69,7 +66,6 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
         )
     );
     listWidget.addRows(15);
-    listWidget.selectFirst();
 
     LinearLayoutWidget rightPane = body.add(LinearLayoutWidget.vertical().spacing(GuiUtil.PADDING), (parent, self) -> {
       Divider divider = new Divider(parent.getWidth() - parent.getSpacing(), 2);
@@ -96,6 +92,17 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
         int height = this.getHeight();
         context.fill(left, top, left + width, top + height, GuiUtil.genColorInt(0, 0, 0));
         context.drawBorder(left, top, width, height, GuiUtil.genColorInt(0.8f, 0.2f, 0.6f));
+      }
+
+      @Override
+      protected boolean isValidClickButton(int button) {
+        return button == 0;
+      }
+
+      @Override
+      public void onClick(double mouseX, double mouseY) {
+        listWidget.clearEntries();
+        listWidget.addRows(15);
       }
     }, (parent, self) -> self.setDimensions(parent.getWidth() - 2 * GuiUtil.PADDING,
         parent.getHeight() - label.getHeight() - IconButtonWidget.SIZE_V - 2 * parent.getSpacing()
