@@ -1,6 +1,6 @@
 package me.roundaround.roundalib.network;
 
-import io.netty.buffer.ByteBuf;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketDecoder;
@@ -22,12 +22,12 @@ public final class CustomCodecs {
     }, (buf) -> supplier.get());
   }
 
-  public static <B extends ByteBuf, V> PacketCodec<B, List<V>> forList(PacketCodec<ByteBuf, V> entryCodec) {
-    return forList((value, buf) -> entryCodec.encode(buf, value), entryCodec::decode);
+  public static <B extends PacketByteBuf, V> PacketCodec<B, List<V>> forList(PacketCodec<? super B, V> entryCodec) {
+    return forList((value, buf) -> entryCodec.encode(buf, value), entryCodec);
   }
 
-  public static <B extends ByteBuf, V> PacketCodec<B, List<V>> forList(
-      final ValueFirstEncoder<B, V> encoder, final PacketDecoder<B, V> decoder
+  public static <B extends PacketByteBuf, V> PacketCodec<B, List<V>> forList(
+      ValueFirstEncoder<? super B, V> encoder, PacketDecoder<? super B, V> decoder
   ) {
     return new PacketCodec<>() {
       @Override
@@ -50,33 +50,35 @@ public final class CustomCodecs {
     };
   }
 
-  public static <B extends ByteBuf, K, V> PacketCodec<B, Map<K, V>> forMap(
-      PacketCodec<ByteBuf, K> keyCodec,
-      final ValueFirstEncoder<B, V> valueEncoder,
-      final PacketDecoder<B, V> valueDecoder
+  public static <B extends PacketByteBuf, K, V> PacketCodec<B, Map<K, V>> forMap(
+      PacketCodec<? super B, K> keyCodec,
+      ValueFirstEncoder<? super B, V> valueEncoder,
+      PacketDecoder<? super B, V> valueDecoder
   ) {
-    return forMap((value, buf) -> keyCodec.encode(buf, value), keyCodec::decode, valueEncoder, valueDecoder);
+    return forMap((value, buf) -> keyCodec.encode(buf, value), keyCodec, valueEncoder, valueDecoder);
   }
 
-  public static <B extends ByteBuf, K, V> PacketCodec<B, Map<K, V>> forMap(
-      final ValueFirstEncoder<B, K> keyEncoder, final PacketDecoder<B, K> keyDecoder, PacketCodec<ByteBuf, V> valueCodec
+  public static <B extends PacketByteBuf, K, V> PacketCodec<B, Map<K, V>> forMap(
+      ValueFirstEncoder<? super B, K> keyEncoder,
+      PacketDecoder<? super B, K> keyDecoder,
+      PacketCodec<? super B, V> valueCodec
   ) {
-    return forMap(keyEncoder, keyDecoder, (value, buf) -> valueCodec.encode(buf, value), valueCodec::decode);
+    return forMap(keyEncoder, keyDecoder, (value, buf) -> valueCodec.encode(buf, value), valueCodec);
   }
 
-  public static <B extends ByteBuf, K, V> PacketCodec<B, Map<K, V>> forMap(
-      PacketCodec<ByteBuf, K> keyCodec, PacketCodec<ByteBuf, V> valueCodec
+  public static <B extends PacketByteBuf, K, V> PacketCodec<B, Map<K, V>> forMap(
+      PacketCodec<? super B, K> keyCodec, PacketCodec<? super B, V> valueCodec
   ) {
-    return forMap((value, buf) -> keyCodec.encode(buf, value), keyCodec::decode,
-        (value, buf) -> valueCodec.encode(buf, value), valueCodec::decode
+    return forMap((value, buf) -> keyCodec.encode(buf, value), keyCodec, (value, buf) -> valueCodec.encode(buf, value),
+        valueCodec
     );
   }
 
-  public static <B extends ByteBuf, K, V> PacketCodec<B, Map<K, V>> forMap(
-      final ValueFirstEncoder<B, K> keyEncoder,
-      final PacketDecoder<B, K> keyDecoder,
-      final ValueFirstEncoder<B, V> valueEncoder,
-      final PacketDecoder<B, V> valueDecoder
+  public static <B extends PacketByteBuf, K, V> PacketCodec<B, Map<K, V>> forMap(
+      ValueFirstEncoder<? super B, K> keyEncoder,
+      PacketDecoder<? super B, K> keyDecoder,
+      ValueFirstEncoder<? super B, V> valueEncoder,
+      PacketDecoder<? super B, V> valueDecoder
   ) {
     return new PacketCodec<>() {
       @Override
