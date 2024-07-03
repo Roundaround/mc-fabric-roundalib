@@ -261,7 +261,6 @@ public abstract class ConfigOption<D> {
     this.pendingValueChangeListeners.remove(listener);
   }
 
-  @SuppressWarnings("unchecked")
   public static abstract class AbstractBuilder<D, C extends ConfigOption<D>, B extends AbstractBuilder<D, C, B>> {
     protected final ModConfig modConfig;
     protected final String id;
@@ -295,67 +294,67 @@ public abstract class ConfigOption<D> {
 
     public B setGroup(String group) {
       this.group = group;
-      return (B) this;
+      return this.self();
     }
 
     public B setLabel(String i18nKey) {
       this.label = Text.translatable(i18nKey);
-      return (B) this;
+      return this.self();
     }
 
     public B setLabel(Text label) {
       this.label = label;
-      return (B) this;
+      return this.self();
     }
 
     public B setDefaultValue(D defaultValue) {
       this.defaultValue = defaultValue;
-      return (B) this;
+      return this.self();
     }
 
     public B hideFromConfigScreen() {
       this.noGui = true;
-      return (B) this;
+      return this.self();
     }
 
     public B setToStringFunction(Function<D, String> toStringFunction) {
       this.toStringFunction = toStringFunction;
-      return (B) this;
+      return this.self();
     }
 
     public B setComment(String comment) {
       this.comment = List.of(comment);
-      return (B) this;
+      return this.self();
     }
 
     public B setComment(String... comment) {
       this.comment = List.of(comment);
-      return (B) this;
+      return this.self();
     }
 
     public B setComment(Collection<String> comment) {
       this.comment = List.copyOf(comment);
-      return (B) this;
+      return this.self();
     }
 
     public <O extends ConfigOption<D>> B setValidators(Collection<Validator<D>> validators) {
       this.validators = List.copyOf(validators);
-      return (B) this;
+      return this.self();
     }
 
     public <O extends ConfigOption<D>> B addValidator(Validator<D> validator) {
       this.validators.add(validator);
-      return (B) this;
+      return this.self();
     }
 
     public B onUpdate(Consumer<ConfigOption<?>> onUpdate) {
       this.onUpdate = onUpdate;
-      return (B) this;
+      return this.self();
     }
 
     public B allowNullDefaultValue() {
       this.allowNullDefault = true;
-      return (B) this;
+      return this.self();
     }
 
     protected void validate() {
@@ -367,6 +366,11 @@ public abstract class ConfigOption<D> {
         this.modConfig.panic(new IllegalArgumentPanic(
             "All config options must have a non-null default value or explicitly set the flag allowing null"));
       }
+    }
+
+    @SuppressWarnings("unchecked")
+    private B self() {
+      return (B) this;
     }
 
     protected abstract C buildInternal();
