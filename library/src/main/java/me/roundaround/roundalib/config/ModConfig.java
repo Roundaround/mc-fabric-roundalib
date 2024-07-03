@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 public abstract class ModConfig {
   protected final String modId;
   protected final int configVersion;
+  protected final boolean prefixPaths;
   protected final ConfigGroups groups;
   protected final ConfigGroups groupsForGui;
   protected final HashMap<String, ConfigOption<?>> options = new HashMap<>();
@@ -28,8 +29,13 @@ public abstract class ModConfig {
   }
 
   protected ModConfig(String modId, int configVersion) {
+    this(modId, configVersion, false);
+  }
+
+  protected ModConfig(String modId, int configVersion, boolean prefixPaths) {
     this.modId = modId;
     this.configVersion = configVersion;
+    this.prefixPaths = prefixPaths;
     this.groups = new ConfigGroups(this.modId);
     this.groupsForGui = new ConfigGroups(this.modId);
   }
@@ -44,6 +50,26 @@ public abstract class ModConfig {
 
   public int getConfigVersion() {
     return this.configVersion;
+  }
+
+  public String getPath(String group) {
+    if (!this.prefixPaths) {
+      return group;
+    }
+
+    String path = this.modId;
+    if (group != null && !group.isBlank()) {
+      path += "." + group;
+    }
+    return path;
+  }
+
+  public String getPath(String group, String id) {
+    String basePath = this.getPath(group);
+    if (basePath == null || basePath.isBlank()) {
+      return id;
+    }
+    return basePath + "." + id;
   }
 
   public ConfigGroups getGroups() {
@@ -139,14 +165,6 @@ public abstract class ModConfig {
 
   protected boolean updateConfigVersion(int version, Config config) {
     return false;
-  }
-
-  protected String getPath(String id) {
-    return String.format("%s.%s", this.modId, id);
-  }
-
-  protected String getPath(String group, String id) {
-    return String.format("%s.%s.%s", this.modId, group, id);
   }
 
   protected <T extends ConfigOption<?>> T registerConfigOption(T option) {

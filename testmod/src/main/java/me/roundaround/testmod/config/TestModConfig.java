@@ -8,6 +8,7 @@ import me.roundaround.roundalib.config.value.Position;
 import me.roundaround.testmod.TestMod;
 
 import java.util.Arrays;
+import java.util.Map;
 
 public class TestModConfig extends GlobalModConfig {
   private static TestModConfig instance = null;
@@ -34,7 +35,7 @@ public class TestModConfig extends GlobalModConfig {
   public final BooleanConfigOption thirteenth;
 
   private TestModConfig() {
-    super(TestMod.MOD_ID, 2);
+    super(TestMod.MOD_ID, 3);
 
     this.first = this.registerConfigOption(
         BooleanConfigOption.builder(this, "testOption0").setGroup("group0").setDefaultValue(true).build());
@@ -131,14 +132,27 @@ public class TestModConfig extends GlobalModConfig {
       // Added a new group1.testOption5 so everything after needs shifting.
       // testOption8 is now also part of group1 rather than group2
 
-      config.set(this.getPath(2, 11), config.get(this.getPath(2, 10)));
-      config.set(this.getPath(2, 10), config.get(this.getPath(2, 9)));
-      config.set(this.getPath(2, 9), config.get(this.getPath(2, 8)));
-      config.remove(this.getPath(2, 8));
-      config.set(this.getPath(1, 8), config.get(this.getPath(1, 7)));
-      config.set(this.getPath(1, 7), config.get(this.getPath(1, 6)));
-      config.set(this.getPath(1, 6), config.get(this.getPath(1, 5)));
-      config.remove(this.getPath(1, 5));
+      config.set(this.getLegacyPath(2, 11), config.get(this.getLegacyPath(2, 10)));
+      config.set(this.getLegacyPath(2, 10), config.get(this.getLegacyPath(2, 9)));
+      config.set(this.getLegacyPath(2, 9), config.get(this.getLegacyPath(2, 8)));
+      config.remove(this.getLegacyPath(2, 8));
+      config.set(this.getLegacyPath(1, 8), config.get(this.getLegacyPath(1, 7)));
+      config.set(this.getLegacyPath(1, 7), config.get(this.getLegacyPath(1, 6)));
+      config.set(this.getLegacyPath(1, 6), config.get(this.getLegacyPath(1, 5)));
+      config.remove(this.getLegacyPath(1, 5));
+
+      return this.updateConfigVersion(2, config);
+    }
+
+    if (version == 2) {
+      // Removed modId prefixing on paths
+
+      Map.copyOf(config.valueMap()).forEach((path, value) -> {
+        if (path.startsWith(this.modId + ".")) {
+          config.set(this.removeFirstSegment(path), value);
+          config.remove(path);
+        }
+      });
 
       return true;
     }
@@ -148,5 +162,13 @@ public class TestModConfig extends GlobalModConfig {
 
   private String getPath(int groupNum, int idNum) {
     return this.getPath("group" + groupNum, "testOption" + idNum);
+  }
+
+  private String removeFirstSegment(String path) {
+    return path.substring(path.indexOf(".") + 1);
+  }
+
+  private String getLegacyPath(int groupNum, int idNum) {
+    return this.modId + "." + this.getPath(groupNum, idNum);
   }
 }

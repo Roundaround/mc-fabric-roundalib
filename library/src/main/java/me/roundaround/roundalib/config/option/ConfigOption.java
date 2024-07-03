@@ -89,16 +89,8 @@ public abstract class ConfigOption<D> {
     return this.group;
   }
 
-  public String getCategorizationKey() {
-    String key = this.getModId();
-    if (this.getGroup() != null) {
-      key += "." + this.getGroup();
-    }
-    return key;
-  }
-
   public String getPath() {
-    return this.getCategorizationKey() + "." + this.getId();
+    return this.modConfig.getPath(this.group, this.id);
   }
 
   public Text getLabel() {
