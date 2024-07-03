@@ -20,7 +20,11 @@ public class ConfigScreen extends Screen {
   private CloseAction closeAction = CloseAction.NOOP;
 
   public ConfigScreen(Screen parent, ModConfig modConfig) {
-    super(Text.translatable(modConfig.getConfigScreenI18nKey()));
+    this(Text.translatable(modConfig.getModId() + ".config.title"), parent, modConfig);
+  }
+
+  public ConfigScreen(Text title, Screen parent, ModConfig modConfig) {
+    super(title);
     this.parent = parent;
     this.modConfig = modConfig;
   }

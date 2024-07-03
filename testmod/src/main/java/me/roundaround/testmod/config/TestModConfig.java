@@ -1,7 +1,7 @@
 package me.roundaround.testmod.config;
 
 import com.electronwill.nightconfig.core.Config;
-import me.roundaround.roundalib.config.ModConfig;
+import me.roundaround.roundalib.config.GlobalModConfig;
 import me.roundaround.roundalib.config.option.*;
 import me.roundaround.roundalib.config.value.Difficulty;
 import me.roundaround.roundalib.config.value.Position;
@@ -9,7 +9,16 @@ import me.roundaround.testmod.TestMod;
 
 import java.util.Arrays;
 
-public class TestModConfig extends ModConfig {
+public class TestModConfig extends GlobalModConfig {
+  private static TestModConfig instance = null;
+
+  public static TestModConfig getInstance() {
+    if (instance == null) {
+      instance = new TestModConfig();
+    }
+    return instance;
+  }
+
   public final BooleanConfigOption first;
   public final BooleanConfigOption second;
   public final OptionListConfigOption<Difficulty> third;
@@ -24,8 +33,8 @@ public class TestModConfig extends ModConfig {
   public final IntConfigOption twelfth;
   public final BooleanConfigOption thirteenth;
 
-  public TestModConfig() {
-    super(TestMod.MOD_ID, options(TestMod.MOD_ID).setConfigVersion(2));
+  private TestModConfig() {
+    super(TestMod.MOD_ID, 2);
 
     this.first = this.registerConfigOption(
         BooleanConfigOption.builder(this, "testOption0").setGroup("group0").setDefaultValue(true).build());

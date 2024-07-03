@@ -6,41 +6,37 @@ import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.panic.Panic;
-import net.fabricmc.loader.api.FabricLoader;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
+import java.io.Serial;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
 
 public abstract class ModConfig {
-  private final String modId;
-  private final int configVersion;
-  private final String configScreenI18nKey;
-  private final boolean showGroupTitles;
-  private final LinkedHashMap<String, LinkedList<ConfigOption<?>>> configOptions = new LinkedHashMap<>();
-  private final HashMap<String, ConfigOption<?>> configOptionsById = new HashMap<>();
-  private final HashSet<Consumer<ModConfig>> updateListeners = new HashSet<>();
+  protected final String modId;
+  protected final int configVersion;
+  protected final ConfigGroups groups;
+  protected final ConfigGroups groupsForGui;
+  protected final HashMap<String, ConfigOption<?>> options = new HashMap<>();
+  protected final HashSet<Consumer<ModConfig>> updateListeners = new HashSet<>();
 
-  private int version;
+  protected int version;
 
   protected ModConfig(String modId) {
-    this(modId, options(modId));
+    this(modId, 1);
   }
 
-  protected ModConfig(String modId, OptionsBuilder options) {
+  protected ModConfig(String modId, int configVersion) {
     this.modId = modId;
-    this.configVersion = options.configVersion;
-    this.configScreenI18nKey = options.configScreenI18nKey;
-    this.showGroupTitles = options.showGroupTitles;
+    this.configVersion = configVersion;
+    this.groups = new ConfigGroups(this.modId);
+    this.groupsForGui = new ConfigGroups(this.modId);
   }
 
-  public void init() {
-    this.loadFromFile();
-    this.saveToFile();
+  public abstract void init();
 
-    this.update();
-  }
+  protected abstract Path getConfigDirectory();
 
   public String getModId() {
     return this.modId;
@@ -50,24 +46,20 @@ public abstract class ModConfig {
     return this.configVersion;
   }
 
-  public String getConfigScreenI18nKey() {
-    return this.configScreenI18nKey;
+  public ConfigGroups getGroups() {
+    return this.groups;
   }
 
-  public boolean getShowGroupTitles() {
-    return this.showGroupTitles;
+  public ConfigGroups getGroupsForGui() {
+    return this.groupsForGui;
   }
 
-  public LinkedHashMap<String, LinkedList<ConfigOption<?>>> getConfigOptions() {
-    return this.configOptions;
-  }
-
-  public ConfigOption<?> getById(String key) {
-    return this.configOptionsById.get(key);
+  public ConfigOption<?> getByPath(String path) {
+    return this.options.get(path);
   }
 
   public boolean isDirty() {
-    return this.configOptions.values().stream().anyMatch((group) -> group.stream().anyMatch(ConfigOption::isDirty));
+    return this.groups.values().stream().anyMatch((group) -> group.stream().anyMatch(ConfigOption::isDirty));
   }
 
   public void loadFromFile() {
@@ -82,13 +74,12 @@ public abstract class ModConfig {
       fileConfig.putAll(config);
     }
 
-    this.configOptions.forEach((group, options) -> options.forEach((option) -> {
-      String key = group + "." + option.getId();
-      Object data = fileConfig.get(key);
+    this.groups.forEachOption((option) -> {
+      Object data = fileConfig.get(option.getPath());
       if (data != null) {
         option.deserialize(data);
       }
-    }));
+    });
   }
 
   public void saveToFile() {
@@ -102,25 +93,24 @@ public abstract class ModConfig {
     fileConfig.setComment("configVersion", " Config version is auto-generated\n DO NOT CHANGE");
     fileConfig.set("configVersion", this.configVersion);
 
-    this.configOptions.forEach((group, options) -> options.forEach((option) -> {
-      String key = group + "." + option.getId();
-
+    this.groups.forEachOption((option) -> {
+      String path = option.getPath();
       List<String> comment = option.getComment();
       if (!comment.isEmpty()) {
         // Prefix each line with space to get "# This is a comment"
-        fileConfig.setComment(key, " " + String.join("\n ", comment));
+        fileConfig.setComment(path, " " + String.join("\n ", comment));
       }
-      fileConfig.set(key, option.serialize());
-    }));
+      fileConfig.set(path, option.serialize());
+    });
 
     fileConfig.save();
     fileConfig.close();
 
-    this.configOptions.forEach((group, options) -> options.forEach(ConfigOption::commit));
+    this.groups.forEach((group, options) -> options.forEach(ConfigOption::commit));
   }
 
   public void update() {
-    this.configOptions.forEach((group, options) -> options.forEach(ConfigOption::update));
+    this.groups.forEach((group, options) -> options.forEach(ConfigOption::update));
     this.updateListeners.forEach((listener) -> listener.accept(this));
   }
 
@@ -132,88 +122,98 @@ public abstract class ModConfig {
     this.updateListeners.remove(listener);
   }
 
-  protected boolean updateConfigVersion(int version, Config config) {
-    return false;
-  }
-
-  protected String getPath(String id) {
-    return String.format("%s.%s", this.getModId(), id);
-  }
-
-  protected String getPath(String group, String id) {
-    return String.format("%s.%s.%s", this.getModId(), group, id);
-  }
-
-  protected <T extends ConfigOption<?>> T registerConfigOption(T configOption) {
-    String key = this.modId;
-    if (configOption.getGroup() != null) {
-      key += "." + configOption.getGroup();
-    }
-
-    if (!this.configOptions.containsKey(key)) {
-      this.configOptions.put(key, new LinkedList<>());
-    }
-    this.configOptions.get(key).add(configOption);
-
-    this.configOptionsById.put(key, configOption);
-
-    return configOption;
-  }
-
   public void panic(Panic panic) {
     this.panic(panic, RoundaLib.LOGGER);
   }
 
   public void panic(Panic panic, Logger logger) {
-    Panic.panic(panic, this.getModId(), logger);
+    Panic.panic(panic, this.modId, logger);
   }
 
-  private File getConfigDirectory() {
-    File dir = FabricLoader.getInstance().getConfigDir().toFile();
+  protected void runFirstLoad() {
+    this.loadFromFile();
+    this.saveToFile();
 
-    if (!dir.exists() && !dir.mkdirs()) {
-      RoundaLib.LOGGER.error("Failed to create config directory '{}'", dir.getAbsolutePath());
-    }
-
-    return dir;
+    this.update();
   }
 
-  private File getConfigFile() {
-    return new File(this.getConfigDirectory(), this.modId + ".toml");
+  protected boolean updateConfigVersion(int version, Config config) {
+    return false;
   }
 
-  public static OptionsBuilder options(String modId) {
-    return new OptionsBuilder(modId);
+  protected String getPath(String id) {
+    return String.format("%s.%s", this.modId, id);
   }
 
-  public static class OptionsBuilder {
-    private int configVersion;
-    private String configScreenI18nKey;
-    private boolean showGroupTitles;
+  protected String getPath(String group, String id) {
+    return String.format("%s.%s.%s", this.modId, group, id);
+  }
 
-    private OptionsBuilder(String modId) {
-      this.configVersion = 1;
-      this.configScreenI18nKey = modId + ".config.title";
-      this.showGroupTitles = true;
+  protected <T extends ConfigOption<?>> T registerConfigOption(T option) {
+    this.groups.add(option);
+    this.options.put(option.getPath(), option);
+
+    if (option.hasGuiControl()) {
+      this.groupsForGui.add(option);
     }
 
-    public OptionsBuilder setConfigVersion(int configVersion) {
-      this.configVersion = configVersion;
-      return this;
+    return option;
+  }
+
+  protected Path getConfigFile() {
+    return this.getConfigDirectory().resolve(this.modId + ".toml");
+  }
+
+  public static class ConfigGroups extends LinkedHashMap<String, ConfigGroup> {
+    @Serial
+    private static final long serialVersionUID = 6066982994690812870L;
+
+    private final String modId;
+
+    public ConfigGroups(String modId) {
+      super();
+      this.modId = modId;
     }
 
-    public OptionsBuilder setConfigScreenI18nKey(String configScreenI18nKey) {
-      this.configScreenI18nKey = configScreenI18nKey;
-      return this;
+    public boolean add(ConfigOption<?> option) {
+      String key = this.getCategorizationKey(option);
+      if (!this.containsKey(key)) {
+        this.put(key, new ConfigGroup(key));
+      }
+      this.get(key).add(option);
+      return true;
     }
 
-    public OptionsBuilder setShowGroupTitles(boolean showGroupTitles) {
-      this.showGroupTitles = showGroupTitles;
-      return this;
+    public void forEachGroup(Consumer<ConfigGroup> consumer) {
+      this.forEach((key, group) -> consumer.accept(group));
     }
 
-    public OptionsBuilder hideGroupTitles() {
-      return this.setShowGroupTitles(false);
+    public void forEachOption(Consumer<? super ConfigOption<?>> consumer) {
+      this.forEach((key, group) -> group.forEach(consumer));
+    }
+
+    private String getCategorizationKey(ConfigOption<?> option) {
+      String key = this.modId;
+      if (option.getGroup() != null) {
+        key += "." + option.getGroup();
+      }
+      return key;
+    }
+  }
+
+  public static class ConfigGroup extends ArrayList<ConfigOption<?>> {
+    @Serial
+    private static final long serialVersionUID = -5553233377025439167L;
+
+    private final String id;
+
+    public ConfigGroup(String id) {
+      super();
+      this.id = id;
+    }
+
+    public String getId() {
+      return this.id;
     }
   }
 }

@@ -21,21 +21,21 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
 
     this.modConfig = modConfig;
 
-    this.modConfig.getConfigOptions().forEach((group, options) -> {
+    ModConfig.ConfigGroups groups = this.modConfig.getGroupsForGui();
+    groups.forEach((group, options) -> {
       if (options.stream().noneMatch(ConfigOption::hasGuiControl)) {
         return;
       }
 
-      this.addGroupEntry(group);
+      if (groups.size() > 1 && !group.equals(this.modConfig.getModId())) {
+        this.addGroupEntry(group);
+      }
+
       options.forEach(this::addOptionEntry);
     });
   }
 
   protected void addGroupEntry(String group) {
-    if (!this.modConfig.getShowGroupTitles() || group.equals(this.modConfig.getModId())) {
-      return;
-    }
-
     this.addEntry(
         (index, left, top, width) -> new GroupEntry(this.client.textRenderer, Text.translatable(group + ".title"),
             index, left, top, width
