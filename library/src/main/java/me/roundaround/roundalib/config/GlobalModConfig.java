@@ -13,6 +13,10 @@ public abstract class GlobalModConfig extends ModConfig {
     super(modId, configVersion);
   }
 
+  protected GlobalModConfig(String modId, int configVersion, boolean prefixPaths) {
+    super(modId, configVersion, prefixPaths);
+  }
+
   @Override
   public void init() {
     this.runFirstLoad();
