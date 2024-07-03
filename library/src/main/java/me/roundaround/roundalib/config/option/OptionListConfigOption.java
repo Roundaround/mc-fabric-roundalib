@@ -41,7 +41,8 @@ public class OptionListConfigOption<T extends ListOptionValue<T>> extends Config
     return new Builder<>(modConfig, id, values);
   }
 
-  public static class Builder<T extends ListOptionValue<T>> extends ConfigOption.AbstractBuilder<T, Builder<T>> {
+  public static class Builder<T extends ListOptionValue<T>> extends ConfigOption.AbstractBuilder<T,
+      OptionListConfigOption<T>, Builder<T>> {
     private final List<T> values;
 
     private Builder(ModConfig modConfig, String id, List<T> values) {
@@ -52,8 +53,7 @@ public class OptionListConfigOption<T extends ListOptionValue<T>> extends Config
     }
 
     @Override
-    public OptionListConfigOption<T> build() {
-      this.preBuild();
+    protected OptionListConfigOption<T> buildInternal() {
       return new OptionListConfigOption<>(this);
     }
   }

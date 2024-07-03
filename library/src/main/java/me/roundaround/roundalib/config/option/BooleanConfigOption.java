@@ -42,7 +42,7 @@ public class BooleanConfigOption extends ConfigOption<Boolean> {
     return new Builder(modConfig, id).setEnabledLabel(ScreenTexts.YES).setDisabledLabel(ScreenTexts.NO);
   }
 
-  public static class Builder extends ConfigOption.AbstractBuilder<Boolean, Builder> {
+  public static class Builder extends ConfigOption.AbstractBuilder<Boolean, BooleanConfigOption, Builder> {
     private Text enabledLabel = Text.translatable(this.modConfig.getModId() + ".roundalib.toggle.enabled");
     private Text disabledLabel = Text.translatable(this.modConfig.getModId() + ".roundalib.toggle.disabled");
 
@@ -71,8 +71,7 @@ public class BooleanConfigOption extends ConfigOption<Boolean> {
     }
 
     @Override
-    public BooleanConfigOption build() {
-      this.preBuild();
+    protected BooleanConfigOption buildInternal() {
       return new BooleanConfigOption(this);
     }
   }

@@ -2,29 +2,18 @@ package me.roundaround.roundalib.config.option;
 
 import me.roundaround.roundalib.config.ModConfig;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class StringConfigOption extends ConfigOption<String> {
-  private Integer minLength;
-  private Integer maxLength;
-  private Pattern regex;
-
   protected StringConfigOption(Builder builder) {
     super(builder);
-
-    this.minLength = builder.minLength;
-    this.maxLength = builder.maxLength;
-    this.regex = builder.regex;
   }
 
   public static Builder builder(ModConfig modConfig, String id) {
     return new Builder(modConfig, id);
   }
 
-  public static class Builder extends ConfigOption.AbstractBuilder<String, Builder> {
+  public static class Builder extends ConfigOption.AbstractBuilder<String, StringConfigOption, Builder> {
     private Integer minLength = null;
     private Integer maxLength = null;
     private Pattern regex = null;
@@ -49,8 +38,8 @@ public class StringConfigOption extends ConfigOption<String> {
     }
 
     @Override
-    public StringConfigOption build() {
-      this.preBuild();
+    protected void validate() {
+      super.validate();
 
       if (this.maxLength != null) {
         this.validators.addFirst((value, option) -> value != null && value.length() <= this.maxLength);
@@ -61,7 +50,10 @@ public class StringConfigOption extends ConfigOption<String> {
       if (this.regex != null) {
         this.validators.addFirst((value, option) -> value != null && this.regex.matcher(value).find());
       }
+    }
 
+    @Override
+    protected StringConfigOption buildInternal() {
       return new StringConfigOption(this);
     }
   }

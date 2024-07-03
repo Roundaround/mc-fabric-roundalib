@@ -30,7 +30,7 @@ public class PositionConfigOption extends ConfigOption<Position> {
     return new Builder(modConfig, id);
   }
 
-  public static class Builder extends ConfigOption.AbstractBuilder<Position, Builder> {
+  public static class Builder extends ConfigOption.AbstractBuilder<Position, PositionConfigOption, Builder> {
     private Builder(ModConfig modConfig, String id) {
       super(modConfig, id);
 
@@ -38,8 +38,7 @@ public class PositionConfigOption extends ConfigOption<Position> {
     }
 
     @Override
-    public PositionConfigOption build() {
-      this.preBuild();
+    protected PositionConfigOption buildInternal() {
       return new PositionConfigOption(this);
     }
   }

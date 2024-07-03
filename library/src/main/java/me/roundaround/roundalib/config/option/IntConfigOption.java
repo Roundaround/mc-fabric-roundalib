@@ -102,7 +102,7 @@ public class IntConfigOption extends ConfigOption<Integer> {
   }
 
   // TODO: Set up a separate slider builder
-  public static class Builder extends ConfigOption.AbstractBuilder<Integer, Builder> {
+  public static class Builder extends ConfigOption.AbstractBuilder<Integer, IntConfigOption, Builder> {
     private Integer minValue = null;
     private Integer maxValue = null;
     private Integer step = 1;
@@ -153,8 +153,8 @@ public class IntConfigOption extends ConfigOption<Integer> {
     }
 
     @Override
-    public IntConfigOption build() {
-      this.preBuild();
+    public void validate() {
+      super.validate();
 
       if (this.maxValue != null) {
         this.validators.addFirst((value, option) -> value <= this.maxValue);
@@ -173,7 +173,10 @@ public class IntConfigOption extends ConfigOption<Integer> {
         this.modConfig.panic(
             new IllegalArgumentPanic("Min and max values must be defined to use slider control for IntConfigOption"));
       }
+    }
 
+    @Override
+    protected IntConfigOption buildInternal() {
       return new IntConfigOption(this);
     }
   }

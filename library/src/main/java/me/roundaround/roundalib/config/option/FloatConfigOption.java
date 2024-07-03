@@ -80,7 +80,7 @@ public class FloatConfigOption extends ConfigOption<Float> {
   }
 
   // TODO: Set up a separate slider builder
-  public static class Builder extends ConfigOption.AbstractBuilder<Float, Builder> {
+  public static class Builder extends ConfigOption.AbstractBuilder<Float, FloatConfigOption, Builder> {
     private Float minValue = null;
     private Float maxValue = null;
     private boolean slider = false;
@@ -131,8 +131,8 @@ public class FloatConfigOption extends ConfigOption<Float> {
     }
 
     @Override
-    public FloatConfigOption build() {
-      this.preBuild();
+    protected void validate() {
+      super.validate();
 
       if (this.maxValue != null) {
         this.validators.addFirst((value, option) -> value <= this.maxValue);
@@ -151,7 +151,10 @@ public class FloatConfigOption extends ConfigOption<Float> {
         this.modConfig.panic(
             new IllegalArgumentPanic("Min and max values must be defined to use slider control for FloatConfigOption"));
       }
+    }
 
+    @Override
+    protected FloatConfigOption buildInternal() {
       return new FloatConfigOption(this);
     }
   }

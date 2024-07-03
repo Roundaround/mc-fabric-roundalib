@@ -4,7 +4,6 @@ import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.PendingValueListener;
 import me.roundaround.roundalib.config.SavedValueListener;
 import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
-import me.roundaround.roundalib.config.panic.IllegalStatePanic;
 import net.minecraft.text.Text;
 import org.apache.commons.compress.utils.Lists;
 
@@ -38,17 +37,10 @@ public abstract class ConfigOption<D> {
   private boolean isPendingDefault;
   private boolean isDefault;
 
-  protected ConfigOption(AbstractBuilder<D, ?> builder) {
+  protected ConfigOption(AbstractBuilder<D, ?, ?> builder) {
     this(builder.modConfig, builder.group, builder.id, builder.label, builder.defaultValue, builder.noGui,
         builder.toStringFunction, builder.comment, builder.validators, builder.onUpdate
     );
-
-    if (!builder.preBuildCalled) {
-      this.getModConfig()
-          .panic(new IllegalStatePanic(
-              "Any builder classes extending ConfigOption.AbstractBuilder must call `preBuild` before passing the " +
-                  "instance to the ConfigOption constructor."));
-    }
   }
 
   protected ConfigOption(
@@ -270,7 +262,7 @@ public abstract class ConfigOption<D> {
   }
 
   @SuppressWarnings("unchecked")
-  public static abstract class AbstractBuilder<D, B extends AbstractBuilder<D, B>> {
+  public static abstract class AbstractBuilder<D, C extends ConfigOption<D>, B extends AbstractBuilder<D, C, B>> {
     protected final ModConfig modConfig;
     protected final String id;
     protected String group = null;
@@ -283,8 +275,6 @@ public abstract class ConfigOption<D> {
     protected Consumer<ConfigOption<?>> onUpdate = (option) -> {
     };
     protected boolean allowNullDefault = false;
-
-    private boolean preBuildCalled = false;
 
     protected AbstractBuilder(ModConfig modConfig, String id) {
       this.modConfig = modConfig;
@@ -368,7 +358,7 @@ public abstract class ConfigOption<D> {
       return (B) this;
     }
 
-    protected final void preBuild() {
+    protected void validate() {
       if (this.label == null) {
         this.label = this.getDefaultLabel();
       }
@@ -377,11 +367,14 @@ public abstract class ConfigOption<D> {
         this.modConfig.panic(new IllegalArgumentPanic(
             "All config options must have a non-null default value or explicitly set the flag allowing null"));
       }
-
-      this.preBuildCalled = true;
     }
 
-    public abstract ConfigOption<D> build();
+    protected abstract C buildInternal();
+
+    public final C build() {
+      this.validate();
+      return this.buildInternal();
+    }
   }
 
   @FunctionalInterface
