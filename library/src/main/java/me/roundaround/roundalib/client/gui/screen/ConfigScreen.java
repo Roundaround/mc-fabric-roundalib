@@ -3,7 +3,7 @@ package me.roundaround.roundalib.client.gui.screen;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.FullBodyWrapperWidget;
 import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
-import me.roundaround.roundalib.config.ModConfig;
+import me.roundaround.roundalib.config.Config;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.DirectionalLayoutWidget;
@@ -15,18 +15,18 @@ public class ConfigScreen extends Screen {
   protected final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this);
 
   private final Screen parent;
-  private final ModConfig modConfig;
+  private final Config config;
   private ConfigListWidget configListWidget;
   private CloseAction closeAction = CloseAction.NOOP;
 
-  public ConfigScreen(Screen parent, ModConfig modConfig) {
-    this(Text.translatable(modConfig.getModId() + ".config.title"), parent, modConfig);
+  public ConfigScreen(Screen parent, Config config) {
+    this(Text.translatable(config.getModId() + ".config.title"), parent, config);
   }
 
-  public ConfigScreen(Text title, Screen parent, ModConfig modConfig) {
+  public ConfigScreen(Text title, Screen parent, Config config) {
     super(title);
     this.parent = parent;
-    this.modConfig = modConfig;
+    this.config = config;
   }
 
   @Override
@@ -44,9 +44,9 @@ public class ConfigScreen extends Screen {
   }
 
   protected void initBody() {
-    this.configListWidget = new ConfigListWidget(this.client, this.layout, this.modConfig);
+    this.configListWidget = new ConfigListWidget(this.client, this.layout, this.config);
     this.layout.addBody(new FullBodyWrapperWidget(this.configListWidget, this.layout));
-    this.modConfig.subscribe(this::update);
+    this.config.subscribe(this::update);
   }
 
   protected void initFooter() {
@@ -70,7 +70,7 @@ public class ConfigScreen extends Screen {
 
   @Override
   public void removed() {
-    this.modConfig.unsubscribe(this::update);
+    this.config.unsubscribe(this::update);
     this.closeAction.run();
   }
 
@@ -79,17 +79,17 @@ public class ConfigScreen extends Screen {
     this.configListWidget.tick();
   }
 
-  protected void update(ModConfig modConfig) {
+  protected void update(Config config) {
     this.configListWidget.update();
   }
 
   private void cancel(ButtonWidget button) {
-    this.closeAction = this.modConfig::loadFromFile;
+    this.closeAction = this.config::loadFromFile;
     this.close();
   }
 
   private void done(ButtonWidget button) {
-    this.closeAction = this.modConfig::saveToFile;
+    this.closeAction = this.config::saveToFile;
     this.close();
   }
 

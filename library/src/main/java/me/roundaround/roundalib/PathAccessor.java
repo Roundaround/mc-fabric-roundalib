@@ -59,7 +59,7 @@ public class PathAccessor {
     if (directory) {
       dir = dir.resolve(modId);
     }
-    return dir.resolve(modId + format.getFileExtension());
+    return this.getConfigFile(dir, modId, format);
   }
 
   public Path getModConfigDir(String modId) {
@@ -106,7 +106,7 @@ public class PathAccessor {
     if (directory) {
       dir = dir.resolve(modId);
     }
-    return dir.resolve(modId + format.getFileExtension());
+    return this.getConfigFile(dir, modId, format);
   }
 
   public Path getPerWorldModConfigDir(String modId) {
@@ -115,6 +115,13 @@ public class PathAccessor {
       return null;
     }
     return dir.resolve(modId);
+  }
+
+  public Path getConfigFile(Path configDir, String modId, ConfigFormat format) {
+    if (configDir == null) {
+      return null;
+    }
+    return configDir.resolve(modId + format.getFileExtension());
   }
 
   private void beforeResourceManagerCreated(LevelStorage.Session session) {

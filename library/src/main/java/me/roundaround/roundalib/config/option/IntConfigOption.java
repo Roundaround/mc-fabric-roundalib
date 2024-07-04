@@ -1,6 +1,6 @@
 package me.roundaround.roundalib.config.option;
 
-import me.roundaround.roundalib.config.ModConfig;
+import me.roundaround.roundalib.config.Config;
 import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
 import net.minecraft.util.math.MathHelper;
 
@@ -93,12 +93,12 @@ public class IntConfigOption extends ConfigOption<Integer> {
     return true;
   }
 
-  public static Builder builder(ModConfig modConfig, String id) {
-    return new Builder(modConfig, id);
+  public static Builder builder(Config config, String id) {
+    return new Builder(config, id);
   }
 
-  public static Builder sliderBuilder(ModConfig modConfig, String id) {
-    return new Builder(modConfig, id).setUseSlider(true);
+  public static Builder sliderBuilder(Config config, String id) {
+    return new Builder(config, id).setUseSlider(true);
   }
 
   // TODO: Set up a separate slider builder
@@ -108,8 +108,8 @@ public class IntConfigOption extends ConfigOption<Integer> {
     private Integer step = 1;
     private boolean slider = false;
 
-    private Builder(ModConfig modConfig, String id) {
-      super(modConfig, id);
+    private Builder(Config config, String id) {
+      super(config, id);
     }
 
     public Builder setDefaultValue(int defaultValue) {
@@ -160,7 +160,7 @@ public class IntConfigOption extends ConfigOption<Integer> {
         this.validators.addFirst((value, option) -> value <= this.maxValue);
 
         if (this.minValue != null && this.minValue > this.maxValue) {
-          this.modConfig.panic(
+          this.config.panic(
               new IllegalArgumentPanic("Min value cannot be larger than max value for IntConfigOption"));
         }
       }
@@ -170,7 +170,7 @@ public class IntConfigOption extends ConfigOption<Integer> {
       }
 
       if (this.slider && (this.minValue == null || this.maxValue == null)) {
-        this.modConfig.panic(
+        this.config.panic(
             new IllegalArgumentPanic("Min and max values must be defined to use slider control for IntConfigOption"));
       }
     }

@@ -1,6 +1,6 @@
 package me.roundaround.roundalib.config.option;
 
-import me.roundaround.roundalib.config.ModConfig;
+import me.roundaround.roundalib.config.Config;
 
 import java.util.regex.Pattern;
 
@@ -9,8 +9,8 @@ public class StringConfigOption extends ConfigOption<String> {
     super(builder);
   }
 
-  public static Builder builder(ModConfig modConfig, String id) {
-    return new Builder(modConfig, id);
+  public static Builder builder(Config config, String id) {
+    return new Builder(config, id);
   }
 
   public static class Builder extends ConfigOption.AbstractBuilder<String, StringConfigOption, Builder> {
@@ -18,8 +18,8 @@ public class StringConfigOption extends ConfigOption<String> {
     private Integer maxLength = null;
     private Pattern regex = null;
 
-    private Builder(ModConfig modConfig, String id) {
-      super(modConfig, id);
+    private Builder(Config config, String id) {
+      super(config, id);
     }
 
     public Builder setMinLength(int minLength) {

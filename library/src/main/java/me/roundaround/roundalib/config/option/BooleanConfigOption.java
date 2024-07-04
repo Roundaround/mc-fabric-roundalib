@@ -1,6 +1,6 @@
 package me.roundaround.roundalib.config.option;
 
-import me.roundaround.roundalib.config.ModConfig;
+import me.roundaround.roundalib.config.Config;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 
@@ -30,24 +30,24 @@ public class BooleanConfigOption extends ConfigOption<Boolean> {
     this.setValue(!this.getPendingValue());
   }
 
-  public static Builder builder(ModConfig modConfig, String id) {
-    return new Builder(modConfig, id);
+  public static Builder builder(Config config, String id) {
+    return new Builder(config, id);
   }
 
-  public static Builder onOffBuilder(ModConfig modConfig, String id) {
-    return new Builder(modConfig, id).setEnabledLabel(ScreenTexts.ON).setDisabledLabel(ScreenTexts.OFF);
+  public static Builder onOffBuilder(Config config, String id) {
+    return new Builder(config, id).setEnabledLabel(ScreenTexts.ON).setDisabledLabel(ScreenTexts.OFF);
   }
 
-  public static Builder yesNoBuilder(ModConfig modConfig, String id) {
-    return new Builder(modConfig, id).setEnabledLabel(ScreenTexts.YES).setDisabledLabel(ScreenTexts.NO);
+  public static Builder yesNoBuilder(Config config, String id) {
+    return new Builder(config, id).setEnabledLabel(ScreenTexts.YES).setDisabledLabel(ScreenTexts.NO);
   }
 
   public static class Builder extends ConfigOption.AbstractBuilder<Boolean, BooleanConfigOption, Builder> {
-    private Text enabledLabel = Text.translatable(this.modConfig.getModId() + ".roundalib.toggle.enabled");
-    private Text disabledLabel = Text.translatable(this.modConfig.getModId() + ".roundalib.toggle.disabled");
+    private Text enabledLabel = Text.translatable(this.config.getModId() + ".roundalib.toggle.enabled");
+    private Text disabledLabel = Text.translatable(this.config.getModId() + ".roundalib.toggle.disabled");
 
-    private Builder(ModConfig modConfig, String id) {
-      super(modConfig, id);
+    private Builder(Config config, String id) {
+      super(config, id);
     }
 
     public Builder setEnabledLabel(String i18nKey) {

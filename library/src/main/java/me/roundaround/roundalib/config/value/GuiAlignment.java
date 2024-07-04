@@ -1,7 +1,6 @@
 package me.roundaround.roundalib.config.value;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.config.ModConfig;
 
 import java.util.Arrays;
 

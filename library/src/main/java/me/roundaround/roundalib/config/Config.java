@@ -1,8 +1,8 @@
 package me.roundaround.roundalib.config;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
-import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
+import me.roundaround.roundalib.PathAccessor;
 import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.panic.Panic;
@@ -13,26 +13,26 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
 
-public abstract class ModConfig {
+public abstract class Config {
   protected final String modId;
   protected final int configVersion;
   protected final boolean prefixPaths;
   protected final ConfigGroups groups;
   protected final ConfigGroups groupsForGui;
   protected final HashMap<String, ConfigOption<?>> options = new HashMap<>();
-  protected final HashSet<Consumer<ModConfig>> updateListeners = new HashSet<>();
+  protected final HashSet<Consumer<Config>> updateListeners = new HashSet<>();
 
   protected int version;
 
-  protected ModConfig(String modId) {
+  protected Config(String modId) {
     this(modId, 1);
   }
 
-  protected ModConfig(String modId, int configVersion) {
+  protected Config(String modId, int configVersion) {
     this(modId, configVersion, false);
   }
 
-  protected ModConfig(String modId, int configVersion, boolean prefixPaths) {
+  protected Config(String modId, int configVersion, boolean prefixPaths) {
     this.modId = modId;
     this.configVersion = configVersion;
     this.prefixPaths = prefixPaths;
@@ -150,11 +150,11 @@ public abstract class ModConfig {
     this.updateListeners.forEach((listener) -> listener.accept(this));
   }
 
-  public void subscribe(Consumer<ModConfig> listener) {
+  public void subscribe(Consumer<Config> listener) {
     this.updateListeners.add(listener);
   }
 
-  public void unsubscribe(Consumer<ModConfig> listener) {
+  public void unsubscribe(Consumer<Config> listener) {
     this.updateListeners.remove(listener);
   }
 
@@ -173,7 +173,7 @@ public abstract class ModConfig {
     this.update();
   }
 
-  protected boolean updateConfigVersion(int version, Config config) {
+  protected boolean updateConfigVersion(int version, com.electronwill.nightconfig.core.Config config) {
     return false;
   }
 
@@ -189,11 +189,8 @@ public abstract class ModConfig {
   }
 
   protected Path getConfigFile() {
-    Path configDir = this.getConfigDirectory();
-    if (configDir == null) {
-      return null;
-    }
-    return configDir.resolve(this.modId + ".toml");
+    return PathAccessor.getInstance()
+        .getConfigFile(this.getConfigDirectory(), this.modId, PathAccessor.ConfigFormat.TOML);
   }
 
   public static class ConfigGroups extends LinkedHashMap<String, ConfigGroup> {

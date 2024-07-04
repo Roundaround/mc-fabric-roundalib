@@ -1,6 +1,6 @@
 package me.roundaround.roundalib.config.option;
 
-import me.roundaround.roundalib.config.ModConfig;
+import me.roundaround.roundalib.config.Config;
 import me.roundaround.roundalib.config.PendingValueListener;
 import me.roundaround.roundalib.config.SavedValueListener;
 import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
@@ -16,7 +16,7 @@ import java.util.function.Function;
  * @param <D> The data type represented by this config option. Must be immutable.
  */
 public abstract class ConfigOption<D> {
-  private final ModConfig modConfig;
+  private final Config config;
   private final String group;
   private final String id;
   private final Text label;
@@ -37,13 +37,13 @@ public abstract class ConfigOption<D> {
   private boolean isDefault;
 
   protected ConfigOption(AbstractBuilder<D, ?, ?> builder) {
-    this(builder.modConfig, builder.group, builder.id, builder.label, builder.defaultValue, builder.noGui,
+    this(builder.config, builder.group, builder.id, builder.label, builder.defaultValue, builder.noGui,
         builder.toStringFunction, builder.comment, builder.validators, builder.onUpdate
     );
   }
 
   protected ConfigOption(
-      ModConfig modConfig,
+      Config config,
       String group,
       String id,
       Text label,
@@ -54,7 +54,7 @@ public abstract class ConfigOption<D> {
       List<Validator<D>> validators,
       Consumer<ConfigOption<?>> onUpdate
   ) {
-    this.modConfig = modConfig;
+    this.config = config;
     this.group = group;
     this.id = id;
     this.label = label;
@@ -73,12 +73,12 @@ public abstract class ConfigOption<D> {
     this.isDefault = true;
   }
 
-  public ModConfig getModConfig() {
-    return this.modConfig;
+  public Config getModConfig() {
+    return this.config;
   }
 
   public String getModId() {
-    return this.modConfig.getModId();
+    return this.config.getModId();
   }
 
   public String getId() {
@@ -90,7 +90,7 @@ public abstract class ConfigOption<D> {
   }
 
   public String getPath() {
-    return this.modConfig.getPath(this.group, this.id);
+    return this.config.getPath(this.group, this.id);
   }
 
   public Text getLabel() {
@@ -168,7 +168,7 @@ public abstract class ConfigOption<D> {
     this.isDirty = !this.areValuesEqual(this.getPendingValue(), this.getValue());
     this.isPendingDefault = this.areValuesEqual(this.getPendingValue(), this.getDefaultValue());
 
-    this.modConfig.update();
+    this.config.update();
 
     if (!this.areValuesEqual(prevPendingValue, this.getPendingValue())) {
       this.pendingValueChangeListeners.forEach((listener) -> listener.onPendingValueChange(this.getPendingValue()));
@@ -177,7 +177,7 @@ public abstract class ConfigOption<D> {
 
   /**
    * Marks the value as saved and updates any subscribed listeners. By default, this is called after
-   * {@link ModConfig#saveToFile()} successfully writes any pending values to file. Usually you will
+   * {@link Config#saveToFile()} successfully writes any pending values to file. Usually you will
    * not need to call this yourself.
    */
   public void commit() {
@@ -194,7 +194,7 @@ public abstract class ConfigOption<D> {
 
   /**
    * Sets the ConfigOption to its default value using {@link #setValue}, meaning that the update won't take
-   * effect until it is committed to file with {@link ModConfig#saveToFile}.
+   * effect until it is committed to file with {@link Config#saveToFile}.
    */
   public void setDefault() {
     this.setValue(this.getDefaultValue());
@@ -251,7 +251,7 @@ public abstract class ConfigOption<D> {
   }
 
   public static abstract class AbstractBuilder<D, C extends ConfigOption<D>, B extends AbstractBuilder<D, C, B>> {
-    protected final ModConfig modConfig;
+    protected final Config config;
     protected final String id;
     protected String group = null;
     protected Text label = null;
@@ -264,14 +264,14 @@ public abstract class ConfigOption<D> {
     };
     protected boolean allowNullDefault = false;
 
-    protected AbstractBuilder(ModConfig modConfig, String id) {
-      this.modConfig = modConfig;
+    protected AbstractBuilder(Config config, String id) {
+      this.config = config;
       this.id = id;
     }
 
     protected Text getDefaultLabel() {
       StringBuilder builder = new StringBuilder();
-      builder.append(this.modConfig.getModId()).append(".");
+      builder.append(this.config.getModId()).append(".");
 
       if (this.group != null) {
         builder.append(this.group).append(".");
@@ -352,7 +352,7 @@ public abstract class ConfigOption<D> {
       }
 
       if (!this.allowNullDefault && this.defaultValue == null) {
-        this.modConfig.panic(new IllegalArgumentPanic(
+        this.config.panic(new IllegalArgumentPanic(
             "All config options must have a non-null default value or explicitly set the flag allowing null"));
       }
     }

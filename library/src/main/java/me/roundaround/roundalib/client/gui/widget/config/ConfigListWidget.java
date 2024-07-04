@@ -2,7 +2,7 @@ package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.*;
-import me.roundaround.roundalib.config.ModConfig;
+import me.roundaround.roundalib.config.Config;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.panic.IllegalStatePanic;
 import net.minecraft.client.MinecraftClient;
@@ -14,20 +14,20 @@ import net.minecraft.util.Formatting;
 import java.util.ArrayList;
 
 public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWidget.Entry> {
-  protected final ModConfig modConfig;
+  protected final Config config;
 
-  public ConfigListWidget(MinecraftClient client, ThreePartsLayoutWidget layout, ModConfig modConfig) {
+  public ConfigListWidget(MinecraftClient client, ThreePartsLayoutWidget layout, Config config) {
     super(client, layout);
 
-    this.modConfig = modConfig;
+    this.config = config;
 
-    ModConfig.ConfigGroups groups = this.modConfig.getGroupsForGui();
+    Config.ConfigGroups groups = this.config.getGroupsForGui();
     groups.forEach((group, options) -> {
       if (options.stream().noneMatch(ConfigOption::hasGuiControl)) {
         return;
       }
 
-      if (groups.size() > 1 && !group.equals(this.modConfig.getModId())) {
+      if (groups.size() > 1 && !group.equals(this.config.getModId())) {
         this.addGroupEntry(group);
       }
 
@@ -51,7 +51,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
       try {
         return new OptionEntry<>(this.client, option, index, left, top, width);
       } catch (ControlRegistry.NotRegisteredException e) {
-        this.modConfig.panic(
+        this.config.panic(
             new IllegalStatePanic(String.format("Failed to create control for config option: %s", option), e));
         return null;
       }

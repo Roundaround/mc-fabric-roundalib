@@ -1,7 +1,7 @@
 package me.roundaround.roundalib.client.gui;
 
 import me.roundaround.roundalib.client.gui.layout.TextAlignment;
-import me.roundaround.roundalib.config.ModConfig;
+import me.roundaround.roundalib.config.Config;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -37,7 +37,7 @@ public final class GuiUtil {
 
   private static final MinecraftClient CLIENT = MinecraftClient.getInstance();
 
-  public static Identifier getWidgetsTexture(ModConfig config) {
+  public static Identifier getWidgetsTexture(Config config) {
     return new Identifier(config.getModId(), "textures/roundalib.png");
   }
 

@@ -1,7 +1,7 @@
 package me.roundaround.testmod.config;
 
 import com.electronwill.nightconfig.core.Config;
-import me.roundaround.roundalib.config.GlobalModConfig;
+import me.roundaround.roundalib.config.GameScopedConfig;
 import me.roundaround.roundalib.config.option.*;
 import me.roundaround.roundalib.config.value.Difficulty;
 import me.roundaround.roundalib.config.value.Position;
@@ -10,7 +10,7 @@ import me.roundaround.testmod.TestMod;
 import java.util.Arrays;
 import java.util.Map;
 
-public class TestModConfig extends GlobalModConfig {
+public class TestModConfig extends GameScopedConfig {
   private static TestModConfig instance = null;
 
   public static TestModConfig getInstance() {
