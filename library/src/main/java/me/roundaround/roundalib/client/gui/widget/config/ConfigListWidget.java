@@ -5,6 +5,7 @@ import me.roundaround.roundalib.client.gui.widget.*;
 import me.roundaround.roundalib.config.Config;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.panic.IllegalStatePanic;
+import me.roundaround.roundalib.config.panic.Panic;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
@@ -12,32 +13,44 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWidget.Entry> {
-  protected final Config config;
+  protected final String modId;
+  protected final List<Config> configs;
 
-  public ConfigListWidget(MinecraftClient client, ThreePartsLayoutWidget layout, Config config) {
+  public ConfigListWidget(MinecraftClient client, ThreePartsLayoutWidget layout, String modId, List<Config> configs) {
     super(client, layout);
 
-    this.config = config;
+    this.modId = modId;
+    this.configs = List.copyOf(configs);
 
-    Config.ConfigGroups groups = this.config.getGroupsForGui();
-    groups.forEach((group, options) -> {
-      if (options.stream().noneMatch(ConfigOption::hasGuiControl)) {
-        return;
+    configs.forEach((config) -> {
+      if (configs.size() > 1) {
+        this.addConfigEntry(config);
       }
 
-      if (groups.size() > 1 && !group.equals(this.config.getModId())) {
-        this.addGroupEntry(group);
-      }
+      Config.ConfigGroups groups = config.getGroupsForGui();
+      groups.forEach((group, options) -> {
+        if (group != null && !group.isBlank()) {
+          this.addGroupEntry(group);
+        }
 
-      options.forEach(this::addOptionEntry);
+        options.forEach(this::addOptionEntry);
+      });
     });
+  }
+
+  protected void addConfigEntry(Config config) {
+    this.addEntry(
+        (index, left, top, width) -> new GroupEntry(this.client.textRenderer, config.getLabel(), index, left, top,
+            width
+        ));
   }
 
   protected void addGroupEntry(String group) {
     this.addEntry((index, left, top, width) -> new GroupEntry(this.client.textRenderer,
-        Text.translatable(this.config.getModId() + "." + group + ".title"), index, left, top, width
+        Text.translatable(this.modId + "." + group + ".title"), index, left, top, width
     ));
   }
 
@@ -50,8 +63,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
       try {
         return new OptionEntry<>(this.client, option, index, left, top, width);
       } catch (ControlRegistry.NotRegisteredException e) {
-        this.config.panic(
-            new IllegalStatePanic(String.format("Failed to create control for config option: %s", option), e));
+        Panic.panic(new IllegalStatePanic(String.format("Failed to create control for config option: %s", option), e));
         return null;
       }
     });

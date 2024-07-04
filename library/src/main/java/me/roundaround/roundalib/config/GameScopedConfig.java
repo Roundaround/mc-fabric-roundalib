@@ -9,8 +9,16 @@ public abstract class GameScopedConfig extends Config {
     super(modId);
   }
 
+  protected GameScopedConfig(String modId, String configId) {
+    super(modId, configId);
+  }
+
   protected GameScopedConfig(String modId, int configVersion) {
     super(modId, configVersion);
+  }
+
+  protected GameScopedConfig(String modId, String configId, int configVersion) {
+    super(modId, configId, configVersion);
   }
 
   @Override

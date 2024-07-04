@@ -6,15 +6,19 @@ import me.roundaround.roundalib.PathAccessor;
 import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.panic.Panic;
+import net.minecraft.text.Text;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.io.Serial;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
 
 public abstract class Config {
   protected final String modId;
+  protected final String configId;
   protected final int configVersion;
   protected final ConfigGroups groups;
   protected final ConfigGroups groupsForGui;
@@ -28,8 +32,17 @@ public abstract class Config {
     this(modId, 1);
   }
 
+  protected Config(String modId, String configId) {
+    this(modId, configId, 1);
+  }
+
   protected Config(String modId, int configVersion) {
+    this(modId, modId, configVersion);
+  }
+
+  protected Config(String modId, String configId, int configVersion) {
     this.modId = modId;
+    this.configId = configId;
     this.configVersion = configVersion;
     this.groups = new ConfigGroups();
     this.groupsForGui = new ConfigGroups();
@@ -49,8 +62,16 @@ public abstract class Config {
     this.isInitialized = true;
   }
 
+  public Text getLabel() {
+    return Text.translatable(this.getModId() + "." + this.getConfigId() + ".title");
+  }
+
   public String getModId() {
     return this.modId;
+  }
+
+  public String getConfigId() {
+    return this.configId;
   }
 
   public int getConfigVersion() {
@@ -79,7 +100,7 @@ public abstract class Config {
 
   public void loadFromFile() {
     Path configPath = this.getConfigFile();
-    if (configPath == null) {
+    if (configPath == null || Files.notExists(configPath)) {
       return;
     }
 
@@ -106,6 +127,16 @@ public abstract class Config {
     Path configPath = this.getConfigFile();
     if (configPath == null) {
       return;
+    }
+
+    if (Files.notExists(configPath)) {
+      try {
+        Files.createDirectories(configPath.getParent());
+        Files.createFile(configPath);
+      } catch (IOException e) {
+        RoundaLib.LOGGER.error("Failed to create config file or its directory tree: {}", configPath.toAbsolutePath());
+        return;
+      }
     }
 
     if (this.version == this.configVersion && !this.isDirty()) {

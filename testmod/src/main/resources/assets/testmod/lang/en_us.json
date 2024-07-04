@@ -7,6 +7,7 @@
   "testmod.multilinelabeldemoscreen.title": "Multiline Label Demo",
   "testmod.advancedlayoutdemoscreen.title": "Advanced Layout Demo",
   "testmod.config.title": "Testmod Config",
+  "testmod.testmod.title": "Testmod Base Config",
   "testmod.group0.title": "Group 0",
   "testmod.group0.testOption0.label": "Option 0",
   "testmod.group0.testOption1.label": "Option 1",
@@ -23,5 +24,8 @@
   "testmod.group2.testOption10.label": "Option 10",
   "testmod.group2.testOption11.label": "Option 11",
   "testmod.group3.title": "Group 3 is special because the title is super long to test scrolling text within a scrolling pane",
-  "testmod.group3.testOption12.label": "Option 12 is also special because the label is likewise super long to test automatic 2-line wrapping"
+  "testmod.group3.testOption12.label": "Option 12 is also special because the label is likewise super long to test automatic 2-line wrapping",
+  "testmod.pw.title": "Testmod Per-world Config",
+  "testmod.pwTestOption0.label": "Per-world option 0",
+  "testmod.pwTestOption1.label": "Per-world option 1"
 }

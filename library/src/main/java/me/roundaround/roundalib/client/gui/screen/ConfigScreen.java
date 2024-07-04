@@ -11,22 +11,43 @@ import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ConfigScreen extends Screen {
   protected final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this);
 
   private final Screen parent;
-  private final Config config;
+  private final String modId;
+  private final ArrayList<Config> configs = new ArrayList<>();
   private ConfigListWidget configListWidget;
   private CloseAction closeAction = CloseAction.NOOP;
 
-  public ConfigScreen(Screen parent, Config config) {
-    this(Text.translatable(config.getModId() + ".config.title"), parent, config);
+  public ConfigScreen(Screen parent, String modId, Config... configs) {
+    this(Text.translatable(modId + ".config.title"), parent, modId, configs);
   }
 
-  public ConfigScreen(Text title, Screen parent, Config config) {
+  public ConfigScreen(Screen parent, String modId, Iterable<Config> configs) {
+    this(Text.translatable(modId + ".config.title"), parent, modId, configs);
+  }
+
+  public ConfigScreen(Text title, Screen parent, String modId, Config... configs) {
+    this(title, parent, modId, List.of(configs));
+  }
+
+  public ConfigScreen(Text title, Screen parent, String modId, Iterable<Config> configs) {
     super(title);
     this.parent = parent;
-    this.config = config;
+    this.modId = modId;
+    for (Config config : configs) {
+      if (config.isActive() && !config.getGroupsForGui().isEmpty()) {
+        this.configs.add(config);
+      }
+    }
+  }
+
+  public String getModId() {
+    return this.modId;
   }
 
   @Override
@@ -44,9 +65,9 @@ public class ConfigScreen extends Screen {
   }
 
   protected void initBody() {
-    this.configListWidget = new ConfigListWidget(this.client, this.layout, this.config);
+    this.configListWidget = new ConfigListWidget(this.client, this.layout, this.modId, this.configs);
     this.layout.addBody(new FullBodyWrapperWidget(this.configListWidget, this.layout));
-    this.config.subscribe(this::update);
+    this.configs.forEach((config) -> config.subscribe(this::update));
   }
 
   protected void initFooter() {
@@ -70,8 +91,10 @@ public class ConfigScreen extends Screen {
 
   @Override
   public void removed() {
-    this.config.unsubscribe(this::update);
-    this.closeAction.run();
+    this.configs.forEach((config) -> {
+      config.unsubscribe(this::update);
+      this.closeAction.run(config);
+    });
   }
 
   @Override
@@ -84,20 +107,20 @@ public class ConfigScreen extends Screen {
   }
 
   private void cancel(ButtonWidget button) {
-    this.closeAction = this.config::loadFromFile;
+    this.closeAction = Config::loadFromFile;
     this.close();
   }
 
   private void done(ButtonWidget button) {
-    this.closeAction = this.config::saveToFile;
+    this.closeAction = Config::saveToFile;
     this.close();
   }
 
   @FunctionalInterface
   private interface CloseAction {
-    CloseAction NOOP = () -> {
+    CloseAction NOOP = (config) -> {
     };
 
-    void run();
+    void run(Config config);
   }
 }
