@@ -38,28 +38,28 @@ public class TestModConfig extends GameScopedConfig {
   private TestModConfig() {
     super(TestMod.MOD_ID, 3);
 
-    this.first = this.registerConfigOption(
-        BooleanConfigOption.builder(this, ConfigPath.of("group0", "testOption0")).setDefaultValue(true).build());
+    this.first = this.register(
+        BooleanConfigOption.builder(ConfigPath.of("group0", "testOption0")).setDefaultValue(true).build());
 
-    this.second = this.registerConfigOption(BooleanConfigOption.builder(this, ConfigPath.of("group0", "testOption1"))
+    this.second = this.register(BooleanConfigOption.builder(ConfigPath.of("group0", "testOption1"))
         .setDefaultValue(true)
         .onUpdate((option) -> option.setDisabled(!this.first.getPendingValue()))
         .build());
 
-    this.third = this.registerConfigOption(OptionListConfigOption.builder(this, ConfigPath.of("group0", "testOption2"),
+    this.third = this.register(OptionListConfigOption.builder(ConfigPath.of("group0", "testOption2"),
             Arrays.stream(Difficulty.values()).toList()
         )
         .setDefaultValue(Difficulty.getDefault())
         .build());
 
-    this.fourth = this.registerConfigOption(StringConfigOption.builder(this, ConfigPath.of("group0", "testOption3"))
+    this.fourth = this.register(StringConfigOption.builder(ConfigPath.of("group0", "testOption3"))
         .setDefaultValue("foo")
         .setMinLength(3)
         .setMaxLength(12)
         .onUpdate((option) -> option.setDisabled(!this.first.getPendingValue()))
         .build());
 
-    this.fifth = this.registerConfigOption(IntConfigOption.builder(this, ConfigPath.of("group1", "testOption4"))
+    this.fifth = this.register(IntConfigOption.builder(ConfigPath.of("group1", "testOption4"))
         .setDefaultValue(5)
         .setMinValue(0)
         .setMaxValue(100)
@@ -68,7 +68,7 @@ public class TestModConfig extends GameScopedConfig {
         .onUpdate((option) -> option.setDisabled(!this.first.getPendingValue()))
         .build());
 
-    this.sixth = this.registerConfigOption(IntConfigOption.builder(this, ConfigPath.of("group1", "testOption5"))
+    this.sixth = this.register(IntConfigOption.builder(ConfigPath.of("group1", "testOption5"))
         .setDefaultValue(5)
         .setMinValue(0)
         .setMaxValue(100)
@@ -77,7 +77,7 @@ public class TestModConfig extends GameScopedConfig {
         .onUpdate((option) -> option.setDisabled(!this.first.getPendingValue()))
         .build());
 
-    this.seventh = this.registerConfigOption(IntConfigOption.builder(this, ConfigPath.of("group1", "testOption6"))
+    this.seventh = this.register(IntConfigOption.builder(ConfigPath.of("group1", "testOption6"))
         .setDefaultValue(5)
         .setMinValue(0)
         .setMaxValue(100)
@@ -86,28 +86,26 @@ public class TestModConfig extends GameScopedConfig {
         .onUpdate((option) -> option.setDisabled(!this.first.getPendingValue()))
         .build());
 
-    this.eighth = this.registerConfigOption(FloatConfigOption.builder(this, ConfigPath.of("group1", "testOption7"))
+    this.eighth = this.register(FloatConfigOption.builder(ConfigPath.of("group1", "testOption7"))
         .setDefaultValue(5)
         .setMinValue(0)
         .setMaxValue(100)
         .build());
 
-    this.ninth = this.registerConfigOption(FloatConfigOption.builder(this, ConfigPath.of("group1", "testOption8"))
+    this.ninth = this.register(FloatConfigOption.builder(ConfigPath.of("group1", "testOption8"))
         .setDefaultValue(5)
         .setMinValue(0)
         .setMaxValue(100)
         .setUseSlider(true)
         .build());
 
-    this.tenth = this.registerConfigOption(
-        PositionConfigOption.builder(this, ConfigPath.of("group2", "testOption9")).build());
+    this.tenth = this.register(PositionConfigOption.builder(ConfigPath.of("group2", "testOption9")).build());
 
-    this.eleventh = this.registerConfigOption(
-        PositionConfigOption.builder(this, ConfigPath.of("group2", "testOption10"))
-            .setDefaultValue(new Position(50, 50))
-            .build());
+    this.eleventh = this.register(PositionConfigOption.builder(ConfigPath.of("group2", "testOption10"))
+        .setDefaultValue(new Position(50, 50))
+        .build());
 
-    this.twelfth = this.registerConfigOption(IntConfigOption.builder(this, ConfigPath.of("group2", "testOption11"))
+    this.twelfth = this.register(IntConfigOption.builder(ConfigPath.of("group2", "testOption11"))
         .setDefaultValue(5)
         .setMinValue(0)
         .setMaxValue(100)
@@ -115,8 +113,8 @@ public class TestModConfig extends GameScopedConfig {
         .setUseSlider(true)
         .build());
 
-    this.thirteenth = this.registerConfigOption(
-        BooleanConfigOption.builder(this, ConfigPath.of("group3", "testOption12")).setDefaultValue(true).build());
+    this.thirteenth = this.register(
+        BooleanConfigOption.builder(ConfigPath.of("group3", "testOption12")).setDefaultValue(true).build());
   }
 
   @Override

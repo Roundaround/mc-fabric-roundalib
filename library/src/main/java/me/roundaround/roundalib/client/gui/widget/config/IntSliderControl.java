@@ -6,6 +6,7 @@ import me.roundaround.roundalib.client.gui.widget.IntSliderWidget;
 import me.roundaround.roundalib.client.gui.widget.LinearLayoutWidget;
 import me.roundaround.roundalib.config.option.IntConfigOption;
 import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
+import me.roundaround.roundalib.config.panic.Panic;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 
@@ -24,9 +25,10 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
     super(client, option, x, y, width, height);
 
     if (!this.option.useSlider() || this.option.getMinValue() == null || this.option.getMaxValue() == null) {
-      this.option.getModConfig()
-          .panic(new IllegalArgumentPanic(
-              "IntConfigOption must use slider and have min and max values to use IntSliderControl"));
+      Panic.panic(new IllegalArgumentPanic(
+              "IntConfigOption must use slider and have min and max values to use IntSliderControl"),
+          this.getOption().getModId()
+      );
     }
 
     this.slider = this.add(new IntSliderWidget(width, height, this.option.getMinValue(), this.option.getMaxValue(),

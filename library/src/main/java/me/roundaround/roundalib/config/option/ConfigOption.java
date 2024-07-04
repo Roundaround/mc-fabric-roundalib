@@ -5,6 +5,7 @@ import me.roundaround.roundalib.config.ConfigPath;
 import me.roundaround.roundalib.config.PendingValueListener;
 import me.roundaround.roundalib.config.SavedValueListener;
 import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
+import me.roundaround.roundalib.config.panic.Panic;
 import net.minecraft.text.Text;
 
 import java.util.*;
@@ -17,7 +18,6 @@ import java.util.function.Function;
  * @param <D> The data type represented by this config option. Must be immutable.
  */
 public abstract class ConfigOption<D> {
-  private final Config config;
   private final ConfigPath path;
   private final Text label;
   private final D defaultValue;
@@ -29,6 +29,7 @@ public abstract class ConfigOption<D> {
   private final HashSet<SavedValueListener<D>> savedValueChangeListeners = new HashSet<>();
   private final HashSet<PendingValueListener<D>> pendingValueChangeListeners = new HashSet<>();
 
+  private String modId;
   private boolean isDisabled;
   private D pendingValue;
   private D savedValue;
@@ -37,13 +38,12 @@ public abstract class ConfigOption<D> {
   private boolean isDefault;
 
   protected ConfigOption(AbstractBuilder<D, ?, ?> builder) {
-    this(builder.config, builder.path, builder.label, builder.defaultValue, builder.noGui, builder.toStringFunction,
-        builder.comment, builder.validators, builder.onUpdate
+    this(builder.path, builder.label, builder.defaultValue, builder.noGui, builder.toStringFunction, builder.comment,
+        builder.validators, builder.onUpdate
     );
   }
 
   protected ConfigOption(
-      Config config,
       ConfigPath path,
       Text label,
       D defaultValue,
@@ -53,7 +53,6 @@ public abstract class ConfigOption<D> {
       List<Validator<D>> validators,
       Consumer<ConfigOption<?>> onUpdate
   ) {
-    this.config = config;
     this.path = path;
     this.label = label;
     this.defaultValue = defaultValue;
@@ -71,12 +70,12 @@ public abstract class ConfigOption<D> {
     this.isDefault = true;
   }
 
-  public Config getModConfig() {
-    return this.config;
+  public void setModId(String modId) {
+    this.modId = modId;
   }
 
   public String getModId() {
-    return this.config.getModId();
+    return this.modId;
   }
 
   public String getGroup() {
@@ -92,6 +91,9 @@ public abstract class ConfigOption<D> {
   }
 
   public Text getLabel() {
+    if (this.label == null) {
+      return this.getDefaultLabel();
+    }
     return this.label;
   }
 
@@ -156,6 +158,10 @@ public abstract class ConfigOption<D> {
     return Objects.equals(a, b);
   }
 
+  protected Text getDefaultLabel() {
+    return Text.translatable(this.modId + "." + this.path.toString(".") + ".label");
+  }
+
   public void setValue(D pendingValue) {
     D prevPendingValue = this.getPendingValue();
     if (this.areValuesEqual(prevPendingValue, pendingValue)) {
@@ -165,12 +171,7 @@ public abstract class ConfigOption<D> {
     this.pendingValue = pendingValue;
     this.isDirty = !this.areValuesEqual(this.getPendingValue(), this.getValue());
     this.isPendingDefault = this.areValuesEqual(this.getPendingValue(), this.getDefaultValue());
-
-    this.config.update();
-
-    if (!this.areValuesEqual(prevPendingValue, this.getPendingValue())) {
-      this.pendingValueChangeListeners.forEach((listener) -> listener.onPendingValueChange(this.getPendingValue()));
-    }
+    this.pendingValueChangeListeners.forEach((listener) -> listener.onPendingValueChange(this.getPendingValue()));
   }
 
   /**
@@ -249,7 +250,6 @@ public abstract class ConfigOption<D> {
   }
 
   public static abstract class AbstractBuilder<D, C extends ConfigOption<D>, B extends AbstractBuilder<D, C, B>> {
-    protected final Config config;
     protected final ConfigPath path;
     protected Text label = null;
     protected D defaultValue;
@@ -261,13 +261,8 @@ public abstract class ConfigOption<D> {
     };
     protected boolean allowNullDefault = false;
 
-    protected AbstractBuilder(Config config, ConfigPath path) {
-      this.config = config;
+    protected AbstractBuilder(ConfigPath path) {
       this.path = path;
-    }
-
-    protected Text getDefaultLabel() {
-      return Text.translatable(this.config.getModId() + "." + this.path.toString(".") + ".label");
     }
 
     public B setLabel(String i18nKey) {
@@ -331,12 +326,8 @@ public abstract class ConfigOption<D> {
     }
 
     protected void validate() {
-      if (this.label == null) {
-        this.label = this.getDefaultLabel();
-      }
-
       if (!this.allowNullDefault && this.defaultValue == null) {
-        this.config.panic(new IllegalArgumentPanic(
+        Panic.panic(new IllegalArgumentPanic(
             "All config options must have a non-null default value or explicitly set the flag allowing null"));
       }
     }

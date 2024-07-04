@@ -1,8 +1,8 @@
 package me.roundaround.roundalib.config.option;
 
-import me.roundaround.roundalib.config.Config;
 import me.roundaround.roundalib.config.ConfigPath;
 import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
+import me.roundaround.roundalib.config.panic.Panic;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.Optional;
@@ -72,12 +72,12 @@ public class FloatConfigOption extends ConfigOption<Float> {
     return true;
   }
 
-  public static Builder builder(Config config, ConfigPath path) {
-    return new Builder(config, path);
+  public static Builder builder(ConfigPath path) {
+    return new Builder(path);
   }
 
-  public static Builder sliderBuilder(Config config, ConfigPath path) {
-    return builder(config, path).setUseSlider(true);
+  public static Builder sliderBuilder(ConfigPath path) {
+    return builder(path).setUseSlider(true);
   }
 
   // TODO: Set up a separate slider builder
@@ -87,8 +87,8 @@ public class FloatConfigOption extends ConfigOption<Float> {
     private boolean slider = false;
     private Float step = null;
 
-    private Builder(Config config, ConfigPath path) {
-      super(config, path);
+    private Builder(ConfigPath path) {
+      super(path);
     }
 
     public Builder setDefaultValue(float defaultValue) {
@@ -139,8 +139,7 @@ public class FloatConfigOption extends ConfigOption<Float> {
         this.validators.addFirst((value, option) -> value <= this.maxValue);
 
         if (this.minValue != null && this.minValue > this.maxValue) {
-          this.config.panic(
-              new IllegalArgumentPanic("Min value cannot be larger than max value for FloatConfigOption"));
+          Panic.panic(new IllegalArgumentPanic("Min value cannot be larger than max value for FloatConfigOption"));
         }
       }
 
@@ -149,7 +148,7 @@ public class FloatConfigOption extends ConfigOption<Float> {
       }
 
       if (this.slider && (this.minValue == null || this.maxValue == null)) {
-        this.config.panic(
+        Panic.panic(
             new IllegalArgumentPanic("Min and max values must be defined to use slider control for FloatConfigOption"));
       }
     }

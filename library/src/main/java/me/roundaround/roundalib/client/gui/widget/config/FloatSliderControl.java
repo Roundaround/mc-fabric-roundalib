@@ -3,6 +3,7 @@ package me.roundaround.roundalib.client.gui.widget.config;
 import me.roundaround.roundalib.client.gui.widget.FloatSliderWidget;
 import me.roundaround.roundalib.config.option.FloatConfigOption;
 import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
+import me.roundaround.roundalib.config.panic.Panic;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 
@@ -17,9 +18,10 @@ public class FloatSliderControl extends Control<Float, FloatConfigOption> {
     super(client, option, x, y, width, height);
 
     if (!this.option.useSlider() || this.option.getMinValue() == null || this.option.getMaxValue() == null) {
-      this.option.getModConfig()
-          .panic(new IllegalArgumentPanic(
-              "FloatConfigOption must use slider and have min and max values to use FloatSliderControl"));
+      Panic.panic(new IllegalArgumentPanic(
+              "FloatConfigOption must use slider and have min and max values to use FloatSliderControl"),
+          this.getOption().getModId()
+      );
     }
 
     this.slider = this.add(new FloatSliderWidget(width, height, this.option.getMinValue(), this.option.getMaxValue(),

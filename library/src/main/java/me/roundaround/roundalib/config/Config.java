@@ -166,7 +166,12 @@ public abstract class Config {
     return false;
   }
 
-  protected <T extends ConfigOption<?>> T registerConfigOption(T option) {
+  protected <T extends ConfigOption<?>> T register(T option) {
+    option.setModId(this.modId);
+    option.subscribePending((value) -> {
+      this.update();
+    });
+
     this.groups.add(option);
     this.options.put(option.getPath(), option);
 
@@ -218,5 +223,15 @@ public abstract class Config {
     public String getGroupId() {
       return this.groupId;
     }
+  }
+
+  @FunctionalInterface
+  public interface ConfigOptionFactory<T extends ConfigOption<?>> {
+    T create(String modId, UpdateCallback updateCallback);
+  }
+
+  @FunctionalInterface
+  public interface UpdateCallback {
+    void update();
   }
 }

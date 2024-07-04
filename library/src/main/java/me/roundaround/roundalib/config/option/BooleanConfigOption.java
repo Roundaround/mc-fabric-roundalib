@@ -1,6 +1,5 @@
 package me.roundaround.roundalib.config.option;
 
-import me.roundaround.roundalib.config.Config;
 import me.roundaround.roundalib.config.ConfigPath;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
@@ -16,10 +15,16 @@ public class BooleanConfigOption extends ConfigOption<Boolean> {
   }
 
   public Text getEnabledLabel() {
+    if (this.enabledLabel == null) {
+      return Text.translatable(this.getModId() + ".roundalib.toggle.enabled");
+    }
     return this.enabledLabel;
   }
 
   public Text getDisabledLabel() {
+    if (this.disabledLabel == null) {
+      return Text.translatable(this.getModId() + ".roundalib.toggle.disabled");
+    }
     return this.disabledLabel;
   }
 
@@ -31,24 +36,24 @@ public class BooleanConfigOption extends ConfigOption<Boolean> {
     this.setValue(!this.getPendingValue());
   }
 
-  public static Builder builder(Config config, ConfigPath path) {
-    return new Builder(config, path);
+  public static Builder builder(ConfigPath path) {
+    return new Builder(path);
   }
 
-  public static Builder onOffBuilder(Config config, ConfigPath path) {
-    return new Builder(config, path).setEnabledLabel(ScreenTexts.ON).setDisabledLabel(ScreenTexts.OFF);
+  public static Builder onOffBuilder(ConfigPath path) {
+    return new Builder(path).setEnabledLabel(ScreenTexts.ON).setDisabledLabel(ScreenTexts.OFF);
   }
 
-  public static Builder yesNoBuilder(Config config, ConfigPath path) {
-    return new Builder(config, path).setEnabledLabel(ScreenTexts.YES).setDisabledLabel(ScreenTexts.NO);
+  public static Builder yesNoBuilder(ConfigPath path) {
+    return new Builder(path).setEnabledLabel(ScreenTexts.YES).setDisabledLabel(ScreenTexts.NO);
   }
 
   public static class Builder extends ConfigOption.AbstractBuilder<Boolean, BooleanConfigOption, Builder> {
-    private Text enabledLabel = Text.translatable(this.config.getModId() + ".roundalib.toggle.enabled");
-    private Text disabledLabel = Text.translatable(this.config.getModId() + ".roundalib.toggle.disabled");
+    private Text enabledLabel = null;
+    private Text disabledLabel = null;
 
-    private Builder(Config config, ConfigPath path) {
-      super(config, path);
+    private Builder(ConfigPath path) {
+      super(path);
     }
 
     public Builder setEnabledLabel(String i18nKey) {
