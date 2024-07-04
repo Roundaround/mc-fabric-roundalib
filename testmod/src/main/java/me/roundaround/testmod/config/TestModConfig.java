@@ -1,6 +1,7 @@
 package me.roundaround.testmod.config;
 
 import com.electronwill.nightconfig.core.Config;
+import me.roundaround.roundalib.config.ConfigPath;
 import me.roundaround.roundalib.config.GameScopedConfig;
 import me.roundaround.roundalib.config.option.*;
 import me.roundaround.roundalib.config.value.Difficulty;
@@ -38,30 +39,27 @@ public class TestModConfig extends GameScopedConfig {
     super(TestMod.MOD_ID, 3);
 
     this.first = this.registerConfigOption(
-        BooleanConfigOption.builder(this, "testOption0").setGroup("group0").setDefaultValue(true).build());
+        BooleanConfigOption.builder(this, ConfigPath.of("group0", "testOption0")).setDefaultValue(true).build());
 
-    this.second = this.registerConfigOption(BooleanConfigOption.builder(this, "testOption1")
-        .setGroup("group0")
+    this.second = this.registerConfigOption(BooleanConfigOption.builder(this, ConfigPath.of("group0", "testOption1"))
         .setDefaultValue(true)
         .onUpdate((option) -> option.setDisabled(!this.first.getPendingValue()))
         .build());
 
-    this.third = this.registerConfigOption(
-        OptionListConfigOption.builder(this, "testOption2", Arrays.stream(Difficulty.values()).toList())
-            .setGroup("group0")
-            .setDefaultValue(Difficulty.getDefault())
-            .build());
+    this.third = this.registerConfigOption(OptionListConfigOption.builder(this, ConfigPath.of("group0", "testOption2"),
+            Arrays.stream(Difficulty.values()).toList()
+        )
+        .setDefaultValue(Difficulty.getDefault())
+        .build());
 
-    this.fourth = this.registerConfigOption(StringConfigOption.builder(this, "testOption3")
-        .setGroup("group0")
+    this.fourth = this.registerConfigOption(StringConfigOption.builder(this, ConfigPath.of("group0", "testOption3"))
         .setDefaultValue("foo")
         .setMinLength(3)
         .setMaxLength(12)
         .onUpdate((option) -> option.setDisabled(!this.first.getPendingValue()))
         .build());
 
-    this.fifth = this.registerConfigOption(IntConfigOption.builder(this, "testOption4")
-        .setGroup("group1")
+    this.fifth = this.registerConfigOption(IntConfigOption.builder(this, ConfigPath.of("group1", "testOption4"))
         .setDefaultValue(5)
         .setMinValue(0)
         .setMaxValue(100)
@@ -70,8 +68,7 @@ public class TestModConfig extends GameScopedConfig {
         .onUpdate((option) -> option.setDisabled(!this.first.getPendingValue()))
         .build());
 
-    this.sixth = this.registerConfigOption(IntConfigOption.builder(this, "testOption5")
-        .setGroup("group1")
+    this.sixth = this.registerConfigOption(IntConfigOption.builder(this, ConfigPath.of("group1", "testOption5"))
         .setDefaultValue(5)
         .setMinValue(0)
         .setMaxValue(100)
@@ -80,8 +77,7 @@ public class TestModConfig extends GameScopedConfig {
         .onUpdate((option) -> option.setDisabled(!this.first.getPendingValue()))
         .build());
 
-    this.seventh = this.registerConfigOption(IntConfigOption.builder(this, "testOption6")
-        .setGroup("group1")
+    this.seventh = this.registerConfigOption(IntConfigOption.builder(this, ConfigPath.of("group1", "testOption6"))
         .setDefaultValue(5)
         .setMinValue(0)
         .setMaxValue(100)
@@ -90,15 +86,13 @@ public class TestModConfig extends GameScopedConfig {
         .onUpdate((option) -> option.setDisabled(!this.first.getPendingValue()))
         .build());
 
-    this.eighth = this.registerConfigOption(FloatConfigOption.builder(this, "testOption7")
-        .setGroup("group1")
+    this.eighth = this.registerConfigOption(FloatConfigOption.builder(this, ConfigPath.of("group1", "testOption7"))
         .setDefaultValue(5)
         .setMinValue(0)
         .setMaxValue(100)
         .build());
 
-    this.ninth = this.registerConfigOption(FloatConfigOption.builder(this, "testOption8")
-        .setGroup("group1")
+    this.ninth = this.registerConfigOption(FloatConfigOption.builder(this, ConfigPath.of("group1", "testOption8"))
         .setDefaultValue(5)
         .setMinValue(0)
         .setMaxValue(100)
@@ -106,15 +100,14 @@ public class TestModConfig extends GameScopedConfig {
         .build());
 
     this.tenth = this.registerConfigOption(
-        PositionConfigOption.builder(this, "testOption9").setGroup("group2").build());
+        PositionConfigOption.builder(this, ConfigPath.of("group2", "testOption9")).build());
 
-    this.eleventh = this.registerConfigOption(PositionConfigOption.builder(this, "testOption10")
-        .setGroup("group2")
-        .setDefaultValue(new Position(50, 50))
-        .build());
+    this.eleventh = this.registerConfigOption(
+        PositionConfigOption.builder(this, ConfigPath.of("group2", "testOption10"))
+            .setDefaultValue(new Position(50, 50))
+            .build());
 
-    this.twelfth = this.registerConfigOption(IntConfigOption.builder(this, "testOption11")
-        .setGroup("group2")
+    this.twelfth = this.registerConfigOption(IntConfigOption.builder(this, ConfigPath.of("group2", "testOption11"))
         .setDefaultValue(5)
         .setMinValue(0)
         .setMaxValue(100)
@@ -123,34 +116,34 @@ public class TestModConfig extends GameScopedConfig {
         .build());
 
     this.thirteenth = this.registerConfigOption(
-        BooleanConfigOption.builder(this, "testOption12").setGroup("group3").setDefaultValue(true).build());
+        BooleanConfigOption.builder(this, ConfigPath.of("group3", "testOption12")).setDefaultValue(true).build());
   }
 
   @Override
-  protected boolean updateConfigVersion(int version, Config config) {
+  protected boolean updateConfigVersion(int version, Config inMemoryConfigSnapshot) {
     if (version == 1) {
       // Added a new group1.testOption5 so everything after needs shifting.
       // testOption8 is now also part of group1 rather than group2
 
-      config.set(this.getLegacyPath(2, 11), config.get(this.getLegacyPath(2, 10)));
-      config.set(this.getLegacyPath(2, 10), config.get(this.getLegacyPath(2, 9)));
-      config.set(this.getLegacyPath(2, 9), config.get(this.getLegacyPath(2, 8)));
-      config.remove(this.getLegacyPath(2, 8));
-      config.set(this.getLegacyPath(1, 8), config.get(this.getLegacyPath(1, 7)));
-      config.set(this.getLegacyPath(1, 7), config.get(this.getLegacyPath(1, 6)));
-      config.set(this.getLegacyPath(1, 6), config.get(this.getLegacyPath(1, 5)));
-      config.remove(this.getLegacyPath(1, 5));
+      inMemoryConfigSnapshot.set(this.getLegacyPath(2, 11), inMemoryConfigSnapshot.get(this.getLegacyPath(2, 10)));
+      inMemoryConfigSnapshot.set(this.getLegacyPath(2, 10), inMemoryConfigSnapshot.get(this.getLegacyPath(2, 9)));
+      inMemoryConfigSnapshot.set(this.getLegacyPath(2, 9), inMemoryConfigSnapshot.get(this.getLegacyPath(2, 8)));
+      inMemoryConfigSnapshot.remove(this.getLegacyPath(2, 8));
+      inMemoryConfigSnapshot.set(this.getLegacyPath(1, 8), inMemoryConfigSnapshot.get(this.getLegacyPath(1, 7)));
+      inMemoryConfigSnapshot.set(this.getLegacyPath(1, 7), inMemoryConfigSnapshot.get(this.getLegacyPath(1, 6)));
+      inMemoryConfigSnapshot.set(this.getLegacyPath(1, 6), inMemoryConfigSnapshot.get(this.getLegacyPath(1, 5)));
+      inMemoryConfigSnapshot.remove(this.getLegacyPath(1, 5));
 
-      return this.updateConfigVersion(2, config);
+      return this.updateConfigVersion(2, inMemoryConfigSnapshot);
     }
 
     if (version == 2) {
       // Removed modId prefixing on paths
 
-      Map.copyOf(config.valueMap()).forEach((path, value) -> {
+      Map.copyOf(inMemoryConfigSnapshot.valueMap()).forEach((path, value) -> {
         if (path.startsWith(this.modId + ".")) {
-          config.set(this.removeFirstSegment(path), value);
-          config.remove(path);
+          inMemoryConfigSnapshot.set(this.removeFirstSegment(path), value);
+          inMemoryConfigSnapshot.remove(path);
         }
       });
 
@@ -160,12 +153,12 @@ public class TestModConfig extends GameScopedConfig {
     return false;
   }
 
-  private String getPath(int groupNum, int idNum) {
-    return this.getPath("group" + groupNum, "testOption" + idNum);
+  private ConfigPath getPath(int groupNum, int idNum) {
+    return ConfigPath.of("group" + groupNum, "testOption" + idNum);
   }
 
   private String removeFirstSegment(String path) {
-    return path.substring(path.indexOf(".") + 1);
+    return ConfigPath.parse(path).getId();
   }
 
   private String getLegacyPath(int groupNum, int idNum) {

@@ -36,10 +36,9 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
   }
 
   protected void addGroupEntry(String group) {
-    this.addEntry(
-        (index, left, top, width) -> new GroupEntry(this.client.textRenderer, Text.translatable(group + ".title"),
-            index, left, top, width
-        ));
+    this.addEntry((index, left, top, width) -> new GroupEntry(this.client.textRenderer,
+        Text.translatable(this.config.getModId() + "." + group + ".title"), index, left, top, width
+    ));
   }
 
   protected void addOptionEntry(ConfigOption<?> option) {
@@ -131,7 +130,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
 
       ArrayList<Text> tooltipLines = new ArrayList<>();
       tooltipLines.add(option.getLabel());
-      tooltipLines.add(Text.literal(option.getPath()).formatted(Formatting.GRAY));
+      tooltipLines.add(Text.literal(option.getPath().toString()).formatted(Formatting.GRAY));
       this.tooltip = this.addDrawable(new TooltipWidget(tooltipLines));
 
       LinearLayoutWidget layout = LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING);

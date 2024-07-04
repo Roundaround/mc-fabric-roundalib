@@ -1,6 +1,7 @@
 package me.roundaround.roundalib.config.option;
 
 import me.roundaround.roundalib.config.Config;
+import me.roundaround.roundalib.config.ConfigPath;
 import me.roundaround.roundalib.config.PendingValueListener;
 import me.roundaround.roundalib.config.SavedValueListener;
 import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
@@ -17,8 +18,7 @@ import java.util.function.Function;
  */
 public abstract class ConfigOption<D> {
   private final Config config;
-  private final String group;
-  private final String id;
+  private final ConfigPath path;
   private final Text label;
   private final D defaultValue;
   private final boolean noGui;
@@ -37,15 +37,14 @@ public abstract class ConfigOption<D> {
   private boolean isDefault;
 
   protected ConfigOption(AbstractBuilder<D, ?, ?> builder) {
-    this(builder.config, builder.group, builder.id, builder.label, builder.defaultValue, builder.noGui,
-        builder.toStringFunction, builder.comment, builder.validators, builder.onUpdate
+    this(builder.config, builder.path, builder.label, builder.defaultValue, builder.noGui, builder.toStringFunction,
+        builder.comment, builder.validators, builder.onUpdate
     );
   }
 
   protected ConfigOption(
       Config config,
-      String group,
-      String id,
+      ConfigPath path,
       Text label,
       D defaultValue,
       boolean noGui,
@@ -55,8 +54,7 @@ public abstract class ConfigOption<D> {
       Consumer<ConfigOption<?>> onUpdate
   ) {
     this.config = config;
-    this.group = group;
-    this.id = id;
+    this.path = path;
     this.label = label;
     this.defaultValue = defaultValue;
     this.noGui = noGui;
@@ -81,16 +79,16 @@ public abstract class ConfigOption<D> {
     return this.config.getModId();
   }
 
-  public String getId() {
-    return this.id;
-  }
-
   public String getGroup() {
-    return this.group;
+    return this.getPath().getGroup();
   }
 
-  public String getPath() {
-    return this.config.getPath(this.group, this.id);
+  public String getId() {
+    return this.getPath().getId();
+  }
+
+  public ConfigPath getPath() {
+    return this.path;
   }
 
   public Text getLabel() {
@@ -252,8 +250,7 @@ public abstract class ConfigOption<D> {
 
   public static abstract class AbstractBuilder<D, C extends ConfigOption<D>, B extends AbstractBuilder<D, C, B>> {
     protected final Config config;
-    protected final String id;
-    protected String group = null;
+    protected final ConfigPath path;
     protected Text label = null;
     protected D defaultValue;
     protected boolean noGui = false;
@@ -264,26 +261,13 @@ public abstract class ConfigOption<D> {
     };
     protected boolean allowNullDefault = false;
 
-    protected AbstractBuilder(Config config, String id) {
+    protected AbstractBuilder(Config config, ConfigPath path) {
       this.config = config;
-      this.id = id;
+      this.path = path;
     }
 
     protected Text getDefaultLabel() {
-      StringBuilder builder = new StringBuilder();
-      builder.append(this.config.getModId()).append(".");
-
-      if (this.group != null) {
-        builder.append(this.group).append(".");
-      }
-
-      builder.append(this.id).append(".label");
-      return Text.translatable(builder.toString());
-    }
-
-    public B setGroup(String group) {
-      this.group = group;
-      return this.self();
+      return Text.translatable(this.config.getModId() + "." + this.path.toString(".") + ".label");
     }
 
     public B setLabel(String i18nKey) {

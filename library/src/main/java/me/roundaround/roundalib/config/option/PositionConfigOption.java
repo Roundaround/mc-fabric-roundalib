@@ -1,6 +1,7 @@
 package me.roundaround.roundalib.config.option;
 
 import me.roundaround.roundalib.config.Config;
+import me.roundaround.roundalib.config.ConfigPath;
 import me.roundaround.roundalib.config.value.Position;
 
 import java.util.List;
@@ -26,13 +27,13 @@ public class PositionConfigOption extends ConfigOption<Position> {
     return List.of(value.x(), value.y());
   }
 
-  public static Builder builder(Config config, String id) {
-    return new Builder(config, id);
+  public static Builder builder(Config config, ConfigPath path) {
+    return new Builder(config, path);
   }
 
   public static class Builder extends ConfigOption.AbstractBuilder<Position, PositionConfigOption, Builder> {
-    private Builder(Config config, String id) {
-      super(config, id);
+    private Builder(Config config, ConfigPath path) {
+      super(config, path);
 
       this.setDefaultValue(new Position(0, 0));
     }

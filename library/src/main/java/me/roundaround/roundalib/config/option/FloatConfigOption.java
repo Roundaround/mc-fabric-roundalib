@@ -1,6 +1,7 @@
 package me.roundaround.roundalib.config.option;
 
 import me.roundaround.roundalib.config.Config;
+import me.roundaround.roundalib.config.ConfigPath;
 import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
 import net.minecraft.util.math.MathHelper;
 
@@ -71,12 +72,12 @@ public class FloatConfigOption extends ConfigOption<Float> {
     return true;
   }
 
-  public static Builder builder(Config config, String id) {
-    return new Builder(config, id);
+  public static Builder builder(Config config, ConfigPath path) {
+    return new Builder(config, path);
   }
 
-  public static Builder sliderBuilder(Config config, String id) {
-    return builder(config, id).setUseSlider(true);
+  public static Builder sliderBuilder(Config config, ConfigPath path) {
+    return builder(config, path).setUseSlider(true);
   }
 
   // TODO: Set up a separate slider builder
@@ -86,8 +87,8 @@ public class FloatConfigOption extends ConfigOption<Float> {
     private boolean slider = false;
     private Float step = null;
 
-    private Builder(Config config, String id) {
-      super(config, id);
+    private Builder(Config config, ConfigPath path) {
+      super(config, path);
     }
 
     public Builder setDefaultValue(float defaultValue) {

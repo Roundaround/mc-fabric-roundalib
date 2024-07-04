@@ -1,6 +1,7 @@
 package me.roundaround.roundalib.config.option;
 
 import me.roundaround.roundalib.config.Config;
+import me.roundaround.roundalib.config.ConfigPath;
 import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
 import net.minecraft.util.math.MathHelper;
 
@@ -93,12 +94,12 @@ public class IntConfigOption extends ConfigOption<Integer> {
     return true;
   }
 
-  public static Builder builder(Config config, String id) {
-    return new Builder(config, id);
+  public static Builder builder(Config config, ConfigPath path) {
+    return new Builder(config, path);
   }
 
-  public static Builder sliderBuilder(Config config, String id) {
-    return new Builder(config, id).setUseSlider(true);
+  public static Builder sliderBuilder(Config config, ConfigPath path) {
+    return new Builder(config, path).setUseSlider(true);
   }
 
   // TODO: Set up a separate slider builder
@@ -108,8 +109,8 @@ public class IntConfigOption extends ConfigOption<Integer> {
     private Integer step = 1;
     private boolean slider = false;
 
-    private Builder(Config config, String id) {
-      super(config, id);
+    private Builder(Config config, ConfigPath path) {
+      super(config, path);
     }
 
     public Builder setDefaultValue(int defaultValue) {
@@ -160,8 +161,7 @@ public class IntConfigOption extends ConfigOption<Integer> {
         this.validators.addFirst((value, option) -> value <= this.maxValue);
 
         if (this.minValue != null && this.minValue > this.maxValue) {
-          this.config.panic(
-              new IllegalArgumentPanic("Min value cannot be larger than max value for IntConfigOption"));
+          this.config.panic(new IllegalArgumentPanic("Min value cannot be larger than max value for IntConfigOption"));
         }
       }
 

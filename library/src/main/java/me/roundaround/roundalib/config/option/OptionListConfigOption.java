@@ -1,6 +1,7 @@
 package me.roundaround.roundalib.config.option;
 
 import me.roundaround.roundalib.config.Config;
+import me.roundaround.roundalib.config.ConfigPath;
 import me.roundaround.roundalib.config.value.ListOptionValue;
 
 import java.util.List;
@@ -36,17 +37,17 @@ public class OptionListConfigOption<T extends ListOptionValue<T>> extends Config
   }
 
   public static <T extends ListOptionValue<T>> Builder<T> builder(
-      Config config, String id, List<T> values
+      Config config, ConfigPath path, List<T> values
   ) {
-    return new Builder<>(config, id, values);
+    return new Builder<>(config, path, values);
   }
 
   public static class Builder<T extends ListOptionValue<T>> extends ConfigOption.AbstractBuilder<T,
       OptionListConfigOption<T>, Builder<T>> {
     private final List<T> values;
 
-    private Builder(Config config, String id, List<T> values) {
-      super(config, id);
+    private Builder(Config config, ConfigPath path, List<T> values) {
+      super(config, path);
       this.values = values;
 
       this.setDefaultValue(values.getFirst());

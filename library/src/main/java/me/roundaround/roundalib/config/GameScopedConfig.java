@@ -13,12 +13,13 @@ public abstract class GameScopedConfig extends Config {
     super(modId, configVersion);
   }
 
-  protected GameScopedConfig(String modId, int configVersion, boolean prefixPaths) {
-    super(modId, configVersion, prefixPaths);
+  @Override
+  public boolean isActive() {
+    return this.isInitialized;
   }
 
   @Override
-  public void init() {
+  protected void onInit() {
     this.runFirstLoad();
   }
 

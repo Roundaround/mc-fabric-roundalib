@@ -16,33 +16,38 @@ import java.util.function.Consumer;
 public abstract class Config {
   protected final String modId;
   protected final int configVersion;
-  protected final boolean prefixPaths;
   protected final ConfigGroups groups;
   protected final ConfigGroups groupsForGui;
-  protected final HashMap<String, ConfigOption<?>> options = new HashMap<>();
+  protected final HashMap<ConfigPath, ConfigOption<?>> options = new HashMap<>();
   protected final HashSet<Consumer<Config>> updateListeners = new HashSet<>();
 
   protected int version;
+  protected boolean isInitialized = false;
 
   protected Config(String modId) {
     this(modId, 1);
   }
 
   protected Config(String modId, int configVersion) {
-    this(modId, configVersion, false);
-  }
-
-  protected Config(String modId, int configVersion, boolean prefixPaths) {
     this.modId = modId;
     this.configVersion = configVersion;
-    this.prefixPaths = prefixPaths;
-    this.groups = new ConfigGroups(this.modId);
-    this.groupsForGui = new ConfigGroups(this.modId);
+    this.groups = new ConfigGroups();
+    this.groupsForGui = new ConfigGroups();
   }
 
-  public abstract void init();
+  public abstract boolean isActive();
+
+  protected abstract void onInit();
 
   protected abstract Path getConfigDirectory();
+
+  public final void init() {
+    if (this.isInitialized) {
+      return;
+    }
+    this.onInit();
+    this.isInitialized = true;
+  }
 
   public String getModId() {
     return this.modId;
@@ -50,26 +55,6 @@ public abstract class Config {
 
   public int getConfigVersion() {
     return this.configVersion;
-  }
-
-  public String getPath(String group) {
-    if (!this.prefixPaths) {
-      return group;
-    }
-
-    String path = this.modId;
-    if (group != null && !group.isBlank()) {
-      path += "." + group;
-    }
-    return path;
-  }
-
-  public String getPath(String group, String id) {
-    String basePath = this.getPath(group);
-    if (basePath == null || basePath.isBlank()) {
-      return id;
-    }
-    return basePath + "." + id;
   }
 
   public ConfigGroups getGroups() {
@@ -81,11 +66,15 @@ public abstract class Config {
   }
 
   public ConfigOption<?> getByPath(String path) {
+    return this.getByPath(ConfigPath.parse(path));
+  }
+
+  public ConfigOption<?> getByPath(ConfigPath path) {
     return this.options.get(path);
   }
 
   public boolean isDirty() {
-    return this.groups.values().stream().anyMatch((group) -> group.stream().anyMatch(ConfigOption::isDirty));
+    return this.options.values().stream().anyMatch(ConfigOption::isDirty);
   }
 
   public void loadFromFile() {
@@ -106,7 +95,7 @@ public abstract class Config {
     }
 
     this.groups.forEachOption((option) -> {
-      Object data = fileConfig.get(option.getPath());
+      Object data = fileConfig.get(option.getPath().toString());
       if (data != null) {
         option.deserialize(data);
       }
@@ -130,7 +119,7 @@ public abstract class Config {
     fileConfig.set("configVersion", this.configVersion);
 
     this.groups.forEachOption((option) -> {
-      String path = option.getPath();
+      String path = option.getPath().toString();
       List<String> comment = option.getComment();
       if (!comment.isEmpty()) {
         // Prefix each line with space to get "# This is a comment"
@@ -173,7 +162,7 @@ public abstract class Config {
     this.update();
   }
 
-  protected boolean updateConfigVersion(int version, com.electronwill.nightconfig.core.Config config) {
+  protected boolean updateConfigVersion(int version, com.electronwill.nightconfig.core.Config inMemoryConfigSnapshot) {
     return false;
   }
 
@@ -197,36 +186,21 @@ public abstract class Config {
     @Serial
     private static final long serialVersionUID = 6066982994690812870L;
 
-    private final String modId;
-
-    public ConfigGroups(String modId) {
-      super();
-      this.modId = modId;
-    }
-
     public boolean add(ConfigOption<?> option) {
-      String key = this.getCategorizationKey(option);
-      if (!this.containsKey(key)) {
-        this.put(key, new ConfigGroup(key));
+      String groupId = option.getGroup();
+      if (!this.containsKey(groupId)) {
+        this.put(groupId, new ConfigGroup(groupId));
       }
-      this.get(key).add(option);
+      this.get(groupId).add(option);
       return true;
     }
 
     public void forEachGroup(Consumer<ConfigGroup> consumer) {
-      this.forEach((key, group) -> consumer.accept(group));
+      this.forEach((groupId, group) -> consumer.accept(group));
     }
 
     public void forEachOption(Consumer<? super ConfigOption<?>> consumer) {
-      this.forEach((key, group) -> group.forEach(consumer));
-    }
-
-    private String getCategorizationKey(ConfigOption<?> option) {
-      String key = this.modId;
-      if (option.getGroup() != null) {
-        key += "." + option.getGroup();
-      }
-      return key;
+      this.forEach((groupId, group) -> group.forEach(consumer));
     }
   }
 
@@ -234,15 +208,15 @@ public abstract class Config {
     @Serial
     private static final long serialVersionUID = -5553233377025439167L;
 
-    private final String id;
+    private final String groupId;
 
-    public ConfigGroup(String id) {
+    public ConfigGroup(String groupId) {
       super();
-      this.id = id;
+      this.groupId = groupId;
     }
 
-    public String getId() {
-      return this.id;
+    public String getGroupId() {
+      return this.groupId;
     }
   }
 }

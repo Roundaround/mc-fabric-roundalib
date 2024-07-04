@@ -14,12 +14,13 @@ public abstract class WorldScopedConfig extends Config {
     super(modId, configVersion);
   }
 
-  protected WorldScopedConfig(String modId, int configVersion, boolean prefixPaths) {
-    super(modId, configVersion, prefixPaths);
+  @Override
+  public boolean isActive() {
+    return PathAccessor.getInstance().isWorldDirAccessible();
   }
 
   @Override
-  public void init() {
+  protected void onInit() {
     MinecraftServerEvents.RESOURCE_MANAGER_CREATING.register((storage) -> {
       this.runFirstLoad();
     });
