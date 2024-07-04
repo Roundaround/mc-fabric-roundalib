@@ -24,7 +24,7 @@ val importLangFiles = tasks.register<me.roundaround.roundalib.gradle.tasks.Impor
 val importMixins = tasks.register<me.roundaround.roundalib.gradle.tasks.ImportMixinsTask>("importMixins") {
     modId.set(testModId)
     roundaLibSource.from(roundaLibConfig)
-    roundaLibPackage.set("$testGroupId.$testModId.roundalib.mixin")
+    roundaLibPackage.set("$testGroupId.$testModId.roundalib")
 }
 
 val importTextures = tasks.register<me.roundaround.roundalib.gradle.tasks.ImportTexturesTask>("importTextures") {
@@ -32,7 +32,19 @@ val importTextures = tasks.register<me.roundaround.roundalib.gradle.tasks.Import
     roundaLibSource.from(roundaLibConfig)
 }
 
+val registerPreLaunch =
+    tasks.register<me.roundaround.roundalib.gradle.tasks.RegisterPreLaunchTask>("registerPreLaunch") {
+        modId.set(testModId)
+        roundaLibPackage.set("$testGroupId.$testModId.roundalib")
+        mustRunAfter(importMixins)
+    }
+
 tasks.processResources {
-    dependsOn(importLangFiles, importMixins, importTextures)
-    from(importLangFiles.get().outputDir, importMixins.get().outputDir, importTextures.get().outputDir)
+    dependsOn(importLangFiles, importMixins, importTextures, registerPreLaunch)
+    from(
+        importLangFiles.get().outputDir,
+        importMixins.get().outputDir,
+        importTextures.get().outputDir,
+        registerPreLaunch.get().outputDir
+    )
 }

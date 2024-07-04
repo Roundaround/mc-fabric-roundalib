@@ -89,7 +89,12 @@ public abstract class ModConfig {
   }
 
   public void loadFromFile() {
-    CommentedFileConfig fileConfig = CommentedFileConfig.builder(this.getConfigFile()).preserveInsertionOrder().build();
+    Path configPath = this.getConfigFile();
+    if (configPath == null) {
+      return;
+    }
+
+    CommentedFileConfig fileConfig = CommentedFileConfig.builder(configPath).preserveInsertionOrder().build();
 
     fileConfig.load();
     fileConfig.close();
@@ -109,12 +114,17 @@ public abstract class ModConfig {
   }
 
   public void saveToFile() {
+    Path configPath = this.getConfigFile();
+    if (configPath == null) {
+      return;
+    }
+
     if (this.version == this.configVersion && !this.isDirty()) {
       RoundaLib.LOGGER.info("Skipping saving {} config to file because nothing has changed.", this.getModId());
       return;
     }
 
-    CommentedFileConfig fileConfig = CommentedFileConfig.builder(this.getConfigFile()).preserveInsertionOrder().build();
+    CommentedFileConfig fileConfig = CommentedFileConfig.builder(configPath).preserveInsertionOrder().build();
 
     fileConfig.setComment("configVersion", " Config version is auto-generated\n DO NOT CHANGE");
     fileConfig.set("configVersion", this.configVersion);
@@ -179,7 +189,11 @@ public abstract class ModConfig {
   }
 
   protected Path getConfigFile() {
-    return this.getConfigDirectory().resolve(this.modId + ".toml");
+    Path configDir = this.getConfigDirectory();
+    if (configDir == null) {
+      return null;
+    }
+    return configDir.resolve(this.modId + ".toml");
   }
 
   public static class ConfigGroups extends LinkedHashMap<String, ConfigGroup> {
