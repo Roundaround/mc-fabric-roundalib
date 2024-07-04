@@ -16,9 +16,7 @@ public abstract class ScreenMixin {
 
   @Inject(method = "keyPressed", at = @At(value = "HEAD"), cancellable = true)
   public void keyPressed(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> info) {
-    // Grab screen instance from client so that we don't have to do any gross casting.
-    Screen screen = this.client.currentScreen;
-    if (ScreenInputEvent.EVENT_BUS.invoker().handle(screen, keyCode, scanCode, modifiers)) {
+    if (ScreenInputEvent.EVENT.invoker().handle((Screen) (Object) this, keyCode, scanCode, modifiers)) {
       info.setReturnValue(true);
     }
   }

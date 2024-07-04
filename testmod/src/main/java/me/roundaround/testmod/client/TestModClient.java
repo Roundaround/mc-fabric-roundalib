@@ -24,7 +24,7 @@ public class TestModClient implements ClientModInitializer {
       throw new RuntimeException(e);
     }
 
-    ScreenInputEvent.EVENT_BUS.register((screen, keyCode, scanCode, modifiers) -> {
+    ScreenInputEvent.EVENT.register((screen, keyCode, scanCode, modifiers) -> {
       if (screen instanceof DemoScreen) {
         return false;
       }
