@@ -3,6 +3,7 @@ package me.roundaround.roundalib.client.gui.widget.config;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.*;
 import me.roundaround.roundalib.config.Config;
+import me.roundaround.roundalib.config.ConnectedWorldContext;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.panic.IllegalStatePanic;
 import me.roundaround.roundalib.config.panic.Panic;
@@ -30,7 +31,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
 
     HashSet<Config.GuiContext> contexts = this.getCurrentMatchingGuiContexts();
     configs.forEach((config) -> {
-      if (config.getGroups().isEmpty(contexts)) {
+      if (config.getOptionsByGroup().isEmpty(contexts)) {
         return;
       }
 
@@ -38,7 +39,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
         this.addConfigEntry(config);
       }
 
-      Config.ConfigGroups groups = config.getGroups();
+      Config.ConfigGroups groups = config.getOptionsByGroup();
       groups.forEachGroup((group) -> {
         String groupId = group.getGroupId();
         if (groupId != null && !groupId.isBlank()) {
@@ -78,28 +79,21 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     });
   }
 
-  protected HashSet<Config.GuiContext> getCurrentMatchingGuiContexts() {
-    HashSet<Config.GuiContext> set = new HashSet<>();
-    set.add(Config.GuiContext.ALWAYS);
-
+  protected ConnectedWorldContext getCurrentWorldContext() {
     ClientWorld world = Objects.requireNonNull(this.client).world;
     if (world == null) {
-      set.add(Config.GuiContext.NOT_IN_GAME);
-      return set;
+      return ConnectedWorldContext.NONE;
     }
 
     if (this.client.isInSingleplayer()) {
-      set.add(Config.GuiContext.INTEGRATED_SERVER);
-      return set;
+      return ConnectedWorldContext.INTEGRATED_SERVER;
     }
 
     if (this.client.getCurrentServerEntry() != null) {
-      set.add(Config.GuiContext.DEDICATED_SERVER);
-      return set;
+      return ConnectedWorldContext.DEDICATED_SERVER;
     }
 
-    set.add(Config.GuiContext.NOT_IN_GAME);
-    return set;
+    return ConnectedWorldContext.NONE;
   }
 
   public void tick() {
