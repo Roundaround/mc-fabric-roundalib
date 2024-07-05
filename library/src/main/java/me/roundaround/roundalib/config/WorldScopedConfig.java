@@ -24,8 +24,8 @@ public abstract class WorldScopedConfig extends Config {
   }
 
   @Override
-  public boolean isActive() {
-    return PathAccessor.getInstance().isWorldDirAccessible();
+  public boolean canShowInGui() {
+    return PathAccessor.getInstance().isWorldDirAccessible() && super.canShowInGui();
   }
 
   @Override

@@ -9,11 +9,14 @@ import me.roundaround.roundalib.config.panic.Panic;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWidget.Entry> {
   protected final String modId;
@@ -25,19 +28,25 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     this.modId = modId;
     this.configs = List.copyOf(configs);
 
+    HashSet<Config.GuiContext> contexts = this.getCurrentMatchingGuiContexts();
     configs.forEach((config) -> {
+      if (config.getGroups().isEmpty(contexts)) {
+        return;
+      }
+
       if (configs.size() > 1) {
         this.addConfigEntry(config);
       }
 
-      Config.ConfigGroups groups = config.getGroupsForGui();
-      groups.forEach((group, options) -> {
-        if (group != null && !group.isBlank()) {
-          this.addGroupEntry(group);
+      Config.ConfigGroups groups = config.getGroups();
+      groups.forEachGroup((group) -> {
+        String groupId = group.getGroupId();
+        if (groupId != null && !groupId.isBlank()) {
+          this.addGroupEntry(groupId);
         }
 
-        options.forEach(this::addOptionEntry);
-      });
+        group.forEach(this::addOptionEntry, contexts);
+      }, contexts);
     });
   }
 
@@ -67,6 +76,30 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
         return null;
       }
     });
+  }
+
+  protected HashSet<Config.GuiContext> getCurrentMatchingGuiContexts() {
+    HashSet<Config.GuiContext> set = new HashSet<>();
+    set.add(Config.GuiContext.ALWAYS);
+
+    ClientWorld world = Objects.requireNonNull(this.client).world;
+    if (world == null) {
+      set.add(Config.GuiContext.NOT_IN_GAME);
+      return set;
+    }
+
+    if (this.client.isInSingleplayer()) {
+      set.add(Config.GuiContext.INTEGRATED_SERVER);
+      return set;
+    }
+
+    if (this.client.getCurrentServerEntry() != null) {
+      set.add(Config.GuiContext.DEDICATED_SERVER);
+      return set;
+    }
+
+    set.add(Config.GuiContext.NOT_IN_GAME);
+    return set;
   }
 
   public void tick() {

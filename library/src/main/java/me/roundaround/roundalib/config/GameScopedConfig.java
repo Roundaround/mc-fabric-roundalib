@@ -1,6 +1,8 @@
 package me.roundaround.roundalib.config;
 
 import me.roundaround.roundalib.PathAccessor;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.api.FabricLoader;
 
 import java.nio.file.Path;
 
@@ -22,8 +24,8 @@ public abstract class GameScopedConfig extends Config {
   }
 
   @Override
-  public boolean isActive() {
-    return this.isInitialized;
+  public boolean canShowInGui() {
+    return this.isInitialized && super.canShowInGui();
   }
 
   @Override

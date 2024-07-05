@@ -39,8 +39,9 @@ public class ConfigScreen extends Screen {
     super(title);
     this.parent = parent;
     this.modId = modId;
+
     for (Config config : configs) {
-      if (config.isActive() && !config.getGroupsForGui().isEmpty()) {
+      if (config.canShowInGui()) {
         this.configs.add(config);
       }
     }

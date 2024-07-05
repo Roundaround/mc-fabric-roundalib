@@ -6,11 +6,12 @@ import me.roundaround.roundalib.PathAccessor;
 import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.panic.Panic;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.text.Text;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
-import java.io.Serial;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -21,7 +22,6 @@ public abstract class Config {
   protected final String configId;
   protected final int configVersion;
   protected final ConfigGroups groups;
-  protected final ConfigGroups groupsForGui;
   protected final HashMap<ConfigPath, ConfigOption<?>> options = new HashMap<>();
   protected final HashSet<Consumer<Config>> updateListeners = new HashSet<>();
 
@@ -45,10 +45,7 @@ public abstract class Config {
     this.configId = configId;
     this.configVersion = configVersion;
     this.groups = new ConfigGroups();
-    this.groupsForGui = new ConfigGroups();
   }
-
-  public abstract boolean isActive();
 
   protected abstract Path getConfigDirectory();
 
@@ -60,6 +57,10 @@ public abstract class Config {
     }
     this.onInit();
     this.isInitialized = true;
+  }
+
+  public boolean canShowInGui() {
+    return FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT;
   }
 
   public Text getLabel() {
@@ -80,10 +81,6 @@ public abstract class Config {
 
   public ConfigGroups getGroups() {
     return this.groups;
-  }
-
-  public ConfigGroups getGroupsForGui() {
-    return this.groupsForGui;
   }
 
   public ConfigOption<?> getByPath(String path) {
@@ -162,11 +159,11 @@ public abstract class Config {
     fileConfig.save();
     fileConfig.close();
 
-    this.groups.forEach((group, options) -> options.forEach(ConfigOption::commit));
+    this.groups.forEachOption(ConfigOption::commit);
   }
 
   public void updateListeners() {
-    this.groups.forEach((group, options) -> options.forEach(ConfigOption::update));
+    this.groups.forEachOption(ConfigOption::update);
     this.updateListeners.forEach((listener) -> listener.accept(this));
   }
 
@@ -200,7 +197,6 @@ public abstract class Config {
 
   public void clear() {
     this.groups.clear();
-    this.groupsForGui.clear();
     this.options.clear();
     this.updateListeners.clear();
   }
@@ -210,17 +206,21 @@ public abstract class Config {
   }
 
   protected <T extends ConfigOption<?>> T register(T option) {
+    return this.register(option, (Collection<GuiContext>) null);
+  }
+
+  protected <T extends ConfigOption<?>> T register(T option, GuiContext... allowedContexts) {
+    return this.register(option, Set.of(allowedContexts));
+  }
+
+  protected <T extends ConfigOption<?>> T register(T option, Collection<GuiContext> allowedContexts) {
     option.setModId(this.modId);
     option.subscribePending((value) -> {
       this.updateListeners();
     });
 
-    this.groups.add(option);
+    this.groups.add(option, allowedContexts);
     this.options.put(option.getPath(), option);
-
-    if (option.hasGuiControl()) {
-      this.groupsForGui.add(option);
-    }
 
     return option;
   }
@@ -230,47 +230,145 @@ public abstract class Config {
         .getConfigFile(this.getConfigDirectory(), this.modId, PathAccessor.ConfigFormat.TOML);
   }
 
-  public static class ConfigGroups extends LinkedHashMap<String, ConfigGroup> {
-    @Serial
-    private static final long serialVersionUID = 6066982994690812870L;
+  public static class ConfigGroups {
+    private final LinkedHashMap<String, ConfigGroup> store = new LinkedHashMap<>();
 
     public boolean add(ConfigOption<?> option) {
+      return this.add(option, null);
+    }
+
+    public boolean add(ConfigOption<?> option, Collection<GuiContext> allowedContexts) {
       String groupId = option.getGroup();
-      if (!this.containsKey(groupId)) {
-        this.put(groupId, new ConfigGroup(groupId));
+      if (!this.store.containsKey(groupId)) {
+        this.store.put(groupId, new ConfigGroup(groupId));
       }
-      this.get(groupId).add(option);
+      this.store.get(groupId).add(option, allowedContexts);
       return true;
     }
 
+    public void clear() {
+      this.store.clear();
+    }
+
     public void forEachGroup(Consumer<ConfigGroup> consumer) {
-      this.forEach((groupId, group) -> consumer.accept(group));
+      this.store.forEach((groupId, group) -> consumer.accept(group));
+    }
+
+    public void forEachGroup(Consumer<ConfigGroup> consumer, Collection<GuiContext> contexts) {
+      this.store.forEach((groupId, group) -> {
+        if (!group.isEmpty(contexts)) {
+          consumer.accept(group);
+        }
+      });
     }
 
     public void forEachOption(Consumer<? super ConfigOption<?>> consumer) {
-      this.forEach((groupId, group) -> group.forEach(consumer));
+      this.store.forEach((groupId, group) -> group.forEach(consumer));
+    }
+
+    public void forEachOption(Consumer<? super ConfigOption<?>> consumer, Collection<GuiContext> contexts) {
+      this.store.forEach((groupId, group) -> group.forEach(consumer, contexts));
+    }
+
+    public boolean isEmpty() {
+      return this.store.isEmpty();
+    }
+
+    public boolean isEmpty(Collection<GuiContext> contexts) {
+      return this.store.values().stream().allMatch((group) -> group.isEmpty(contexts));
+    }
+
+    public int size() {
+      return this.store.size();
+    }
+
+    public int size(Collection<GuiContext> contexts) {
+      return (int) this.store.values().stream().filter((group) -> !group.isEmpty(contexts)).count();
     }
   }
 
-  public static class ConfigGroup extends ArrayList<ConfigOption<?>> {
-    @Serial
-    private static final long serialVersionUID = -5553233377025439167L;
-
+  public static class ConfigGroup {
+    private final ArrayList<ContextualConfigOption<?>> store = new ArrayList<>();
     private final String groupId;
 
     public ConfigGroup(String groupId) {
-      super();
       this.groupId = groupId;
     }
 
     public String getGroupId() {
       return this.groupId;
     }
+
+    public void clear() {
+      this.store.clear();
+    }
+
+    public boolean add(ConfigOption<?> option) {
+      return this.add(option, null);
+    }
+
+    public boolean add(ConfigOption<?> option, Collection<GuiContext> allowedContexts) {
+      return this.store.add(new ContextualConfigOption<>(option, allowedContexts));
+    }
+
+    public void forEach(Consumer<? super ConfigOption<?>> consumer) {
+      this.store.forEach(ContextualConfigOption::get);
+    }
+
+    public void forEach(Consumer<? super ConfigOption<?>> consumer, Collection<GuiContext> contexts) {
+      this.store.forEach((entry) -> entry.get(contexts).ifPresent(consumer));
+    }
+
+    public boolean isEmpty() {
+      return this.store.isEmpty();
+    }
+
+    public boolean isEmpty(Collection<GuiContext> contexts) {
+      return this.store.stream().noneMatch((entry) -> entry.matchesContext(contexts));
+    }
+
+    public int size() {
+      return this.store.size();
+    }
+
+    public int size(Collection<GuiContext> contexts) {
+      return (int) this.store.stream().filter((entry) -> entry.matchesContext(contexts)).count();
+    }
   }
 
-  @FunctionalInterface
-  public interface ConfigOptionFactory<T extends ConfigOption<?>> {
-    T create(String modId, UpdateCallback updateCallback);
+  public static class ContextualConfigOption<T> {
+    private final ConfigOption<T> option;
+    private final Set<GuiContext> allowedContexts;
+
+    public ContextualConfigOption(ConfigOption<T> option) {
+      this(option, null);
+    }
+
+    public ContextualConfigOption(ConfigOption<T> option, Collection<GuiContext> allowedContexts) {
+      this.option = option;
+      this.allowedContexts = allowedContexts == null || allowedContexts.isEmpty() ?
+          Set.of(GuiContext.ALWAYS) :
+          Set.copyOf(allowedContexts);
+    }
+
+    public boolean matchesContext(Collection<GuiContext> contexts) {
+      return this.allowedContexts.stream().anyMatch(contexts::contains);
+    }
+
+    public Optional<ConfigOption<T>> get(Collection<GuiContext> contexts) {
+      if (!this.matchesContext(contexts)) {
+        return Optional.empty();
+      }
+      return Optional.of(this.option);
+    }
+
+    public ConfigOption<T> get() {
+      return this.option;
+    }
+  }
+
+  public enum GuiContext {
+    ALWAYS, NOT_IN_GAME, INTEGRATED_SERVER, DEDICATED_SERVER, NEVER
   }
 
   @FunctionalInterface

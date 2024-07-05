@@ -27,5 +27,9 @@
   "testmod.group3.testOption12.label": "Option 12 is also special because the label is likewise super long to test automatic 2-line wrapping",
   "testmod.pw.title": "Testmod Per-world Config",
   "testmod.pwTestOption0.label": "Per-world option 0",
-  "testmod.pwTestOption1.label": "Per-world option 1"
+  "testmod.pwTestOption1.label": "Per-world option 1",
+  "testmod.pwTestOption2.label": "Per-world option 2",
+  "testmod.pwTestOption3.label": "Per-world option 3",
+  "testmod.pwTestOption4.label": "Per-world option 4",
+  "testmod.pwTestOption5.label": "Per-world option 5"
 }
