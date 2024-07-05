@@ -21,23 +21,26 @@ public class TestModConfig extends GameScopedConfig {
     return instance;
   }
 
-  public final BooleanConfigOption first;
-  public final BooleanConfigOption second;
-  public final OptionListConfigOption<Difficulty> third;
-  public final StringConfigOption fourth;
-  public final IntConfigOption fifth;
-  public final IntConfigOption sixth;
-  public final IntConfigOption seventh;
-  public final FloatConfigOption eighth;
-  public final FloatConfigOption ninth;
-  public final PositionConfigOption tenth;
-  public final PositionConfigOption eleventh;
-  public final IntConfigOption twelfth;
-  public final BooleanConfigOption thirteenth;
+  public BooleanConfigOption first;
+  public BooleanConfigOption second;
+  public OptionListConfigOption<Difficulty> third;
+  public StringConfigOption fourth;
+  public IntConfigOption fifth;
+  public IntConfigOption sixth;
+  public IntConfigOption seventh;
+  public FloatConfigOption eighth;
+  public FloatConfigOption ninth;
+  public PositionConfigOption tenth;
+  public PositionConfigOption eleventh;
+  public IntConfigOption twelfth;
+  public BooleanConfigOption thirteenth;
 
   private TestModConfig() {
     super(TestMod.MOD_ID, 3);
+  }
 
+  @Override
+  protected void registerOptions() {
     this.first = this.register(
         BooleanConfigOption.builder(ConfigPath.of("group0", "testOption0")).setDefaultValue(true).build());
 

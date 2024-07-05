@@ -176,7 +176,7 @@ public abstract class ConfigOption<D> {
 
   /**
    * Marks the value as saved and updates any subscribed listeners. By default, this is called after
-   * {@link Config#saveToFile()} successfully writes any pending values to file. Usually you will
+   * {@link Config#writeToFile()} successfully writes any pending values to file. Usually you will
    * not need to call this yourself.
    */
   public void commit() {
@@ -193,7 +193,7 @@ public abstract class ConfigOption<D> {
 
   /**
    * Sets the ConfigOption to its default value using {@link #setValue}, meaning that the update won't take
-   * effect until it is committed to file with {@link Config#saveToFile}.
+   * effect until it is committed to file with {@link Config#writeToFile}.
    */
   public void setDefault() {
     this.setValue(this.getDefaultValue());

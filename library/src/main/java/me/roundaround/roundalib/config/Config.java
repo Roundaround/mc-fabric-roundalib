@@ -50,9 +50,9 @@ public abstract class Config {
 
   public abstract boolean isActive();
 
-  protected abstract void onInit();
-
   protected abstract Path getConfigDirectory();
+
+  protected abstract void registerOptions();
 
   public final void init() {
     if (this.isInitialized) {
@@ -98,7 +98,7 @@ public abstract class Config {
     return this.options.values().stream().anyMatch(ConfigOption::isDirty);
   }
 
-  public void loadFromFile() {
+  public void readFile() {
     Path configPath = this.getConfigFile();
     if (configPath == null || Files.notExists(configPath)) {
       return;
@@ -123,7 +123,7 @@ public abstract class Config {
     });
   }
 
-  public void saveToFile() {
+  public void writeToFile() {
     Path configPath = this.getConfigFile();
     if (configPath == null) {
       return;
@@ -165,7 +165,7 @@ public abstract class Config {
     this.groups.forEach((group, options) -> options.forEach(ConfigOption::commit));
   }
 
-  public void update() {
+  public void updateListeners() {
     this.groups.forEach((group, options) -> options.forEach(ConfigOption::update));
     this.updateListeners.forEach((listener) -> listener.accept(this));
   }
@@ -186,11 +186,23 @@ public abstract class Config {
     Panic.panic(panic, this.modId, logger);
   }
 
-  protected void runFirstLoad() {
-    this.loadFromFile();
-    this.saveToFile();
+  protected void onInit() {
+    this.syncWithFile();
+  }
 
-    this.update();
+  protected void syncWithFile() {
+    this.version = -1;
+    this.registerOptions();
+    this.readFile();
+    this.writeToFile();
+    this.updateListeners();
+  }
+
+  public void clear() {
+    this.groups.clear();
+    this.groupsForGui.clear();
+    this.options.clear();
+    this.updateListeners.clear();
   }
 
   protected boolean updateConfigVersion(int version, com.electronwill.nightconfig.core.Config inMemoryConfigSnapshot) {
@@ -200,7 +212,7 @@ public abstract class Config {
   protected <T extends ConfigOption<?>> T register(T option) {
     option.setModId(this.modId);
     option.subscribePending((value) -> {
-      this.update();
+      this.updateListeners();
     });
 
     this.groups.add(option);

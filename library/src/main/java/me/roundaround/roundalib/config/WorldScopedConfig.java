@@ -31,10 +31,10 @@ public abstract class WorldScopedConfig extends Config {
   @Override
   protected void onInit() {
     MinecraftServerEvents.RESOURCE_MANAGER_CREATING.register((storage) -> {
-      this.runFirstLoad();
+      this.syncWithFile();
     });
     ServerLifecycleEvents.SERVER_STOPPED.register((server) -> {
-      this.isInitialized = false;
+      this.clear();
     });
   }
 

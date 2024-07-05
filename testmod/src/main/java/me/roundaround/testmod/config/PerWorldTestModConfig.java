@@ -15,12 +15,15 @@ public class PerWorldTestModConfig extends WorldScopedConfig {
     return instance;
   }
 
-  public final BooleanConfigOption first;
-  public final BooleanConfigOption second;
+  public BooleanConfigOption first;
+  public BooleanConfigOption second;
 
   private PerWorldTestModConfig() {
     super(TestMod.MOD_ID, "pw");
+  }
 
+  @Override
+  protected void registerOptions() {
     this.first = this.register(
         BooleanConfigOption.builder(ConfigPath.of("pwTestOption0")).setDefaultValue(true).build());
 

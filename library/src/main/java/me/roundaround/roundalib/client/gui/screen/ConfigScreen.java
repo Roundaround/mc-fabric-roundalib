@@ -107,12 +107,12 @@ public class ConfigScreen extends Screen {
   }
 
   private void cancel(ButtonWidget button) {
-    this.closeAction = Config::loadFromFile;
+    this.closeAction = Config::readFile;
     this.close();
   }
 
   private void done(ButtonWidget button) {
-    this.closeAction = Config::saveToFile;
+    this.closeAction = Config::writeToFile;
     this.close();
   }
 

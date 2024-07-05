@@ -27,11 +27,6 @@ public abstract class GameScopedConfig extends Config {
   }
 
   @Override
-  protected void onInit() {
-    this.runFirstLoad();
-  }
-
-  @Override
   protected Path getConfigDirectory() {
     return PathAccessor.getInstance().getConfigDir();
   }
