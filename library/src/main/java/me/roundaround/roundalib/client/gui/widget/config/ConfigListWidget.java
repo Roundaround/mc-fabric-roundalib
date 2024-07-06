@@ -15,13 +15,12 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWidget.Entry> {
   protected final String modId;
-  protected final List<ModConfig> configs;
 
   public ConfigListWidget(
       MinecraftClient client, ThreePartsLayoutWidget layout, String modId, List<ModConfig> configs
@@ -29,35 +28,29 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     super(client, layout);
 
     this.modId = modId;
-    this.configs = List.copyOf(configs);
 
-    HashSet<ModConfig.GuiContext> contexts = this.getCurrentMatchingGuiContexts();
-    configs.forEach((config) -> {
-      if (config.getOptionsByGroup().isEmpty(contexts)) {
-        return;
+    List<UnwrappedModConfig> validConfigs = configs.stream()
+        .map(UnwrappedModConfig::unwrap)
+        .filter(UnwrappedModConfig::hasOptions)
+        .toList();
+
+    validConfigs.forEach((config) -> {
+      if (validConfigs.size() > 1) {
+        this.addConfigEntry(config.label());
       }
 
-      if (configs.size() > 1) {
-        this.addConfigEntry(config);
-      }
-
-      ModConfig.ConfigGroups groups = config.getOptionsByGroup();
-      groups.forEachGroup((group) -> {
-        String groupId = group.getGroupId();
-        if (groupId != null && !groupId.isBlank()) {
-          this.addGroupEntry(groupId);
+      config.optionsByGroup().forEach((group, options) -> {
+        if (group != null && !group.isBlank()) {
+          this.addGroupEntry(group);
         }
-
-        group.forEach(this::addOptionEntry, contexts);
-      }, contexts);
+        options.forEach(this::addOptionEntry);
+      });
     });
   }
 
-  protected void addConfigEntry(ModConfig config) {
+  protected void addConfigEntry(Text label) {
     this.addEntry(
-        (index, left, top, width) -> new GroupEntry(this.client.textRenderer, config.getLabel(), index, left, top,
-            width
-        ));
+        (index, left, top, width) -> new GroupEntry(this.client.textRenderer, label, index, left, top, width));
   }
 
   protected void addGroupEntry(String group) {
@@ -239,6 +232,16 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     public void update() {
       this.control.update();
       this.resetButton.active = !this.option.isPendingDefault() && !this.option.isDisabled();
+    }
+  }
+
+  private record UnwrappedModConfig(Text label, Map<String, List<ConfigOption<?>>> optionsByGroup) {
+    static UnwrappedModConfig unwrap(ModConfig config) {
+      return new UnwrappedModConfig(config.getLabel(), config.getByGroupWithGuiControl());
+    }
+
+    boolean hasOptions() {
+      return !this.optionsByGroup.isEmpty();
     }
   }
 }

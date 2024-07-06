@@ -4,15 +4,14 @@ import com.electronwill.nightconfig.core.Config;
 import me.roundaround.roundalib.config.option.ConfigOption;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 public interface ConfigStore {
   String getModId();
 
   int getVersion();
 
-  Collection<ConfigOption<?>> getAllConfigOptions();
-
-  Collection<ConfigOption<?>> getConfigOptionsForStore();
+  Collection<ConfigOption<?>> getAll();
 
   void setStoreSuppliedVersion(int version);
 
@@ -32,7 +31,7 @@ public interface ConfigStore {
 
   default boolean isDirty() {
     return this.getVersion() != this.getStoreSuppliedVersion() ||
-        this.getConfigOptionsForStore().stream().anyMatch(ConfigOption::isDirty);
+        this.getAll().stream().anyMatch(ConfigOption::isDirty);
   }
 
   default void initializeStore() {
@@ -46,8 +45,12 @@ public interface ConfigStore {
     this.refresh();
   }
 
+  default void forEach(Consumer<ConfigOption<?>> consumer) {
+    this.getAll().forEach(consumer);
+  }
+
   default void refresh() {
-    this.getAllConfigOptions().forEach(ConfigOption::update);
+    this.getAll().forEach(ConfigOption::update);
   }
 
   default boolean performConfigUpdate(int versionSnapshot, Config inMemoryConfigSnapshot) {

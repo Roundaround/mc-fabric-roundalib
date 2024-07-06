@@ -2,7 +2,8 @@ package me.roundaround.testmod.config;
 
 import com.electronwill.nightconfig.core.Config;
 import me.roundaround.roundalib.config.ConfigPath;
-import me.roundaround.roundalib.config.GameScopedConfig;
+import me.roundaround.roundalib.config.manage.ModConfigImpl;
+import me.roundaround.roundalib.config.manage.store.GameScopedFileStore;
 import me.roundaround.roundalib.config.option.*;
 import me.roundaround.roundalib.config.value.Difficulty;
 import me.roundaround.roundalib.config.value.Position;
@@ -11,7 +12,7 @@ import me.roundaround.testmod.TestMod;
 import java.util.Arrays;
 import java.util.Map;
 
-public class TestModConfig extends GameScopedConfig {
+public class TestModConfig extends ModConfigImpl implements GameScopedFileStore {
   private static TestModConfig instance = null;
 
   public static TestModConfig getInstance() {
@@ -121,8 +122,8 @@ public class TestModConfig extends GameScopedConfig {
   }
 
   @Override
-  protected boolean updateConfigVersion(int version, Config inMemoryConfigSnapshot) {
-    if (version == 1) {
+  public boolean performConfigUpdate(int versionSnapshot, Config inMemoryConfigSnapshot) {
+    if (versionSnapshot == 1) {
       // Added a new group1.testOption5 so everything after needs shifting.
       // testOption8 is now also part of group1 rather than group2
 
@@ -135,10 +136,10 @@ public class TestModConfig extends GameScopedConfig {
       inMemoryConfigSnapshot.set(this.getLegacyPath(1, 6), inMemoryConfigSnapshot.get(this.getLegacyPath(1, 5)));
       inMemoryConfigSnapshot.remove(this.getLegacyPath(1, 5));
 
-      return this.updateConfigVersion(2, inMemoryConfigSnapshot);
+      return this.performConfigUpdate(2, inMemoryConfigSnapshot);
     }
 
-    if (version == 2) {
+    if (versionSnapshot == 2) {
       // Removed modId prefixing on paths
 
       Map.copyOf(inMemoryConfigSnapshot.valueMap()).forEach((path, value) -> {

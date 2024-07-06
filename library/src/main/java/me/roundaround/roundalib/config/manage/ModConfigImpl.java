@@ -1,14 +1,17 @@
 package me.roundaround.roundalib.config.manage;
 
 import me.roundaround.roundalib.config.ConfigPath;
+import me.roundaround.roundalib.config.ConnectedWorldContext;
+import me.roundaround.roundalib.config.manage.store.ConfigStore;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.text.Text;
 
 import java.util.*;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public abstract class ModConfigImpl implements ModConfig {
   protected final String modId;
@@ -16,11 +19,12 @@ public abstract class ModConfigImpl implements ModConfig {
   protected final int configVersion;
   protected final LinkedHashMap<String, ArrayList<ConfigOption<?>>> byGroup = new LinkedHashMap<>();
   protected final LinkedHashMap<ConfigPath, ConfigOption<?>> byPath = new LinkedHashMap<>();
-  protected final HashMap<ConfigPath, EnvType> envTypes = new HashMap<>();
-  protected final HashSet<ConfigPath> noControls = new HashSet<>();
-  protected final HashSet<Consumer<ModConfig>> listeners = new HashSet<>();
+  protected final HashMap<ConfigPath, EnvType> envType = new HashMap<>();
+  protected final HashSet<ConfigPath> noGuiControl = new HashSet<>();
+  protected final HashSet<ConfigPath> singlePlayerOnly = new HashSet<>();
+  protected final List<Consumer<ModConfig>> listeners = new ArrayList<>();
 
-  protected int versionFromFile;
+  protected int storeSuppliedVersion;
   protected boolean isInitialized = false;
 
   protected ModConfigImpl(String modId) {
@@ -45,16 +49,25 @@ public abstract class ModConfigImpl implements ModConfig {
     if (this.isInitialized) {
       return;
     }
-    this.onInit();
-    this.isInitialized = true;
-  }
-
-  protected void onInit() {
     this.initializeStore();
+    this.isInitialized = true;
   }
 
   protected abstract void registerOptions();
 
+  @Override
+  public void syncWithStore() {
+    this.clear();
+    this.registerOptions();
+    ModConfig.super.syncWithStore();
+  }
+
+  @Override
+  public boolean isInitialized() {
+    return this.isInitialized;
+  }
+
+  @Override
   public Text getLabel() {
     return Text.translatable(this.getModId() + "." + this.getConfigId() + ".title");
   }
@@ -84,12 +97,6 @@ public abstract class ModConfigImpl implements ModConfig {
   }
 
   @Override
-  public void refresh() {
-    ModConfig.super.refresh();
-    this.listeners.forEach((listener) -> listener.accept(this));
-  }
-
-  @Override
   public void subscribe(Consumer<ModConfig> listener) {
     this.listeners.add(listener);
   }
@@ -100,28 +107,69 @@ public abstract class ModConfigImpl implements ModConfig {
   }
 
   @Override
+  public Collection<Consumer<ModConfig>> getListeners() {
+    return Collections.unmodifiableList(this.listeners);
+  }
+
+  @Override
   public void clear() {
     this.byGroup.clear();
     this.byPath.clear();
     this.listeners.clear();
   }
 
-  @Override
-  public List<ConfigOption<?>> getAll() {
-    return List.copyOf(this.byPath.values());
+  protected boolean isActive(ConfigOption<?> option) {
+    ConfigPath path = option.getPath();
+
+    EnvType envType = this.envType.get(path);
+    if (envType != null && envType != FabricLoader.getInstance().getEnvironmentType()) {
+      return false;
+    }
+
+    return !this.singlePlayerOnly.contains(path) || ConnectedWorldContext.isSinglePlayer();
+  }
+
+  protected boolean shouldShowGuiControl(ConfigOption<?> option) {
+    if (!this.isActive(option)) {
+      return false;
+    }
+    return !this.noGuiControl.contains(option.getPath());
   }
 
   @Override
-  public Map<String, List<ConfigOption<?>>> getAllByGroup() {
+  public List<ConfigOption<?>> getAll() {
+    return this.byPath.values().stream().filter(this::isActive).toList();
+  }
+
+  protected Map<String, List<ConfigOption<?>>> getByGroup(Predicate<ConfigOption<?>> predicate) {
     LinkedHashMap<String, List<ConfigOption<?>>> map = new LinkedHashMap<>();
     this.byGroup.forEach((group, options) -> {
-      map.put(group, List.copyOf(options));
+      List<ConfigOption<?>> filtered = options.stream().filter(predicate).toList();
+      if (!filtered.isEmpty()) {
+        map.put(group, filtered);
+      }
     });
     return Collections.unmodifiableMap(map);
   }
 
-  protected boolean updateConfigVersion(int version, com.electronwill.nightconfig.core.Config inMemoryConfigSnapshot) {
-    return false;
+  @Override
+  public Map<String, List<ConfigOption<?>>> getByGroup() {
+    return this.getByGroup(this::isActive);
+  }
+
+  @Override
+  public Map<String, List<ConfigOption<?>>> getByGroupWithGuiControl() {
+    return this.getByGroup(this::shouldShowGuiControl);
+  }
+
+  @Override
+  public void setStoreSuppliedVersion(int version) {
+    this.storeSuppliedVersion = version;
+  }
+
+  @Override
+  public int getStoreSuppliedVersion() {
+    return this.storeSuppliedVersion;
   }
 
   protected <T extends ConfigOption<?>> T register(T option) {
@@ -134,31 +182,21 @@ public abstract class ModConfigImpl implements ModConfig {
     return option;
   }
 
-  protected <T extends ConfigOption<?>, B extends RegistrationBuilderImpl<T, B>> Function<B, T> createCommitHandler(T option) {
-    return (builder) -> {
+  protected <T extends ConfigOption<?>> RegistrationBuilder<T> buildRegistration(T option) {
+    return new RegistrationBuilder<>(option, (builder) -> {
       T outOption = this.register(option);
       ConfigPath path = outOption.getPath();
       if (builder.envType != null) {
-        this.envTypes.put(path, builder.envType);
+        this.envType.put(path, builder.envType);
       }
-      if (!builder.showGui) {
-        this.noControls.add(path);
+      if (builder.noGuiControl) {
+        this.noGuiControl.add(path);
+      }
+      if (builder.singlePlayerOnly) {
+        this.singlePlayerOnly.add(path);
       }
       return outOption;
-    };
-  }
-
-  @SuppressWarnings("unchecked")
-  protected <T extends ConfigOption<?>, B extends RegistrationBuilderImpl<T, B>> BiFunction<T, Function<B, T>, B> getRegistrationBuilderFactory() {
-    return (option, onCommit) -> {
-      return (B) new RegistrationBuilderImpl<>(option, onCommit);
-    };
-  }
-
-  protected <T extends ConfigOption<?>, B extends RegistrationBuilderImpl<T, B>> RegistrationBuilder<T> buildRegistration(
-      T option
-  ) {
-    return new RegistrationBuilderImpl<T, B>(option, this.createCommitHandler(option));
+    });
   }
 
   @FunctionalInterface
@@ -166,47 +204,42 @@ public abstract class ModConfigImpl implements ModConfig {
     void update();
   }
 
-  @FunctionalInterface
-  public interface RegistrationBuilder<T extends ConfigOption<?>> {
-    T commit();
-  }
-
-  public static class RegistrationBuilderImpl<T extends ConfigOption<?>, B extends RegistrationBuilderImpl<T, B>> implements
-      RegistrationBuilder<T> {
+  public static class RegistrationBuilder<T extends ConfigOption<?>> {
     protected final T option;
-    protected final Function<B, T> onCommit;
+    protected final Function<? super RegistrationBuilder<T>, T> onCommit;
 
     protected EnvType envType = null;
-    protected boolean showGui = true;
+    protected boolean noGuiControl = false;
+    protected boolean singlePlayerOnly = false;
 
-    public RegistrationBuilderImpl(T option, Function<B, T> onCommit) {
+    public RegistrationBuilder(T option, Function<? super RegistrationBuilder<T>, T> onCommit) {
       this.option = option;
       this.onCommit = onCommit;
     }
 
-    @SuppressWarnings("unchecked")
-    public B self() {
-      return (B) this;
-    }
-
-    public B clientOnly() {
+    public RegistrationBuilder<T> clientOnly() {
       this.envType = EnvType.CLIENT;
-      return this.self();
+      return this;
     }
 
-    public B serverOnly() {
+    public RegistrationBuilder<T> serverOnly() {
       this.envType = EnvType.SERVER;
-      return this.self();
+      return this;
     }
 
-    public B noGuiControl() {
-      this.showGui = false;
-      return this.self();
+    public RegistrationBuilder<T> noGuiControl() {
+      this.noGuiControl = true;
+      return this;
     }
 
-    @Override
+    public RegistrationBuilder<T> singlePlayerOnly() {
+      this.envType = EnvType.CLIENT;
+      this.singlePlayerOnly = true;
+      return this;
+    }
+
     public T commit() {
-      return this.onCommit.apply(this.self());
+      return this.onCommit.apply(this);
     }
   }
 }

@@ -1,9 +1,10 @@
 package me.roundaround.roundalib.config.option;
 
-import me.roundaround.roundalib.config.manage.ModConfigImpl;
 import me.roundaround.roundalib.config.ConfigPath;
 import me.roundaround.roundalib.config.PendingValueListener;
 import me.roundaround.roundalib.config.SavedValueListener;
+import me.roundaround.roundalib.config.manage.ModConfig;
+import me.roundaround.roundalib.config.manage.ModConfigImpl;
 import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
 import me.roundaround.roundalib.config.panic.Panic;
 import net.minecraft.text.Text;
@@ -130,6 +131,13 @@ public abstract class ConfigOption<D> {
   }
 
   /**
+   * Manually mark this ConfigOption is dirty, which will force it to write its value to the store.
+   */
+  public void markDirty() {
+    this.isDirty = true;
+  }
+
+  /**
    * Whether this ConfigOption has pending changes to its value.
    */
   public boolean isDirty() {
@@ -176,7 +184,7 @@ public abstract class ConfigOption<D> {
 
   /**
    * Marks the value as saved and updates any subscribed listeners. By default, this is called after
-   * {@link ModConfigImpl#writeToFile()} successfully writes any pending values to file. Usually you will
+   * {@link ModConfig#writeToStore()} successfully writes any pending values to file. Usually you will
    * not need to call this yourself.
    */
   public void commit() {
@@ -193,7 +201,7 @@ public abstract class ConfigOption<D> {
 
   /**
    * Sets the ConfigOption to its default value using {@link #setValue}, meaning that the update won't take
-   * effect until it is committed to file with {@link ModConfigImpl#writeToFile}.
+   * effect until it is committed to file with {@link ModConfigImpl#writeToStore()}.
    */
   public void setDefault() {
     this.setValue(this.getDefaultValue());

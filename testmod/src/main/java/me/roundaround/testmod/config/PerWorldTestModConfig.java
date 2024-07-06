@@ -1,11 +1,12 @@
 package me.roundaround.testmod.config;
 
 import me.roundaround.roundalib.config.ConfigPath;
-import me.roundaround.roundalib.config.WorldScopedConfig;
+import me.roundaround.roundalib.config.manage.ModConfigImpl;
+import me.roundaround.roundalib.config.manage.store.WorldScopedFileStore;
 import me.roundaround.roundalib.config.option.BooleanConfigOption;
 import me.roundaround.testmod.TestMod;
 
-public class PerWorldTestModConfig extends WorldScopedConfig {
+public class PerWorldTestModConfig extends ModConfigImpl implements WorldScopedFileStore {
   private static PerWorldTestModConfig instance = null;
 
   public static PerWorldTestModConfig getInstance() {
@@ -36,24 +37,24 @@ public class PerWorldTestModConfig extends WorldScopedConfig {
         .onUpdate((option) -> option.setDisabled(!this.first.getPendingValue()))
         .build());
 
-    this.third = this.register(BooleanConfigOption.builder(ConfigPath.of("pwTestOption2"))
+    this.third = this.buildRegistration(BooleanConfigOption.builder(ConfigPath.of("pwTestOption2"))
         .setDefaultValue(true)
         .onUpdate((option) -> option.setDisabled(!this.first.getPendingValue()))
-        .build(), GuiContext.NOT_IN_GAME);
+        .build()).clientOnly().commit();
 
-    this.fourth = this.register(BooleanConfigOption.builder(ConfigPath.of("pwTestOption3"))
+    this.fourth = this.buildRegistration(BooleanConfigOption.builder(ConfigPath.of("pwTestOption3"))
         .setDefaultValue(true)
         .onUpdate((option) -> option.setDisabled(!this.first.getPendingValue()))
-        .build(), GuiContext.INTEGRATED_SERVER);
+        .build()).singlePlayerOnly().commit();
 
-    this.fifth = this.register(BooleanConfigOption.builder(ConfigPath.of("pwTestOption4"))
+    this.fifth = this.buildRegistration(BooleanConfigOption.builder(ConfigPath.of("pwTestOption4"))
         .setDefaultValue(true)
         .onUpdate((option) -> option.setDisabled(!this.first.getPendingValue()))
-        .build(), GuiContext.DEDICATED_SERVER);
+        .build()).serverOnly().commit();
 
-    this.sixth = this.register(BooleanConfigOption.builder(ConfigPath.of("pwTestOption5"))
+    this.sixth = this.buildRegistration(BooleanConfigOption.builder(ConfigPath.of("pwTestOption5"))
         .setDefaultValue(true)
         .onUpdate((option) -> option.setDisabled(!this.first.getPendingValue()))
-        .build(), GuiContext.INTEGRATED_SERVER, GuiContext.DEDICATED_SERVER);
+        .build()).noGuiControl().commit();
   }
 }

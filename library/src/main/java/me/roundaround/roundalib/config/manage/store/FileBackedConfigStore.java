@@ -15,9 +15,13 @@ import java.util.List;
 public interface FileBackedConfigStore extends ConfigStore {
   Path getConfigDirectory();
 
+  default String getFileName() {
+    return this.getModId();
+  }
+
   default Path getConfigFile() {
     return PathAccessor.getInstance()
-        .getConfigFile(this.getConfigDirectory(), this.getModId(), PathAccessor.ConfigFormat.TOML);
+        .getConfigFile(this.getConfigDirectory(), this.getFileName(), PathAccessor.ConfigFormat.TOML);
   }
 
   @Override
@@ -38,10 +42,12 @@ public interface FileBackedConfigStore extends ConfigStore {
       fileConfig.putAll(config);
     }
 
-    this.getConfigOptionsForStore().forEach((option) -> {
+    this.getAll().forEach((option) -> {
       Object data = fileConfig.get(option.getPath().toString());
       if (data != null) {
         option.deserialize(data);
+      } else {
+        option.markDirty();
       }
     });
   }
@@ -73,7 +79,7 @@ public interface FileBackedConfigStore extends ConfigStore {
     fileConfig.setComment("configVersion", " Config version is auto-generated\n DO NOT CHANGE");
     fileConfig.set("configVersion", this.getVersion());
 
-    Collection<ConfigOption<?>> options = this.getConfigOptionsForStore();
+    Collection<ConfigOption<?>> options = this.getAll();
     options.forEach((option) -> {
       String path = option.getPath().toString();
       List<String> comment = option.getComment();

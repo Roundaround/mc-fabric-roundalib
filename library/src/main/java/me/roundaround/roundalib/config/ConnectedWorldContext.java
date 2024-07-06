@@ -21,6 +21,15 @@ public enum ConnectedWorldContext {
     return this.satisfies(getCurrent());
   }
 
+  public static boolean isSinglePlayer() {
+    if (FabricLoader.getInstance().getEnvironmentType() != EnvType.CLIENT) {
+      return false;
+    }
+
+    ConnectedWorldContext context = getCurrent();
+    return context == NONE || context == INTEGRATED_SERVER;
+  }
+
   public static ConnectedWorldContext getCurrent() {
     if (FabricLoader.getInstance().getEnvironmentType() != EnvType.CLIENT) {
       return NONE;
