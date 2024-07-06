@@ -1,16 +1,14 @@
 package me.roundaround.roundalib.config.manage;
 
-import me.roundaround.roundalib.PathAccessor;
 import me.roundaround.roundalib.config.ConfigPath;
-import me.roundaround.roundalib.config.manage.store.FileBackedConfigStore;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.fabricmc.api.EnvType;
 import net.minecraft.text.Text;
 
-import java.nio.file.Path;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
+import java.util.function.Function;
 
 public abstract class ModConfigImpl implements ModConfig {
   protected final String modId;
@@ -19,7 +17,7 @@ public abstract class ModConfigImpl implements ModConfig {
   protected final LinkedHashMap<String, ArrayList<ConfigOption<?>>> byGroup = new LinkedHashMap<>();
   protected final LinkedHashMap<ConfigPath, ConfigOption<?>> byPath = new LinkedHashMap<>();
   protected final HashMap<ConfigPath, EnvType> envTypes = new HashMap<>();
-  protected final HashMap<ConfigPath, Boolean> noControls = new HashMap<>();
+  protected final HashSet<ConfigPath> noControls = new HashSet<>();
   protected final HashSet<Consumer<ModConfig>> listeners = new HashSet<>();
 
   protected int versionFromFile;
@@ -43,8 +41,6 @@ public abstract class ModConfigImpl implements ModConfig {
     this.configVersion = configVersion;
   }
 
-  protected abstract void registerOptions();
-
   public final void init() {
     if (this.isInitialized) {
       return;
@@ -52,6 +48,12 @@ public abstract class ModConfigImpl implements ModConfig {
     this.onInit();
     this.isInitialized = true;
   }
+
+  protected void onInit() {
+    this.initializeStore();
+  }
+
+  protected abstract void registerOptions();
 
   public Text getLabel() {
     return Text.translatable(this.getModId() + "." + this.getConfigId() + ".title");
@@ -81,8 +83,9 @@ public abstract class ModConfigImpl implements ModConfig {
     return this.byPath.get(path);
   }
 
-  public void updateListeners() {
-    this.byGroup.forEachOption(ConfigOption::update);
+  @Override
+  public void refresh() {
+    ModConfig.super.refresh();
     this.listeners.forEach((listener) -> listener.accept(this));
   }
 
@@ -96,10 +99,6 @@ public abstract class ModConfigImpl implements ModConfig {
     this.listeners.remove(listener);
   }
 
-  protected void onInit() {
-    this.initializeStore();
-  }
-
   @Override
   public void clear() {
     this.byGroup.clear();
@@ -107,147 +106,107 @@ public abstract class ModConfigImpl implements ModConfig {
     this.listeners.clear();
   }
 
+  @Override
+  public List<ConfigOption<?>> getAll() {
+    return List.copyOf(this.byPath.values());
+  }
+
+  @Override
+  public Map<String, List<ConfigOption<?>>> getAllByGroup() {
+    LinkedHashMap<String, List<ConfigOption<?>>> map = new LinkedHashMap<>();
+    this.byGroup.forEach((group, options) -> {
+      map.put(group, List.copyOf(options));
+    });
+    return Collections.unmodifiableMap(map);
+  }
+
   protected boolean updateConfigVersion(int version, com.electronwill.nightconfig.core.Config inMemoryConfigSnapshot) {
     return false;
   }
 
   protected <T extends ConfigOption<?>> T register(T option) {
-    return this.register(option, null, null);
-  }
-
-  protected <T extends ConfigOption<?>> T register(T option, Predicate<T> storagePredicate, Predicate<T> guiPredicate) {
     option.setModId(this.modId);
-    option.subscribePending((value) -> {
-      this.updateListeners();
-    });
+    option.subscribePending((value) -> this.refresh());
 
-    this.byGroup.add(option, storagePredicate, guiPredicate);
+    this.byGroup.computeIfAbsent(option.getGroup(), (group) -> new ArrayList<>()).add(option);
     this.byPath.put(option.getPath(), option);
 
     return option;
   }
 
-  public static class ConfigGroups {
-    private final LinkedHashMap<String, ConfigGroup> store = new LinkedHashMap<>();
-
-    public <T extends ConfigOption<?>> boolean add(T option, Predicate<T> storagePredicate, Predicate<T> guiPredicate) {
-      String groupId = option.getGroup();
-      if (!this.store.containsKey(groupId)) {
-        this.store.put(groupId, new ConfigGroup(groupId));
+  protected <T extends ConfigOption<?>, B extends RegistrationBuilderImpl<T, B>> Function<B, T> createCommitHandler(T option) {
+    return (builder) -> {
+      T outOption = this.register(option);
+      ConfigPath path = outOption.getPath();
+      if (builder.envType != null) {
+        this.envTypes.put(path, builder.envType);
       }
-      this.store.get(groupId).add(option, storagePredicate, guiPredicate);
-      return true;
-    }
-
-    public void clear() {
-      this.store.clear();
-    }
-
-    public void forEachGroup(Consumer<ConfigGroup> consumer) {
-      this.store.forEach((groupId, group) -> consumer.accept(group));
-    }
-
-    public void forEachOption(Consumer<? super ConfigOption<?>> consumer) {
-      this.store.forEach((groupId, group) -> group.forEach(consumer));
-    }
-
-    public Map<String, List<ConfigOption<?>>> all() {
-      LinkedHashMap<String, List<ConfigOption<?>>> map = new LinkedHashMap<>(this.store.size());
-      for (var entry : this.store.entrySet()) {
-        map.put(entry.getKey(), entry.getValue().all())
-      } return map;
-    }
+      if (!builder.showGui) {
+        this.noControls.add(path);
+      }
+      return outOption;
+    };
   }
 
-  public static class ConfigGroup {
-    private final ArrayList<ConfigOptionWithPredicates<?>> store = new ArrayList<>();
-    private final String groupId;
-
-    public ConfigGroup(String groupId) {
-      this.groupId = groupId;
-    }
-
-    public String getGroupId() {
-      return this.groupId;
-    }
-
-    public void clear() {
-      this.store.clear();
-    }
-
-    public <T extends ConfigOption<?>> boolean add(T option, Predicate<T> storagePredicate, Predicate<T> guiPredicate) {
-      return this.store.add(new ConfigOptionWithPredicates<>(option, storagePredicate, guiPredicate));
-    }
-
-    public void forEach(Consumer<? super ConfigOption<?>> consumer) {
-      this.store.forEach(ConfigOptionWithPredicates::get);
-    }
-
-    public List<? extends ConfigOption<?>> all() {
-      return this.store.stream().map(ConfigOptionWithPredicates::get).toList();
-    }
-
-    public List<? extends ConfigOption<?>> forStorage() {
-      return this.store.stream()
-          .filter(ConfigOptionWithPredicates::shouldLoadAndStore)
-          .map(ConfigOptionWithPredicates::get)
-          .toList();
-    }
-
-    public List<? extends ConfigOption<?>> forGui() {
-      return this.store.stream()
-          .filter(ConfigOptionWithPredicates::shouldShowGuiControl)
-          .map(ConfigOptionWithPredicates::get)
-          .toList();
-    }
+  @SuppressWarnings("unchecked")
+  protected <T extends ConfigOption<?>, B extends RegistrationBuilderImpl<T, B>> BiFunction<T, Function<B, T>, B> getRegistrationBuilderFactory() {
+    return (option, onCommit) -> {
+      return (B) new RegistrationBuilderImpl<>(option, onCommit);
+    };
   }
 
-  public static class ConfigOptionWithPredicates<T extends ConfigOption<?>> {
-    private final T option;
-    private final Predicate<T> storagePredicate;
-    private final Predicate<T> guiPredicate;
-
-    public ConfigOptionWithPredicates(
-        T option, Predicate<T> storagePredicate, Predicate<T> guiPredicate
-    ) {
-      this.option = option;
-      this.storagePredicate = storagePredicate == null ? always() : storagePredicate;
-      this.guiPredicate = guiPredicate == null ? always() : guiPredicate;
-    }
-
-    public boolean shouldLoadAndStore() {
-      return this.storagePredicate.test(this.option);
-    }
-
-    public boolean shouldShowGuiControl() {
-      return this.guiPredicate.test(this.option);
-    }
-
-    public T get() {
-      return this.option;
-    }
-
-    public Optional<T> getForStorage() {
-      if (!this.storagePredicate.test(this.option)) {
-        return Optional.empty();
-      }
-      return Optional.of(this.option);
-    }
-
-    public Optional<T> getForGui() {
-      if (!this.guiPredicate.test(this.option)) {
-        return Optional.empty();
-      }
-      return Optional.of(this.option);
-    }
-
-    private static <T> Predicate<T> always() {
-      return (value) -> true;
-    }
+  protected <T extends ConfigOption<?>, B extends RegistrationBuilderImpl<T, B>> RegistrationBuilder<T> buildRegistration(
+      T option
+  ) {
+    return new RegistrationBuilderImpl<T, B>(option, this.createCommitHandler(option));
   }
 
   @FunctionalInterface
   public interface UpdateCallback {
     void update();
+  }
+
+  @FunctionalInterface
+  public interface RegistrationBuilder<T extends ConfigOption<?>> {
+    T commit();
+  }
+
+  public static class RegistrationBuilderImpl<T extends ConfigOption<?>, B extends RegistrationBuilderImpl<T, B>> implements
+      RegistrationBuilder<T> {
+    protected final T option;
+    protected final Function<B, T> onCommit;
+
+    protected EnvType envType = null;
+    protected boolean showGui = true;
+
+    public RegistrationBuilderImpl(T option, Function<B, T> onCommit) {
+      this.option = option;
+      this.onCommit = onCommit;
+    }
+
+    @SuppressWarnings("unchecked")
+    public B self() {
+      return (B) this;
+    }
+
+    public B clientOnly() {
+      this.envType = EnvType.CLIENT;
+      return this.self();
+    }
+
+    public B serverOnly() {
+      this.envType = EnvType.SERVER;
+      return this.self();
+    }
+
+    public B noGuiControl() {
+      this.showGui = false;
+      return this.self();
+    }
+
+    @Override
+    public T commit() {
+      return this.onCommit.apply(this.self());
+    }
   }
 }

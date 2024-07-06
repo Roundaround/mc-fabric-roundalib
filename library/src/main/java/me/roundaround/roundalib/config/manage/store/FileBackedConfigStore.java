@@ -13,19 +13,7 @@ import java.util.Collection;
 import java.util.List;
 
 public interface FileBackedConfigStore extends ConfigStore {
-  String getModId();
-
-  boolean isInitialized();
-
   Path getConfigDirectory();
-
-  default boolean isReady() {
-    return this.isInitialized();
-  }
-
-  default void initializeStore() {
-    this.syncWithStore();
-  }
 
   default Path getConfigFile() {
     return PathAccessor.getInstance()

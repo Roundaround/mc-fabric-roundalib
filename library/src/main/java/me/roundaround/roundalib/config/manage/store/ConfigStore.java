@@ -6,7 +6,11 @@ import me.roundaround.roundalib.config.option.ConfigOption;
 import java.util.Collection;
 
 public interface ConfigStore {
+  String getModId();
+
   int getVersion();
+
+  Collection<ConfigOption<?>> getAllConfigOptions();
 
   Collection<ConfigOption<?>> getConfigOptionsForStore();
 
@@ -18,13 +22,21 @@ public interface ConfigStore {
 
   void writeToStore();
 
-  void refresh();
-
   void clear();
+
+  boolean isInitialized();
+
+  default boolean isReady() {
+    return this.isInitialized();
+  }
 
   default boolean isDirty() {
     return this.getVersion() != this.getStoreSuppliedVersion() ||
         this.getConfigOptionsForStore().stream().anyMatch(ConfigOption::isDirty);
+  }
+
+  default void initializeStore() {
+    this.syncWithStore();
   }
 
   default void syncWithStore() {
@@ -32,6 +44,10 @@ public interface ConfigStore {
     this.readFromStore();
     this.writeToStore();
     this.refresh();
+  }
+
+  default void refresh() {
+    this.getAllConfigOptions().forEach(ConfigOption::update);
   }
 
   default boolean performConfigUpdate(int versionSnapshot, Config inMemoryConfigSnapshot) {
