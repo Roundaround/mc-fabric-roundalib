@@ -8,12 +8,15 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.ScreenRect;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -38,6 +41,7 @@ public class LabelWidget extends DrawableWidget {
   private Spacing bgOverflow;
   private int bgColor;
   private boolean shadow;
+  private Duration tooltipDelay;
   private IntRect textBounds = IntRect.zero();
   private IntRect bgBounds = IntRect.zero();
   private int referenceX;
@@ -63,7 +67,9 @@ public class LabelWidget extends DrawableWidget {
       boolean showBackground,
       int bgColor,
       Spacing bgOverflow,
-      boolean shadow
+      boolean shadow,
+      Tooltip tooltip,
+      Duration tooltipDelay
   ) {
     super(x, y, width, height, ScreenTexts.EMPTY);
 
@@ -82,6 +88,11 @@ public class LabelWidget extends DrawableWidget {
     this.bgColor = bgColor;
     this.bgOverflow = bgOverflow;
     this.shadow = shadow;
+
+    this.setTooltip(tooltip);
+    if (tooltipDelay != null) {
+      this.setTooltipDelay(tooltipDelay);
+    }
 
     this.calculateBounds();
   }
@@ -126,6 +137,9 @@ public class LabelWidget extends DrawableWidget {
       return;
     }
 
+    IntRect hoveredBounds = this.showBackground ? this.bgBounds : this.textBounds;
+    this.hovered = context.scissorContains(mouseX, mouseY) && hoveredBounds.contains(mouseX, mouseY);
+
     if (this.showBackground) {
       context.fill(
           this.bgBounds.left(), this.bgBounds.top(), this.bgBounds.right(), this.bgBounds.bottom(), this.bgColor);
@@ -153,6 +167,12 @@ public class LabelWidget extends DrawableWidget {
     if (overflowBehavior == OverflowBehavior.CLIP) {
       context.disableScissor();
     }
+  }
+
+  @Override
+  public ScreenRect getNavigationFocus() {
+    IntRect boundsRect = this.showBackground ? this.bgBounds : this.textBounds;
+    return boundsRect.toScreenRect();
   }
 
   protected void renderLine(
@@ -329,6 +349,12 @@ public class LabelWidget extends DrawableWidget {
     this.calculateBounds();
   }
 
+  @Override
+  public void setTooltipDelay(Duration tooltipDelay) {
+    this.tooltipDelay = tooltipDelay;
+    super.setTooltipDelay(tooltipDelay);
+  }
+
   public IntRect getTextBounds() {
     return this.textBounds;
   }
@@ -426,7 +452,9 @@ public class LabelWidget extends DrawableWidget {
         .background(this.showBackground)
         .bgColor(this.bgColor)
         .bgOverflow(this.bgOverflow)
-        .shadow(this.shadow);
+        .shadow(this.shadow)
+        .tooltip(this.getTooltip())
+        .tooltipDelay(this.tooltipDelay);
   }
 
   public static Builder builder(TextRenderer textRenderer, Text text) {
@@ -485,6 +513,8 @@ public class LabelWidget extends DrawableWidget {
     private int bgColor = GuiUtil.BACKGROUND_COLOR;
     private Spacing bgOverflow = Spacing.of(1, 0, 0, 1);
     private boolean shadow = false;
+    private Tooltip tooltip = null;
+    private Duration tooltipDelay = null;
 
     public Builder(TextRenderer textRenderer) {
       this(textRenderer, List.of());
@@ -662,10 +692,25 @@ public class LabelWidget extends DrawableWidget {
       return this;
     }
 
+    public Builder tooltip(Text tooltip) {
+      return this.tooltip(Tooltip.of(tooltip));
+    }
+
+    public Builder tooltip(Tooltip tooltip) {
+      this.tooltip = tooltip;
+      return this;
+    }
+
+    public Builder tooltipDelay(Duration tooltipDelay) {
+      this.tooltipDelay = tooltipDelay;
+      return this;
+    }
+
     public LabelWidget build() {
       return new LabelWidget(this.textRenderer, this.lines, this.color, this.positionMode, this.x, this.y, this.width,
           this.height, this.alignmentH, this.alignmentV, this.padding, this.overflowBehavior, this.scrollMargin,
-          this.maxLines, this.lineSpacing, this.background, this.bgColor, this.bgOverflow, this.shadow
+          this.maxLines, this.lineSpacing, this.background, this.bgColor, this.bgOverflow, this.shadow, this.tooltip,
+          this.tooltipDelay
       );
     }
   }

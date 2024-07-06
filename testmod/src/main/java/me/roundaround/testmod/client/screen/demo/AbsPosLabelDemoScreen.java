@@ -122,6 +122,7 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
         .alignedVertically(alignmentY)
         .overflowBehavior(OverflowBehavior.SHOW)
         .maxLines(3)
+        .tooltip(Text.of("WOW"))
         .build();
 
     this.labels.add(label);
