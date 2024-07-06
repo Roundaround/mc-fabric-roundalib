@@ -82,10 +82,10 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
       return null;
     }
 
-    entry.setAlternatingRowShading(this.alternatingRowShading);
-    entry.setRowShadeFadeWidth(this.shadeFadeWidth);
-    entry.setRowShadeStrength(this.shadeStrength);
-    entry.setAutoPadForShading(this.autoPadForShading);
+    entry.setDefaultAlternatingRowShading(this.alternatingRowShading);
+    entry.setDefaultRowShadeFadeWidth(this.shadeFadeWidth);
+    entry.setDefaultRowShadeStrength(this.shadeStrength);
+    entry.setDefaultAutoPadForShading(this.autoPadForShading);
 
     boolean wasScrollbarVisible = this.isScrollbarVisible();
 
@@ -635,11 +635,17 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     protected int width;
     protected double scrollAmount = 0;
     protected Spacing margin = DEFAULT_MARGIN;
-    protected boolean forceRowShading = false;
-    protected boolean alternatingRowShading = false;
-    protected int shadeFadeWidth = DEFAULT_SHADE_FADE_WIDTH;
-    protected int shadeStrength = DEFAULT_SHADE_STRENGTH;
-    protected boolean autoPadForShading = true;
+
+    private boolean defaultForceRowShading = false;
+    private boolean defaultAlternatingRowShading = false;
+    private int defaultShadeFadeWidth = DEFAULT_SHADE_FADE_WIDTH;
+    private int defaultShadeStrength = DEFAULT_SHADE_STRENGTH;
+    private boolean defaultAutoPadForShading = true;
+    private Boolean forceRowShading = null;
+    private Boolean alternatingRowShading = null;
+    private Integer shadeFadeWidth = null;
+    private Integer shadeStrength = null;
+    private Boolean autoPadForShading = null;
 
     protected Entry(int index, int x, int y, int width, int contentHeight) {
       this.index = index;
@@ -700,6 +706,14 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     }
 
     protected void renderRowShade(DrawContext context) {
+      renderRowShade(context, this.getX(), this.getY(), this.getRight(), this.getBottom(), this.getRowShadeFadeWidth(),
+          this.getRowShadeStrength()
+      );
+    }
+
+    protected static void renderRowShade(
+        DrawContext context, int left, int top, int right, int bottom, int fadeWidth, int shadeStrength
+    ) {
       RenderSystem.enableBlend();
       RenderSystem.defaultBlendFunc();
       RenderSystem.setShader(GameRenderer::getPositionColorProgram);
@@ -708,25 +722,20 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
       BufferBuilder bufferBuilder = tessellator.getBuffer();
       Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
 
-      int left = this.getX();
-      int right = this.getRight();
-      int top = this.getY();
-      int bottom = this.getBottom();
-
       bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-      bufferBuilder.vertex(matrix4f, left + this.shadeFadeWidth, top, 0).color(0, 0, 0, this.shadeStrength).next();
+      bufferBuilder.vertex(matrix4f, left + fadeWidth, top, 0).color(0, 0, 0, shadeStrength).next();
       bufferBuilder.vertex(matrix4f, left, top, 0).color(0, 0, 0, 0).next();
       bufferBuilder.vertex(matrix4f, left, bottom, 0).color(0, 0, 0, 0).next();
-      bufferBuilder.vertex(matrix4f, left + this.shadeFadeWidth, bottom, 0).color(0, 0, 0, this.shadeStrength).next();
+      bufferBuilder.vertex(matrix4f, left + fadeWidth, bottom, 0).color(0, 0, 0, shadeStrength).next();
 
-      bufferBuilder.vertex(matrix4f, right - this.shadeFadeWidth, top, 0).color(0, 0, 0, this.shadeStrength).next();
-      bufferBuilder.vertex(matrix4f, left + this.shadeFadeWidth, top, 0).color(0, 0, 0, this.shadeStrength).next();
-      bufferBuilder.vertex(matrix4f, left + this.shadeFadeWidth, bottom, 0).color(0, 0, 0, this.shadeStrength).next();
-      bufferBuilder.vertex(matrix4f, right - this.shadeFadeWidth, bottom, 0).color(0, 0, 0, this.shadeStrength).next();
+      bufferBuilder.vertex(matrix4f, right - fadeWidth, top, 0).color(0, 0, 0, shadeStrength).next();
+      bufferBuilder.vertex(matrix4f, left + fadeWidth, top, 0).color(0, 0, 0, shadeStrength).next();
+      bufferBuilder.vertex(matrix4f, left + fadeWidth, bottom, 0).color(0, 0, 0, shadeStrength).next();
+      bufferBuilder.vertex(matrix4f, right - fadeWidth, bottom, 0).color(0, 0, 0, shadeStrength).next();
 
       bufferBuilder.vertex(matrix4f, right, top, 0).color(0, 0, 0, 0).next();
-      bufferBuilder.vertex(matrix4f, right - this.shadeFadeWidth, top, 0).color(0, 0, 0, this.shadeStrength).next();
-      bufferBuilder.vertex(matrix4f, right - this.shadeFadeWidth, bottom, 0).color(0, 0, 0, this.shadeStrength).next();
+      bufferBuilder.vertex(matrix4f, right - fadeWidth, top, 0).color(0, 0, 0, shadeStrength).next();
+      bufferBuilder.vertex(matrix4f, right - fadeWidth, bottom, 0).color(0, 0, 0, shadeStrength).next();
       bufferBuilder.vertex(matrix4f, right, bottom, 0).color(0, 0, 0, 0).next();
       tessellator.draw();
 
@@ -850,31 +859,77 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     }
 
     public int getShadingPadding() {
-      return (this.alternatingRowShading || this.forceRowShading) && this.autoPadForShading ? this.shadeFadeWidth : 0;
+      return (this.getAlternatingRowShading() || this.getForceRowShading()) && this.getAutoPadForShading() ?
+          this.getRowShadeFadeWidth() :
+          0;
     }
 
     public boolean hasRowShading() {
-      return (this.alternatingRowShading && this.index % 2 == 0) || this.forceRowShading;
+      return (this.getAlternatingRowShading() && this.index % 2 == 0) || this.getForceRowShading();
     }
 
     protected void setForceRowShading(boolean forceRowShading) {
       this.forceRowShading = forceRowShading;
     }
 
+    protected void setDefaultForceRowShading(boolean forceRowShading) {
+      this.defaultForceRowShading = forceRowShading;
+    }
+
+    protected boolean getForceRowShading() {
+      return valueOrDefault(this.forceRowShading, this.defaultForceRowShading);
+    }
+
     protected void setAlternatingRowShading(boolean alternatingRowShading) {
       this.alternatingRowShading = alternatingRowShading;
+    }
+
+    protected void setDefaultAlternatingRowShading(boolean alternatingRowShading) {
+      this.defaultAlternatingRowShading = alternatingRowShading;
+    }
+
+    protected boolean getAlternatingRowShading() {
+      return valueOrDefault(this.alternatingRowShading, this.defaultAlternatingRowShading);
     }
 
     protected void setRowShadeFadeWidth(int width) {
       this.shadeFadeWidth = width;
     }
 
+    protected void setDefaultRowShadeFadeWidth(int width) {
+      this.defaultShadeFadeWidth = width;
+    }
+
+    protected int getRowShadeFadeWidth() {
+      return valueOrDefault(this.shadeFadeWidth, this.defaultShadeFadeWidth);
+    }
+
     protected void setRowShadeStrength(int strength) {
       this.shadeStrength = strength;
     }
 
+    protected void setDefaultRowShadeStrength(int strength) {
+      this.defaultShadeStrength = strength;
+    }
+
+    protected int getRowShadeStrength() {
+      return valueOrDefault(this.shadeStrength, this.defaultShadeStrength);
+    }
+
     protected void setAutoPadForShading(boolean autoPad) {
       this.autoPadForShading = autoPad;
+    }
+
+    protected void setDefaultAutoPadForShading(boolean autoPad) {
+      this.defaultAutoPadForShading = autoPad;
+    }
+
+    protected boolean getAutoPadForShading() {
+      return valueOrDefault(this.autoPadForShading, this.defaultAutoPadForShading);
+    }
+
+    private static <T> T valueOrDefault(T value, T other) {
+      return value == null ? other : value;
     }
   }
 

@@ -9,6 +9,7 @@ import me.roundaround.roundalib.config.panic.IllegalStatePanic;
 import me.roundaround.roundalib.config.panic.Panic;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.text.Text;
@@ -50,7 +51,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
 
   protected void addConfigEntry(Text label) {
     this.addEntry(
-        (index, left, top, width) -> new GroupEntry(this.client.textRenderer, label, index, left, top, width));
+        (index, left, top, width) -> new ConfigEntry(this.client.textRenderer, label, index, left, top, width));
   }
 
   protected void addGroupEntry(String group) {
@@ -111,18 +112,15 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     }
   }
 
-  public static class GroupEntry extends Entry {
-    protected static final int HEIGHT = 20;
+  public static class ConfigEntry extends Entry {
+    protected static final int HEIGHT = 20 + GuiUtil.PADDING;
 
     protected final LabelWidget label;
 
-    protected GroupEntry(
-        TextRenderer textRenderer, Text label, int index, int left, int top, int width
-    ) {
+    protected ConfigEntry(TextRenderer textRenderer, Text label, int index, int left, int top, int width) {
       super(index, left, top, width, HEIGHT);
 
-      this.setForceRowShading(true);
-      this.setRowShadeStrength(DEFAULT_SHADE_STRENGTH_STRONG);
+      this.setMarginY(DEFAULT_MARGIN.getVertical() + GuiUtil.PADDING);
 
       this.label = LabelWidget.builder(textRenderer, label)
           .refPosition(this.getContentCenterX(), this.getContentCenterY())
@@ -143,6 +141,54 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
         this.label.setPosition(this.getContentCenterX(), this.getContentCenterY());
         this.label.setDimensions(this.getContentWidth(), this.getContentHeight());
       });
+    }
+
+    @Override
+    protected void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
+      renderRowShade(context, this.getContentLeft(), this.getContentTop(), this.getContentRight(),
+          this.getContentBottom(), DEFAULT_SHADE_FADE_WIDTH * 3, DEFAULT_SHADE_STRENGTH_STRONG
+      );
+    }
+  }
+
+  public static class GroupEntry extends Entry {
+    protected static final int HEIGHT = 20 + GuiUtil.PADDING / 2;
+
+    protected final LabelWidget label;
+
+    protected GroupEntry(
+        TextRenderer textRenderer, Text label, int index, int left, int top, int width
+    ) {
+      super(index, left, top, width, HEIGHT);
+
+      this.setMarginY(DEFAULT_MARGIN.getVertical());
+
+      this.label = LabelWidget.builder(textRenderer, label)
+          .refPosition(this.getContentCenterX(), this.getContentCenterY())
+          .dimensions(this.getContentWidth(), this.getContentHeight())
+          .justifiedCenter()
+          .alignedMiddle()
+          .overflowBehavior(LabelWidget.OverflowBehavior.SCROLL)
+          .showShadow()
+          .hideBackground()
+          .build();
+
+      this.addDrawableChild(this.label);
+    }
+
+    @Override
+    public void refreshPositions() {
+      this.label.batchUpdates(() -> {
+        this.label.setPosition(this.getContentCenterX(), this.getContentCenterY());
+        this.label.setDimensions(this.getContentWidth(), this.getContentHeight());
+      });
+    }
+
+    @Override
+    protected void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
+      renderRowShade(context, this.getContentLeft(), this.getContentTop(), this.getContentRight(),
+          this.getContentBottom(), DEFAULT_SHADE_FADE_WIDTH, DEFAULT_SHADE_STRENGTH
+      );
     }
   }
 
