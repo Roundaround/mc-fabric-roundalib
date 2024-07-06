@@ -3,7 +3,7 @@ package me.roundaround.roundalib.client.gui.screen;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.FullBodyWrapperWidget;
 import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
-import me.roundaround.roundalib.config.Config;
+import me.roundaround.roundalib.config.manage.ModConfig;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.DirectionalLayoutWidget;
@@ -19,29 +19,29 @@ public class ConfigScreen extends Screen {
 
   private final Screen parent;
   private final String modId;
-  private final ArrayList<Config> configs = new ArrayList<>();
+  private final ArrayList<ModConfig> configs = new ArrayList<>();
   private ConfigListWidget configListWidget;
   private CloseAction closeAction = CloseAction.NOOP;
 
-  public ConfigScreen(Screen parent, String modId, Config... configs) {
+  public ConfigScreen(Screen parent, String modId, ModConfig... configs) {
     this(Text.translatable(modId + ".config.title"), parent, modId, configs);
   }
 
-  public ConfigScreen(Screen parent, String modId, Iterable<Config> configs) {
+  public ConfigScreen(Screen parent, String modId, Iterable<ModConfig> configs) {
     this(Text.translatable(modId + ".config.title"), parent, modId, configs);
   }
 
-  public ConfigScreen(Text title, Screen parent, String modId, Config... configs) {
+  public ConfigScreen(Text title, Screen parent, String modId, ModConfig... configs) {
     this(title, parent, modId, List.of(configs));
   }
 
-  public ConfigScreen(Text title, Screen parent, String modId, Iterable<Config> configs) {
+  public ConfigScreen(Text title, Screen parent, String modId, Iterable<ModConfig> configs) {
     super(title);
     this.parent = parent;
     this.modId = modId;
 
-    for (Config config : configs) {
-      if (config.canShowInGui()) {
+    for (ModConfig config : configs) {
+      if (config.isReady()) {
         this.configs.add(config);
       }
     }
@@ -103,17 +103,17 @@ public class ConfigScreen extends Screen {
     this.configListWidget.tick();
   }
 
-  protected void update(Config config) {
+  protected void update(ModConfig config) {
     this.configListWidget.update();
   }
 
   private void cancel(ButtonWidget button) {
-    this.closeAction = Config::readFile;
+    this.closeAction = ModConfig::readFromStore;
     this.close();
   }
 
   private void done(ButtonWidget button) {
-    this.closeAction = Config::writeToFile;
+    this.closeAction = ModConfig::writeToStore;
     this.close();
   }
 
@@ -122,6 +122,6 @@ public class ConfigScreen extends Screen {
     CloseAction NOOP = (config) -> {
     };
 
-    void run(Config config);
+    void run(ModConfig config);
   }
 }

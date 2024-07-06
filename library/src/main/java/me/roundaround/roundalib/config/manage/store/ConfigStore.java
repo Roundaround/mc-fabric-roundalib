@@ -20,6 +20,8 @@ public interface ConfigStore {
 
   void refresh();
 
+  void clear();
+
   default boolean isDirty() {
     return this.getVersion() != this.getStoreSuppliedVersion() ||
         this.getConfigOptionsForStore().stream().anyMatch(ConfigOption::isDirty);

@@ -2,8 +2,8 @@ package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.*;
-import me.roundaround.roundalib.config.Config;
 import me.roundaround.roundalib.config.ConnectedWorldContext;
+import me.roundaround.roundalib.config.manage.ModConfig;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.panic.IllegalStatePanic;
 import me.roundaround.roundalib.config.panic.Panic;
@@ -21,15 +21,17 @@ import java.util.Objects;
 
 public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWidget.Entry> {
   protected final String modId;
-  protected final List<Config> configs;
+  protected final List<ModConfig> configs;
 
-  public ConfigListWidget(MinecraftClient client, ThreePartsLayoutWidget layout, String modId, List<Config> configs) {
+  public ConfigListWidget(
+      MinecraftClient client, ThreePartsLayoutWidget layout, String modId, List<ModConfig> configs
+  ) {
     super(client, layout);
 
     this.modId = modId;
     this.configs = List.copyOf(configs);
 
-    HashSet<Config.GuiContext> contexts = this.getCurrentMatchingGuiContexts();
+    HashSet<ModConfig.GuiContext> contexts = this.getCurrentMatchingGuiContexts();
     configs.forEach((config) -> {
       if (config.getOptionsByGroup().isEmpty(contexts)) {
         return;
@@ -39,7 +41,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
         this.addConfigEntry(config);
       }
 
-      Config.ConfigGroups groups = config.getOptionsByGroup();
+      ModConfig.ConfigGroups groups = config.getOptionsByGroup();
       groups.forEachGroup((group) -> {
         String groupId = group.getGroupId();
         if (groupId != null && !groupId.isBlank()) {
@@ -51,7 +53,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     });
   }
 
-  protected void addConfigEntry(Config config) {
+  protected void addConfigEntry(ModConfig config) {
     this.addEntry(
         (index, left, top, width) -> new GroupEntry(this.client.textRenderer, config.getLabel(), index, left, top,
             width

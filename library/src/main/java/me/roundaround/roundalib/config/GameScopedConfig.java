@@ -1,10 +1,11 @@
 package me.roundaround.roundalib.config;
 
 import me.roundaround.roundalib.PathAccessor;
+import me.roundaround.roundalib.config.manage.ModConfigImpl;
 
 import java.nio.file.Path;
 
-public abstract class GameScopedConfig extends Config {
+public abstract class GameScopedConfig extends ModConfigImpl {
   protected GameScopedConfig(String modId) {
     super(modId);
   }

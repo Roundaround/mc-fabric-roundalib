@@ -7,8 +7,6 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import java.nio.file.Path;
 
 public interface WorldScopedFileStore extends FileBackedConfigStore {
-  void clear();
-
   @Override
   default boolean isReady() {
     return FileBackedConfigStore.super.isReady() && PathAccessor.getInstance().isWorldDirAccessible();
