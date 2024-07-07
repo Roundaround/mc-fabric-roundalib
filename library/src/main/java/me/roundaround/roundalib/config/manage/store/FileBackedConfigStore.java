@@ -31,7 +31,7 @@ public interface FileBackedConfigStore extends ConfigStore {
       return;
     }
 
-    CommentedFileConfig fileConfig = CommentedFileConfig.builder(configPath).preserveInsertionOrder().build();
+    CommentedFileConfig fileConfig = CommentedFileConfig.builder(configPath).preserveInsertionOrder().sync().build();
 
     fileConfig.load();
     fileConfig.close();
@@ -74,7 +74,7 @@ public interface FileBackedConfigStore extends ConfigStore {
       return;
     }
 
-    CommentedFileConfig fileConfig = CommentedFileConfig.builder(configPath).preserveInsertionOrder().build();
+    CommentedFileConfig fileConfig = CommentedFileConfig.builder(configPath).preserveInsertionOrder().sync().build();
 
     fileConfig.setComment("configVersion", " Config version is auto-generated\n DO NOT CHANGE");
     fileConfig.set("configVersion", this.getVersion());
