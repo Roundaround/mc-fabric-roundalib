@@ -9,17 +9,11 @@ val nightConfig: Configuration by configurations.creating {
   isCanBeConsumed = false
 }
 
-configurations.all {
-  resolutionStrategy {
-    cacheChangingModulesFor(0, "seconds")
-  }
-}
-
 dependencies {
-  implementation("com.electronwill.night-config:core:3.7.2")
-  nightConfig("com.electronwill.night-config:core:3.7.2")
-  implementation("com.electronwill.night-config:toml:3.7.2")
-  nightConfig("com.electronwill.night-config:toml:3.7.2")
+  implementation("com.electronwill.night-config:core:3.7.4")
+  nightConfig("com.electronwill.night-config:core:3.7.4")
+  implementation("com.electronwill.night-config:toml:3.7.4")
+  nightConfig("com.electronwill.night-config:toml:3.7.4")
 }
 
 tasks.jar {
@@ -34,7 +28,7 @@ tasks.shadowJar {
 
   configurations = listOf(nightConfig)
 
-  relocate("com.electronwill.nightconfig", "me.roundaround.roundalib.shadow.nightconfig")
+  relocate("com.electronwill.nightconfig", "me.roundaround.roundalib.nightconfig")
 }
 
 tasks.remapJar {

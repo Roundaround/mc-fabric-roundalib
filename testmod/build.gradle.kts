@@ -8,18 +8,12 @@ val testModId = project.properties["mod_id"].toString()
 
 val roundaLibConfig: Configuration = configurations.create("roundaLibConfig")
 
-configurations.all {
-  resolutionStrategy {
-    cacheChangingModulesFor(0, "seconds")
-  }
-}
-
 dependencies {
   implementation(project(path = ":library", configuration = "namedElements"))
   roundaLibConfig(project(path = ":library", configuration = "namedElements"))
 
-  implementation("com.electronwill.night-config:core:3.6.5")
-  implementation("com.electronwill.night-config:toml:3.6.5")
+  implementation("com.electronwill.night-config:core:3.7.4")
+  implementation("com.electronwill.night-config:toml:3.7.4")
 }
 
 val importLangFiles = tasks.register<me.roundaround.roundalib.gradle.tasks.ImportLangFilesTask>("importLangFiles") {
