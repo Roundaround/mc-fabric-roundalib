@@ -1,10 +1,18 @@
 pluginManagement {
   repositories {
     gradlePluginPortal()
-    mavenLocal()
-    maven("https://maven.fabricmc.net/")
-//    maven("https://maven.rnda.dev/releases/")
-    includeBuild("../mc-roundalib-gradle")
+    maven {
+      name = "Fabric"
+      url = uri("https://maven.fabricmc.net/")
+    }
+    maven {
+      name = "Roundaround"
+      url = uri("https://maven.rnda.dev/snapshots/")
+      metadataSources {
+        mavenPom()
+        artifact()
+      }
+    }
   }
 }
 

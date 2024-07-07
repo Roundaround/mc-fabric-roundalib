@@ -1,12 +1,18 @@
 plugins {
   id("io.github.goooler.shadow") version "8.1.7"
-  id("roundalib")
+  id("roundalib") version "0.7.0-SNAPSHOT"
 }
 
 val nightConfig: Configuration by configurations.creating {
   isTransitive = false
   isCanBeResolved = true
   isCanBeConsumed = false
+}
+
+configurations.all {
+  resolutionStrategy {
+    cacheChangingModulesFor(0, "seconds")
+  }
 }
 
 dependencies {
