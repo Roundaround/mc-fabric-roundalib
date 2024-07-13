@@ -40,7 +40,7 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
   protected void init() {
     LinearLayoutWidget header = LinearLayoutWidget.vertical((self) -> {
       self.setDimensions(this.width, this.layout.getHeaderHeight());
-    }).spacing(GuiUtil.PADDING / 2).centered();
+    }).spacing(GuiUtil.PADDING / 2).centeredMain();
     header.getMainPositioner().alignHorizontalCenter();
     this.layout.addHeader(header);
 

@@ -23,7 +23,7 @@ public abstract class Control<D, O extends ConfigOption<D>> extends LinearLayout
     this.client = client;
     this.option = option;
 
-    this.spacing(GuiUtil.PADDING / 2).alignedEnd();
+    this.spacing(GuiUtil.PADDING / 2).alignedEndMain();
     this.getMainPositioner().alignVerticalCenter();
   }
 

@@ -108,7 +108,7 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
         parent.getHeight() - label.getHeight() - IconButtonWidget.SIZE_V - 2 * parent.getSpacing()
     ));
 
-    LinearLayoutWidget controlsRow = rightPane.add(LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING).centered());
+    LinearLayoutWidget controlsRow = rightPane.add(LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING).centeredMain());
     controlsRow.getMainPositioner().alignVerticalCenter();
 
     controlsRow.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.PREV_18, TestMod.MOD_ID)

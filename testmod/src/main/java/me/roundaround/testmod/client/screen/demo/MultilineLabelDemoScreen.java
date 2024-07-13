@@ -44,20 +44,18 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
 
   @Override
   protected void init() {
-    LinearLayoutWidget header = this.layout.addHeader(LinearLayoutWidget.vertical((self) -> {
-      self.setPosition(GuiUtil.PADDING, GuiUtil.PADDING);
-      self.setWidth(this.layout.getWidth() - 2 * GuiUtil.PADDING);
-    }).spacing(GuiUtil.PADDING / 2));
-    header.getMainPositioner().alignHorizontalCenter();
+    LinearLayoutWidget header = this.layout.addHeader(
+        LinearLayoutWidget.vertical().spacing(GuiUtil.PADDING / 2).centeredMain().centeredOff());
 
-    header.add(LabelWidget.builder(this.textRenderer, this.getTitle())
-        .justifiedCenter()
-        .hideBackground()
-        .showShadow()
-        .build());
+    header.add(
+        LabelWidget.builder(this.textRenderer, this.getTitle()).justifiedCenter().hideBackground().showShadow().build(),
+        (positioner) -> positioner.marginTop(GuiUtil.PADDING)
+    );
 
-    LinearLayoutWidget buttonRow = header.add(LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING).centered());
-    buttonRow.getMainPositioner().alignVerticalCenter();
+    LinearLayoutWidget buttonRow = header.add(
+        LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING).centeredMain().centeredOff(),
+        (positioner) -> positioner.marginBottom(GuiUtil.PADDING)
+    );
 
     buttonRow.add(
         new CyclingButtonWidget.Builder<OverflowBehavior>((value) -> value.getDisplayText(TestMod.MOD_ID)).values(
@@ -82,7 +80,7 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
         .onPress((button) -> this.onLineCountChange(this.lineCount + 1))
         .build());
 
-    this.layout.setHeaderHeight(header.getHeight() + 2 * GuiUtil.PADDING);
+    this.layout.setHeaderHeight(header.getHeight());
 
     LayoutCollectionWidget body = this.layout.addBody(LayoutCollectionWidget.create());
     this.label = body.add(LabelWidget.builder(this.textRenderer, this.generateLines())

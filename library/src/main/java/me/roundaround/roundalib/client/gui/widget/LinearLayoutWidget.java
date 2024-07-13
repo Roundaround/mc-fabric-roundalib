@@ -4,7 +4,6 @@ import me.roundaround.roundalib.client.gui.layout.Coords;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.LayoutWidget;
 import net.minecraft.client.gui.widget.Positioner;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.util.Util;
@@ -16,7 +15,6 @@ import java.util.function.Consumer;
 @Environment(EnvType.CLIENT)
 public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> {
   private final Positioner positioner = Positioner.create();
-  private final List<Widget> widgets = new ArrayList<>();
   private final List<CellWidget<?>> cells = new ArrayList<>();
 
   private Axis flowAxis;
@@ -87,34 +85,38 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
   public <T extends Widget> T add(
       T widget, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook, Positioner positioner
   ) {
-    this.widgets.add(widget);
     this.cells.add(new CellWidget<>(widget, layoutHook, positioner));
+    this.calculateContentDimensions();
     return widget;
   }
 
   public List<Widget> getChildren() {
-    return this.widgets;
+    return this.cells.stream().map((cell) -> (Widget) cell.getChild()).toList();
   }
 
   @Override
   public void forEachElement(Consumer<Widget> consumer) {
-    this.widgets.forEach(consumer);
+    this.getChildren().forEach(consumer);
+  }
+
+  private void calculateContentDimensions() {
+    this.totalSpacing = Math.max(0, this.cells.size() - 1) * this.spacing;
+    this.contentMain = this.cells.stream().mapToInt(this.flowAxis::getDimension).sum() + this.totalSpacing;
+    this.contentOff = this.cells.stream().mapToInt(this.flowAxis::getOffDimension).max().orElse(0);
   }
 
   @Override
   public void beforeRefreshPositions() {
     super.beforeRefreshPositions();
-    this.cells.forEach((cell) -> cell.onLayout(this));
-
-    this.totalSpacing = Math.max(0, this.widgets.size() - 1) * this.spacing;
-    this.contentMain = this.cells.stream().mapToInt(this.flowAxis::getDimension).sum() + this.totalSpacing;
-    this.contentOff = this.cells.stream().mapToInt(this.flowAxis::getOffDimension).max().orElse(0);
+    this.calculateContentDimensions();
 
     int mainStart = (int) -(this.flowAxis.getDimension(this) * this.relative);
     int offSize = this.flowAxis.getOffDimension(this);
     int mainRef = mainStart - this.spacing;
 
     for (CellWidget<?> cell : this.cells) {
+      cell.onLayout(this);
+
       int main = mainRef + this.spacing + this.flowAxis.getLeadingMargin(cell.positioner);
 
       int offRef = (int) ((offSize - this.flowAxis.getOffDimension(cell)) *
@@ -124,10 +126,6 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
       this.flowAxis.setPosition(cell, this.getX(), this.getY(), main, off);
 
       mainRef += this.flowAxis.getDimension(cell) + this.spacing;
-
-      if (cell.child instanceof LayoutWidget layout) {
-        layout.refreshPositions();
-      }
     }
   }
 
@@ -156,20 +154,40 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
     return this.spacing;
   }
 
-  public LinearLayoutWidget alignedStart() {
-    return this.aligned(0f);
+  public LinearLayoutWidget alignedStartMain() {
+    return this.alignedMain(0f);
   }
 
-  public LinearLayoutWidget centered() {
-    return this.aligned(0.5f);
+  public LinearLayoutWidget centeredMain() {
+    return this.alignedMain(0.5f);
   }
 
-  public LinearLayoutWidget alignedEnd() {
-    return this.aligned(1f);
+  public LinearLayoutWidget alignedEndMain() {
+    return this.alignedMain(1f);
   }
 
-  public LinearLayoutWidget aligned(float relative) {
+  public LinearLayoutWidget alignedMain(float relative) {
     this.relative = relative;
+    return this;
+  }
+
+  public LinearLayoutWidget alignedStartOff() {
+    return this.alignedOff(0f);
+  }
+
+  public LinearLayoutWidget centeredOff() {
+    return this.alignedOff(0.5f);
+  }
+
+  public LinearLayoutWidget alignedEndOff() {
+    return this.alignedOff(1f);
+  }
+
+  public LinearLayoutWidget alignedOff(float relative) {
+    switch (this.flowAxis) {
+      case HORIZONTAL -> this.positioner.relativeY(relative);
+      case VERTICAL -> this.positioner.relativeX(relative);
+    }
     return this;
   }
 
