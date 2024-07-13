@@ -4,6 +4,7 @@ import me.roundaround.roundalib.client.gui.layout.Coords;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.gui.widget.LayoutWidget;
 import net.minecraft.client.gui.widget.Positioner;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.util.Util;
@@ -20,9 +21,10 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
 
   private Axis flowAxis;
   private int spacing;
-  private Float relative = null;
+  private float relative;
   private int totalSpacing;
-  private int contentSize;
+  private int contentMain;
+  private int contentOff;
 
   public LinearLayoutWidget(Axis flowAxis, LayoutHook<LinearLayoutWidget> layoutHook) {
     this(flowAxis, 0, 0, 0, 0, layoutHook);
@@ -102,17 +104,18 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
   @Override
   public void beforeRefreshPositions() {
     super.beforeRefreshPositions();
+    this.cells.forEach((cell) -> cell.onLayout(this));
 
     this.totalSpacing = Math.max(0, this.widgets.size() - 1) * this.spacing;
-    this.contentSize = this.cells.stream().mapToInt(this.flowAxis::getDimension).sum() + this.totalSpacing;
+    this.contentMain = this.cells.stream().mapToInt(this.flowAxis::getDimension).sum() + this.totalSpacing;
+    this.contentOff = this.cells.stream().mapToInt(this.flowAxis::getOffDimension).max().orElse(0);
 
+    int mainStart = (int) -(this.flowAxis.getDimension(this) * this.relative);
     int offSize = this.flowAxis.getOffDimension(this);
-    int pos = this.getRelativeOffset() - this.spacing;
+    int mainRef = mainStart - this.spacing;
 
     for (CellWidget<?> cell : this.cells) {
-      cell.onLayout(this);
-
-      int main = pos + this.spacing + this.flowAxis.getLeadingMargin(cell.positioner);
+      int main = mainRef + this.spacing + this.flowAxis.getLeadingMargin(cell.positioner);
 
       int offRef = (int) ((offSize - this.flowAxis.getOffDimension(cell)) *
           this.flowAxis.getOffRelative(cell.positioner));
@@ -120,7 +123,11 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
 
       this.flowAxis.setPosition(cell, this.getX(), this.getY(), main, off);
 
-      pos += this.flowAxis.getDimension(cell) + this.spacing;
+      mainRef += this.flowAxis.getDimension(cell) + this.spacing;
+
+      if (cell.child instanceof LayoutWidget layout) {
+        layout.refreshPositions();
+      }
     }
   }
 
@@ -174,16 +181,22 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
     return this.totalSpacing;
   }
 
-  public int getContentSize() {
-    return this.contentSize;
+  public int getContentMain() {
+    return this.contentMain;
   }
 
-  protected int getRelativeOffset() {
-    if (this.relative == null || this.widgets.isEmpty()) {
-      return 0;
-    }
+  public int getContentOff() {
+    return this.contentOff;
+  }
 
-    return (int) ((this.flowAxis.getDimension(this) - this.contentSize) * this.relative);
+  @Override
+  public int getWidth() {
+    return this.width != 0 ? this.width : this.flowAxis.getWidth(this.contentMain, this.contentOff);
+  }
+
+  @Override
+  public int getHeight() {
+    return this.height != 0 ? this.height : this.flowAxis.getHeight(this.contentMain, this.contentOff);
   }
 
   @Environment(EnvType.CLIENT)
@@ -194,6 +207,20 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
       return switch (this) {
         case HORIZONTAL -> Coords.of(main, off);
         case VERTICAL -> Coords.of(off, main);
+      };
+    }
+
+    public int getWidth(int main, int off) {
+      return switch (this) {
+        case HORIZONTAL -> main;
+        case VERTICAL -> off;
+      };
+    }
+
+    public int getHeight(int main, int off) {
+      return switch (this) {
+        case HORIZONTAL -> off;
+        case VERTICAL -> main;
       };
     }
 

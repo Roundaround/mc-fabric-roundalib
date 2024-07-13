@@ -108,9 +108,7 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
         parent.getHeight() - label.getHeight() - IconButtonWidget.SIZE_V - 2 * parent.getSpacing()
     ));
 
-    LinearLayoutWidget controlsRow = rightPane.add(LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING),
-        (parent, self) -> self.setDimensions(parent.getWidth() - 4 * GuiUtil.PADDING, IconButtonWidget.SIZE_V)
-    );
+    LinearLayoutWidget controlsRow = rightPane.add(LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING).centered());
     controlsRow.getMainPositioner().alignVerticalCenter();
 
     controlsRow.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.PREV_18, TestMod.MOD_ID)
@@ -126,9 +124,7 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
             .showShadow()
             .overflowBehavior(LabelWidget.OverflowBehavior.SCROLL)
             .build(),
-        (parent, self) -> self.setDimensions(parent.getWidth() - 2 * (GuiUtil.PADDING + IconButtonWidget.SIZE_V),
-            parent.getHeight()
-        )
+        (parent, self) -> self.setWidth(rightPane.getWidth() - 2 * (2 * GuiUtil.PADDING + IconButtonWidget.SIZE_V))
     );
 
     controlsRow.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.NEXT_18, TestMod.MOD_ID)

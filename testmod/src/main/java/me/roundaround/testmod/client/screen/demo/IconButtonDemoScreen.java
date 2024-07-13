@@ -53,7 +53,7 @@ public class IconButtonDemoScreen extends Screen implements DemoScreen {
         .build(Text.empty(), this::onSizeChange));
 
     header.refreshPositions();
-    this.layout.setHeaderHeight(header.getContentSize() + 2 * GuiUtil.PADDING);
+    this.layout.setHeaderHeight(header.getContentMain() + 2 * GuiUtil.PADDING);
 
     int iconSize = switch (this.size) {
       case IconButtonWidget.SIZE_S -> IconButtonWidget.SIZE_S;

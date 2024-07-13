@@ -56,7 +56,7 @@ public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
             .build(Text.empty(), this::onOverflowBehaviorChange));
 
     header.refreshPositions();
-    this.layout.setHeaderHeight(header.getContentSize() + 2 * GuiUtil.PADDING);
+    this.layout.setHeaderHeight(header.getContentMain() + 2 * GuiUtil.PADDING);
 
     LayoutCollectionWidget labelsContainer = this.layout.addBody(LayoutCollectionWidget.create());
     for (TextAlignment alignmentX : TextAlignment.values()) {

@@ -2,9 +2,7 @@ package me.roundaround.testmod.client.screen.demo;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.IntRect;
-import me.roundaround.roundalib.client.gui.layout.Spacing;
 import me.roundaround.roundalib.client.gui.layout.TextAlignment;
-import me.roundaround.roundalib.client.gui.widget.FullBodyWrapperWidget;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.LinearLayoutWidget;
 import me.roundaround.testmod.TestMod;
@@ -12,7 +10,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.*;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
@@ -56,7 +53,7 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
             .build(Text.empty(), this::onOverflowBehaviorChange));
 
     header.refreshPositions();
-    this.layout.setHeaderHeight(header.getContentSize() + 2 * GuiUtil.PADDING);
+    this.layout.setHeaderHeight(header.getContentMain() + 2 * GuiUtil.PADDING);
 
     LinearLayoutWidget body = this.layout.addBody(LinearLayoutWidget.horizontal((self) -> {
       int totalWidth = this.width - 2 * GuiUtil.PADDING;

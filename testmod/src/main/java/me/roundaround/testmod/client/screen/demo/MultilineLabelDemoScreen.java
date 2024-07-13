@@ -44,14 +44,10 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
 
   @Override
   protected void init() {
-    this.layout.setHeaderHeight(
-        LabelWidget.getDefaultHeight(this.textRenderer) + 2 * GuiUtil.PADDING + GuiUtil.PADDING / 2 +
-            ButtonWidget.DEFAULT_HEIGHT);
-    this.layout.refreshPositions();
-
     LinearLayoutWidget header = this.layout.addHeader(LinearLayoutWidget.vertical((self) -> {
-      self.setDimensions(this.width, this.layout.getHeaderHeight());
-    }).spacing(GuiUtil.PADDING / 2).centered());
+      self.setPosition(GuiUtil.PADDING, GuiUtil.PADDING);
+      self.setWidth(this.layout.getWidth() - 2 * GuiUtil.PADDING);
+    }).spacing(GuiUtil.PADDING / 2));
     header.getMainPositioner().alignHorizontalCenter();
 
     header.add(LabelWidget.builder(this.textRenderer, this.getTitle())
@@ -60,10 +56,7 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
         .showShadow()
         .build());
 
-    LinearLayoutWidget buttonRow = header.add(
-        LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING).centered(), (parent, self) -> {
-          self.setDimensions(parent.getWidth(), 20);
-        });
+    LinearLayoutWidget buttonRow = header.add(LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING).centered());
     buttonRow.getMainPositioner().alignVerticalCenter();
 
     buttonRow.add(
@@ -88,6 +81,8 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
     this.plusButton = buttonRow.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.PLUS_18, TestMod.MOD_ID)
         .onPress((button) -> this.onLineCountChange(this.lineCount + 1))
         .build());
+
+    this.layout.setHeaderHeight(header.getHeight() + 2 * GuiUtil.PADDING);
 
     LayoutCollectionWidget body = this.layout.addBody(LayoutCollectionWidget.create());
     this.label = body.add(LabelWidget.builder(this.textRenderer, this.generateLines())
