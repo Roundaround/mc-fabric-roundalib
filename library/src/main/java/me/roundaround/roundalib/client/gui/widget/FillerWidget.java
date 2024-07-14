@@ -8,17 +8,9 @@ import net.minecraft.client.gui.widget.Widget;
 import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
-public class FillerWidget extends SizableLayoutWidget<FillerWidget> {
+public class FillerWidget extends SizableLayoutWidget {
   public FillerWidget(int width, int height) {
     super(width, height);
-  }
-
-  public FillerWidget(int x, int y, int width, int height) {
-    super(x, y, width, height);
-  }
-
-  public FillerWidget(int x, int y, int width, int height, LayoutHook<FillerWidget> layoutHook) {
-    super(x, y, width, height, layoutHook);
   }
 
   public static FillerWidget empty() {
@@ -35,12 +27,6 @@ public class FillerWidget extends SizableLayoutWidget<FillerWidget> {
 
   public static FillerWidget ofSize(int width, int height) {
     return new FillerWidget(width, height);
-  }
-
-  public static FillerWidget ofHook(LayoutHook<FillerWidget> layoutHook) {
-    FillerWidget widget = new FillerWidget(0, 0);
-    widget.setLayoutHook(layoutHook);
-    return widget;
   }
 
   @Override

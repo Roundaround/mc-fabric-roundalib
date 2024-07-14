@@ -15,13 +15,12 @@ public class FloatTextControl extends Control<Float, FloatConfigOption> {
   private final TextFieldWidget textField;
 
   public FloatTextControl(MinecraftClient client, FloatConfigOption option, int width, int height) {
-    this(client, option, 0, 0, width, height);
-  }
+    super(client, option, width, height);
 
-  public FloatTextControl(MinecraftClient client, FloatConfigOption option, int x, int y, int width, int height) {
-    super(client, option, x, y, width, height);
-
-    this.textField = this.add(new TextFieldWidget(client.textRenderer, width - 2, height - 2, this.option.getLabel()) {
+    this.textField = this.add(new TextFieldWidget(client.textRenderer,
+        width - 2,
+        height - 2,
+        this.option.getLabel()) {
       @Override
       public boolean charTyped(char chr, int keyCode) {
         if (chr == '-' && this.getCursor() > 0) {

@@ -15,17 +15,17 @@ public class SubScreenControl<D, O extends ConfigOption<D>> extends Control<D, O
   private final ButtonWidget button;
 
   public SubScreenControl(
-      MinecraftClient client, O option, int width, int height, SubScreenFactory<D, O> subScreenFactory
-  ) {
-    this(client, option, 0, 0, width, height, subScreenFactory);
-  }
-
-  public SubScreenControl(
-      MinecraftClient client, O option, int x, int y, int width, int height, SubScreenFactory<D, O> subScreenFactory
-  ) {
-    this(client, option, x, y, width, height,
-        (value) -> Text.translatable(option.getModId() + ".roundalib.subscreen.label"), subScreenFactory
-    );
+      MinecraftClient client,
+      O option,
+      int width,
+      int height,
+      SubScreenFactory<D, O> subScreenFactory) {
+    this(client,
+        option,
+        width,
+        height,
+        (value) -> Text.translatable(option.getModId() + ".roundalib.subscreen.label"),
+        subScreenFactory);
   }
 
   public SubScreenControl(
@@ -34,29 +34,18 @@ public class SubScreenControl<D, O extends ConfigOption<D>> extends Control<D, O
       int width,
       int height,
       Function<O, Text> messageFactory,
-      SubScreenFactory<D, O> subScreenFactory
-  ) {
-    this(client, option, 0, 0, width, height, messageFactory, subScreenFactory);
-  }
-
-  public SubScreenControl(
-      MinecraftClient client,
-      O option,
-      int x,
-      int y,
-      int width,
-      int height,
-      Function<O, Text> messageFactory,
-      SubScreenFactory<D, O> subScreenFactory
-  ) {
-    super(client, option, x, y, width, height);
+      SubScreenFactory<D, O> subScreenFactory) {
+    super(client, option, width, height);
     this.messageFactory = messageFactory;
     this.subScreenFactory = subScreenFactory;
 
     this.button = this.add(ButtonWidget.builder(this.messageFactory.apply(this.getOption()),
-        (button) -> GuiUtil.setScreen(this.subScreenFactory.create(this.client.currentScreen, this.getOption()))
-    ).build(), (parent, self) -> {
-      self.setDimensionsAndPosition(parent.getWidth(), parent.getHeight(), parent.getX(), parent.getY());
+        (button) -> GuiUtil.setScreen(this.subScreenFactory.create(this.client.currentScreen,
+            this.getOption()))).build(), (parent, self) -> {
+      self.setDimensionsAndPosition(parent.getWidth(),
+          parent.getHeight(),
+          parent.getX(),
+          parent.getY());
     });
 
     this.update();

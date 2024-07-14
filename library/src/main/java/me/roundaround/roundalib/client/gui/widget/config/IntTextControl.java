@@ -15,13 +15,12 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
   private final IconButtonWidget minusButton;
 
   public IntTextControl(MinecraftClient client, IntConfigOption option, int width, int height) {
-    this(client, option, 0, 0, width, height);
-  }
+    super(client, option, width, height);
 
-  public IntTextControl(MinecraftClient client, IntConfigOption option, int x, int y, int width, int height) {
-    super(client, option, x, y, width, height);
-
-    this.textField = this.add(new TextFieldWidget(client.textRenderer, width - 2, height - 2, this.option.getLabel()) {
+    this.textField = this.add(new TextFieldWidget(client.textRenderer,
+        width - 2,
+        height - 2,
+        this.option.getLabel()) {
       @Override
       public boolean charTyped(char chr, int keyCode) {
         if (chr == '-' && this.getCursor() > 0) {
@@ -50,21 +49,23 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
       String modId = this.getOption().getModId();
       int step = this.getOption().getStep();
 
-      this.plusButton = stepColumn.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.PLUS_9, modId)
-          .small()
-          .messageAndTooltip(Text.translatable(modId + ".roundalib.step_up.tooltip", step))
-          .onPress((button) -> this.getOption().increment())
-          .build());
+      this.plusButton =
+          stepColumn.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.PLUS_9, modId)
+              .small()
+              .messageAndTooltip(Text.translatable(modId + ".roundalib.step_up.tooltip", step))
+              .onPress((button) -> this.getOption().increment())
+              .build());
 
       stepColumn.add(FillerWidget.empty(), (parent, self) -> {
         self.setHeight(parent.getHeight() - 2 * IconButtonWidget.SIZE_S);
       });
 
-      this.minusButton = stepColumn.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.MINUS_9, modId)
-          .small()
-          .messageAndTooltip(Text.translatable(modId + ".roundalib.step_down.tooltip", step))
-          .onPress((button) -> this.getOption().decrement())
-          .build());
+      this.minusButton =
+          stepColumn.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.MINUS_9, modId)
+              .small()
+              .messageAndTooltip(Text.translatable(modId + ".roundalib.step_down.tooltip", step))
+              .onPress((button) -> this.getOption().decrement())
+              .build());
     } else {
       this.plusButton = null;
       this.minusButton = null;

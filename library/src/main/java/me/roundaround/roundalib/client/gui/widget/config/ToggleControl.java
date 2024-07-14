@@ -8,15 +8,15 @@ public class ToggleControl extends Control<Boolean, BooleanConfigOption> {
   private final ButtonWidget button;
 
   public ToggleControl(MinecraftClient client, BooleanConfigOption option, int width, int height) {
-    this(client, option, 0, 0, width, height);
-  }
+    super(client, option, width, height);
 
-  public ToggleControl(MinecraftClient client, BooleanConfigOption option, int x, int y, int width, int height) {
-    super(client, option, x, y, width, height);
-
-    this.button = this.add(
-        ButtonWidget.builder(this.option.getValueLabel(), (button) -> this.option.toggle()).build(), (parent, self) -> {
-          self.setDimensionsAndPosition(parent.getWidth(), parent.getHeight(), parent.getX(), parent.getY());
+    this.button =
+        this.add(ButtonWidget.builder(this.option.getValueLabel(), (button) -> this.option.toggle())
+            .build(), (parent, self) -> {
+          self.setDimensionsAndPosition(parent.getWidth(),
+              parent.getHeight(),
+              parent.getX(),
+              parent.getY());
         });
 
     this.update();

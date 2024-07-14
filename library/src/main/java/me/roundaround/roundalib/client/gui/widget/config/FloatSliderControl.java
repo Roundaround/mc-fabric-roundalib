@@ -10,24 +10,29 @@ import net.minecraft.text.Text;
 public class FloatSliderControl extends Control<Float, FloatConfigOption> {
   private final FloatSliderWidget slider;
 
-  public FloatSliderControl(MinecraftClient client, FloatConfigOption option, int width, int height) {
-    this(client, option, 0, 0, width, height);
-  }
+  public FloatSliderControl(
+      MinecraftClient client, FloatConfigOption option, int width, int height) {
+    super(client, option, width, height);
 
-  public FloatSliderControl(MinecraftClient client, FloatConfigOption option, int x, int y, int width, int height) {
-    super(client, option, x, y, width, height);
-
-    if (!this.option.useSlider() || this.option.getMinValue() == null || this.option.getMaxValue() == null) {
+    if (!this.option.useSlider() || this.option.getMinValue() == null ||
+        this.option.getMaxValue() == null) {
       Panic.panic(new IllegalArgumentPanic(
               "FloatConfigOption must use slider and have min and max values to use FloatSliderControl"),
-          this.getOption().getModId()
-      );
+          this.getOption().getModId());
     }
 
-    this.slider = this.add(new FloatSliderWidget(width, height, this.option.getMinValue(), this.option.getMaxValue(),
-        this.option.getPendingValue(), this::step, this::onSliderChanged, this::getValueAsText
-    ), (parent, self) -> {
-      self.setDimensionsAndPosition(parent.getWidth(), parent.getHeight(), parent.getX(), parent.getY());
+    this.slider = this.add(new FloatSliderWidget(width,
+        height,
+        this.option.getMinValue(),
+        this.option.getMaxValue(),
+        this.option.getPendingValue(),
+        this::step,
+        this::onSliderChanged,
+        this::getValueAsText), (parent, self) -> {
+      self.setDimensionsAndPosition(parent.getWidth(),
+          parent.getHeight(),
+          parent.getX(),
+          parent.getY());
     });
 
     this.update();

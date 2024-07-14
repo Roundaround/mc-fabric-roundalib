@@ -18,22 +18,23 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
   private final IconButtonWidget minusButton;
 
   public IntSliderControl(MinecraftClient client, IntConfigOption option, int width, int height) {
-    this(client, option, 0, 0, width, height);
-  }
+    super(client, option, width, height);
 
-  public IntSliderControl(MinecraftClient client, IntConfigOption option, int x, int y, int width, int height) {
-    super(client, option, x, y, width, height);
-
-    if (!this.option.useSlider() || this.option.getMinValue() == null || this.option.getMaxValue() == null) {
+    if (!this.option.useSlider() || this.option.getMinValue() == null ||
+        this.option.getMaxValue() == null) {
       Panic.panic(new IllegalArgumentPanic(
               "IntConfigOption must use slider and have min and max values to use IntSliderControl"),
-          this.getOption().getModId()
-      );
+          this.getOption().getModId());
     }
 
-    this.slider = this.add(new IntSliderWidget(width, height, this.option.getMinValue(), this.option.getMaxValue(),
-        this.option.getPendingValue(), this::step, this::onSliderChanged, this::getValueAsText
-    ), (parent, self) -> {
+    this.slider = this.add(new IntSliderWidget(width,
+        height,
+        this.option.getMinValue(),
+        this.option.getMaxValue(),
+        this.option.getPendingValue(),
+        this::step,
+        this::onSliderChanged,
+        this::getValueAsText), (parent, self) -> {
       int sliderWidth = parent.getWidth();
       if (this.option.showStepButtons()) {
         sliderWidth -= IconButtonWidget.SIZE_S + parent.getSpacing();
@@ -50,21 +51,23 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
       String modId = this.getOption().getModId();
       int step = this.getOption().getStep();
 
-      this.plusButton = stepColumn.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.PLUS_9, modId)
-          .small()
-          .messageAndTooltip(Text.translatable(modId + ".roundalib.step_up.tooltip", step))
-          .onPress((button) -> this.getOption().increment())
-          .build());
+      this.plusButton =
+          stepColumn.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.PLUS_9, modId)
+              .small()
+              .messageAndTooltip(Text.translatable(modId + ".roundalib.step_up.tooltip", step))
+              .onPress((button) -> this.getOption().increment())
+              .build());
 
       stepColumn.add(FillerWidget.empty(), (parent, self) -> {
         self.setHeight(parent.getHeight() - 2 * IconButtonWidget.SIZE_S);
       });
 
-      this.minusButton = stepColumn.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.MINUS_9, modId)
-          .small()
-          .messageAndTooltip(Text.translatable(modId + ".roundalib.step_down.tooltip", step))
-          .onPress((button) -> this.getOption().decrement())
-          .build());
+      this.minusButton =
+          stepColumn.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.MINUS_9, modId)
+              .small()
+              .messageAndTooltip(Text.translatable(modId + ".roundalib.step_down.tooltip", step))
+              .onPress((button) -> this.getOption().decrement())
+              .build());
     } else {
       this.plusButton = null;
       this.minusButton = null;

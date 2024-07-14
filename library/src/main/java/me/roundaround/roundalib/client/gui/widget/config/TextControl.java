@@ -9,16 +9,13 @@ public class TextControl extends Control<String, StringConfigOption> {
   private final TextFieldWidget textField;
 
   public TextControl(MinecraftClient client, StringConfigOption option, int width, int height) {
-    this(client, option, 0, 0, width, height);
-  }
+    super(client, option, width, height);
 
-  public TextControl(MinecraftClient client, StringConfigOption option, int x, int y, int width, int height) {
-    super(client, option, x, y, width, height);
-
-    this.textField = this.add(
-        new TextFieldWidget(client.textRenderer, width, height, this.option.getLabel()), (parent, self) -> {
-          self.setDimensions(parent.getWidth(), parent.getHeight());
-        });
+    this.textField =
+        this.add(new TextFieldWidget(client.textRenderer, width, height, this.option.getLabel()),
+            (parent, self) -> {
+              self.setDimensions(parent.getWidth(), parent.getHeight());
+            });
 
     this.textField.setText(this.option.getPendingValue());
     this.textField.setChangedListener(this::onTextChanged);

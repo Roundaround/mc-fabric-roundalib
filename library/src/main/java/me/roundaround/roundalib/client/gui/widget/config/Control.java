@@ -14,11 +14,7 @@ public abstract class Control<D, O extends ConfigOption<D>> extends LinearLayout
   protected boolean valid;
 
   protected Control(MinecraftClient client, O option, int width, int height) {
-    this(client, option, 0, 0, width, height);
-  }
-
-  protected Control(MinecraftClient client, O option, int x, int y, int width, int height) {
-    super(Axis.HORIZONTAL, x, y, width, height);
+    super(Axis.HORIZONTAL, width, height);
 
     this.client = client;
     this.option = option;

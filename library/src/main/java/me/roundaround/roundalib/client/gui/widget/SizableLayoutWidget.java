@@ -5,54 +5,21 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.widget.LayoutWidget;
 
 @Environment(EnvType.CLIENT)
-public abstract class SizableLayoutWidget<T extends SizableLayoutWidget<T>>
-    implements LayoutWidget {
-  protected LayoutHook<T> layoutHook;
+public abstract class SizableLayoutWidget implements LayoutWidget {
   protected int x;
   protected int y;
   protected int width;
   protected int height;
-
-  protected SizableLayoutWidget(LayoutHook<T> layoutHook) {
-    this(0, 0, layoutHook);
-  }
-
-  protected SizableLayoutWidget(int x, int y, LayoutHook<T> layoutHook) {
-    this(x, y, 0, 0, layoutHook);
-  }
 
   protected SizableLayoutWidget(int width, int height) {
     this(0, 0, width, height);
   }
 
   protected SizableLayoutWidget(int x, int y, int width, int height) {
-    this(x, y, width, height, null);
-  }
-
-  protected SizableLayoutWidget(int x, int y, int width, int height, LayoutHook<T> layoutHook) {
     this.x = x;
     this.y = y;
     this.width = width;
     this.height = height;
-    this.layoutHook = layoutHook;
-
-    this.runLayoutHook();
-  }
-
-  @Override
-  public void refreshPositions() {
-    this.beforeRefreshPositions();
-    LayoutWidget.super.refreshPositions();
-  }
-
-  protected void runLayoutHook() {
-    if (this.layoutHook != null) {
-      this.layoutHook.run(this.self());
-    }
-  }
-
-  protected void beforeRefreshPositions() {
-    this.runLayoutHook();
   }
 
   @Override
@@ -101,19 +68,5 @@ public abstract class SizableLayoutWidget<T extends SizableLayoutWidget<T>>
   public void setDimensionsAndPosition(int width, int height, int x, int y) {
     this.setDimensions(width, height);
     this.setPosition(x, y);
-  }
-
-  public void setLayoutHook(LayoutHook<T> layoutHook) {
-    this.layoutHook = layoutHook;
-  }
-
-  public T withLayoutHook(LayoutHook<T> layoutHook) {
-    this.setLayoutHook(layoutHook);
-    return this.self();
-  }
-
-  @SuppressWarnings("unchecked")
-  protected T self() {
-    return (T) this;
   }
 }
