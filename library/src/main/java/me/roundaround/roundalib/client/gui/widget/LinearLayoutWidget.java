@@ -15,15 +15,11 @@ import java.util.function.Consumer;
 @Environment(EnvType.CLIENT)
 public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> {
   private final List<CellWidget<?>> cells = new ArrayList<>();
+  private final Positioner.Impl positioner = Positioner.create().toImpl();
+  private final CellPositioner cellPositioner = new CellPositioner();
 
   private Axis flowAxis;
   private int spacing;
-  private float relativeMain;
-  private float relativeOff;
-  private int marginStartMain;
-  private int marginEndMain;
-  private int marginStartOff;
-  private int marginEndOff;
   private int totalSpacing;
   private int contentMain;
   private int contentOff;
@@ -68,28 +64,28 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
     return this.add(widget, LayoutHookWithParent.noop());
   }
 
-  public <T extends Widget> T add(T widget, Consumer<Positioner> consumer) {
-    return this.add(widget, Util.make(this.copyPositioner(), consumer));
+  public <T extends Widget> T add(T widget, Consumer<CellPositioner> consumer) {
+    return this.add(widget, Util.make(this.cellPositioner.copy(), consumer));
   }
 
-  public <T extends Widget> T add(T widget, Positioner positioner) {
+  public <T extends Widget> T add(T widget, CellPositioner positioner) {
     return this.add(widget, LayoutHookWithParent.noop(), positioner);
   }
 
   public <T extends Widget> T add(T widget, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook) {
-    return this.add(widget, layoutHook, this.copyPositioner());
+    return this.add(widget, layoutHook, this.cellPositioner.copy());
   }
 
   public <T extends Widget> T add(
-      T widget, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook, Consumer<Positioner> consumer
+      T widget, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook, Consumer<CellPositioner> consumer
   ) {
-    return this.add(widget, layoutHook, Util.make(this.copyPositioner(), consumer));
+    return this.add(widget, layoutHook, Util.make(this.cellPositioner.copy(), consumer));
   }
 
   public <T extends Widget> T add(
-      T widget, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook, Positioner positioner
+      T widget, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook, CellPositioner positioner
   ) {
-    this.cells.add(new CellWidget<>(widget, layoutHook, positioner));
+    this.cells.add(new CellWidget<>(this.flowAxis, widget, layoutHook, positioner));
     this.calculateContentDimensions();
     return widget;
   }
@@ -142,12 +138,12 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
     return this.flowAxis;
   }
 
-  public Positioner copyPositioner() {
-    return this.positioner.copy();
-  }
-
   public Positioner getMainPositioner() {
     return this.positioner;
+  }
+
+  public CellPositioner getCellPositioner() {
+    return this.cellPositioner;
   }
 
   public LinearLayoutWidget spacing(int spacing) {
@@ -157,47 +153,6 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
 
   public int getSpacing() {
     return this.spacing;
-  }
-
-  public LinearLayoutWidget alignedStartMain() {
-    return this.alignedMain(0f);
-  }
-
-  public LinearLayoutWidget centeredMain() {
-    return this.alignedMain(0.5f);
-  }
-
-  public LinearLayoutWidget alignedEndMain() {
-    return this.alignedMain(1f);
-  }
-
-  public LinearLayoutWidget alignedMain(float relative) {
-    this.relative = relative;
-    return this;
-  }
-
-  public LinearLayoutWidget alignedStartOff() {
-    return this.alignedOff(0f);
-  }
-
-  public LinearLayoutWidget centeredOff() {
-    return this.alignedOff(0.5f);
-  }
-
-  public LinearLayoutWidget alignedEndOff() {
-    return this.alignedOff(1f);
-  }
-
-  public LinearLayoutWidget alignedOff(float relative) {
-    switch (this.flowAxis) {
-      case HORIZONTAL -> this.positioner.relativeY(relative);
-      case VERTICAL -> this.positioner.relativeX(relative);
-    }
-    return this;
-  }
-
-  public Float getRelative() {
-    return this.relative;
   }
 
   public int getTotalSpacing() {
@@ -215,7 +170,7 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
   @Override
   public int getWidth() {
     int baseWidth = this.width != 0 ? this.width : this.flowAxis.getWidth(this.contentMain, this.contentOff);
-    return baseWidth + this.margin.getHorizontal();
+    return baseWidth + this.positioner.
   }
 
   @Override
@@ -256,10 +211,24 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
       };
     }
 
+    public int getWidth(CellPositioner positioner) {
+      return switch (this) {
+        case HORIZONTAL -> positioner.marginStartMain + positioner.marginEndMain;
+        case VERTICAL -> positioner.marginStartOff + positioner.marginEndOff;
+      };
+    }
+
     public int getHeight(int main, int off) {
       return switch (this) {
         case HORIZONTAL -> off;
         case VERTICAL -> main;
+      };
+    }
+
+    public int getHeight(CellPositioner positioner) {
+      return switch (this) {
+        case HORIZONTAL -> positioner.marginStartOff + positioner.marginEndOff;
+        case VERTICAL -> positioner.marginStartMain + positioner.marginEndMain;
       };
     }
 
@@ -310,15 +279,17 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
   public static class CellWidget<T extends Widget> implements Widget {
     private final T child;
     private final LayoutHookWithParent<LinearLayoutWidget, T> layoutHook;
-    private float relative;
-    private int marginLeft;
-    private int marginRight;
-    private int marginTop;
-    private int marginBottom;
+    private final CellPositioner positioner;
 
-    public CellWidget(T child, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook) {
+    private Axis flowAxis;
+
+    public CellWidget(
+        Axis flowAxis, T child, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook, CellPositioner positioner
+    ) {
+      this.flowAxis = flowAxis;
       this.child = child;
       this.layoutHook = layoutHook;
+      this.positioner = positioner;
     }
 
     public T getChild() {
@@ -327,35 +298,6 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
 
     public void onLayout(LinearLayoutWidget parent) {
       this.layoutHook.run(parent, this.getChild());
-    }
-
-    public void setRelative(float relative) {
-      this.relative = relative;
-    }
-
-    public void setMargin(int margin) {
-      this.setMargin(margin, margin);
-    }
-
-    public void setMargin(int marginX, int marginY) {
-      this.setMargin(marginX, marginX, marginY, marginY);
-    }
-
-    public void setMargin(int left, int right, int top, int bottom) {
-      this.marginLeft = left;
-      this.marginRight = right;
-      this.marginTop = top;
-      this.marginBottom = bottom;
-    }
-
-    public void setMarginX(int marginX) {
-      this.marginLeft = marginX;
-      this.marginRight = marginX;
-    }
-
-    public void setMarginY(int marginY) {
-      this.marginTop = marginY;
-      this.marginBottom = marginY;
     }
 
     @Override
@@ -380,12 +322,12 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
 
     @Override
     public int getWidth() {
-      return this.child.getWidth() + this.marginLeft + this.marginRight;
+      return this.child.getWidth() + this.flowAxis.getWidth(this.positioner);
     }
 
     @Override
     public int getHeight() {
-      return this.child.getHeight() + this.marginTop + this.marginBottom;
+      return this.child.getHeight() + this.flowAxis.getHeight(this.positioner);
     }
 
     @Override
@@ -394,73 +336,84 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
         consumer.accept(clickableWidget);
       }
     }
+
+    public void setFlowAxis(Axis flowAxis) {
+      this.flowAxis = flowAxis;
+    }
   }
 
   @Environment(EnvType.CLIENT)
-  public static class CellPositioner<T extends Widget> {
-    private final CellWidget<T> cell;
-    private final Axis flowAxis;
+  public static class CellPositioner {
+    private float relative;
+    private int marginStartMain;
+    private int marginEndMain;
+    private int marginStartOff;
+    private int marginEndOff;
 
-    private CellPositioner(CellWidget<T> cell, Axis flowAxis) {
-      this.cell = cell;
-      this.flowAxis = flowAxis;
+    public CellPositioner() {
     }
 
-    public CellPositioner<T> alignedStart() {
+    public CellPositioner(CellPositioner other) {
+      this.relative = other.relative;
+      this.marginStartMain = other.marginStartMain;
+      this.marginEndMain = other.marginEndMain;
+      this.marginStartOff = other.marginStartOff;
+      this.marginEndOff = other.marginEndOff;
+    }
+
+    public CellPositioner alignedStart() {
       return this.aligned(0f);
     }
 
-    public CellPositioner<T> alignedCenter() {
+    public CellPositioner alignedCenter() {
       return this.aligned(0.5f);
     }
 
-    public CellPositioner<T> alignedEnd() {
+    public CellPositioner alignedEnd() {
       return this.aligned(1f);
     }
 
-    public CellPositioner<T> aligned(float relative) {
-      this.cell.relative = relative;
+    public CellPositioner aligned(float relative) {
+      this.relative = relative;
       return this;
     }
 
-    public CellPositioner<T> margin(int margin) {
-      this.cell.setMargin(margin);
+    public CellPositioner margin(int margin) {
+      return this.margin(margin, margin, margin, margin);
+    }
+
+    public CellPositioner margin(int main, int off) {
+      return this.margin(main, main, off, off);
+    }
+
+    public CellPositioner margin(int startMain, int endMain, int startOff, int endOff) {
+      this.marginStartMain = startMain;
+      this.marginEndMain = endMain;
+      this.marginStartOff = startOff;
+      this.marginEndOff = endOff;
       return this;
     }
 
-    public CellPositioner<T> margin(int main, int off) {
-      switch (this.flowAxis) {
-        case HORIZONTAL -> this.cell.setMargin(main, off);
-        case VERTICAL -> this.cell.setMargin(off, main);
-      }
+    public CellPositioner marginMain(int main) {
+      this.marginStartMain = main;
+      this.marginEndMain = main;
       return this;
     }
 
-    public CellPositioner<T> margin(int startMain, int endMain, int startOff, int endOff) {
-      this.cell.setMargin(startMain, endMain, startOff, endOff);
+    public CellPositioner marginOff(int off) {
+      this.marginStartOff = off;
+      this.marginEndOff = off;
       return this;
     }
 
-    public CellPositioner<T> marginMain(int main) {
-      switch (this.flowAxis) {
-        case HORIZONTAL -> this.cell.setMarginX(main);
-        case VERTICAL -> this.cell.setMarginY(main);
-      }
-      return this;
-    }
-
-    public CellPositioner<T> marginOff(int off) {
-      switch (this.flowAxis) {
-        case HORIZONTAL -> this.cell.setMarginY(off);
-        case VERTICAL -> this.cell.setMarginX(off);
-      }
-      return this;
+    public CellPositioner copy() {
+      return new CellPositioner(this);
     }
   }
 
   @Environment(EnvType.CLIENT)
   @FunctionalInterface
   public interface CellLayoutHook<T extends Widget> {
-    void run(LinearLayoutWidget parent, T self, CellPositioner<T> positioner);
+    void run(LinearLayoutWidget parent, T self, CellPositioner positioner);
   }
 }
