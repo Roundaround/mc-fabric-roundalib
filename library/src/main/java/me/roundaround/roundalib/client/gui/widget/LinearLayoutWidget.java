@@ -14,12 +14,16 @@ import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
 public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> {
-  private final Positioner positioner = Positioner.create();
   private final List<CellWidget<?>> cells = new ArrayList<>();
 
   private Axis flowAxis;
   private int spacing;
-  private float relative;
+  private float relativeMain;
+  private float relativeOff;
+  private int marginStartMain;
+  private int marginEndMain;
+  private int marginStartOff;
+  private int marginEndOff;
   private int totalSpacing;
   private int contentMain;
   private int contentOff;
@@ -101,8 +105,8 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
 
   private void calculateContentDimensions() {
     this.totalSpacing = Math.max(0, this.cells.size() - 1) * this.spacing;
-    this.contentMain = this.cells.stream().mapToInt(this.flowAxis::getDimension).sum() + this.totalSpacing;
-    this.contentOff = this.cells.stream().mapToInt(this.flowAxis::getOffDimension).max().orElse(0);
+    this.contentMain = this.cells.stream().mapToInt(this.flowAxis::getDimensionMain).sum() + this.totalSpacing;
+    this.contentOff = this.cells.stream().mapToInt(this.flowAxis::getDimensionOff).max().orElse(0);
   }
 
   @Override
@@ -110,22 +114,23 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
     super.beforeRefreshPositions();
     this.calculateContentDimensions();
 
-    int mainStart = (int) -(this.flowAxis.getDimension(this) * this.relative);
-    int offSize = this.flowAxis.getOffDimension(this);
+    int mainStart = this.flowAxis.getPosMain(this) - (int) (this.flowAxis.getDimensionMain(this) * this.relative);
     int mainRef = mainStart - this.spacing;
+
+    int offStart = this.flowAxis.getPosOff(this) - this.flowAxis.getDimensionOff(this);
 
     for (CellWidget<?> cell : this.cells) {
       cell.onLayout(this);
 
       int main = mainRef + this.spacing + this.flowAxis.getLeadingMargin(cell.positioner);
 
-      int offRef = (int) ((offSize - this.flowAxis.getOffDimension(cell)) *
+      int offRef = (int) ((offSize - this.flowAxis.getDimensionOff(cell)) *
           this.flowAxis.getOffRelative(cell.positioner));
       int off = offRef + this.flowAxis.getOffLeadingMargin(cell.positioner);
 
       this.flowAxis.setPosition(cell, this.getX(), this.getY(), main, off);
 
-      mainRef += this.flowAxis.getDimension(cell) + this.spacing;
+      mainRef += this.flowAxis.getDimensionMain(cell) + this.spacing;
     }
   }
 
@@ -209,12 +214,14 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
 
   @Override
   public int getWidth() {
-    return this.width != 0 ? this.width : this.flowAxis.getWidth(this.contentMain, this.contentOff);
+    int baseWidth = this.width != 0 ? this.width : this.flowAxis.getWidth(this.contentMain, this.contentOff);
+    return baseWidth + this.margin.getHorizontal();
   }
 
   @Override
   public int getHeight() {
-    return this.height != 0 ? this.height : this.flowAxis.getHeight(this.contentMain, this.contentOff);
+    int baseHeight = this.height != 0 ? this.height : this.flowAxis.getHeight(this.contentMain, this.contentOff);
+    return baseHeight + this.margin.getVertical();
   }
 
   @Environment(EnvType.CLIENT)
@@ -225,6 +232,20 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
       return switch (this) {
         case HORIZONTAL -> Coords.of(main, off);
         case VERTICAL -> Coords.of(off, main);
+      };
+    }
+
+    public int getPosMain(Widget widget) {
+      return switch (this) {
+        case HORIZONTAL -> widget.getX();
+        case VERTICAL -> widget.getY();
+      };
+    }
+
+    public int getPosOff(Widget widget) {
+      return switch (this) {
+        case HORIZONTAL -> widget.getY();
+        case VERTICAL -> widget.getX();
       };
     }
 
@@ -242,14 +263,14 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
       };
     }
 
-    public int getDimension(Widget widget) {
+    public int getDimensionMain(Widget widget) {
       return switch (this) {
         case HORIZONTAL -> widget.getWidth();
         case VERTICAL -> widget.getHeight();
       };
     }
 
-    public int getOffDimension(Widget widget) {
+    public int getDimensionOff(Widget widget) {
       return switch (this) {
         case VERTICAL -> widget.getWidth();
         case HORIZONTAL -> widget.getHeight();
@@ -289,12 +310,15 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
   public static class CellWidget<T extends Widget> implements Widget {
     private final T child;
     private final LayoutHookWithParent<LinearLayoutWidget, T> layoutHook;
-    private final Positioner.Impl positioner;
+    private float relative;
+    private int marginLeft;
+    private int marginRight;
+    private int marginTop;
+    private int marginBottom;
 
-    public CellWidget(T child, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook, Positioner positioner) {
+    public CellWidget(T child, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook) {
       this.child = child;
       this.layoutHook = layoutHook;
-      this.positioner = positioner.toImpl();
     }
 
     public T getChild() {
@@ -303,6 +327,35 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
 
     public void onLayout(LinearLayoutWidget parent) {
       this.layoutHook.run(parent, this.getChild());
+    }
+
+    public void setRelative(float relative) {
+      this.relative = relative;
+    }
+
+    public void setMargin(int margin) {
+      this.setMargin(margin, margin);
+    }
+
+    public void setMargin(int marginX, int marginY) {
+      this.setMargin(marginX, marginX, marginY, marginY);
+    }
+
+    public void setMargin(int left, int right, int top, int bottom) {
+      this.marginLeft = left;
+      this.marginRight = right;
+      this.marginTop = top;
+      this.marginBottom = bottom;
+    }
+
+    public void setMarginX(int marginX) {
+      this.marginLeft = marginX;
+      this.marginRight = marginX;
+    }
+
+    public void setMarginY(int marginY) {
+      this.marginTop = marginY;
+      this.marginBottom = marginY;
     }
 
     @Override
@@ -327,12 +380,12 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
 
     @Override
     public int getWidth() {
-      return this.child.getWidth() + this.positioner.marginLeft + this.positioner.marginRight;
+      return this.child.getWidth() + this.marginLeft + this.marginRight;
     }
 
     @Override
     public int getHeight() {
-      return this.child.getHeight() + this.positioner.marginTop + this.positioner.marginBottom;
+      return this.child.getHeight() + this.marginTop + this.marginBottom;
     }
 
     @Override
@@ -341,5 +394,73 @@ public class LinearLayoutWidget extends SizableLayoutWidget<LinearLayoutWidget> 
         consumer.accept(clickableWidget);
       }
     }
+  }
+
+  @Environment(EnvType.CLIENT)
+  public static class CellPositioner<T extends Widget> {
+    private final CellWidget<T> cell;
+    private final Axis flowAxis;
+
+    private CellPositioner(CellWidget<T> cell, Axis flowAxis) {
+      this.cell = cell;
+      this.flowAxis = flowAxis;
+    }
+
+    public CellPositioner<T> alignedStart() {
+      return this.aligned(0f);
+    }
+
+    public CellPositioner<T> alignedCenter() {
+      return this.aligned(0.5f);
+    }
+
+    public CellPositioner<T> alignedEnd() {
+      return this.aligned(1f);
+    }
+
+    public CellPositioner<T> aligned(float relative) {
+      this.cell.relative = relative;
+      return this;
+    }
+
+    public CellPositioner<T> margin(int margin) {
+      this.cell.setMargin(margin);
+      return this;
+    }
+
+    public CellPositioner<T> margin(int main, int off) {
+      switch (this.flowAxis) {
+        case HORIZONTAL -> this.cell.setMargin(main, off);
+        case VERTICAL -> this.cell.setMargin(off, main);
+      }
+      return this;
+    }
+
+    public CellPositioner<T> margin(int startMain, int endMain, int startOff, int endOff) {
+      this.cell.setMargin(startMain, endMain, startOff, endOff);
+      return this;
+    }
+
+    public CellPositioner<T> marginMain(int main) {
+      switch (this.flowAxis) {
+        case HORIZONTAL -> this.cell.setMarginX(main);
+        case VERTICAL -> this.cell.setMarginY(main);
+      }
+      return this;
+    }
+
+    public CellPositioner<T> marginOff(int off) {
+      switch (this.flowAxis) {
+        case HORIZONTAL -> this.cell.setMarginY(off);
+        case VERTICAL -> this.cell.setMarginX(off);
+      }
+      return this;
+    }
+  }
+
+  @Environment(EnvType.CLIENT)
+  @FunctionalInterface
+  public interface CellLayoutHook<T extends Widget> {
+    void run(LinearLayoutWidget parent, T self, CellPositioner<T> positioner);
   }
 }
