@@ -41,19 +41,22 @@ public class IconButtonDemoScreen extends Screen implements DemoScreen {
 
     LinearLayoutWidget header = LinearLayoutWidget.vertical((self) -> {
       self.setDimensions(this.width, this.layout.getHeaderHeight());
-    }).spacing(GuiUtil.PADDING / 2).centeredMain();
-    header.getMainPositioner().alignHorizontalCenter();
+    }).spacing(GuiUtil.PADDING / 2);
+    header.getMainPositioner().alignHorizontalCenter().alignVerticalCenter();
     this.layout.addHeader(header);
 
     header.add(new TextWidget(this.getTitle(), this.textRenderer).alignCenter());
-    header.add(new CyclingButtonWidget.Builder<Integer>((value) -> Text.of(String.format("%sx", value))).values(
-            List.of(IconButtonWidget.SIZE_V, IconButtonWidget.SIZE_L, IconButtonWidget.SIZE_M, IconButtonWidget.SIZE_S))
+    header.add(new CyclingButtonWidget.Builder<Integer>((value) -> Text.of(String.format("%sx",
+        value))).values(List.of(IconButtonWidget.SIZE_V,
+            IconButtonWidget.SIZE_L,
+            IconButtonWidget.SIZE_M,
+            IconButtonWidget.SIZE_S))
         .initially(this.size)
         .omitKeyText()
         .build(Text.empty(), this::onSizeChange));
 
     header.refreshPositions();
-    this.layout.setHeaderHeight(header.getContentMain() + 2 * GuiUtil.PADDING);
+    this.layout.setHeaderHeight(header.getContentHeight() + 2 * GuiUtil.PADDING);
 
     int iconSize = switch (this.size) {
       case IconButtonWidget.SIZE_S -> IconButtonWidget.SIZE_S;
@@ -62,9 +65,12 @@ public class IconButtonDemoScreen extends Screen implements DemoScreen {
     };
     List<IconButtonWidget.BuiltinIcon> icons = IconButtonWidget.BuiltinIcon.valuesOfSize(iconSize);
 
-    ResponsiveGridWidget grid = new ResponsiveGridWidget(
-        this.width, this.layout.getContentHeight(), this.size, this.size).spacing(GuiUtil.PADDING * 2).centered();
-    this.layout.addBody(new FullBodyWrapperWidget(grid, this.layout).margin(Spacing.of(GuiUtil.PADDING * 2)));
+    ResponsiveGridWidget grid = new ResponsiveGridWidget(this.width,
+        this.layout.getContentHeight(),
+        this.size,
+        this.size).spacing(GuiUtil.PADDING * 2).centered();
+    this.layout.addBody(new FullBodyWrapperWidget(grid, this.layout).margin(Spacing.of(
+        GuiUtil.PADDING * 2)));
 
     for (IconButtonWidget.BuiltinIcon icon : icons) {
       grid.add(IconButtonWidget.builder(icon, TestMod.MOD_ID)

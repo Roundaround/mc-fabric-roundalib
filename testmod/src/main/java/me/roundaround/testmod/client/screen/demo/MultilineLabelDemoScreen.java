@@ -26,7 +26,8 @@ import static me.roundaround.roundalib.client.gui.widget.LabelWidget.OverflowBeh
 
 @Environment(EnvType.CLIENT)
 public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
-  private static final Text TITLE_TEXT = Text.translatable("testmod.multilinelabeldemoscreen.title");
+  private static final Text TITLE_TEXT =
+      Text.translatable("testmod.multilinelabeldemoscreen.title");
 
   private final Screen parent;
   private final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this);
@@ -44,41 +45,42 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
 
   @Override
   protected void init() {
-    LinearLayoutWidget header = this.layout.addHeader(
-        LinearLayoutWidget.vertical().spacing(GuiUtil.PADDING / 2).centeredMain().centeredOff());
+    LinearLayoutWidget header =
+        this.layout.addHeader(LinearLayoutWidget.vertical().spacing(GuiUtil.PADDING / 2));
+    header.getMainPositioner().alignHorizontalCenter().alignVerticalCenter();
 
-    header.add(
-        LabelWidget.builder(this.textRenderer, this.getTitle()).justifiedCenter().hideBackground().showShadow().build(),
-        (positioner) -> positioner.marginTop(GuiUtil.PADDING)
-    );
+    header.add(LabelWidget.builder(this.textRenderer, this.getTitle())
+        .justifiedCenter()
+        .hideBackground()
+        .showShadow()
+        .build(), (positioner) -> positioner.marginMain(GuiUtil.PADDING, 0));
 
-    LinearLayoutWidget buttonRow = header.add(
-        LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING).centeredMain().centeredOff(),
-        (positioner) -> positioner.marginBottom(GuiUtil.PADDING)
-    );
+    LinearLayoutWidget buttonRow =
+        header.add(LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING),
+            (positioner) -> positioner.marginMain(0, GuiUtil.PADDING));
+    buttonRow.getMainPositioner().alignHorizontalCenter().alignVerticalCenter();
 
-    buttonRow.add(
-        new CyclingButtonWidget.Builder<OverflowBehavior>((value) -> value.getDisplayText(TestMod.MOD_ID)).values(
-                OverflowBehavior.values())
-            .initially(OverflowBehavior.SHOW)
-            .omitKeyText()
-            .build(0, 0, 100, 20, Text.empty(), this::onOverflowBehaviorChange));
-    buttonRow.add(new CyclingButtonWidget.Builder<TextAlignment>((value) -> Text.of("X: " + value.name())).values(
-            TextAlignment.values())
+    buttonRow.add(new CyclingButtonWidget.Builder<OverflowBehavior>((value) -> value.getDisplayText(
+        TestMod.MOD_ID)).values(OverflowBehavior.values())
+        .initially(OverflowBehavior.SHOW)
+        .omitKeyText()
+        .build(0, 0, 100, 20, Text.empty(), this::onOverflowBehaviorChange));
+    buttonRow.add(new CyclingButtonWidget.Builder<TextAlignment>((value) -> Text.of(
+        "X: " + value.name())).values(TextAlignment.values())
         .initially(TextAlignment.CENTER)
         .omitKeyText()
         .build(0, 0, 100, 20, Text.empty(), this::onAlignmentXChange));
-    buttonRow.add(new CyclingButtonWidget.Builder<TextAlignment>((value) -> Text.of("Y: " + value.name())).values(
-            TextAlignment.values())
+    buttonRow.add(new CyclingButtonWidget.Builder<TextAlignment>((value) -> Text.of(
+        "Y: " + value.name())).values(TextAlignment.values())
         .initially(TextAlignment.CENTER)
         .omitKeyText()
         .build(0, 0, 100, 20, Text.empty(), this::onAlignmentYChange));
-    this.minusButton = buttonRow.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.MINUS_18, TestMod.MOD_ID)
-        .onPress((button) -> this.onLineCountChange(this.lineCount - 1))
-        .build());
-    this.plusButton = buttonRow.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.PLUS_18, TestMod.MOD_ID)
-        .onPress((button) -> this.onLineCountChange(this.lineCount + 1))
-        .build());
+    this.minusButton = buttonRow.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.MINUS_18,
+        TestMod.MOD_ID).onPress((button) -> this.onLineCountChange(this.lineCount - 1)).build());
+    this.plusButton =
+        buttonRow.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.PLUS_18, TestMod.MOD_ID)
+            .onPress((button) -> this.onLineCountChange(this.lineCount + 1))
+            .build());
 
     this.layout.setHeaderHeight(header.getHeight());
 
@@ -90,7 +92,8 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
         .alignedMiddle()
         .lineSpacing(1)
         .build(), (parent, self) -> {
-      self.setPosition(this.width / 2, this.layout.getHeaderHeight() + this.layout.getContentHeight() / 2);
+      self.setPosition(this.width / 2,
+          this.layout.getHeaderHeight() + this.layout.getContentHeight() / 2);
     });
 
     this.layout.addFooter(ButtonWidget.builder(ScreenTexts.DONE, (button) -> this.close()).build());
@@ -120,17 +123,23 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
     super.renderBackground(context, mouseX, mouseY, delta);
 
     if (this.debug) {
-      context.fill(this.label.getX(), this.label.getY(), this.label.getRight(), this.label.getBottom(),
-          GuiUtil.genColorInt(0.3f, 0, 0.1f, 0.5f)
-      );
-      context.drawBorder(this.label.getX(), this.label.getY(), this.label.getWidth(), this.label.getHeight(),
-          GuiUtil.genColorInt(1f, 1f, 1f, 0.3f)
-      );
+      context.fill(this.label.getX(),
+          this.label.getY(),
+          this.label.getRight(),
+          this.label.getBottom(),
+          GuiUtil.genColorInt(0.3f, 0, 0.1f, 0.5f));
+      context.drawBorder(this.label.getX(),
+          this.label.getY(),
+          this.label.getWidth(),
+          this.label.getHeight(),
+          GuiUtil.genColorInt(1f, 1f, 1f, 0.3f));
 
       IntRect textBounds = this.label.getTextBounds();
-      context.fill(textBounds.left(), textBounds.top(), textBounds.right(), textBounds.bottom(),
-          GuiUtil.genColorInt(0, 0.4f, 0.9f)
-      );
+      context.fill(textBounds.left(),
+          textBounds.top(),
+          textBounds.right(),
+          textBounds.bottom(),
+          GuiUtil.genColorInt(0, 0.4f, 0.9f));
     }
   }
 
@@ -149,7 +158,8 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
     return this.layout.getHeaderHeight() + GuiUtil.PADDING + (int) (paddedContentHeight * 0.5f);
   }
 
-  private void onOverflowBehaviorChange(CyclingButtonWidget<OverflowBehavior> button, OverflowBehavior value) {
+  private void onOverflowBehaviorChange(
+      CyclingButtonWidget<OverflowBehavior> button, OverflowBehavior value) {
     this.label.setOverflowBehavior(value);
     this.layout.refreshPositions();
   }

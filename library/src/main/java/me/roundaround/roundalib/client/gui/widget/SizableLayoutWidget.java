@@ -5,7 +5,8 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.widget.LayoutWidget;
 
 @Environment(EnvType.CLIENT)
-public abstract class SizableLayoutWidget<T extends SizableLayoutWidget<T>> implements LayoutWidget {
+public abstract class SizableLayoutWidget<T extends SizableLayoutWidget<T>>
+    implements LayoutWidget {
   protected LayoutHook<T> layoutHook;
   protected int x;
   protected int y;
@@ -34,6 +35,8 @@ public abstract class SizableLayoutWidget<T extends SizableLayoutWidget<T>> impl
     this.width = width;
     this.height = height;
     this.layoutHook = layoutHook;
+
+    this.runLayoutHook();
   }
 
   @Override
@@ -42,10 +45,14 @@ public abstract class SizableLayoutWidget<T extends SizableLayoutWidget<T>> impl
     LayoutWidget.super.refreshPositions();
   }
 
-  protected void beforeRefreshPositions() {
+  protected void runLayoutHook() {
     if (this.layoutHook != null) {
       this.layoutHook.run(this.self());
     }
+  }
+
+  protected void beforeRefreshPositions() {
+    this.runLayoutHook();
   }
 
   @Override

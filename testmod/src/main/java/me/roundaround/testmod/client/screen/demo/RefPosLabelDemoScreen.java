@@ -4,8 +4,8 @@ import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.IntRect;
 import me.roundaround.roundalib.client.gui.layout.TextAlignment;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
-import me.roundaround.roundalib.client.gui.widget.LinearLayoutWidget;
 import me.roundaround.roundalib.client.gui.widget.LayoutCollectionWidget;
+import me.roundaround.roundalib.client.gui.widget.LinearLayoutWidget;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -43,20 +43,19 @@ public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
   protected void init() {
     LinearLayoutWidget header = LinearLayoutWidget.vertical((self) -> {
       self.setDimensions(this.width, this.layout.getHeaderHeight());
-    }).spacing(GuiUtil.PADDING / 2).centeredMain();
-    header.getMainPositioner().alignHorizontalCenter();
+    }).spacing(GuiUtil.PADDING / 2);
+    header.getMainPositioner().alignHorizontalCenter().alignVerticalCenter();
     this.layout.addHeader(header);
 
     header.add(new TextWidget(this.getTitle(), this.textRenderer).alignCenter());
-    header.add(
-        new CyclingButtonWidget.Builder<OverflowBehavior>((value) -> value.getDisplayText(TestMod.MOD_ID)).values(
-                OverflowBehavior.values())
-            .initially(OverflowBehavior.SHOW)
-            .omitKeyText()
-            .build(Text.empty(), this::onOverflowBehaviorChange));
+    header.add(new CyclingButtonWidget.Builder<OverflowBehavior>((value) -> value.getDisplayText(
+        TestMod.MOD_ID)).values(OverflowBehavior.values())
+        .initially(OverflowBehavior.SHOW)
+        .omitKeyText()
+        .build(Text.empty(), this::onOverflowBehaviorChange));
 
     header.refreshPositions();
-    this.layout.setHeaderHeight(header.getContentMain() + 2 * GuiUtil.PADDING);
+    this.layout.setHeaderHeight(header.getContentHeight() + 2 * GuiUtil.PADDING);
 
     LayoutCollectionWidget labelsContainer = this.layout.addBody(LayoutCollectionWidget.create());
     for (TextAlignment alignmentX : TextAlignment.values()) {
@@ -88,28 +87,35 @@ public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
 
     if (this.debug) {
       for (LabelWidget label : this.labels) {
-        context.fill(label.getX(), label.getY(), label.getRight(), label.getBottom(),
-            GuiUtil.genColorInt(0.3f, 0, 0.1f, 0.5f)
-        );
-        context.drawBorder(label.getX(), label.getY(), label.getWidth(), label.getHeight(),
-            GuiUtil.genColorInt(1f, 1f, 1f, 0.3f)
-        );
+        context.fill(label.getX(),
+            label.getY(),
+            label.getRight(),
+            label.getBottom(),
+            GuiUtil.genColorInt(0.3f, 0, 0.1f, 0.5f));
+        context.drawBorder(label.getX(),
+            label.getY(),
+            label.getWidth(),
+            label.getHeight(),
+            GuiUtil.genColorInt(1f, 1f, 1f, 0.3f));
 
         IntRect textBounds = label.getTextBounds();
-        context.fill(textBounds.left(), textBounds.top(), textBounds.right(), textBounds.bottom(),
-            GuiUtil.genColorInt(0, 0.4f, 0.9f)
-        );
+        context.fill(textBounds.left(),
+            textBounds.top(),
+            textBounds.right(),
+            textBounds.bottom(),
+            GuiUtil.genColorInt(0, 0.4f, 0.9f));
       }
     }
   }
 
 
-  private void addLabel(LayoutCollectionWidget labelsContainer, TextAlignment alignmentX, TextAlignment alignmentY) {
+  private void addLabel(
+      LayoutCollectionWidget labelsContainer, TextAlignment alignmentX, TextAlignment alignmentY) {
     float relativeX = relative(alignmentX);
     float relativeY = relative(alignmentY);
 
-    LabelWidget label = LabelWidget.builder(
-            this.textRenderer, Text.of(String.format("== == %s/%s == ==", nameX(alignmentX), nameY(alignmentY))))
+    LabelWidget label = LabelWidget.builder(this.textRenderer,
+            Text.of(String.format("== == %s/%s == ==", nameX(alignmentX), nameY(alignmentY))))
         .justifiedHorizontally(alignmentX)
         .alignedVertically(alignmentY)
         .positionMode(LabelWidget.PositionMode.REFERENCE)
@@ -155,7 +161,8 @@ public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
     return (this.layout.getContentHeight() - 4 * GuiUtil.PADDING) / 3;
   }
 
-  private void onOverflowBehaviorChange(CyclingButtonWidget<OverflowBehavior> button, OverflowBehavior value) {
+  private void onOverflowBehaviorChange(
+      CyclingButtonWidget<OverflowBehavior> button, OverflowBehavior value) {
     this.labels.forEach((label) -> label.setOverflowBehavior(value));
     this.initTabNavigation();
   }
