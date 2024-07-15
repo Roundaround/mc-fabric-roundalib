@@ -14,13 +14,12 @@ public abstract class Control<D, O extends ConfigOption<D>> extends LinearLayout
   protected boolean valid;
 
   protected Control(MinecraftClient client, O option, int width, int height) {
-    super(Axis.HORIZONTAL, width, height);
+    super(FlowAxis.HORIZONTAL, width, height);
 
     this.client = client;
     this.option = option;
 
-    this.spacing(GuiUtil.PADDING / 2);
-    this.getMainPositioner().alignRight().alignVerticalCenter();
+    this.spacing(GuiUtil.PADDING / 2).alignRight().alignCenterY();
   }
 
   public O getOption() {
