@@ -1,4 +1,4 @@
-package me.roundaround.roundalib.client.gui.widget;
+package me.roundaround.roundalib.client.gui.widget.layout;
 
 import net.minecraft.client.gui.widget.LayoutWidget;
 import net.minecraft.client.gui.widget.Widget;

@@ -2,6 +2,8 @@ package me.roundaround.testmod.client.screen.demo;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.*;
+import me.roundaround.roundalib.client.gui.widget.layout.FullBodyWrapperWidget;
+import me.roundaround.roundalib.client.gui.widget.layout.LinearLayoutWidget;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

@@ -1,9 +1,9 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.widget.FillerWidget;
+import me.roundaround.roundalib.client.gui.widget.layout.FillerWidget;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
-import me.roundaround.roundalib.client.gui.widget.LinearLayoutWidget;
+import me.roundaround.roundalib.client.gui.widget.layout.LinearLayoutWidget;
 import me.roundaround.roundalib.config.option.IntConfigOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.TextFieldWidget;

@@ -1,7 +1,7 @@
 package me.roundaround.roundalib.client.gui.screen;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.widget.FullBodyWrapperWidget;
+import me.roundaround.roundalib.client.gui.widget.layout.FullBodyWrapperWidget;
 import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
 import me.roundaround.roundalib.config.manage.ModConfig;
 import net.minecraft.client.gui.screen.Screen;

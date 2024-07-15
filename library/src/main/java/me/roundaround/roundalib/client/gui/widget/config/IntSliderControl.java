@@ -1,9 +1,9 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
-import me.roundaround.roundalib.client.gui.widget.FillerWidget;
+import me.roundaround.roundalib.client.gui.widget.layout.FillerWidget;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.IntSliderWidget;
-import me.roundaround.roundalib.client.gui.widget.LinearLayoutWidget;
+import me.roundaround.roundalib.client.gui.widget.layout.LinearLayoutWidget;
 import me.roundaround.roundalib.config.option.IntConfigOption;
 import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
 import me.roundaround.roundalib.config.panic.Panic;

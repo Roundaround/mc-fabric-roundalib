@@ -1,7 +1,7 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.widget.LinearLayoutWidget;
+import me.roundaround.roundalib.client.gui.widget.layout.LinearLayoutWidget;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
