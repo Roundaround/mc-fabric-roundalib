@@ -2,10 +2,7 @@ package me.roundaround.testmod.client.screen.demo;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.Spacing;
-import me.roundaround.roundalib.client.gui.widget.FullBodyWrapperWidget;
-import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
-import me.roundaround.roundalib.client.gui.widget.LinearLayoutWidget;
-import me.roundaround.roundalib.client.gui.widget.ResponsiveGridWidget;
+import me.roundaround.roundalib.client.gui.widget.*;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -26,7 +23,7 @@ public class IconButtonDemoScreen extends Screen implements DemoScreen {
   private static final Text TITLE_TEXT = Text.translatable("testmod.iconbuttondemoscreen.title");
 
   private final Screen parent;
-  private ThreePartsLayoutWidget layout;
+  private final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this);
 
   private int size = IconButtonWidget.SIZE_V;
 
@@ -37,26 +34,23 @@ public class IconButtonDemoScreen extends Screen implements DemoScreen {
 
   @Override
   protected void init() {
-    this.layout = new ThreePartsLayoutWidget(this);
-
-    LinearLayoutWidget header = LinearLayoutWidget.vertical((self) -> {
+    LinearLayoutWidget header = LinearLayoutWidget.vertical()
+        .spacing(GuiUtil.PADDING / 2)
+        .alignCenterX()
+        .alignCenterY();
+    this.layout.addHeader(new WrapperLayoutWidget<>(header, (self) -> {
       self.setDimensions(this.width, this.layout.getHeaderHeight());
-    }).spacing(GuiUtil.PADDING / 2);
-    header.getMainPositioner().alignHorizontalCenter().alignVerticalCenter();
-    this.layout.addHeader(header);
+    }));
 
     header.add(new TextWidget(this.getTitle(), this.textRenderer).alignCenter());
-    header.add(new CyclingButtonWidget.Builder<Integer>((value) -> Text.of(String.format("%sx",
-        value))).values(List.of(IconButtonWidget.SIZE_V,
-            IconButtonWidget.SIZE_L,
-            IconButtonWidget.SIZE_M,
-            IconButtonWidget.SIZE_S))
+    header.add(new CyclingButtonWidget.Builder<Integer>((value) -> Text.of(String.format("%sx", value))).values(
+            List.of(IconButtonWidget.SIZE_V, IconButtonWidget.SIZE_L, IconButtonWidget.SIZE_M, IconButtonWidget.SIZE_S))
         .initially(this.size)
         .omitKeyText()
         .build(Text.empty(), this::onSizeChange));
 
     header.refreshPositions();
-    this.layout.setHeaderHeight(header.getContentHeight() + 2 * GuiUtil.PADDING);
+    this.layout.setHeaderHeight(header.getHeight() + 2 * GuiUtil.PADDING);
 
     int iconSize = switch (this.size) {
       case IconButtonWidget.SIZE_S -> IconButtonWidget.SIZE_S;
@@ -65,12 +59,10 @@ public class IconButtonDemoScreen extends Screen implements DemoScreen {
     };
     List<IconButtonWidget.BuiltinIcon> icons = IconButtonWidget.BuiltinIcon.valuesOfSize(iconSize);
 
-    ResponsiveGridWidget grid = new ResponsiveGridWidget(this.width,
-        this.layout.getContentHeight(),
-        this.size,
-        this.size).spacing(GuiUtil.PADDING * 2).centered();
-    this.layout.addBody(new FullBodyWrapperWidget(grid, this.layout).margin(Spacing.of(
-        GuiUtil.PADDING * 2)));
+    ResponsiveGridWidget grid = new ResponsiveGridWidget(this.width, this.layout.getContentHeight(), this.size,
+        this.size
+    ).spacing(GuiUtil.PADDING * 2).centered();
+    this.layout.addBody(new FullBodyWrapperWidget(grid, this.layout).margin(Spacing.of(GuiUtil.PADDING * 2)));
 
     for (IconButtonWidget.BuiltinIcon icon : icons) {
       grid.add(IconButtonWidget.builder(icon, TestMod.MOD_ID)

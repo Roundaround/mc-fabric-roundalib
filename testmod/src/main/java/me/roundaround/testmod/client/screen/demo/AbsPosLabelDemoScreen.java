@@ -5,6 +5,7 @@ import me.roundaround.roundalib.client.gui.layout.IntRect;
 import me.roundaround.roundalib.client.gui.layout.TextAlignment;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.LinearLayoutWidget;
+import me.roundaround.roundalib.client.gui.widget.WrapperLayoutWidget;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -41,23 +42,27 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
 
   @Override
   protected void init() {
-    LinearLayoutWidget header = LinearLayoutWidget.vertical((self) -> {
+    LinearLayoutWidget header = LinearLayoutWidget.vertical()
+        .spacing(GuiUtil.PADDING / 2)
+        .alignCenterX()
+        .alignCenterY();
+    this.layout.addHeader(new WrapperLayoutWidget<>(header, (self) -> {
       self.setDimensions(this.width, this.layout.getHeaderHeight());
-    }).spacing(GuiUtil.PADDING / 2);
-    header.getMainPositioner().alignHorizontalCenter().alignVerticalCenter();
-    this.layout.addHeader(header);
+    }));
 
     header.add(new TextWidget(this.getTitle(), this.textRenderer).alignCenter());
-    header.add(new CyclingButtonWidget.Builder<OverflowBehavior>((value) -> value.getDisplayText(
-        TestMod.MOD_ID)).values(OverflowBehavior.values())
-        .initially(OverflowBehavior.SHOW)
-        .omitKeyText()
-        .build(Text.empty(), this::onOverflowBehaviorChange));
+    header.add(
+        new CyclingButtonWidget.Builder<OverflowBehavior>((value) -> value.getDisplayText(TestMod.MOD_ID)).values(
+                OverflowBehavior.values())
+            .initially(OverflowBehavior.SHOW)
+            .omitKeyText()
+            .build(Text.empty(), this::onOverflowBehaviorChange));
 
     header.refreshPositions();
-    this.layout.setHeaderHeight(header.getContentHeight() + 2 * GuiUtil.PADDING);
+    this.layout.setHeaderHeight(header.getHeight() + 2 * GuiUtil.PADDING);
 
-    LinearLayoutWidget body = this.layout.addBody(LinearLayoutWidget.horizontal((self) -> {
+    LinearLayoutWidget body = LinearLayoutWidget.horizontal();
+    this.layout.addBody(new WrapperLayoutWidget<>(body, (self) -> {
       int totalWidth = this.width - 2 * GuiUtil.PADDING;
       int contentWidth = 3 * columnWidth(totalWidth) + 2 * columnSpacing(totalWidth);
       self.setPosition((this.width - contentWidth) / 2, this.layout.getHeaderHeight());
@@ -67,7 +72,8 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
 
     for (TextAlignment alignmentX : TextAlignment.values()) {
       LinearLayoutWidget column = body.add(LinearLayoutWidget.vertical().spacing(20),
-          (parent, self) -> self.setDimensions(columnWidth(parent.getWidth()), parent.getHeight()));
+          (parent, self) -> self.setDimensions(columnWidth(parent.getWidth()), parent.getHeight())
+      );
 
       for (TextAlignment alignmentY : TextAlignment.values()) {
         this.addLabel(column, alignmentX, alignmentY);
@@ -97,32 +103,28 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
 
     if (this.debug) {
       for (LabelWidget label : this.labels) {
-        context.fill(label.getX(),
-            label.getY(),
-            label.getRight(),
-            label.getBottom(),
-            GuiUtil.genColorInt(0.3f, 0, 0.1f, 0.5f));
-        context.drawBorder(label.getX(),
-            label.getY(),
-            label.getWidth(),
-            label.getHeight(),
-            GuiUtil.genColorInt(1f, 1f, 1f, 0.3f));
+        context.fill(label.getX(), label.getY(), label.getRight(), label.getBottom(),
+            GuiUtil.genColorInt(0.3f, 0, 0.1f, 0.5f)
+        );
+        context.drawBorder(label.getX(), label.getY(), label.getWidth(), label.getHeight(),
+            GuiUtil.genColorInt(1f, 1f, 1f, 0.3f)
+        );
 
         IntRect textBounds = label.getTextBounds();
-        context.fill(textBounds.left(),
-            textBounds.top(),
-            textBounds.right(),
-            textBounds.bottom(),
-            GuiUtil.genColorInt(0, 0.4f, 0.9f));
+        context.fill(textBounds.left(), textBounds.top(), textBounds.right(), textBounds.bottom(),
+            GuiUtil.genColorInt(0, 0.4f, 0.9f)
+        );
       }
     }
   }
 
 
   private void addLabel(
-      LinearLayoutWidget column, TextAlignment alignmentX, TextAlignment alignmentY) {
+      LinearLayoutWidget column, TextAlignment alignmentX, TextAlignment alignmentY
+  ) {
     LabelWidget label = LabelWidget.builder(this.textRenderer,
-            Text.of(String.format("== == %s/%s == ==", nameX(alignmentX), nameY(alignmentY))))
+            Text.of(String.format("== == %s/%s == ==", nameX(alignmentX), nameY(alignmentY)))
+        )
         .justifiedHorizontally(alignmentX)
         .alignedVertically(alignmentY)
         .overflowBehavior(OverflowBehavior.SHOW)
@@ -133,8 +135,7 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
     this.labels.add(label);
 
     int index = column.getChildren().size();
-    column.add(label,
-        (parent, self) -> self.setDimensions(parent.getWidth(), rowHeight(parent, index)));
+    column.add(label, (parent, self) -> self.setDimensions(parent.getWidth(), rowHeight(parent, index)));
   }
 
   @Override
@@ -148,7 +149,8 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
   }
 
   private void onOverflowBehaviorChange(
-      CyclingButtonWidget<OverflowBehavior> button, OverflowBehavior value) {
+      CyclingButtonWidget<OverflowBehavior> button, OverflowBehavior value
+  ) {
     this.labels.forEach((label) -> label.setOverflowBehavior(value));
     this.initTabNavigation();
   }

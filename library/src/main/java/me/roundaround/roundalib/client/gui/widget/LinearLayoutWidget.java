@@ -327,10 +327,9 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
       return this.widget;
     }
 
-    @SuppressWarnings("unchecked")
     public void onLayout(LinearLayoutWidget parent) {
       if (this.layoutHook != null) {
-        this.layoutHook.run(parent, (T) this);
+        this.layoutHook.run(parent, this.widget);
       }
     }
 
