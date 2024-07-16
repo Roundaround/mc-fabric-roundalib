@@ -5,8 +5,7 @@ import me.roundaround.roundalib.client.gui.layout.IntRect;
 import me.roundaround.roundalib.client.gui.layout.TextAlignment;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.layout.LayoutCollectionWidget;
-import me.roundaround.roundalib.client.gui.widget.layout.LinearLayoutWidget;
-import me.roundaround.roundalib.client.gui.widget.layout.WrapperLayoutWidget;
+import me.roundaround.roundalib.client.gui.widget.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -14,8 +13,6 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
-import net.minecraft.client.gui.widget.TextWidget;
-import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
@@ -30,7 +27,7 @@ public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
   private static final Text TITLE_TEXT = Text.translatable("testmod.refposlabeldemoscreen.title");
 
   private final Screen parent;
-  private final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this);
+  private final ThreeSectionLayoutWidget layout = new ThreeSectionLayoutWidget(this);
   private final ArrayList<LabelWidget> labels = new ArrayList<>();
 
   private boolean debug = false;
@@ -42,24 +39,14 @@ public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
 
   @Override
   protected void init() {
-    LinearLayoutWidget header = LinearLayoutWidget.vertical()
-        .spacing(GuiUtil.PADDING / 2)
-        .alignCenterX()
-        .alignCenterY();
-    this.layout.addHeader(new WrapperLayoutWidget<>(header, (self) -> {
-      self.setDimensions(this.width, this.layout.getHeaderHeight());
-    }));
-
-    header.add(new TextWidget(this.getTitle(), this.textRenderer).alignCenter());
-    header.add(
+    this.layout.addHeader(this.textRenderer, this.getTitle());
+    this.layout.addHeader(
         new CyclingButtonWidget.Builder<OverflowBehavior>((value) -> value.getDisplayText(TestMod.MOD_ID)).values(
                 OverflowBehavior.values())
             .initially(OverflowBehavior.SHOW)
             .omitKeyText()
             .build(Text.empty(), this::onOverflowBehaviorChange));
-
-    header.refreshPositions();
-    this.layout.setHeaderHeight(header.getHeight() + 2 * GuiUtil.PADDING);
+    this.layout.setHeaderHeight(this.layout.getHeader().getContentHeight() + 2 * GuiUtil.PADDING);
 
     LayoutCollectionWidget labelsContainer = this.layout.addBody(LayoutCollectionWidget.create());
     for (TextAlignment alignmentX : TextAlignment.values()) {
@@ -149,7 +136,7 @@ public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
   }
 
   private int relativeY(float scale) {
-    int paddedContentHeight = this.layout.getContentHeight() - 2 * GuiUtil.PADDING;
+    int paddedContentHeight = this.layout.getBodyHeight() - 2 * GuiUtil.PADDING;
     return this.layout.getHeaderHeight() + GuiUtil.PADDING + (int) (paddedContentHeight * scale);
   }
 
@@ -158,7 +145,7 @@ public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
   }
 
   private int rowHeight() {
-    return (this.layout.getContentHeight() - 4 * GuiUtil.PADDING) / 3;
+    return (this.layout.getBodyHeight() - 4 * GuiUtil.PADDING) / 3;
   }
 
   private void onOverflowBehaviorChange(

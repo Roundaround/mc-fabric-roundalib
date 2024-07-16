@@ -13,7 +13,6 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
-import net.minecraft.client.gui.widget.TextWidget;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Divider;
@@ -41,14 +40,14 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
 
   @Override
   protected void init() {
-    this.layout.addHeader(new TextWidget(this.getTitle(), this.textRenderer).alignCenter());
+    this.layout.addHeader(this.textRenderer, this.getTitle());
     this.layout.addHeader(
         new CyclingButtonWidget.Builder<OverflowBehavior>((value) -> value.getDisplayText(TestMod.MOD_ID)).values(
                 OverflowBehavior.values())
             .initially(OverflowBehavior.SHOW)
             .omitKeyText()
             .build(Text.empty(), this::onOverflowBehaviorChange));
-    this.layout.setHeaderHeight(this.layout.getHeader().getContentHeight());
+    this.layout.setHeaderHeight(this.layout.getHeader().getContentHeight() + 2 * GuiUtil.PADDING);
 
     this.layout.getBody().flowAxis(LinearLayoutWidget.FlowAxis.HORIZONTAL);
     this.layout.setBodyLayoutHook((parent, self) -> {
@@ -112,9 +111,8 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
   }
 
   private void highlightSection(DrawContext context, LinearLayoutWidget section, int color) {
-    context.fill(
-        section.getX(), section.getY(), section.getX() + section.getWidth(), section.getY() + section.getHeight(),
-        color
+    context.fill(section.getX(), section.getY(), section.getX() + section.getWidth(),
+        section.getY() + section.getHeight(), color
     );
   }
 

@@ -3,7 +3,6 @@ package me.roundaround.testmod.client.screen.demo;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.DrawableWidget;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
-import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.layout.LinearLayoutWidget;
 import me.roundaround.roundalib.client.gui.widget.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.testmod.TestMod;
@@ -34,11 +33,7 @@ public class LinearLayoutWidgetDemoScreen extends Screen implements DemoScreen {
 
   @Override
   protected void init() {
-    this.layout.addHeader(LabelWidget.builder(this.textRenderer, this.getTitle())
-        .justifiedCenter()
-        .hideBackground()
-        .showShadow()
-        .build());
+    this.layout.addHeader(this.textRenderer, this.getTitle());
 
     LinearLayoutWidget linearLayoutWidget = LinearLayoutWidget.horizontal()
         .alignCenterX()

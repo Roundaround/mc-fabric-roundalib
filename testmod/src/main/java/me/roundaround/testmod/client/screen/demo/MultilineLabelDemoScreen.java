@@ -3,10 +3,10 @@ package me.roundaround.testmod.client.screen.demo;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.IntRect;
 import me.roundaround.roundalib.client.gui.layout.TextAlignment;
-import me.roundaround.roundalib.client.gui.widget.*;
-import me.roundaround.roundalib.client.gui.widget.layout.LayoutCollectionWidget;
+import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
+import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.layout.LinearLayoutWidget;
-import me.roundaround.roundalib.client.gui.widget.layout.WrapperLayoutWidget;
+import me.roundaround.roundalib.client.gui.widget.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -14,7 +14,6 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
-import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
@@ -29,7 +28,7 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
   private static final Text TITLE_TEXT = Text.translatable("testmod.multilinelabeldemoscreen.title");
 
   private final Screen parent;
-  private final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this);
+  private final ThreeSectionLayoutWidget layout = new ThreeSectionLayoutWidget(this);
 
   private LabelWidget label;
   private IconButtonWidget minusButton;
@@ -44,23 +43,12 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
 
   @Override
   protected void init() {
-    LinearLayoutWidget header = LinearLayoutWidget.vertical()
-        .spacing(GuiUtil.PADDING / 2)
+    this.layout.addHeader(this.textRenderer, this.getTitle());
+
+    LinearLayoutWidget buttonRow = LinearLayoutWidget.horizontal()
+        .spacing(GuiUtil.PADDING)
         .alignCenterX()
         .alignCenterY();
-    this.layout.addHeader(new WrapperLayoutWidget<>(header, (self) -> {
-      self.setDimensions(this.width, this.layout.getHeaderHeight());
-    }));
-
-    header.add(LabelWidget.builder(this.textRenderer, this.getTitle())
-        .justifiedCenter()
-        .hideBackground()
-        .showShadow()
-        .build());
-
-    LinearLayoutWidget buttonRow = header.add(
-        LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING).alignCenterX().alignCenterY());
-
     buttonRow.add(
         new CyclingButtonWidget.Builder<OverflowBehavior>((value) -> value.getDisplayText(TestMod.MOD_ID)).values(
                 OverflowBehavior.values())
@@ -83,19 +71,18 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
     this.plusButton = buttonRow.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.PLUS_18, TestMod.MOD_ID)
         .onPress((button) -> this.onLineCountChange(this.lineCount + 1))
         .build());
+    this.layout.addHeader(buttonRow);
 
-    header.refreshPositions();
-    this.layout.setHeaderHeight(header.getHeight() + 2 * GuiUtil.PADDING);
+    this.layout.setHeaderHeight(this.layout.getHeader().getContentHeight() + 2 * GuiUtil.PADDING);
 
-    LayoutCollectionWidget body = this.layout.addBody(LayoutCollectionWidget.create());
-    this.label = body.add(LabelWidget.builder(this.textRenderer, this.generateLines())
+    this.label = this.layout.addBody(LabelWidget.builder(this.textRenderer, this.generateLines())
         .width(60)
         .positionMode(LabelWidget.PositionMode.REFERENCE)
         .justifiedCenter()
         .alignedMiddle()
         .lineSpacing(1)
         .build(), (parent, self) -> {
-      self.setPosition(this.width / 2, this.layout.getHeaderHeight() + this.layout.getContentHeight() / 2);
+      self.setPosition(this.width / 2, this.layout.getHeaderHeight() + this.layout.getBodyHeight() / 2);
     });
 
     this.layout.addFooter(ButtonWidget.builder(ScreenTexts.DONE, (button) -> this.close()).build());
@@ -150,7 +137,7 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
   }
 
   private int centerY() {
-    int paddedContentHeight = this.layout.getContentHeight() - 2 * GuiUtil.PADDING;
+    int paddedContentHeight = this.layout.getBodyHeight() - 2 * GuiUtil.PADDING;
     return this.layout.getHeaderHeight() + GuiUtil.PADDING + (int) (paddedContentHeight * 0.5f);
   }
 

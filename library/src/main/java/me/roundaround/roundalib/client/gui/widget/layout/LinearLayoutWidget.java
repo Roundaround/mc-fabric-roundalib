@@ -136,6 +136,10 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
     return widget;
   }
 
+  public void clearChildren() {
+    this.cells.clear();
+  }
+
   public List<Widget> getChildren() {
     return this.cells.stream().map((cell) -> (Widget) cell.getWidget()).toList();
   }

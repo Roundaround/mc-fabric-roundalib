@@ -1,11 +1,14 @@
 package me.roundaround.roundalib.client.gui.widget.layout.screen;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.layout.LayoutHookWithParent;
 import me.roundaround.roundalib.client.gui.widget.layout.LinearLayoutWidget;
 import me.roundaround.roundalib.client.gui.widget.layout.SizableLayoutWidget;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.text.Text;
 
 import java.util.function.Consumer;
 
@@ -117,6 +120,21 @@ public class ThreeSectionLayoutWidget extends SizableLayoutWidget {
 
   public LinearLayoutWidget getFooter() {
     return this.footer;
+  }
+
+  public void clearChildren() {
+    this.header.clearChildren();
+    this.body.clearChildren();
+    this.footer.clearChildren();
+  }
+
+  public LabelWidget addHeader(TextRenderer textRenderer, Text title) {
+    return this.header.add(LabelWidget.builder(textRenderer, title)
+        .justifiedCenter()
+        .alignedMiddle()
+        .hideBackground()
+        .showShadow()
+        .build());
   }
 
   public <T extends Widget> T addHeader(T widget) {
