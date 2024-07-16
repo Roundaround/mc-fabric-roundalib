@@ -5,6 +5,7 @@
   "testmod.refposlabeldemoscreen.title": "Reference Positioning Label Demo",
   "testmod.absposlabeldemoscreen.title": "Absolute Positioning Label Demo",
   "testmod.multilinelabeldemoscreen.title": "Multiline Label Demo",
+  "testmod.linearlayoutdemoscreen.title": "Linear Layout Widget Demo",
   "testmod.advancedlayoutdemoscreen.title": "Advanced Layout Demo",
   "testmod.config.title": "Testmod Config",
   "testmod.testmod.title": "Testmod Base Config",

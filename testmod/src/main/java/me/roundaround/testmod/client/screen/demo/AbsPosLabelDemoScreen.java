@@ -48,7 +48,7 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
             .initially(OverflowBehavior.SHOW)
             .omitKeyText()
             .build(Text.empty(), this::onOverflowBehaviorChange));
-    this.layout.setHeaderHeight(this.layout.getHeader().getPaddedContentHeight());
+    this.layout.setHeaderHeight(this.layout.getHeader().getContentHeight());
 
     this.layout.getBody().flowAxis(LinearLayoutWidget.FlowAxis.HORIZONTAL);
     this.layout.setBodyLayoutHook((parent, self) -> {

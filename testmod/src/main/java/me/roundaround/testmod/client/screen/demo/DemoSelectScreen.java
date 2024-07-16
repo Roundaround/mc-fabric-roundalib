@@ -59,6 +59,12 @@ public class DemoSelectScreen extends Screen implements DemoScreen {
     }, index, left, top, width
     ));
     list.addEntry((index, left, top, width) -> new DemoSelectListWidget.Entry(this.textRenderer,
+        Text.translatable("testmod.linearlayoutdemoscreen.title"), () -> {
+      GuiUtil.playClickSound();
+      this.navigate(new LinearLayoutWidgetDemoScreen(this));
+    }, index, left, top, width
+    ));
+    list.addEntry((index, left, top, width) -> new DemoSelectListWidget.Entry(this.textRenderer,
         Text.translatable("testmod.advancedlayoutdemoscreen.title"), () -> {
       GuiUtil.playClickSound();
       this.navigate(new AdvancedLayoutDemoScreen(this));

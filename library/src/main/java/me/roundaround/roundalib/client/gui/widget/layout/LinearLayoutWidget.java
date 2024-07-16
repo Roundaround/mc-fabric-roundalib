@@ -16,7 +16,6 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
   private final List<CellWidget<?>> cells = new ArrayList<>();
 
   private FlowAxis flowAxis;
-  private Spacing padding = Spacing.zero();
   private float alignX;
   private float alignY;
   private int spacing;
@@ -65,11 +64,6 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
 
   public LinearLayoutWidget flowAxis(FlowAxis flowAxis) {
     this.flowAxis = flowAxis;
-    return this;
-  }
-
-  public LinearLayoutWidget padding(Spacing padding) {
-    this.padding = padding;
     return this;
   }
 
@@ -154,10 +148,10 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
   private void calculateContentDimensions() {
     this.contentWidth = switch (this.flowAxis) {
       case HORIZONTAL -> this.getMainContentDimension(CellWidget::getWidth);
-      case VERTICAL -> this.getOffContentDimension(CellWidget::getHeight);
+      case VERTICAL -> this.getOffContentDimension(CellWidget::getWidth);
     };
     this.contentHeight = switch (this.flowAxis) {
-      case HORIZONTAL -> this.getOffContentDimension(CellWidget::getWidth);
+      case HORIZONTAL -> this.getOffContentDimension(CellWidget::getHeight);
       case VERTICAL -> this.getMainContentDimension(CellWidget::getHeight);
     };
   }
@@ -176,55 +170,48 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
     this.cells.forEach((cell) -> cell.onLayout(this));
     this.calculateContentDimensions();
 
-    int mainStart = switch (this.flowAxis) {
-      case HORIZONTAL -> this.getStartX();
-      case VERTICAL -> this.getStartY();
+    int startX = this.getX() + (int) ((this.getWidth() - this.getContentWidth()) * this.alignX);
+    int startY = this.getY() + (int) ((this.getHeight() - this.getContentHeight()) * this.alignY);
+
+    int startMain = switch (this.flowAxis) {
+      case HORIZONTAL -> startX;
+      case VERTICAL -> startY;
     };
-    int offStart = switch (this.flowAxis) {
-      case HORIZONTAL -> this.getStartY();
-      case VERTICAL -> this.getStartX();
+    int startOff = switch (this.flowAxis) {
+      case HORIZONTAL -> startY;
+      case VERTICAL -> startX;
     };
 
-    int mainPos = mainStart - this.spacing;
+    int posMain = startMain;
     for (CellWidget<?> cell : this.cells) {
-      int main = mainPos + this.spacing + this.getMainLeadingCellMargin(cell);
+      int main = posMain + this.getMainLeadingCellMargin(cell);
 
-      float offAlign = switch (this.flowAxis) {
+      float alignOff = switch (this.flowAxis) {
         case HORIZONTAL -> this.alignY;
         case VERTICAL -> this.alignX;
       };
-      int offPos = offStart - (int) (this.getOffCellDimension(cell) * offAlign * this.getCellAlign(cell));
-      int off = offPos + this.getOffLeadingCellMargin(cell);
+      int posOff = startOff - (int) (this.getOffCellDimension(cell) * alignOff * this.getCellAlign(cell));
+      int off = posOff + this.getOffLeadingCellMargin(cell);
 
       switch (this.flowAxis) {
         case HORIZONTAL -> cell.setPosition(main, off);
         case VERTICAL -> cell.setPosition(off, main);
       }
 
-      mainPos += this.getMainCellDimension(cell) + this.spacing;
+      posMain += this.getMainCellDimension(cell) + this.spacing;
     }
 
     super.refreshPositions();
   }
 
-  private int getStartX() {
-    return this.getX() - (int) (this.getWidth() * this.alignX);
-  }
-
-  private int getStartY() {
-    return this.getY() - (int) (this.getHeight() * this.alignY);
-  }
-
   @Override
   public int getWidth() {
-    int baseWidth = this.width != 0 ? this.width : this.contentWidth;
-    return baseWidth + this.padding.getHorizontal();
+    return this.width != 0 ? this.width : this.contentWidth;
   }
 
   @Override
   public int getHeight() {
-    int baseHeight = this.height != 0 ? this.height : this.contentHeight;
-    return baseHeight + this.padding.getVertical();
+    return this.height != 0 ? this.height : this.contentHeight;
   }
 
   public int getContentWidth() {
@@ -233,14 +220,6 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
 
   public int getContentHeight() {
     return this.contentHeight;
-  }
-
-  public int getPaddedContentWidth() {
-    return this.getContentWidth() + this.padding.getHorizontal();
-  }
-
-  public int getPaddedContentHeight() {
-    return this.getContentHeight() + this.padding.getVertical();
   }
 
   public int getSpacing() {

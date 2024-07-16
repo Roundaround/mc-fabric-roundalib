@@ -1,7 +1,6 @@
 package me.roundaround.roundalib.client.gui.widget.layout.screen;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.layout.Spacing;
 import me.roundaround.roundalib.client.gui.widget.layout.LayoutHookWithParent;
 import me.roundaround.roundalib.client.gui.widget.layout.LinearLayoutWidget;
 import me.roundaround.roundalib.client.gui.widget.layout.SizableLayoutWidget;
@@ -44,18 +43,15 @@ public class ThreeSectionLayoutWidget extends SizableLayoutWidget {
     this.header = LinearLayoutWidget.vertical(0, 0, this.width, this.headerHeight)
         .alignCenterX()
         .alignCenterY()
-        .spacing(GuiUtil.PADDING / 2)
-        .padding(Spacing.of(GuiUtil.PADDING));
+        .spacing(GuiUtil.PADDING / 2);
     this.body = LinearLayoutWidget.vertical(0, this.headerHeight, this.width, this.bodyHeight)
         .alignCenterX()
         .alignCenterY()
-        .spacing(GuiUtil.PADDING)
-        .padding(Spacing.of(GuiUtil.PADDING));
+        .spacing(GuiUtil.PADDING);
     this.footer = LinearLayoutWidget.horizontal(0, this.height - this.footerHeight, this.width, this.footerHeight)
         .alignCenterX()
         .alignCenterY()
-        .spacing(GuiUtil.PADDING)
-        .padding(Spacing.of(GuiUtil.PADDING));
+        .spacing(GuiUtil.PADDING);
   }
 
   @Override
@@ -78,13 +74,15 @@ public class ThreeSectionLayoutWidget extends SizableLayoutWidget {
       this.headerLayoutHook.run(this, this.header);
     }
     if (this.bodyLayoutHook != null) {
-      this.bodyLayoutHook.run(this, this.header);
+      this.bodyLayoutHook.run(this, this.body);
     }
     if (this.footerLayoutHook != null) {
-      this.footerLayoutHook.run(this, this.header);
+      this.footerLayoutHook.run(this, this.footer);
     }
 
-    super.refreshPositions();
+    this.header.refreshPositions();
+    this.body.refreshPositions();
+    this.footer.refreshPositions();
   }
 
   public int getHeaderHeight() {
