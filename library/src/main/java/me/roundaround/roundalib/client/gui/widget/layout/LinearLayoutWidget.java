@@ -33,7 +33,7 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
     this(flowAxis, 0, 0, width, height);
   }
 
-  private LinearLayoutWidget(FlowAxis flowAxis, int x, int y, int width, int height) {
+  public LinearLayoutWidget(FlowAxis flowAxis, int x, int y, int width, int height) {
     super(x, y, width, height);
 
     this.flowAxis = flowAxis;
@@ -43,8 +43,24 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
     return new LinearLayoutWidget(FlowAxis.HORIZONTAL);
   }
 
+  public static LinearLayoutWidget horizontal(int width, int height) {
+    return new LinearLayoutWidget(FlowAxis.HORIZONTAL, width, height);
+  }
+
+  public static LinearLayoutWidget horizontal(int x, int y, int width, int height) {
+    return new LinearLayoutWidget(FlowAxis.HORIZONTAL, x, y, width, height);
+  }
+
   public static LinearLayoutWidget vertical() {
     return new LinearLayoutWidget(FlowAxis.VERTICAL);
+  }
+
+  public static LinearLayoutWidget vertical(int width, int height) {
+    return new LinearLayoutWidget(FlowAxis.VERTICAL, width, height);
+  }
+
+  public static LinearLayoutWidget vertical(int x, int y, int width, int height) {
+    return new LinearLayoutWidget(FlowAxis.VERTICAL, x, y, width, height);
   }
 
   public LinearLayoutWidget flowAxis(FlowAxis flowAxis) {
@@ -209,6 +225,22 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
   public int getHeight() {
     int baseHeight = this.height != 0 ? this.height : this.contentHeight;
     return baseHeight + this.padding.getVertical();
+  }
+
+  public int getContentWidth() {
+    return this.contentWidth;
+  }
+
+  public int getContentHeight() {
+    return this.contentHeight;
+  }
+
+  public int getPaddedContentWidth() {
+    return this.getContentWidth() + this.padding.getHorizontal();
+  }
+
+  public int getPaddedContentHeight() {
+    return this.getContentHeight() + this.padding.getVertical();
   }
 
   public int getSpacing() {

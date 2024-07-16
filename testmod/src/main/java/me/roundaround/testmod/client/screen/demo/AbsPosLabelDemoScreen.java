@@ -5,7 +5,7 @@ import me.roundaround.roundalib.client.gui.layout.IntRect;
 import me.roundaround.roundalib.client.gui.layout.TextAlignment;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.layout.LinearLayoutWidget;
-import me.roundaround.roundalib.client.gui.widget.layout.WrapperLayoutWidget;
+import me.roundaround.roundalib.client.gui.widget.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -14,7 +14,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.TextWidget;
-import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Divider;
@@ -30,7 +29,7 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
   private static final Text TITLE_TEXT = Text.translatable("testmod.refposlabeldemoscreen.title");
 
   private final Screen parent;
-  private final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this);
+  private final ThreeSectionLayoutWidget layout = new ThreeSectionLayoutWidget(this);
   private final ArrayList<LabelWidget> labels = new ArrayList<>();
 
   private boolean debug = false;
@@ -42,36 +41,26 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
 
   @Override
   protected void init() {
-    LinearLayoutWidget header = LinearLayoutWidget.vertical()
-        .spacing(GuiUtil.PADDING / 2)
-        .alignCenterX()
-        .alignCenterY();
-    this.layout.addHeader(new WrapperLayoutWidget<>(header, (self) -> {
-      self.setDimensions(this.width, this.layout.getHeaderHeight());
-    }));
-
-    header.add(new TextWidget(this.getTitle(), this.textRenderer).alignCenter());
-    header.add(
+    this.layout.addHeader(new TextWidget(this.getTitle(), this.textRenderer).alignCenter());
+    this.layout.addHeader(
         new CyclingButtonWidget.Builder<OverflowBehavior>((value) -> value.getDisplayText(TestMod.MOD_ID)).values(
                 OverflowBehavior.values())
             .initially(OverflowBehavior.SHOW)
             .omitKeyText()
             .build(Text.empty(), this::onOverflowBehaviorChange));
+    this.layout.setHeaderHeight(this.layout.getHeader().getPaddedContentHeight());
 
-    header.refreshPositions();
-    this.layout.setHeaderHeight(header.getHeight() + 2 * GuiUtil.PADDING);
-
-    LinearLayoutWidget body = LinearLayoutWidget.horizontal();
-    this.layout.addBody(new WrapperLayoutWidget<>(body, (self) -> {
-      int totalWidth = this.width - 2 * GuiUtil.PADDING;
+    this.layout.getBody().flowAxis(LinearLayoutWidget.FlowAxis.HORIZONTAL);
+    this.layout.setBodyLayoutHook((parent, self) -> {
+      int totalWidth = parent.getWidth() - 2 * GuiUtil.PADDING;
       int contentWidth = 3 * columnWidth(totalWidth) + 2 * columnSpacing(totalWidth);
-      self.setPosition((this.width - contentWidth) / 2, this.layout.getHeaderHeight());
-      self.setDimensions(contentWidth, this.layout.getContentHeight());
+      self.setX((parent.getWidth() - contentWidth) / 2);
+      self.setWidth(contentWidth);
       self.spacing(columnSpacing(totalWidth));
-    }));
+    });
 
     for (TextAlignment alignmentX : TextAlignment.values()) {
-      LinearLayoutWidget column = body.add(LinearLayoutWidget.vertical().spacing(20),
+      LinearLayoutWidget column = this.layout.addBody(LinearLayoutWidget.vertical().spacing(20),
           (parent, self) -> self.setDimensions(columnWidth(parent.getWidth()), parent.getHeight())
       );
 
@@ -102,6 +91,10 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
     super.renderBackground(context, mouseX, mouseY, delta);
 
     if (this.debug) {
+      this.highlightSection(context, this.layout.getHeader(), GuiUtil.genColorInt(1f, 0f, 0f));
+      this.highlightSection(context, this.layout.getBody(), GuiUtil.genColorInt(0f, 1f, 0f));
+      this.highlightSection(context, this.layout.getFooter(), GuiUtil.genColorInt(0f, 0f, 1f));
+
       for (LabelWidget label : this.labels) {
         context.fill(label.getX(), label.getY(), label.getRight(), label.getBottom(),
             GuiUtil.genColorInt(0.3f, 0, 0.1f, 0.5f)
@@ -118,6 +111,12 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
     }
   }
 
+  private void highlightSection(DrawContext context, LinearLayoutWidget section, int color) {
+    context.fill(
+        section.getX(), section.getY(), section.getX() + section.getWidth(), section.getY() + section.getHeight(),
+        color
+    );
+  }
 
   private void addLabel(
       LinearLayoutWidget column, TextAlignment alignmentX, TextAlignment alignmentY
@@ -152,7 +151,7 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
       CyclingButtonWidget<OverflowBehavior> button, OverflowBehavior value
   ) {
     this.labels.forEach((label) -> label.setOverflowBehavior(value));
-    this.initTabNavigation();
+    this.layout.refreshPositions();
   }
 
   private static int columnWidth(int parentWidth) {

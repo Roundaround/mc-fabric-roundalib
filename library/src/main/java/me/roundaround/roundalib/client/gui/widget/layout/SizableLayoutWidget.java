@@ -65,8 +65,8 @@ public abstract class SizableLayoutWidget implements LayoutWidget {
     this.setHeight(height);
   }
 
-  public void setDimensionsAndPosition(int width, int height, int x, int y) {
-    this.setDimensions(width, height);
+  public void setPositionAndDimensions(int x, int y, int width, int height) {
     this.setPosition(x, y);
+    this.setDimensions(width, height);
   }
 }

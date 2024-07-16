@@ -224,9 +224,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
       layout.add(this.resetButton);
 
       this.addLayout(layout, (self) -> {
-        self.setDimensionsAndPosition(this.getContentWidth(), this.getContentHeight(), this.getContentLeft(),
-            this.getContentTop()
-        );
+        self.setPositionAndDimensions(this.getContentLeft(), this.getContentWidth(), this.getContentHeight(), this.getContentTop());
       });
       layout.forEachChild(this::addDrawableChild);
 
