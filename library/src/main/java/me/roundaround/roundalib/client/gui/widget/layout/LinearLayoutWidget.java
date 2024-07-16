@@ -170,27 +170,18 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
     this.cells.forEach((cell) -> cell.onLayout(this));
     this.calculateContentDimensions();
 
-    int startX = this.getX() + (int) ((this.getWidth() - this.getContentWidth()) * this.alignX);
-    int startY = this.getY() + (int) ((this.getHeight() - this.getContentHeight()) * this.alignY);
-
-    int startMain = switch (this.flowAxis) {
-      case HORIZONTAL -> startX;
-      case VERTICAL -> startY;
-    };
-    int startOff = switch (this.flowAxis) {
-      case HORIZONTAL -> startY;
-      case VERTICAL -> startX;
+    int posMain = switch (this.flowAxis) {
+      case HORIZONTAL -> this.getX() + (int) ((this.getWidth() - this.getContentWidth()) * this.alignX);
+      case VERTICAL -> this.getY() + (int) ((this.getHeight() - this.getContentHeight()) * this.alignY);
     };
 
-    int posMain = startMain;
     for (CellWidget<?> cell : this.cells) {
-      int main = posMain + this.getMainLeadingCellMargin(cell);
-
-      float alignOff = switch (this.flowAxis) {
-        case HORIZONTAL -> this.alignY;
-        case VERTICAL -> this.alignX;
+      int posOff = switch (this.flowAxis) {
+        case HORIZONTAL -> this.getY() + (int) ((this.getHeight() - cell.getHeight()) * this.getCellAlign(cell));
+        case VERTICAL -> this.getX() + (int) ((this.getWidth() - cell.getWidth()) * this.getCellAlign(cell));
       };
-      int posOff = startOff - (int) (this.getOffCellDimension(cell) * alignOff * this.getCellAlign(cell));
+
+      int main = posMain + this.getMainLeadingCellMargin(cell);
       int off = posOff + this.getOffLeadingCellMargin(cell);
 
       switch (this.flowAxis) {
