@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.Spacing;
 import me.roundaround.roundalib.client.gui.widget.layout.LayoutHook;
+import me.roundaround.roundalib.client.gui.widget.layout.WrapperLayoutWidget;
 import me.roundaround.roundalib.client.gui.widget.layout.screen.ThreeSectionLayoutWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -680,12 +681,12 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     }
 
     public List<? extends LayoutWidget> layoutWidgets() {
-      return this.layouts.stream().map(LayoutWrapper::getWrapped).toList();
+      return this.layouts.stream().map(LayoutWrapper::getWidget).toList();
     }
 
     @Override
     public void forEachElement(Consumer<Widget> consumer) {
-      this.layouts.forEach((wrapper) -> consumer.accept(wrapper.getWrapped()));
+      this.layouts.forEach((wrapper) -> consumer.accept(wrapper.getWidget()));
     }
 
     @Override
@@ -941,22 +942,9 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   @Environment(EnvType.CLIENT)
-  public final static class LayoutWrapper<T extends LayoutWidget> {
-    private final T wrapped;
-    private final LayoutHook<T> hook;
-
-    public LayoutWrapper(T wrapped, LayoutHook<T> hook) {
-      this.wrapped = wrapped;
-      this.hook = hook;
-    }
-
-    public void refreshPositions() {
-      this.hook.run(this.wrapped);
-      this.wrapped.refreshPositions();
-    }
-
-    public T getWrapped() {
-      return this.wrapped;
+  public final static class LayoutWrapper<T extends LayoutWidget> extends WrapperLayoutWidget<T> {
+    public LayoutWrapper(T widget, LayoutHook<T> hook) {
+      super(widget, hook);
     }
   }
 

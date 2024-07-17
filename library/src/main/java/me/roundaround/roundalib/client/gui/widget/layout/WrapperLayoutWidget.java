@@ -6,17 +6,28 @@ import net.minecraft.client.gui.widget.Widget;
 import java.util.function.Consumer;
 
 public class WrapperLayoutWidget<T extends Widget> implements LayoutWidget {
-  private final T widget;
+  protected final T widget;
+
   private final LayoutHook<T> layoutHook;
+
+  public WrapperLayoutWidget(T widget) {
+    this(widget, null);
+  }
 
   public WrapperLayoutWidget(T widget, LayoutHook<T> layoutHook) {
     this.widget = widget;
     this.layoutHook = layoutHook;
   }
 
+  public T getWidget() {
+    return this.widget;
+  }
+
   @Override
   public void refreshPositions() {
-    this.layoutHook.run(this.widget);
+    if (this.layoutHook != null) {
+      this.layoutHook.run(this.widget);
+    }
     LayoutWidget.super.refreshPositions();
   }
 

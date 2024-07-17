@@ -17,10 +17,7 @@ public class FloatTextControl extends Control<Float, FloatConfigOption> {
   public FloatTextControl(MinecraftClient client, FloatConfigOption option, int width, int height) {
     super(client, option, width, height);
 
-    this.textField = this.add(new TextFieldWidget(client.textRenderer,
-        width - 2,
-        height - 2,
-        this.option.getLabel()) {
+    this.textField = this.add(new TextFieldWidget(client.textRenderer, width - 2, height - 2, this.option.getLabel()) {
       @Override
       public boolean charTyped(char chr, int keyCode) {
         if (chr == '-' && this.getCursor() > 0) {

@@ -11,28 +11,21 @@ public class FloatSliderControl extends Control<Float, FloatConfigOption> {
   private final FloatSliderWidget slider;
 
   public FloatSliderControl(
-      MinecraftClient client, FloatConfigOption option, int width, int height) {
+      MinecraftClient client, FloatConfigOption option, int width, int height
+  ) {
     super(client, option, width, height);
 
-    if (!this.option.useSlider() || this.option.getMinValue() == null ||
-        this.option.getMaxValue() == null) {
+    if (!this.option.useSlider() || this.option.getMinValue() == null || this.option.getMaxValue() == null) {
       Panic.panic(new IllegalArgumentPanic(
               "FloatConfigOption must use slider and have min and max values to use FloatSliderControl"),
-          this.getOption().getModId());
+          this.getOption().getModId()
+      );
     }
 
-    this.slider = this.add(new FloatSliderWidget(width,
-        height,
-        this.option.getMinValue(),
-        this.option.getMaxValue(),
-        this.option.getPendingValue(),
-        this::step,
-        this::onSliderChanged,
-        this::getValueAsText), (parent, self) -> {
-      self.setDimensionsAndPosition(parent.getWidth(),
-          parent.getHeight(),
-          parent.getX(),
-          parent.getY());
+    this.slider = this.add(new FloatSliderWidget(width, height, this.option.getMinValue(), this.option.getMaxValue(),
+        this.option.getPendingValue(), this::step, this::onSliderChanged, this::getValueAsText
+    ), (parent, self) -> {
+      self.setDimensions(parent.getWidth(), parent.getHeight());
     });
 
     this.update();

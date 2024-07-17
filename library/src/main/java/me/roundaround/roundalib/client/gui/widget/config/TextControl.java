@@ -11,11 +11,10 @@ public class TextControl extends Control<String, StringConfigOption> {
   public TextControl(MinecraftClient client, StringConfigOption option, int width, int height) {
     super(client, option, width, height);
 
-    this.textField =
-        this.add(new TextFieldWidget(client.textRenderer, width, height, this.option.getLabel()),
-            (parent, self) -> {
-              self.setDimensions(parent.getWidth(), parent.getHeight());
-            });
+    this.textField = this.add(
+        new TextFieldWidget(client.textRenderer, width, height, this.option.getLabel()), (parent, self) -> {
+          self.setDimensions(parent.getWidth(), parent.getHeight());
+        });
 
     this.textField.setText(this.option.getPendingValue());
     this.textField.setChangedListener(this::onTextChanged);

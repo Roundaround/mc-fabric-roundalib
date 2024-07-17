@@ -184,6 +184,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
 
     protected final O option;
     protected final TooltipWidget tooltip;
+    protected final LinearLayoutWidget layout;
     protected final LabelWidget label;
     protected final Control<D, O> control;
     protected final IconButtonWidget resetButton;
@@ -199,7 +200,10 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
       tooltipLines.add(Text.literal(option.getPath().toString()).formatted(Formatting.GRAY));
       this.tooltip = this.addDrawable(new TooltipWidget(tooltipLines));
 
-      LinearLayoutWidget layout = LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING).alignCenterY();
+      this.layout = LinearLayoutWidget.horizontal(
+              this.getContentLeft(), this.getContentTop(), this.getContentWidth(), this.getContentHeight())
+          .spacing(GuiUtil.PADDING)
+          .alignCenterY();
 
       this.label = LabelWidget.builder(client.textRenderer, option.getLabel())
           .justifiedLeft()
@@ -209,13 +213,13 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
           .showShadow()
           .hideBackground()
           .build();
-      layout.add(this.label, (parent, self) -> {
+      this.layout.add(this.label, (parent, self) -> {
         self.setDimensions(this.getLabelWidth(parent), this.getContentHeight());
       });
 
       this.control = ControlRegistry.getControlFactory(option)
-          .create(client, option, this.getControlWidth(layout), this.getContentHeight());
-      layout.add(this.control, (parent, self) -> {
+          .create(client, option, this.getControlWidth(this.layout), this.getContentHeight());
+      this.layout.add(this.control, (parent, self) -> {
         self.setDimensions(this.getControlWidth(parent), this.getContentHeight());
       });
 
@@ -224,13 +228,13 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
           .messageAndTooltip(Text.translatable(this.getOption().getModId() + ".roundalib.reset.tooltip"))
           .onPress((button) -> this.getOption().setDefault())
           .build();
-      layout.add(this.resetButton);
+      this.layout.add(this.resetButton);
 
-      this.addLayout(layout, (self) -> {
+      this.addLayout(this.layout, (self) -> {
         self.setPositionAndDimensions(
-            this.getContentLeft(), this.getContentWidth(), this.getContentHeight(), this.getContentTop());
+            this.getContentLeft(), this.getContentTop(), this.getContentWidth(), this.getContentHeight());
       });
-      layout.forEachChild(this::addDrawableChild);
+      this.layout.forEachChild(this::addDrawableChild);
 
       this.update();
     }
