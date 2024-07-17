@@ -1,6 +1,7 @@
 package me.roundaround.roundalib.client.gui.layout;
 
 import net.minecraft.client.gui.ScreenRect;
+import net.minecraft.client.gui.widget.Widget;
 
 @SuppressWarnings("unused")
 public record IntRect(Integer left, Integer top, Integer right, Integer bottom) implements FourSided<Integer> {
@@ -14,6 +15,14 @@ public record IntRect(Integer left, Integer top, Integer right, Integer bottom) 
 
   public static IntRect byDimensions(int left, int top, int width, int height) {
     return new IntRect(left, top, left + width, top + height);
+  }
+
+  public static IntRect fromWidget(Widget widget) {
+    return IntRect.byDimensions(widget.getX(), widget.getY(), widget.getWidth(), widget.getHeight());
+  }
+
+  public static IntRect fromScreenRect(ScreenRect screenRect) {
+    return IntRect.byDimensions(screenRect.getLeft(), screenRect.getTop(), screenRect.width(), screenRect.height());
   }
 
   public int getWidth() {
