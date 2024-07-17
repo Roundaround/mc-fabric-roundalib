@@ -515,6 +515,7 @@ public class LabelWidget extends DrawableWidget {
     private boolean shadow = false;
     private Tooltip tooltip = null;
     private Duration tooltipDelay = null;
+    private boolean defaultHeight = true;
 
     public Builder(TextRenderer textRenderer) {
       this(textRenderer, List.of());
@@ -527,7 +528,6 @@ public class LabelWidget extends DrawableWidget {
     public Builder(TextRenderer textRenderer, List<Text> lines) {
       this.textRenderer = textRenderer;
       this.lines = new ArrayList<>(lines);
-      this.height = getDefaultHeight(textRenderer, lines.size());
     }
 
     public Builder position(int x, int y) {
@@ -555,12 +555,14 @@ public class LabelWidget extends DrawableWidget {
 
     public Builder height(int height) {
       this.height = height;
+      this.defaultHeight = false;
       return this;
     }
 
     public Builder dimensions(int width, int height) {
       this.width = width;
       this.height = height;
+      this.defaultHeight = false;
       return this;
     }
 
@@ -707,8 +709,12 @@ public class LabelWidget extends DrawableWidget {
     }
 
     public LabelWidget build() {
+      int height = this.defaultHeight ?
+          getDefaultHeight(this.textRenderer, this.lines.size(), this.padding.getVertical(), this.lineSpacing) :
+          this.height;
+
       return new LabelWidget(this.textRenderer, this.lines, this.color, this.positionMode, this.x, this.y, this.width,
-          this.height, this.alignmentH, this.alignmentV, this.padding, this.overflowBehavior, this.scrollMargin,
+          height, this.alignmentH, this.alignmentV, this.padding, this.overflowBehavior, this.scrollMargin,
           this.maxLines, this.lineSpacing, this.background, this.bgColor, this.bgOverflow, this.shadow, this.tooltip,
           this.tooltipDelay
       );

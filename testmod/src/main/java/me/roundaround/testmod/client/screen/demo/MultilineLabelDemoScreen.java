@@ -14,6 +14,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
+import net.minecraft.client.gui.widget.SimplePositioningWidget;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
@@ -75,15 +76,14 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
 
     this.layout.setHeaderHeight(this.layout.getHeader().getContentHeight() + 2 * GuiUtil.PADDING);
 
-    this.label = this.layout.addBody(LabelWidget.builder(this.textRenderer, this.generateLines())
+    SimplePositioningWidget anchor = new SimplePositioningWidget();
+    this.label = anchor.add(LabelWidget.builder(this.textRenderer, this.generateLines())
         .width(60)
-        .positionMode(LabelWidget.PositionMode.REFERENCE)
         .justifiedCenter()
         .alignedMiddle()
         .lineSpacing(1)
-        .build(), (parent, self) -> {
-      self.setPosition(this.width / 2, this.layout.getHeaderHeight() + this.layout.getBodyHeight() / 2);
-    });
+        .build());
+    this.layout.addBody(anchor);
 
     this.layout.addFooter(ButtonWidget.builder(ScreenTexts.DONE, (button) -> this.close()).build());
 
