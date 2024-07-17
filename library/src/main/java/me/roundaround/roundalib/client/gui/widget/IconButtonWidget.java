@@ -272,24 +272,22 @@ public class IconButtonWidget extends ButtonWidget {
     }
 
     public static List<BuiltinIcon> valuesOfSize(int size) {
-      return Arrays.stream(values())
-          .filter((icon) -> icon.size == size)
-          .toList();
+      return Arrays.stream(values()).filter((icon) -> icon.size == size).toList();
     }
   }
 
   public static class CustomIcon implements Icon {
-    private final Identifier texture;
+    private final String name;
     private final int size;
 
-    public CustomIcon(Identifier texture, int size) {
-      this.texture = texture;
+    public CustomIcon(String name, int size) {
+      this.name = name;
       this.size = size;
     }
 
     @Override
     public Identifier getTexture(String modId) {
-      return this.texture;
+      return new Identifier(modId, "icon/" + this.name);
     }
 
     @Override
