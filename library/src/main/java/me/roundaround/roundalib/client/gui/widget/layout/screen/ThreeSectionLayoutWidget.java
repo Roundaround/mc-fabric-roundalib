@@ -54,7 +54,7 @@ public class ThreeSectionLayoutWidget extends SizableLayoutWidget {
     this.footer = LinearLayoutWidget.horizontal(0, this.height - this.footerHeight, this.width, this.footerHeight)
         .alignCenterX()
         .alignCenterY()
-        .spacing(GuiUtil.PADDING);
+        .spacing(2 * GuiUtil.PADDING);
   }
 
   @Override

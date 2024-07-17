@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.Spacing;
 import me.roundaround.roundalib.client.gui.widget.layout.LayoutHook;
+import me.roundaround.roundalib.client.gui.widget.layout.screen.ThreeSectionLayoutWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -14,7 +15,6 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;
 import net.minecraft.client.gui.widget.ContainerWidget;
 import net.minecraft.client.gui.widget.LayoutWidget;
-import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.render.*;
 import net.minecraft.screen.ScreenTexts;
@@ -40,7 +40,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   protected static final int DEFAULT_SHADE_FADE_WIDTH = 10;
 
   protected final MinecraftClient client;
-  protected final ThreePartsLayoutWidget parentLayout;
+  protected final ThreeSectionLayoutWidget parentLayout;
 
   protected E hoveredEntry;
   protected E selected;
@@ -60,8 +60,8 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   protected boolean scrolling = false;
   protected int scrollbarX;
 
-  protected FlowListWidget(MinecraftClient client, ThreePartsLayoutWidget layout) {
-    super(0, layout.getHeaderHeight(), layout.getWidth(), layout.getContentHeight(), ScreenTexts.EMPTY);
+  protected FlowListWidget(MinecraftClient client, ThreeSectionLayoutWidget layout) {
+    super(0, layout.getHeaderHeight(), layout.getWidth(), layout.getBodyHeight(), ScreenTexts.EMPTY);
 
     this.client = client;
     this.parentLayout = layout;
@@ -142,7 +142,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   public void refreshPositions() {
     if (this.parentLayout != null) {
       this.setDimensionsAndPosition(
-          this.parentLayout.getWidth(), this.parentLayout.getContentHeight(), 0, this.parentLayout.getHeaderHeight());
+          this.parentLayout.getWidth(), this.parentLayout.getBodyHeight(), 0, this.parentLayout.getHeaderHeight());
     }
 
     this.calculateContentHeight();

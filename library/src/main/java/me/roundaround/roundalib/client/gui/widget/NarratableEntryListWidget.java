@@ -1,6 +1,7 @@
 package me.roundaround.roundalib.client.gui.widget;
 
 import me.roundaround.roundalib.client.gui.layout.Spacing;
+import me.roundaround.roundalib.client.gui.widget.layout.screen.ThreeSectionLayoutWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -9,7 +10,6 @@ import net.minecraft.client.gui.navigation.GuiNavigation;
 import net.minecraft.client.gui.navigation.GuiNavigationPath;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;
-import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
 
@@ -19,7 +19,7 @@ public abstract class NarratableEntryListWidget<E extends NarratableEntryListWid
 
   private boolean highlightSelection = true;
 
-  protected NarratableEntryListWidget(MinecraftClient client, ThreePartsLayoutWidget layout) {
+  protected NarratableEntryListWidget(MinecraftClient client, ThreeSectionLayoutWidget layout) {
     super(client, layout);
 
     this.contentPadding = Spacing.of(2);

@@ -1,5 +1,6 @@
 package me.roundaround.roundalib.client.gui.widget;
 
+import me.roundaround.roundalib.client.gui.widget.layout.screen.ThreeSectionLayoutWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -14,7 +15,6 @@ import net.minecraft.client.gui.navigation.NavigationDirection;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;
-import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 
@@ -23,7 +23,7 @@ import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public abstract class ParentElementEntryListWidget<E extends ParentElementEntryListWidget.Entry> extends FlowListWidget<E> {
-  protected ParentElementEntryListWidget(MinecraftClient client, ThreePartsLayoutWidget layout) {
+  protected ParentElementEntryListWidget(MinecraftClient client, ThreeSectionLayoutWidget layout) {
     super(client, layout);
   }
 

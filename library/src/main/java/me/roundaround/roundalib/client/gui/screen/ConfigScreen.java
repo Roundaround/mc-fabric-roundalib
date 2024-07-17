@@ -1,13 +1,10 @@
 package me.roundaround.roundalib.client.gui.screen;
 
-import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.widget.layout.FullBodyWrapperWidget;
 import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
+import me.roundaround.roundalib.client.gui.widget.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.roundalib.config.manage.ModConfig;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.DirectionalLayoutWidget;
-import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 
@@ -15,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConfigScreen extends Screen {
-  protected final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this);
+  protected final ThreeSectionLayoutWidget layout = new ThreeSectionLayoutWidget(this);
 
   private final Screen parent;
   private final String modId;
@@ -62,21 +59,20 @@ public class ConfigScreen extends Screen {
   }
 
   protected void initHeader() {
-    this.layout.addHeader(this.title, this.textRenderer);
+    this.layout.addHeader(this.textRenderer, this.title);
   }
 
   protected void initBody() {
     this.configListWidget = new ConfigListWidget(this.client, this.layout, this.modId, this.configs);
-    this.layout.addBody(new FullBodyWrapperWidget(this.configListWidget, this.layout));
+    this.layout.addBody(new ConfigListWidget(this.client, this.layout, this.modId, this.configs), (parent, self) -> {
+      self.setDimensionsAndPosition(parent.getWidth(), parent.getHeight(), parent.getX(), parent.getY());
+    });
     this.configs.forEach((config) -> config.subscribe(this::update));
   }
 
   protected void initFooter() {
-    DirectionalLayoutWidget row = DirectionalLayoutWidget.horizontal().spacing(GuiUtil.PADDING * 2);
-    this.layout.addFooter(row);
-
-    row.add(ButtonWidget.builder(ScreenTexts.CANCEL, this::cancel).build());
-    row.add(ButtonWidget.builder(ScreenTexts.DONE, this::done).build());
+    this.layout.addFooter(ButtonWidget.builder(ScreenTexts.CANCEL, this::cancel).build());
+    this.layout.addFooter(ButtonWidget.builder(ScreenTexts.DONE, this::done).build());
   }
 
   @Override

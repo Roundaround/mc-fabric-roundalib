@@ -1,8 +1,12 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.widget.*;
+import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
+import me.roundaround.roundalib.client.gui.widget.LabelWidget;
+import me.roundaround.roundalib.client.gui.widget.ParentElementEntryListWidget;
+import me.roundaround.roundalib.client.gui.widget.TooltipWidget;
 import me.roundaround.roundalib.client.gui.widget.layout.LinearLayoutWidget;
+import me.roundaround.roundalib.client.gui.widget.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.roundalib.config.manage.ModConfig;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.panic.IllegalStatePanic;
@@ -10,7 +14,6 @@ import me.roundaround.roundalib.config.panic.Panic;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
@@ -22,7 +25,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
   protected final String modId;
 
   public ConfigListWidget(
-      MinecraftClient client, ThreePartsLayoutWidget layout, String modId, List<ModConfig> configs
+      MinecraftClient client, ThreeSectionLayoutWidget layout, String modId, List<ModConfig> configs
   ) {
     super(client, layout);
 
@@ -224,7 +227,8 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
       layout.add(this.resetButton);
 
       this.addLayout(layout, (self) -> {
-        self.setPositionAndDimensions(this.getContentLeft(), this.getContentWidth(), this.getContentHeight(), this.getContentTop());
+        self.setPositionAndDimensions(
+            this.getContentLeft(), this.getContentWidth(), this.getContentHeight(), this.getContentTop());
       });
       layout.forEachChild(this::addDrawableChild);
 
