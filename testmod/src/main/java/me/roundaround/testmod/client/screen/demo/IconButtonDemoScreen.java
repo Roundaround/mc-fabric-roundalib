@@ -1,5 +1,6 @@
 package me.roundaround.testmod.client.screen.demo;
 
+import me.roundaround.roundalib.asset.icon.BuiltinIcon;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.ResponsiveGridWidget;
@@ -48,7 +49,7 @@ public class IconButtonDemoScreen extends Screen implements DemoScreen {
       case IconButtonWidget.SIZE_M -> IconButtonWidget.SIZE_M;
       default -> IconButtonWidget.SIZE_L;
     };
-    List<IconButtonWidget.BuiltinIcon> icons = IconButtonWidget.BuiltinIcon.valuesOfSize(iconSize);
+    List<BuiltinIcon> icons = BuiltinIcon.valuesOfSize(iconSize);
 
     ResponsiveGridWidget grid = this.layout.addBody(
         new ResponsiveGridWidget(this.width - 2 * GuiUtil.PADDING, this.layout.getBodyHeight(), this.size,
@@ -57,7 +58,7 @@ public class IconButtonDemoScreen extends Screen implements DemoScreen {
           self.setDimensions(this.width - 2 * GuiUtil.PADDING, this.layout.getBodyHeight());
         });
 
-    for (IconButtonWidget.BuiltinIcon icon : icons) {
+    for (BuiltinIcon icon : icons) {
       grid.add(IconButtonWidget.builder(icon, TestMod.MOD_ID)
           .dimensions(this.size)
           .tooltip(icon.getDisplayText(TestMod.MOD_ID))

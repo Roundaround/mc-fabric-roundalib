@@ -1,5 +1,6 @@
 package me.roundaround.roundalib.client.gui.screen;
 
+import me.roundaround.roundalib.asset.icon.BuiltinIcon;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
@@ -86,11 +87,11 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   protected void initFooter() {
     this.layout.addFooter(this.footer);
     this.footer.add(this.buttonRow);
-    this.buttonRow.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.BACK_18, this.modId)
+    this.buttonRow.add(IconButtonWidget.builder(BuiltinIcon.BACK_18, this.modId)
         .onPress((button) -> this.close())
         .messageAndTooltip(Text.translatable(this.modId + ".roundalib.back.tooltip"))
         .build());
-    this.resetButton = this.buttonRow.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.UNDO_18, this.modId)
+    this.resetButton = this.buttonRow.add(IconButtonWidget.builder(BuiltinIcon.UNDO_18, this.modId)
         .onPress((button) -> this.resetToDefault())
         .messageAndTooltip(Text.translatable(this.modId + ".roundalib.reset.tooltip"))
         .build());

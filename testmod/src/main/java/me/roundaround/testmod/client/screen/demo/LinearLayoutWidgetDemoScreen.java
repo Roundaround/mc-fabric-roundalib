@@ -1,5 +1,6 @@
 package me.roundaround.testmod.client.screen.demo;
 
+import me.roundaround.roundalib.asset.icon.BuiltinIcon;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.DrawableWidget;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
@@ -39,10 +40,8 @@ public class LinearLayoutWidgetDemoScreen extends Screen implements DemoScreen {
         .alignCenterX()
         .alignCenterY()
         .spacing(GuiUtil.PADDING);
-    linearLayoutWidget.add(
-        IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.MINUS_18, TestMod.MOD_ID).vanillaSize().build());
-    linearLayoutWidget.add(
-        IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.PLUS_18, TestMod.MOD_ID).vanillaSize().build());
+    linearLayoutWidget.add(IconButtonWidget.builder(BuiltinIcon.MINUS_18, TestMod.MOD_ID).vanillaSize().build());
+    linearLayoutWidget.add(IconButtonWidget.builder(BuiltinIcon.PLUS_18, TestMod.MOD_ID).vanillaSize().build());
     this.layout.addBody(linearLayoutWidget);
 
     this.layout.addFooter(ButtonWidget.builder(ScreenTexts.DONE, (button) -> this.close()).build());

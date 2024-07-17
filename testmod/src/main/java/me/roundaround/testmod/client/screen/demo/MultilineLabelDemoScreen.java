@@ -1,5 +1,6 @@
 package me.roundaround.testmod.client.screen.demo;
 
+import me.roundaround.roundalib.asset.icon.BuiltinIcon;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.IntRect;
 import me.roundaround.roundalib.client.gui.layout.TextAlignment;
@@ -66,10 +67,10 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
         .initially(TextAlignment.CENTER)
         .omitKeyText()
         .build(0, 0, 100, 20, Text.empty(), this::onAlignmentYChange));
-    this.minusButton = buttonRow.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.MINUS_18, TestMod.MOD_ID)
+    this.minusButton = buttonRow.add(IconButtonWidget.builder(BuiltinIcon.MINUS_18, TestMod.MOD_ID)
         .onPress((button) -> this.onLineCountChange(this.lineCount - 1))
         .build());
-    this.plusButton = buttonRow.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.PLUS_18, TestMod.MOD_ID)
+    this.plusButton = buttonRow.add(IconButtonWidget.builder(BuiltinIcon.PLUS_18, TestMod.MOD_ID)
         .onPress((button) -> this.onLineCountChange(this.lineCount + 1))
         .build());
     this.layout.addHeader(buttonRow);

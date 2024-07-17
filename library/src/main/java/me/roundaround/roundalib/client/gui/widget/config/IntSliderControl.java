@@ -1,5 +1,6 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
+import me.roundaround.roundalib.asset.icon.BuiltinIcon;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.IntSliderWidget;
 import me.roundaround.roundalib.client.gui.widget.layout.LinearLayoutWidget;
@@ -42,12 +43,12 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
       int step = this.getOption().getStep();
       LinearLayoutWidget stepColumn = LinearLayoutWidget.vertical();
 
-      this.plusButton = stepColumn.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.PLUS_9, modId)
+      this.plusButton = stepColumn.add(IconButtonWidget.builder(BuiltinIcon.PLUS_9, modId)
           .small()
           .messageAndTooltip(Text.translatable(modId + ".roundalib.step_up.tooltip", step))
           .onPress((button) -> this.getOption().increment())
           .build());
-      this.minusButton = stepColumn.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.MINUS_9, modId)
+      this.minusButton = stepColumn.add(IconButtonWidget.builder(BuiltinIcon.MINUS_9, modId)
           .small()
           .messageAndTooltip(Text.translatable(modId + ".roundalib.step_down.tooltip", step))
           .onPress((button) -> this.getOption().decrement())

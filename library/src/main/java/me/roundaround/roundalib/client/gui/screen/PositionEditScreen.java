@@ -1,6 +1,7 @@
 package me.roundaround.roundalib.client.gui.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import me.roundaround.roundalib.asset.icon.BuiltinIcon;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.config.option.PositionConfigOption;
@@ -48,25 +49,25 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
     this.body.add(this.mover);
     this.mover.add(this.column, (positioner) -> positioner.alignBottom().alignRight());
 
-    this.column.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.UP_13, this.modId)
+    this.column.add(IconButtonWidget.builder(BuiltinIcon.UP_13, this.modId)
         .dimensions(IconButtonWidget.SIZE_M)
         .messageAndTooltip(Text.translatable(this.modId + ".roundalib.up.tooltip"))
         .onPress((button) -> this.moveUp())
         .build());
     this.column.add(this.row);
-    this.column.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.DOWN_13, this.modId)
+    this.column.add(IconButtonWidget.builder(BuiltinIcon.DOWN_13, this.modId)
         .dimensions(IconButtonWidget.SIZE_M)
         .messageAndTooltip(Text.translatable(this.modId + ".roundalib.down.tooltip"))
         .onPress((button) -> this.moveDown())
         .build());
 
-    this.row.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.LEFT_13, this.modId)
+    this.row.add(IconButtonWidget.builder(BuiltinIcon.LEFT_13, this.modId)
         .dimensions(IconButtonWidget.SIZE_M)
         .messageAndTooltip(Text.translatable(this.modId + ".roundalib.left.tooltip"))
         .onPress((button) -> this.moveLeft())
         .build());
     this.row.add(EmptyWidget.ofWidth(CROSSHAIR_SIZE));
-    this.row.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.RIGHT_13, this.modId)
+    this.row.add(IconButtonWidget.builder(BuiltinIcon.RIGHT_13, this.modId)
         .dimensions(IconButtonWidget.SIZE_M)
         .messageAndTooltip(Text.translatable(this.modId + ".roundalib.right.tooltip"))
         .onPress((button) -> this.moveRight())

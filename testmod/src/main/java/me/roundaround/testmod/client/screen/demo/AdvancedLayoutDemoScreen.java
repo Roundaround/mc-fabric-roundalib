@@ -1,5 +1,6 @@
 package me.roundaround.testmod.client.screen.demo;
 
+import me.roundaround.roundalib.asset.icon.BuiltinIcon;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.DrawableWidget;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
@@ -58,7 +59,7 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
         (parent, self) -> self.setWidth(parent.getWidth() - parent.getSpacing() - IconButtonWidget.SIZE_V)
     );
 
-    searchRow.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.FILTER_18, TestMod.MOD_ID)
+    searchRow.add(IconButtonWidget.builder(BuiltinIcon.FILTER_18, TestMod.MOD_ID)
         .vanillaSize()
         .messageAndTooltip(Text.of("Filter"))
         .onPress((button) -> GuiUtil.playClickSound())
@@ -116,7 +117,7 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
         .spacing(GuiUtil.PADDING)
         .alignCenterX()
         .alignCenterY();
-    controlsRow.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.PREV_18, TestMod.MOD_ID)
+    controlsRow.add(IconButtonWidget.builder(BuiltinIcon.PREV_18, TestMod.MOD_ID)
         .vanillaSize()
         .messageAndTooltip(Text.of("Previous"))
         .build());
@@ -130,7 +131,7 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
             .build(),
         (parent, self) -> self.setWidth(parent.getWidth() - 2 * (2 * GuiUtil.PADDING + IconButtonWidget.SIZE_V))
     );
-    controlsRow.add(IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.NEXT_18, TestMod.MOD_ID)
+    controlsRow.add(IconButtonWidget.builder(BuiltinIcon.NEXT_18, TestMod.MOD_ID)
         .vanillaSize()
         .messageAndTooltip(Text.of("Next"))
         .build());

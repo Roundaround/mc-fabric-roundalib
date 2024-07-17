@@ -1,5 +1,6 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
+import me.roundaround.roundalib.asset.icon.BuiltinIcon;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
@@ -223,7 +224,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
         self.setDimensions(this.getControlWidth(parent), this.getContentHeight());
       });
 
-      this.resetButton = IconButtonWidget.builder(IconButtonWidget.BuiltinIcon.UNDO_18, this.getOption().getModId())
+      this.resetButton = IconButtonWidget.builder(BuiltinIcon.UNDO_18, this.getOption().getModId())
           .vanillaSize()
           .messageAndTooltip(Text.translatable(this.getOption().getModId() + ".roundalib.reset.tooltip"))
           .onPress((button) -> this.getOption().setDefault())
