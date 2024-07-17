@@ -12,7 +12,6 @@ import net.minecraft.text.Text;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * Base container class for a mod configuration option.
@@ -29,7 +28,7 @@ public abstract class ConfigOption<D> {
   private final List<Validator<D>> validators;
   private final Consumer<ConfigOption<D>> onUpdate;
   private final DisabledValueBehavior disabledValueBehavior;
-  private final Supplier<D> disabledValueSupplier;
+  private final Function<ConfigOption<D>, D> disabledValueSupplier;
   private final HashSet<SavedValueListener<D>> savedValueChangeListeners = new HashSet<>();
   private final HashSet<PendingValueListener<D>> pendingValueChangeListeners = new HashSet<>();
 
@@ -57,7 +56,7 @@ public abstract class ConfigOption<D> {
       List<Validator<D>> validators,
       Consumer<ConfigOption<D>> onUpdate,
       DisabledValueBehavior disabledValueBehavior,
-      Supplier<D> disabledValueSupplier
+      Function<ConfigOption<D>, D> disabledValueSupplier
   ) {
     this.path = path;
     this.label = label;
@@ -126,7 +125,7 @@ public abstract class ConfigOption<D> {
       return switch (this.disabledValueBehavior) {
         case DEFAULT -> this.getDefaultValue();
         case STORED -> this.getValue();
-        case PRODUCE -> this.disabledValueSupplier.get();
+        case PRODUCE -> this.disabledValueSupplier.apply(this);
       };
     }
     return this.pendingValue;
@@ -291,7 +290,7 @@ public abstract class ConfigOption<D> {
     };
     protected boolean allowNullDefault = false;
     private DisabledValueBehavior disabledValueBehavior = DisabledValueBehavior.STORED;
-    private Supplier<D> disabledValueSupplier = null;
+    private Function<ConfigOption<D>, D> disabledValueSupplier = null;
 
     protected AbstractBuilder(ConfigPath path) {
       this.path = path;
@@ -367,7 +366,7 @@ public abstract class ConfigOption<D> {
       return this.self();
     }
 
-    public B valueWhenDisabled(Supplier<D> valueSupplier) {
+    public B valueWhenDisabled(Function<ConfigOption<D>, D> valueSupplier) {
       this.disabledValueBehavior = DisabledValueBehavior.PRODUCE;
       this.disabledValueSupplier = valueSupplier;
       return this.self();

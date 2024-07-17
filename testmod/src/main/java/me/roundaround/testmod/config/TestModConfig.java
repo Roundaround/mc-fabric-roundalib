@@ -61,7 +61,7 @@ public class TestModConfig extends ModConfigImpl implements GameScopedFileStore 
         .setMinLength(3)
         .setMaxLength(12)
         .onUpdate((option) -> option.setDisabled(!this.first.getPendingValue()))
-        .valueWhenDisabled(() -> "wowie!")
+        .valueWhenDisabled((option) -> "wowie!")
         .build());
 
     this.fifth = this.register(IntConfigOption.builder(ConfigPath.of("group1", "testOption4"))
