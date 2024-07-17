@@ -10,6 +10,7 @@ import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class ConfigScreen extends Screen {
   protected final ThreeSectionLayoutWidget layout = new ThreeSectionLayoutWidget(this);
@@ -17,6 +18,7 @@ public class ConfigScreen extends Screen {
   private final Screen parent;
   private final String modId;
   private final ArrayList<ModConfig> configs = new ArrayList<>();
+  private final Consumer<ModConfig> updateListener;
   private ConfigListWidget configListWidget;
   private CloseAction closeAction = CloseAction.NOOP;
 
@@ -36,6 +38,9 @@ public class ConfigScreen extends Screen {
     super(title);
     this.parent = parent;
     this.modId = modId;
+    this.updateListener = (config) -> {
+      this.configListWidget.update();
+    };
 
     for (ModConfig config : configs) {
       if (config.isReady()) {
@@ -63,11 +68,11 @@ public class ConfigScreen extends Screen {
   }
 
   protected void initBody() {
-    this.configListWidget = new ConfigListWidget(this.client, this.layout, this.modId, this.configs);
-    this.layout.addBody(new ConfigListWidget(this.client, this.layout, this.modId, this.configs), (parent, self) -> {
-      self.setDimensionsAndPosition(parent.getWidth(), parent.getHeight(), parent.getX(), parent.getY());
-    });
-    this.configs.forEach((config) -> config.subscribe(this::update));
+    this.configListWidget = this.layout.addBody(
+        new ConfigListWidget(this.client, this.layout, this.modId, this.configs), (parent, self) -> {
+          self.setDimensionsAndPosition(parent.getWidth(), parent.getHeight(), parent.getX(), parent.getY());
+        });
+    this.configs.forEach((config) -> config.subscribe(this.updateListener));
   }
 
   protected void initFooter() {
@@ -89,7 +94,7 @@ public class ConfigScreen extends Screen {
   @Override
   public void removed() {
     this.configs.forEach((config) -> {
-      config.unsubscribe(this::update);
+      config.unsubscribe(this.updateListener);
       this.closeAction.run(config);
     });
   }
@@ -97,10 +102,6 @@ public class ConfigScreen extends Screen {
   @Override
   public void tick() {
     this.configListWidget.tick();
-  }
-
-  protected void update(ModConfig config) {
-    this.configListWidget.update();
   }
 
   private void cancel(ButtonWidget button) {

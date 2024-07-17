@@ -27,7 +27,7 @@ public abstract class ConfigOption<D> {
   private final Function<D, String> toStringFunction;
   private final List<String> comment;
   private final List<Validator<D>> validators;
-  private final Consumer<ConfigOption<?>> onUpdate;
+  private final Consumer<ConfigOption<D>> onUpdate;
   private final DisabledValueBehavior disabledValueBehavior;
   private final Supplier<D> disabledValueSupplier;
   private final HashSet<SavedValueListener<D>> savedValueChangeListeners = new HashSet<>();
@@ -55,7 +55,7 @@ public abstract class ConfigOption<D> {
       Function<D, String> toStringFunction,
       List<String> comment,
       List<Validator<D>> validators,
-      Consumer<ConfigOption<?>> onUpdate,
+      Consumer<ConfigOption<D>> onUpdate,
       DisabledValueBehavior disabledValueBehavior,
       Supplier<D> disabledValueSupplier
   ) {
@@ -287,7 +287,7 @@ public abstract class ConfigOption<D> {
     protected Function<D, String> toStringFunction = Object::toString;
     protected List<String> comment = new ArrayList<>();
     protected List<Validator<D>> validators = new ArrayList<>();
-    protected Consumer<ConfigOption<?>> onUpdate = (option) -> {
+    protected Consumer<ConfigOption<D>> onUpdate = (option) -> {
     };
     protected boolean allowNullDefault = false;
     private DisabledValueBehavior disabledValueBehavior = DisabledValueBehavior.STORED;
@@ -337,17 +337,17 @@ public abstract class ConfigOption<D> {
       return this.self();
     }
 
-    public <O extends ConfigOption<D>> B setValidators(Collection<Validator<D>> validators) {
+    public B setValidators(Collection<Validator<D>> validators) {
       this.validators = List.copyOf(validators);
       return this.self();
     }
 
-    public <O extends ConfigOption<D>> B addValidator(Validator<D> validator) {
+    public B addValidator(Validator<D> validator) {
       this.validators.add(validator);
       return this.self();
     }
 
-    public B onUpdate(Consumer<ConfigOption<?>> onUpdate) {
+    public B onUpdate(Consumer<ConfigOption<D>> onUpdate) {
       this.onUpdate = onUpdate;
       return this.self();
     }

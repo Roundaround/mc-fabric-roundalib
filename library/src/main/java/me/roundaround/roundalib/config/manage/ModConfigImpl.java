@@ -2,7 +2,6 @@ package me.roundaround.roundalib.config.manage;
 
 import me.roundaround.roundalib.config.ConfigPath;
 import me.roundaround.roundalib.config.ConnectedWorldContext;
-import me.roundaround.roundalib.config.manage.store.ConfigStore;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
@@ -197,11 +196,6 @@ public abstract class ModConfigImpl implements ModConfig {
       }
       return outOption;
     });
-  }
-
-  @FunctionalInterface
-  public interface UpdateCallback {
-    void update();
   }
 
   public static class RegistrationBuilder<T extends ConfigOption<?>> {
