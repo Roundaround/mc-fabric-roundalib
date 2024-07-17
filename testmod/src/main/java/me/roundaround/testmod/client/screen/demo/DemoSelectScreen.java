@@ -3,13 +3,13 @@ package me.roundaround.testmod.client.screen.demo;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.NarratableEntryListWidget;
+import me.roundaround.roundalib.client.gui.widget.layout.screen.ThreeSectionLayoutWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
@@ -21,7 +21,7 @@ public class DemoSelectScreen extends Screen implements DemoScreen {
   private static final Text TITLE_TEXT = Text.translatable("testmod.demoselectscreen.title");
 
   private final Screen parent;
-  private final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this);
+  private final ThreeSectionLayoutWidget layout = new ThreeSectionLayoutWidget(this);
 
   public DemoSelectScreen(Screen parent) {
     super(TITLE_TEXT);
@@ -30,7 +30,7 @@ public class DemoSelectScreen extends Screen implements DemoScreen {
 
   @Override
   protected void init() {
-    this.layout.addHeader(this.getTitle(), this.textRenderer);
+    this.layout.addHeader(this.textRenderer, this.getTitle());
 
     DemoSelectListWidget list = this.layout.addBody(new DemoSelectListWidget(this.client, this.layout));
 
@@ -100,7 +100,7 @@ public class DemoSelectScreen extends Screen implements DemoScreen {
   }
 
   public static class DemoSelectListWidget extends NarratableEntryListWidget<DemoSelectListWidget.Entry> {
-    public DemoSelectListWidget(MinecraftClient client, ThreePartsLayoutWidget layout) {
+    public DemoSelectListWidget(MinecraftClient client, ThreeSectionLayoutWidget layout) {
       super(client, layout);
       this.setAlternatingRowShading(true);
     }
