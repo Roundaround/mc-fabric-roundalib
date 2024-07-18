@@ -316,6 +316,8 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
 
   @Environment(EnvType.CLIENT)
   public interface Adder<T extends Widget> {
+    T getWidget();
+
     Adder<T> layoutHook(LayoutHookWithParent<LinearLayoutWidget, T> layoutHook);
 
     Adder<T> margin(Spacing margin);
@@ -348,6 +350,11 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
     }
 
     @Override
+    public T getWidget() {
+      return this.widget;
+    }
+
+    @Override
     public CellWidget<T> layoutHook(LayoutHookWithParent<LinearLayoutWidget, T> layoutHook) {
       this.layoutHook = layoutHook;
       return this;
@@ -363,10 +370,6 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
     public CellWidget<T> align(Float align) {
       this.align = align;
       return this;
-    }
-
-    public T getWidget() {
-      return this.widget;
     }
 
     public void onLayout(LinearLayoutWidget parent) {
