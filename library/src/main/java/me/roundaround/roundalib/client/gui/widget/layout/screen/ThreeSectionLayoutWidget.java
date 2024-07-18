@@ -145,7 +145,7 @@ public class ThreeSectionLayoutWidget extends SizableLayoutWidget {
     return this.header.add(widget, layoutHook);
   }
 
-  public <T extends Widget> T addHeader(T widget, Consumer<LinearLayoutWidget.Adder<T>> configure) {
+  public <T extends Widget> T addHeader(T widget, Consumer<LinearLayoutWidget.Configurator<T>> configure) {
     return this.header.add(widget, configure);
   }
 
@@ -157,7 +157,7 @@ public class ThreeSectionLayoutWidget extends SizableLayoutWidget {
     return this.body.add(widget, layoutHook);
   }
 
-  public <T extends Widget> T addBody(T widget, Consumer<LinearLayoutWidget.Adder<T>> configure) {
+  public <T extends Widget> T addBody(T widget, Consumer<LinearLayoutWidget.Configurator<T>> configure) {
     return this.body.add(widget, configure);
   }
 
@@ -169,7 +169,7 @@ public class ThreeSectionLayoutWidget extends SizableLayoutWidget {
     return this.footer.add(widget, layoutHook);
   }
 
-  public <T extends Widget> T addFooter(T widget, Consumer<LinearLayoutWidget.Adder<T>> configure) {
+  public <T extends Widget> T addFooter(T widget, Consumer<LinearLayoutWidget.Configurator<T>> configure) {
     return this.footer.add(widget, configure);
   }
 

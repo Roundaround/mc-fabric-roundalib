@@ -1,5 +1,6 @@
 package me.roundaround.roundalib.client.gui.widget.layout;
 
+import me.roundaround.roundalib.client.gui.layout.DefaultLayoutMargin;
 import me.roundaround.roundalib.client.gui.layout.Spacing;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -157,16 +158,21 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
   }
 
   public <T extends Widget> T add(T widget) {
-    return this.add(widget, (Consumer<Adder<T>>) null);
+    return this.add(widget, (Consumer<Configurator<T>>) null);
   }
 
   public <T extends Widget> T add(T widget, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook) {
-    return this.add(widget, (adder) -> adder.layoutHook(layoutHook));
+    return this.add(widget, (configurator) -> configurator.layoutHook(layoutHook));
   }
 
-  public <T extends Widget> T add(T widget, Consumer<Adder<T>> configure) {
+  public <T extends Widget> T add(T widget, Consumer<Configurator<T>> configure) {
     CellWidget<T> cell = new CellWidget<>(widget);
     this.cells.add(cell);
+
+    if (widget instanceof DefaultLayoutMargin defaultLayoutMargin) {
+      cell.margin(defaultLayoutMargin.getDefaultLayoutMargin());
+    }
+
     if (configure != null) {
       configure.accept(cell);
     }
@@ -315,30 +321,30 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
   }
 
   @Environment(EnvType.CLIENT)
-  public interface Adder<T extends Widget> {
+  public interface Configurator<T extends Widget> {
     T getWidget();
 
-    Adder<T> layoutHook(LayoutHookWithParent<LinearLayoutWidget, T> layoutHook);
+    Configurator<T> layoutHook(LayoutHookWithParent<LinearLayoutWidget, T> layoutHook);
 
-    Adder<T> margin(Spacing margin);
+    Configurator<T> margin(Spacing margin);
 
-    Adder<T> align(Float align);
+    Configurator<T> align(Float align);
 
-    default Adder<T> alignStart() {
+    default Configurator<T> alignStart() {
       return this.align(0f);
     }
 
-    default Adder<T> alignCenter() {
+    default Configurator<T> alignCenter() {
       return this.align(0.5f);
     }
 
-    default Adder<T> alignEnd() {
+    default Configurator<T> alignEnd() {
       return this.align(1f);
     }
   }
 
   @Environment(EnvType.CLIENT)
-  private static class CellWidget<T extends Widget> implements Adder<T>, Widget {
+  private static class CellWidget<T extends Widget> implements Configurator<T>, Widget {
     private final T widget;
 
     private LayoutHookWithParent<LinearLayoutWidget, T> layoutHook = null;

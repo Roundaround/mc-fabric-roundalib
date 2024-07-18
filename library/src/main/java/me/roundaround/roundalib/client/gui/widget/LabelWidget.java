@@ -1,6 +1,7 @@
 package me.roundaround.roundalib.client.gui.widget;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.layout.DefaultLayoutMargin;
 import me.roundaround.roundalib.client.gui.layout.IntRect;
 import me.roundaround.roundalib.client.gui.layout.Spacing;
 import me.roundaround.roundalib.client.gui.layout.TextAlignment;
@@ -22,7 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
-public class LabelWidget extends DrawableWidget {
+public class LabelWidget extends DrawableWidget implements DefaultLayoutMargin {
   public static final Spacing DEFAULT_PADDING = Spacing.of(1, 2);
 
   private final TextRenderer textRenderer;
@@ -234,6 +235,11 @@ public class LabelWidget extends DrawableWidget {
 
   public Spacing getBgSpacing() {
     return this.padding.expand(this.bgOverflow);
+  }
+
+  @Override
+  public Spacing getDefaultLayoutMargin() {
+    return this.getBgSpacing();
   }
 
   public void batchUpdates(Runnable runnable) {
