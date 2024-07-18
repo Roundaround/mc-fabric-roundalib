@@ -132,16 +132,6 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
     Objects.requireNonNull(this.client).setScreen(this.parent);
   }
 
-  private int centerX() {
-    int paddedContentWidth = this.width - 2 * GuiUtil.PADDING;
-    return GuiUtil.PADDING + (int) (paddedContentWidth * 0.5f);
-  }
-
-  private int centerY() {
-    int paddedContentHeight = this.layout.getBodyHeight() - 2 * GuiUtil.PADDING;
-    return this.layout.getHeaderHeight() + GuiUtil.PADDING + (int) (paddedContentHeight * 0.5f);
-  }
-
   private void onOverflowBehaviorChange(
       CyclingButtonWidget<OverflowBehavior> button, OverflowBehavior value
   ) {
