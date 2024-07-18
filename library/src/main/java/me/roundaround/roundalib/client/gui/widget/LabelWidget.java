@@ -232,6 +232,10 @@ public class LabelWidget extends DrawableWidget {
     return lines * this.textRenderer.fontHeight + (lines - 1) * this.lineSpacing + this.padding.getVertical();
   }
 
+  public Spacing getBgSpacing() {
+    return this.padding.expand(this.bgOverflow);
+  }
+
   public void batchUpdates(Runnable runnable) {
     this.inBatchUpdate = true;
     try {
@@ -446,8 +450,8 @@ public class LabelWidget extends DrawableWidget {
         .scrollMargin(this.scrollMargin)
         .maxLines(this.maxLines)
         .lineSpacing(this.lineSpacing)
-        .justifiedHorizontally(this.alignmentX)
-        .alignedVertically(this.alignmentY)
+        .alignX(this.alignmentX)
+        .alignY(this.alignmentY)
         .padding(this.padding)
         .background(this.showBackground)
         .bgColor(this.bgColor)
@@ -472,8 +476,8 @@ public class LabelWidget extends DrawableWidget {
   public static LabelWidget screenTitle(TextRenderer textRenderer, Text text, Screen screen, int headerHeight) {
     return new Builder(textRenderer, text).refPosition(screen.width / 2, headerHeight / 2)
         .dimensions(screen.width, headerHeight / 2)
-        .alignedMiddle()
-        .justifiedCenter()
+        .alignCenterY()
+        .alignCenterX()
         .hideBackground()
         .showShadow()
         .build();
@@ -502,8 +506,8 @@ public class LabelWidget extends DrawableWidget {
     private int width;
     private int height;
     private int color = GuiUtil.LABEL_COLOR;
-    private TextAlignment alignmentH = TextAlignment.START;
-    private TextAlignment alignmentV = TextAlignment.CENTER;
+    private TextAlignment alignmentX = TextAlignment.START;
+    private TextAlignment alignmentY = TextAlignment.CENTER;
     private Spacing padding = DEFAULT_PADDING;
     private OverflowBehavior overflowBehavior = OverflowBehavior.SHOW;
     private int scrollMargin = 2;
@@ -599,38 +603,38 @@ public class LabelWidget extends DrawableWidget {
       return this;
     }
 
-    public Builder justifiedLeft() {
-      return this.justifiedHorizontally(TextAlignment.START);
-    }
-
-    public Builder justifiedCenter() {
-      return this.justifiedHorizontally(TextAlignment.CENTER);
-    }
-
-    public Builder justifiedRight() {
-      return this.justifiedHorizontally(TextAlignment.END);
-    }
-
-    public Builder justifiedHorizontally(TextAlignment alignmentH) {
-      this.alignmentH = alignmentH;
+    public Builder alignX(TextAlignment alignmentX) {
+      this.alignmentX = alignmentX;
       return this;
     }
 
-    public Builder alignedTop() {
-      return this.alignedVertically(TextAlignment.START);
+    public Builder alignLeft() {
+      return this.alignX(TextAlignment.START);
     }
 
-    public Builder alignedMiddle() {
-      return this.alignedVertically(TextAlignment.CENTER);
+    public Builder alignCenterX() {
+      return this.alignX(TextAlignment.CENTER);
     }
 
-    public Builder alignedBottom() {
-      return this.alignedVertically(TextAlignment.END);
+    public Builder alignRight() {
+      return this.alignX(TextAlignment.END);
     }
 
-    public Builder alignedVertically(TextAlignment alignmentV) {
-      this.alignmentV = alignmentV;
+    public Builder alignY(TextAlignment alignmentY) {
+      this.alignmentY = alignmentY;
       return this;
+    }
+
+    public Builder alignTop() {
+      return this.alignY(TextAlignment.START);
+    }
+
+    public Builder alignCenterY() {
+      return this.alignY(TextAlignment.CENTER);
+    }
+
+    public Builder alignBottom() {
+      return this.alignY(TextAlignment.END);
     }
 
     public Builder padding(int space) {
@@ -714,7 +718,7 @@ public class LabelWidget extends DrawableWidget {
           this.height;
 
       return new LabelWidget(this.textRenderer, this.lines, this.color, this.positionMode, this.x, this.y, this.width,
-          height, this.alignmentH, this.alignmentV, this.padding, this.overflowBehavior, this.scrollMargin,
+          height, this.alignmentX, this.alignmentY, this.padding, this.overflowBehavior, this.scrollMargin,
           this.maxLines, this.lineSpacing, this.background, this.bgColor, this.bgOverflow, this.shadow, this.tooltip,
           this.tooltipDelay
       );

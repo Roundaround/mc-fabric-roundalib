@@ -77,8 +77,8 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
     SimplePositioningWidget anchor = new SimplePositioningWidget();
     this.label = anchor.add(LabelWidget.builder(this.textRenderer, this.generateLines())
         .width(60)
-        .justifiedCenter()
-        .alignedMiddle()
+        .alignCenterX()
+        .alignCenterY()
         .lineSpacing(1)
         .build());
     this.layout.addBody(anchor);

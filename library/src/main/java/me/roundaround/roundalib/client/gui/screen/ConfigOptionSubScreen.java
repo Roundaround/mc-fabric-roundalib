@@ -79,8 +79,8 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
         .lineSpacing(2)
         .hideBackground()
         .showShadow()
-        .justifiedLeft()
-        .alignedBottom()
+        .alignLeft()
+        .alignBottom()
         .build());
   }
 

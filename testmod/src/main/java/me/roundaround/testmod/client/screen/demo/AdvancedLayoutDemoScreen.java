@@ -80,8 +80,8 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
         });
 
     LabelWidget label = rightPane.add(LabelWidget.builder(this.textRenderer, Text.of("Label"))
-            .justifiedCenter()
-            .alignedMiddle()
+            .alignCenterX()
+            .alignCenterY()
             .hideBackground()
             .showShadow()
             .build(),
@@ -122,8 +122,8 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
         .build());
     controlsRow.add(
         LabelWidget.builder(this.textRenderer, Text.of(String.format("%s total items", listWidget.getEntryCount())))
-            .justifiedCenter()
-            .alignedMiddle()
+            .alignCenterX()
+            .alignCenterY()
             .hideBackground()
             .showShadow()
             .overflowBehavior(LabelWidget.OverflowBehavior.SCROLL)
@@ -193,8 +193,8 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
                 .setStyle(Style.EMPTY.withItalic(true).withColor(Colors.GRAY))
         );
         LabelWidget label = LabelWidget.builder(textRenderer, lines)
-            .justifiedLeft()
-            .alignedMiddle()
+            .alignLeft()
+            .alignCenterY()
             .overflowBehavior(LabelWidget.OverflowBehavior.TRUNCATE)
             .hideBackground()
             .showShadow()

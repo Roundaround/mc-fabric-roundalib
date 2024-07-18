@@ -103,8 +103,8 @@ public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
     LabelWidget label = LabelWidget.builder(this.textRenderer,
             Text.of(String.format("== == %s/%s == ==", nameX(alignmentX), nameY(alignmentY)))
         )
-        .justifiedHorizontally(alignmentX)
-        .alignedVertically(alignmentY)
+        .alignX(alignmentX)
+        .alignY(alignmentY)
         .positionMode(LabelWidget.PositionMode.REFERENCE)
         .overflowBehavior(OverflowBehavior.SHOW)
         .maxLines(3)
