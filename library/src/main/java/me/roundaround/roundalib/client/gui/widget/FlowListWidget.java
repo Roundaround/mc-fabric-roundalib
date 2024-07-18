@@ -4,7 +4,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.Spacing;
 import me.roundaround.roundalib.client.gui.widget.layout.LayoutHook;
-import me.roundaround.roundalib.client.gui.widget.layout.WrapperLayoutWidget;
 import me.roundaround.roundalib.client.gui.widget.layout.screen.ThreeSectionLayoutWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -627,7 +626,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   public abstract static class Entry implements Drawable, LayoutWidget, Element {
     protected static final Spacing DEFAULT_MARGIN = Spacing.of(GuiUtil.PADDING / 2);
 
-    protected final ArrayList<LayoutWrapper<?>> layouts = new ArrayList<>();
+    protected final ArrayList<LayoutRef<?>> layouts = new ArrayList<>();
     protected final ArrayList<Drawable> drawables = new ArrayList<>();
     protected final int index;
     protected final int contentHeight;
@@ -662,7 +661,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     }
 
     protected <T extends LayoutWidget> T addLayout(T layout, LayoutHook<T> layoutHook) {
-      this.layouts.add(new LayoutWrapper<>(layout, layoutHook));
+      this.layouts.add(new LayoutRef<>(layout, layoutHook));
       return layout;
     }
 
@@ -681,17 +680,17 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     }
 
     public List<? extends LayoutWidget> layoutWidgets() {
-      return this.layouts.stream().map(LayoutWrapper::getWidget).toList();
+      return this.layouts.stream().map(LayoutRef::getLayout).toList();
     }
 
     @Override
     public void forEachElement(Consumer<Widget> consumer) {
-      this.layouts.forEach((wrapper) -> consumer.accept(wrapper.getWidget()));
+      this.layouts.forEach((ref) -> consumer.accept(ref.getLayout()));
     }
 
     @Override
     public void refreshPositions() {
-      this.layouts.forEach(LayoutWrapper::refreshPositions);
+      this.layouts.forEach(LayoutRef::refreshPositions);
     }
 
     @Override
@@ -942,9 +941,24 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   @Environment(EnvType.CLIENT)
-  public final static class LayoutWrapper<T extends LayoutWidget> extends WrapperLayoutWidget<T> {
-    public LayoutWrapper(T widget, LayoutHook<T> hook) {
-      super(widget, hook);
+  public final static class LayoutRef<T extends LayoutWidget> {
+    private final T layout;
+    private final LayoutHook<T> hook;
+
+    public LayoutRef(T layout, LayoutHook<T> hook) {
+      this.layout = layout;
+      this.hook = hook;
+    }
+
+    public T getLayout() {
+      return this.layout;
+    }
+
+    public void refreshPositions() {
+      if (this.hook != null) {
+        this.hook.run(this.layout);
+      }
+      this.layout.refreshPositions();
     }
   }
 
