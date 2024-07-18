@@ -19,7 +19,7 @@ public abstract class Control<D, O extends ConfigOption<D>> extends LinearLayout
     this.client = client;
     this.option = option;
 
-    this.spacing(GuiUtil.PADDING / 2).alignRight().alignCenterY();
+    this.spacing(GuiUtil.PADDING / 2).mainAxisContentAlignEnd().defaultOffAxisContentAlignCenter();
   }
 
   public O getOption() {

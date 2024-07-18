@@ -44,16 +44,16 @@ public class ThreeSectionLayoutWidget extends SizableLayoutWidget {
     this.calculateBodyHeight();
 
     this.header = LinearLayoutWidget.vertical(0, 0, this.width, this.headerHeight)
-        .alignCenterX()
-        .alignCenterY()
+        .mainAxisContentAlignCenter()
+        .defaultOffAxisContentAlignCenter()
         .spacing(GuiUtil.PADDING / 2);
     this.body = LinearLayoutWidget.vertical(0, this.headerHeight, this.width, this.bodyHeight)
-        .alignCenterX()
-        .alignCenterY()
+        .mainAxisContentAlignCenter()
+        .defaultOffAxisContentAlignCenter()
         .spacing(GuiUtil.PADDING);
     this.footer = LinearLayoutWidget.horizontal(0, this.height - this.footerHeight, this.width, this.footerHeight)
-        .alignCenterX()
-        .alignCenterY()
+        .mainAxisContentAlignCenter()
+        .defaultOffAxisContentAlignCenter()
         .spacing(2 * GuiUtil.PADDING);
   }
 

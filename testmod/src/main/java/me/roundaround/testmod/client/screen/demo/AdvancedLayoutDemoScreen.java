@@ -46,7 +46,7 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
     this.layout.getBody().flowAxis(LinearLayoutWidget.FlowAxis.HORIZONTAL).spacing(2 * GuiUtil.PADDING);
 
     LinearLayoutWidget leftPane = this.layout.addBody(
-        LinearLayoutWidget.vertical().alignRight().spacing(GuiUtil.PADDING), (parent, self) -> {
+        LinearLayoutWidget.vertical().defaultOffAxisContentAlignEnd().spacing(GuiUtil.PADDING), (parent, self) -> {
           Divider divider = new Divider(parent.getWidth() - parent.getSpacing(), 2);
           self.setDimensions(divider.nextInt(), parent.getHeight());
         });
@@ -73,7 +73,7 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
     listWidget.addRows(15);
 
     LinearLayoutWidget rightPane = this.layout.addBody(
-        LinearLayoutWidget.vertical().spacing(GuiUtil.PADDING).alignCenterX(), (parent, self) -> {
+        LinearLayoutWidget.vertical().spacing(GuiUtil.PADDING).defaultOffAxisContentAlignCenter(), (parent, self) -> {
           Divider divider = new Divider(parent.getWidth() - parent.getSpacing(), 2);
           divider.skip(1);
           self.setDimensions(divider.nextInt(), parent.getHeight());
@@ -115,8 +115,7 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
 
     LinearLayoutWidget controlsRow = LinearLayoutWidget.horizontal()
         .spacing(GuiUtil.PADDING)
-        .alignCenterX()
-        .alignCenterY();
+        .defaultOffAxisContentAlignCenter();
     controlsRow.add(IconButtonWidget.builder(BuiltinIcon.PREV_18, TestMod.MOD_ID)
         .vanillaSize()
         .messageAndTooltip(Text.of("Previous"))

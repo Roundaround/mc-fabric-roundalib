@@ -47,10 +47,7 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
   protected void init() {
     this.layout.addHeader(this.textRenderer, this.getTitle());
 
-    LinearLayoutWidget buttonRow = LinearLayoutWidget.horizontal()
-        .spacing(GuiUtil.PADDING)
-        .alignCenterX()
-        .alignCenterY();
+    LinearLayoutWidget buttonRow = LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING).defaultOffAxisContentAlignCenter();
     buttonRow.add(
         new CyclingButtonWidget.Builder<OverflowBehavior>((value) -> value.getDisplayText(TestMod.MOD_ID)).values(
                 OverflowBehavior.values())

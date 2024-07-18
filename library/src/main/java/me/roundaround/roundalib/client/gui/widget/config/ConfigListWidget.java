@@ -204,7 +204,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
       this.layout = LinearLayoutWidget.horizontal(
               this.getContentLeft(), this.getContentTop(), this.getContentWidth(), this.getContentHeight())
           .spacing(GuiUtil.PADDING)
-          .alignCenterY();
+          .defaultOffAxisContentAlignCenter();
 
       this.label = LabelWidget.builder(client.textRenderer, option.getLabel())
           .justifiedLeft()

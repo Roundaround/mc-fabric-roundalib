@@ -10,7 +10,11 @@ public class WrapperLayoutWidget<T extends Widget> extends SizableLayoutWidget {
   private final LayoutHookWithParent<WrapperLayoutWidget<T>, T> layoutHook;
 
   public WrapperLayoutWidget(T widget) {
-    this(0, 0, 1, 1, widget, null);
+    this(widget, null);
+  }
+
+  public WrapperLayoutWidget(T widget, LayoutHookWithParent<WrapperLayoutWidget<T>, T> layoutHook) {
+    this(0, 0, 1, 1, widget, layoutHook);
   }
 
   public WrapperLayoutWidget(
@@ -39,6 +43,10 @@ public class WrapperLayoutWidget<T extends Widget> extends SizableLayoutWidget {
     consumer.accept(this.widget);
   }
 
+  public static <T extends Widget> Builder<T> builder(T widget) {
+    return new Builder<>(widget);
+  }
+
   public static class Builder<T extends Widget> {
     private final T widget;
 
@@ -48,7 +56,7 @@ public class WrapperLayoutWidget<T extends Widget> extends SizableLayoutWidget {
     private int width = 1;
     private int height = 1;
 
-    public Builder(T widget) {
+    private Builder(T widget) {
       this.widget = widget;
     }
 
