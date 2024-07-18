@@ -1,20 +1,23 @@
 package me.roundaround.roundalib.client.gui.widget.layout;
 
-import net.minecraft.client.gui.widget.LayoutWidget;
 import net.minecraft.client.gui.widget.Widget;
 
 import java.util.function.Consumer;
 
-public class WrapperLayoutWidget<T extends Widget> implements LayoutWidget {
+public class WrapperLayoutWidget<T extends Widget> extends SizableLayoutWidget {
   protected final T widget;
 
-  private final LayoutHook<T> layoutHook;
+  private final LayoutHookWithParent<WrapperLayoutWidget<T>, T> layoutHook;
 
   public WrapperLayoutWidget(T widget) {
-    this(widget, null);
+    this(0, 0, 1, 1, widget, null);
   }
 
-  public WrapperLayoutWidget(T widget, LayoutHook<T> layoutHook) {
+  public WrapperLayoutWidget(
+      int x, int y, int width, int height, T widget, LayoutHookWithParent<WrapperLayoutWidget<T>, T> layoutHook
+  ) {
+    super(x, y, width, height);
+
     this.widget = widget;
     this.layoutHook = layoutHook;
   }
@@ -26,9 +29,9 @@ public class WrapperLayoutWidget<T extends Widget> implements LayoutWidget {
   @Override
   public void refreshPositions() {
     if (this.layoutHook != null) {
-      this.layoutHook.run(this.widget);
+      this.layoutHook.run(this, this.widget);
     }
-    LayoutWidget.super.refreshPositions();
+    super.refreshPositions();
   }
 
   @Override
@@ -36,33 +39,66 @@ public class WrapperLayoutWidget<T extends Widget> implements LayoutWidget {
     consumer.accept(this.widget);
   }
 
-  @Override
-  public void setX(int x) {
-    this.widget.setX(x);
-  }
+  public static class Builder<T extends Widget> {
+    private final T widget;
 
-  @Override
-  public void setY(int y) {
-    this.widget.setY(y);
-  }
+    private LayoutHookWithParent<WrapperLayoutWidget<T>, T> layoutHook;
+    private int x;
+    private int y;
+    private int width = 1;
+    private int height = 1;
 
-  @Override
-  public int getX() {
-    return this.widget.getX();
-  }
+    public Builder(T widget) {
+      this.widget = widget;
+    }
 
-  @Override
-  public int getY() {
-    return this.widget.getY();
-  }
+    public Builder<T> setX(int x) {
+      this.x = x;
+      return this;
+    }
 
-  @Override
-  public int getWidth() {
-    return this.widget.getWidth();
-  }
+    public Builder<T> setY(int y) {
+      this.y = y;
+      return this;
+    }
 
-  @Override
-  public int getHeight() {
-    return this.widget.getHeight();
+    public Builder<T> setPos(int x, int y) {
+      this.x = x;
+      this.y = y;
+      return this;
+    }
+
+    public Builder<T> setWidth(int width) {
+      this.width = width;
+      return this;
+    }
+
+    public Builder<T> setHeight(int height) {
+      this.height = height;
+      return this;
+    }
+
+    public Builder<T> setDimensions(int width, int height) {
+      this.width = width;
+      this.height = height;
+      return this;
+    }
+
+    public Builder<T> setPositionAndDimensions(int x, int y, int width, int height) {
+      this.x = x;
+      this.y = y;
+      this.width = width;
+      this.height = height;
+      return this;
+    }
+
+    public Builder<T> setLayoutHook(LayoutHookWithParent<WrapperLayoutWidget<T>, T> layoutHook) {
+      this.layoutHook = layoutHook;
+      return this;
+    }
+
+    public WrapperLayoutWidget<T> build() {
+      return new WrapperLayoutWidget<>(this.x, this.y, this.width, this.height, this.widget, this.layoutHook);
+    }
   }
 }
