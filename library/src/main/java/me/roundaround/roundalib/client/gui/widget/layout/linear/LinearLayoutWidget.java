@@ -1,7 +1,10 @@
-package me.roundaround.roundalib.client.gui.widget.layout;
+package me.roundaround.roundalib.client.gui.widget.layout.linear;
 
-import me.roundaround.roundalib.client.gui.layout.DefaultLayoutMargin;
+import me.roundaround.roundalib.client.gui.layout.Alignment;
+import me.roundaround.roundalib.client.gui.layout.Axis;
 import me.roundaround.roundalib.client.gui.layout.Spacing;
+import me.roundaround.roundalib.client.gui.widget.layout.LayoutHookWithParent;
+import me.roundaround.roundalib.client.gui.widget.layout.SizableLayoutWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.widget.ClickableWidget;
@@ -16,95 +19,95 @@ import java.util.function.ToIntFunction;
 public class LinearLayoutWidget extends SizableLayoutWidget {
   private final List<CellWidget<?>> cells = new ArrayList<>();
 
-  private FlowAxis flowAxis;
-  private float alignSelfX;
-  private float alignSelfY;
+  private Axis flowAxis;
+  private Alignment alignSelfX = Alignment.START;
+  private Alignment alignSelfY = Alignment.START;
   private int spacing;
-  private float contentAlignMain;
-  private float defaultContentAlignOff = 0.5f;
+  private Alignment contentAlignMain = Alignment.START;
+  private Alignment defaultContentAlignOff = Alignment.CENTER;
   private Spacing defaultContentMargin = Spacing.zero();
 
   private int contentWidth;
   private int contentHeight;
 
-  public LinearLayoutWidget(FlowAxis flowAxis) {
+  public LinearLayoutWidget(Axis flowAxis) {
     this(flowAxis, 0, 0, 0, 0);
   }
 
-  public LinearLayoutWidget(FlowAxis flowAxis, int width, int height) {
+  public LinearLayoutWidget(Axis flowAxis, int width, int height) {
     this(flowAxis, 0, 0, width, height);
   }
 
-  public LinearLayoutWidget(FlowAxis flowAxis, int x, int y, int width, int height) {
+  public LinearLayoutWidget(Axis flowAxis, int x, int y, int width, int height) {
     super(x, y, width, height);
 
     this.flowAxis = flowAxis;
   }
 
   public static LinearLayoutWidget horizontal() {
-    return new LinearLayoutWidget(FlowAxis.HORIZONTAL);
+    return new LinearLayoutWidget(Axis.HORIZONTAL);
   }
 
   public static LinearLayoutWidget horizontal(int width, int height) {
-    return new LinearLayoutWidget(FlowAxis.HORIZONTAL, width, height);
+    return new LinearLayoutWidget(Axis.HORIZONTAL, width, height);
   }
 
   public static LinearLayoutWidget horizontal(int x, int y, int width, int height) {
-    return new LinearLayoutWidget(FlowAxis.HORIZONTAL, x, y, width, height);
+    return new LinearLayoutWidget(Axis.HORIZONTAL, x, y, width, height);
   }
 
   public static LinearLayoutWidget vertical() {
-    return new LinearLayoutWidget(FlowAxis.VERTICAL);
+    return new LinearLayoutWidget(Axis.VERTICAL);
   }
 
   public static LinearLayoutWidget vertical(int width, int height) {
-    return new LinearLayoutWidget(FlowAxis.VERTICAL, width, height);
+    return new LinearLayoutWidget(Axis.VERTICAL, width, height);
   }
 
   public static LinearLayoutWidget vertical(int x, int y, int width, int height) {
-    return new LinearLayoutWidget(FlowAxis.VERTICAL, x, y, width, height);
+    return new LinearLayoutWidget(Axis.VERTICAL, x, y, width, height);
   }
 
-  public LinearLayoutWidget flowAxis(FlowAxis flowAxis) {
+  public LinearLayoutWidget flowAxis(Axis flowAxis) {
     this.flowAxis = flowAxis;
     return this;
   }
 
-  public LinearLayoutWidget alignSelfX(float alignX) {
+  public LinearLayoutWidget alignSelfX(Alignment alignX) {
     this.alignSelfX = alignX;
     return this;
   }
 
   public LinearLayoutWidget alignSelfLeft() {
-    return this.alignSelfX(0f);
+    return this.alignSelfX(Alignment.START);
   }
 
   public LinearLayoutWidget alignSelfCenterX() {
-    return this.alignSelfX(0.5f);
+    return this.alignSelfX(Alignment.CENTER);
   }
 
   public LinearLayoutWidget alignSelfRight() {
-    return this.alignSelfX(1f);
+    return this.alignSelfX(Alignment.END);
   }
 
-  public LinearLayoutWidget alignSelfY(float alignY) {
+  public LinearLayoutWidget alignSelfY(Alignment alignY) {
     this.alignSelfY = alignY;
     return this;
   }
 
   public LinearLayoutWidget alignSelfTop() {
-    return this.alignSelfY(0f);
+    return this.alignSelfY(Alignment.START);
   }
 
   public LinearLayoutWidget alignSelfCenterY() {
-    return this.alignSelfY(0.5f);
+    return this.alignSelfY(Alignment.CENTER);
   }
 
   public LinearLayoutWidget alignSelfBottom() {
-    return this.alignSelfY(1f);
+    return this.alignSelfY(Alignment.END);
   }
 
-  public LinearLayoutWidget alignSelf(float alignX, float alignY) {
+  public LinearLayoutWidget alignSelf(Alignment alignX, Alignment alignY) {
     this.alignSelfX = alignX;
     this.alignSelfY = alignY;
     return this;
@@ -115,41 +118,41 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
     return this;
   }
 
-  public LinearLayoutWidget mainAxisContentAlign(float align) {
+  public LinearLayoutWidget mainAxisContentAlign(Alignment align) {
     this.contentAlignMain = align;
     return this;
   }
 
   public LinearLayoutWidget mainAxisContentAlignStart() {
-    this.mainAxisContentAlign(0f);
+    this.mainAxisContentAlign(Alignment.START);
     return this;
   }
 
   public LinearLayoutWidget mainAxisContentAlignCenter() {
-    this.mainAxisContentAlign(0.5f);
+    this.mainAxisContentAlign(Alignment.CENTER);
     return this;
   }
 
   public LinearLayoutWidget mainAxisContentAlignEnd() {
-    this.mainAxisContentAlign(1f);
+    this.mainAxisContentAlign(Alignment.END);
     return this;
   }
 
-  public LinearLayoutWidget defaultOffAxisContentAlign(float align) {
+  public LinearLayoutWidget defaultOffAxisContentAlign(Alignment align) {
     this.defaultContentAlignOff = align;
     return this;
   }
 
   public LinearLayoutWidget defaultOffAxisContentAlignStart() {
-    return this.defaultOffAxisContentAlign(0f);
+    return this.defaultOffAxisContentAlign(Alignment.START);
   }
 
   public LinearLayoutWidget defaultOffAxisContentAlignCenter() {
-    return this.defaultOffAxisContentAlign(0.5f);
+    return this.defaultOffAxisContentAlign(Alignment.CENTER);
   }
 
   public LinearLayoutWidget defaultOffAxisContentAlignEnd() {
-    return this.defaultOffAxisContentAlign(1f);
+    return this.defaultOffAxisContentAlign(Alignment.END);
   }
 
   public LinearLayoutWidget defaultContentMargin(Spacing defaultMargin) {
@@ -169,8 +172,8 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
     CellWidget<T> cell = new CellWidget<>(widget);
     this.cells.add(cell);
 
-    if (widget instanceof DefaultLayoutMargin defaultLayoutMargin) {
-      cell.margin(defaultLayoutMargin.getDefaultLayoutMargin());
+    if (widget instanceof LinearLayoutAdapter linearLayoutAdapter) {
+      cell.margin(linearLayoutAdapter.getDefaultLinearLayoutMargin());
     }
 
     if (configure != null) {
@@ -220,14 +223,18 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
     this.calculateContentDimensions();
 
     int posMain = switch (this.flowAxis) {
-      case HORIZONTAL -> this.getX() + (int) ((this.getWidth() - this.getContentWidth()) * this.contentAlignMain);
-      case VERTICAL -> this.getY() + (int) ((this.getHeight() - this.getContentHeight()) * this.contentAlignMain);
+      case HORIZONTAL ->
+          this.getX() + (int) ((this.getWidth() - this.getContentWidth()) * this.contentAlignMain.floatValue());
+      case VERTICAL ->
+          this.getY() + (int) ((this.getHeight() - this.getContentHeight()) * this.contentAlignMain.floatValue());
     };
 
     for (CellWidget<?> cell : this.cells) {
       int posOff = switch (this.flowAxis) {
-        case HORIZONTAL -> this.getY() + (int) ((this.getHeight() - cell.getHeight()) * this.getCellAlign(cell));
-        case VERTICAL -> this.getX() + (int) ((this.getWidth() - cell.getWidth()) * this.getCellAlign(cell));
+        case HORIZONTAL ->
+            this.getY() + (int) ((this.getHeight() - cell.getHeight()) * this.getCellAlign(cell).floatValue());
+        case VERTICAL ->
+            this.getX() + (int) ((this.getWidth() - cell.getWidth()) * this.getCellAlign(cell).floatValue());
       };
 
       int main = posMain + this.getMainLeadingCellMargin(cell);
@@ -246,12 +253,12 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
 
   @Override
   public int getX() {
-    return super.getX() - (int) (this.getWidth() * this.alignSelfX);
+    return this.alignSelfX.getPos(super.getX(), this.getWidth());
   }
 
   @Override
   public int getY() {
-    return super.getY() - (int) (this.getHeight() * this.alignSelfY);
+    return this.alignSelfY.getPos(super.getY(), this.getHeight());
   }
 
   @Override
@@ -280,7 +287,7 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
     return cell.margin != null ? cell.margin : this.defaultContentMargin;
   }
 
-  private float getCellAlign(CellWidget<?> cell) {
+  private Alignment getCellAlign(CellWidget<?> cell) {
     return cell.align != null ? cell.align : this.defaultContentAlignOff;
   }
 
@@ -316,11 +323,6 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
   }
 
   @Environment(EnvType.CLIENT)
-  public enum FlowAxis {
-    HORIZONTAL, VERTICAL;
-  }
-
-  @Environment(EnvType.CLIENT)
   public interface Configurator<T extends Widget> {
     T getWidget();
 
@@ -328,18 +330,18 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
 
     Configurator<T> margin(Spacing margin);
 
-    Configurator<T> align(Float align);
+    Configurator<T> align(Alignment align);
 
     default Configurator<T> alignStart() {
-      return this.align(0f);
+      return this.align(Alignment.START);
     }
 
     default Configurator<T> alignCenter() {
-      return this.align(0.5f);
+      return this.align(Alignment.CENTER);
     }
 
     default Configurator<T> alignEnd() {
-      return this.align(1f);
+      return this.align(Alignment.END);
     }
   }
 
@@ -349,7 +351,7 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
 
     private LayoutHookWithParent<LinearLayoutWidget, T> layoutHook = null;
     private Spacing margin = null;
-    private Float align = null;
+    private Alignment align = null;
 
     public CellWidget(T widget) {
       this.widget = widget;
@@ -373,7 +375,7 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
     }
 
     @Override
-    public CellWidget<T> align(Float align) {
+    public CellWidget<T> align(Alignment align) {
       this.align = align;
       return this;
     }

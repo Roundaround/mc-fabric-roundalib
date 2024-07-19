@@ -2,11 +2,11 @@ package me.roundaround.testmod.client.screen.demo;
 
 import me.roundaround.roundalib.asset.icon.BuiltinIcon;
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.layout.Alignment;
 import me.roundaround.roundalib.client.gui.layout.IntRect;
-import me.roundaround.roundalib.client.gui.layout.TextAlignment;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
-import me.roundaround.roundalib.client.gui.widget.layout.LinearLayoutWidget;
+import me.roundaround.roundalib.client.gui.widget.layout.linear.LinearLayoutWidget;
 import me.roundaround.roundalib.client.gui.widget.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
@@ -47,23 +47,25 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
   protected void init() {
     this.layout.addHeader(this.textRenderer, this.getTitle());
 
-    LinearLayoutWidget buttonRow = LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING).defaultOffAxisContentAlignCenter();
+    LinearLayoutWidget buttonRow = LinearLayoutWidget.horizontal()
+        .spacing(GuiUtil.PADDING)
+        .defaultOffAxisContentAlignCenter();
     buttonRow.add(
         new CyclingButtonWidget.Builder<OverflowBehavior>((value) -> value.getDisplayText(TestMod.MOD_ID)).values(
                 OverflowBehavior.values())
             .initially(OverflowBehavior.SHOW)
             .omitKeyText()
             .build(0, 0, 100, 20, Text.empty(), this::onOverflowBehaviorChange));
-    buttonRow.add(new CyclingButtonWidget.Builder<TextAlignment>((value) -> Text.of("X: " + value.name())).values(
-            TextAlignment.values())
-        .initially(TextAlignment.CENTER)
-        .omitKeyText()
-        .build(0, 0, 100, 20, Text.empty(), this::onAlignmentXChange));
-    buttonRow.add(new CyclingButtonWidget.Builder<TextAlignment>((value) -> Text.of("Y: " + value.name())).values(
-            TextAlignment.values())
-        .initially(TextAlignment.CENTER)
-        .omitKeyText()
-        .build(0, 0, 100, 20, Text.empty(), this::onAlignmentYChange));
+    buttonRow.add(
+        new CyclingButtonWidget.Builder<Alignment>((value) -> Text.of("X: " + value.name())).values(Alignment.values())
+            .initially(Alignment.CENTER)
+            .omitKeyText()
+            .build(0, 0, 100, 20, Text.empty(), this::onAlignmentXChange));
+    buttonRow.add(
+        new CyclingButtonWidget.Builder<Alignment>((value) -> Text.of("Y: " + value.name())).values(Alignment.values())
+            .initially(Alignment.CENTER)
+            .omitKeyText()
+            .build(0, 0, 100, 20, Text.empty(), this::onAlignmentYChange));
     this.minusButton = buttonRow.add(IconButtonWidget.builder(BuiltinIcon.MINUS_18, TestMod.MOD_ID)
         .onPress((button) -> this.onLineCountChange(this.lineCount - 1))
         .build());
@@ -136,12 +138,12 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
     this.layout.refreshPositions();
   }
 
-  private void onAlignmentXChange(CyclingButtonWidget<TextAlignment> button, TextAlignment value) {
+  private void onAlignmentXChange(CyclingButtonWidget<Alignment> button, Alignment value) {
     this.label.setAlignmentX(value);
     this.layout.refreshPositions();
   }
 
-  private void onAlignmentYChange(CyclingButtonWidget<TextAlignment> button, TextAlignment value) {
+  private void onAlignmentYChange(CyclingButtonWidget<Alignment> button, Alignment value) {
     this.label.setAlignmentY(value);
     this.layout.refreshPositions();
   }

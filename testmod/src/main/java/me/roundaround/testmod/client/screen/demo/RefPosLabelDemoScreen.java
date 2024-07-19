@@ -1,8 +1,8 @@
 package me.roundaround.testmod.client.screen.demo;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.layout.Alignment;
 import me.roundaround.roundalib.client.gui.layout.IntRect;
-import me.roundaround.roundalib.client.gui.layout.TextAlignment;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.layout.LayoutCollectionWidget;
 import me.roundaround.roundalib.client.gui.widget.layout.screen.ThreeSectionLayoutWidget;
@@ -49,8 +49,8 @@ public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
     this.layout.setHeaderHeight(this.layout.getHeader().getContentHeight() + 2 * GuiUtil.PADDING);
 
     LayoutCollectionWidget labelsContainer = this.layout.addBody(LayoutCollectionWidget.create());
-    for (TextAlignment alignmentX : TextAlignment.values()) {
-      for (TextAlignment alignmentY : TextAlignment.values()) {
+    for (Alignment alignmentX : Alignment.values()) {
+      for (Alignment alignmentY : Alignment.values()) {
         this.addLabel(labelsContainer, alignmentX, alignmentY);
       }
     }
@@ -95,7 +95,7 @@ public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
 
 
   private void addLabel(
-      LayoutCollectionWidget labelsContainer, TextAlignment alignmentX, TextAlignment alignmentY
+      LayoutCollectionWidget labelsContainer, Alignment alignmentX, Alignment alignmentY
   ) {
     float relativeX = relative(alignmentX);
     float relativeY = relative(alignmentY);
@@ -155,7 +155,7 @@ public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
     this.initTabNavigation();
   }
 
-  private static float relative(TextAlignment alignment) {
+  private static float relative(Alignment alignment) {
     return switch (alignment) {
       case START -> 0f;
       case CENTER -> 0.5f;
@@ -163,7 +163,7 @@ public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
     };
   }
 
-  private static String nameX(TextAlignment alignmentX) {
+  private static String nameX(Alignment alignmentX) {
     return switch (alignmentX) {
       case START -> "Left";
       case CENTER -> "Center";
@@ -171,7 +171,7 @@ public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
     };
   }
 
-  private static String nameY(TextAlignment alignmentY) {
+  private static String nameY(Alignment alignmentY) {
     return switch (alignmentY) {
       case START -> "top";
       case CENTER -> "middle";

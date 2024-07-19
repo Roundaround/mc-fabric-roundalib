@@ -6,7 +6,7 @@ import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.ParentElementEntryListWidget;
 import me.roundaround.roundalib.client.gui.widget.TooltipWidget;
-import me.roundaround.roundalib.client.gui.widget.layout.LinearLayoutWidget;
+import me.roundaround.roundalib.client.gui.widget.layout.linear.LinearLayoutWidget;
 import me.roundaround.roundalib.client.gui.widget.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.roundalib.config.manage.ModConfig;
 import me.roundaround.roundalib.config.option.ConfigOption;

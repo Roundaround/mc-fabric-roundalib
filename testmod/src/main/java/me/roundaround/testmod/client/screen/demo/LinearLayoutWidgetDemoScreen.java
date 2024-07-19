@@ -2,9 +2,12 @@ package me.roundaround.testmod.client.screen.demo;
 
 import me.roundaround.roundalib.asset.icon.BuiltinIcon;
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.layout.Alignment;
+import me.roundaround.roundalib.client.gui.layout.Axis;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
-import me.roundaround.roundalib.client.gui.widget.layout.LinearLayoutWidget;
+import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.layout.WrapperLayoutWidget;
+import me.roundaround.roundalib.client.gui.widget.layout.linear.LinearLayoutWidget;
 import me.roundaround.roundalib.client.gui.widget.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
@@ -41,21 +44,21 @@ public class LinearLayoutWidgetDemoScreen extends Screen implements DemoScreen {
     LinearLayoutWidget buttonRow = LinearLayoutWidget.horizontal()
         .spacing(GuiUtil.PADDING)
         .defaultOffAxisContentAlignCenter();
-    buttonRow.add(new CyclingButtonWidget.Builder<LinearLayoutWidget.FlowAxis>(
-        (value) -> Text.of("Axis: " + value.name())).values(LinearLayoutWidget.FlowAxis.values())
-        .initially(LinearLayoutWidget.FlowAxis.HORIZONTAL)
-        .omitKeyText()
-        .build(0, 0, 100, 20, Text.empty(), this::onFlowAxisChange));
-    buttonRow.add(new CyclingButtonWidget.Builder<AlignmentX>((value) -> Text.of("X: " + value.name())).values(
-            AlignmentX.values())
-        .initially(AlignmentX.LEFT)
-        .omitKeyText()
-        .build(0, 0, 100, 20, Text.empty(), this::onAlignmentXChange));
-    buttonRow.add(new CyclingButtonWidget.Builder<AlignmentY>((value) -> Text.of("Y: " + value.name())).values(
-            AlignmentY.values())
-        .initially(AlignmentY.TOP)
-        .omitKeyText()
-        .build(0, 0, 100, 20, Text.empty(), this::onAlignmentYChange));
+    buttonRow.add(
+        new CyclingButtonWidget.Builder<Axis>((value) -> Text.of("Axis: " + value.name())).values(Axis.values())
+            .initially(Axis.HORIZONTAL)
+            .omitKeyText()
+            .build(0, 0, 100, 20, Text.empty(), this::onFlowAxisChange));
+    buttonRow.add(
+        new CyclingButtonWidget.Builder<Alignment>((value) -> Text.of("X: " + value.name())).values(Alignment.values())
+            .initially(Alignment.START)
+            .omitKeyText()
+            .build(0, 0, 100, 20, Text.empty(), this::onAlignmentXChange));
+    buttonRow.add(
+        new CyclingButtonWidget.Builder<Alignment>((value) -> Text.of("Y: " + value.name())).values(Alignment.values())
+            .initially(Alignment.START)
+            .omitKeyText()
+            .build(0, 0, 100, 20, Text.empty(), this::onAlignmentYChange));
     buttonRow.add(
         new CyclingButtonWidget.Builder<ContentAlignment>((value) -> Text.of("Content: " + value.name())).values(
                 ContentAlignment.values())
@@ -70,6 +73,7 @@ public class LinearLayoutWidgetDemoScreen extends Screen implements DemoScreen {
     this.demoLayout.add(IconButtonWidget.builder(BuiltinIcon.MINUS_13, TestMod.MOD_ID).medium().build());
     this.demoLayout.add(IconButtonWidget.builder(BuiltinIcon.CHECKMARK_18, TestMod.MOD_ID).vanillaSize().build());
     this.demoLayout.add(IconButtonWidget.builder(BuiltinIcon.PLUS_13, TestMod.MOD_ID).medium().build());
+    this.demoLayout.add(LabelWidget.builder(this.textRenderer, Text.of("Label")).build());
     WrapperLayoutWidget<LinearLayoutWidget> wrapper = WrapperLayoutWidget.builder(this.demoLayout)
         .setDimensions(2, 2)
         .setLayoutHook((parent, self) -> {
@@ -145,50 +149,32 @@ public class LinearLayoutWidgetDemoScreen extends Screen implements DemoScreen {
     Objects.requireNonNull(this.client).setScreen(this.parent);
   }
 
-  private void onFlowAxisChange(
-      CyclingButtonWidget<LinearLayoutWidget.FlowAxis> button, LinearLayoutWidget.FlowAxis value
-  ) {
+  private void onFlowAxisChange(CyclingButtonWidget<Axis> button, Axis value) {
     this.demoLayout.flowAxis(value);
     this.layout.refreshPositions();
   }
 
-  private void onAlignmentXChange(CyclingButtonWidget<AlignmentX> button, AlignmentX value) {
-    value.set(this.demoLayout);
+  private void onAlignmentXChange(CyclingButtonWidget<Alignment> button, Alignment value) {
+    switch (value) {
+      case START -> this.demoLayout.alignSelfLeft();
+      case CENTER -> this.demoLayout.alignSelfCenterX();
+      case END -> this.demoLayout.alignSelfRight();
+    }
     this.layout.refreshPositions();
   }
 
-  private void onAlignmentYChange(CyclingButtonWidget<AlignmentY> button, AlignmentY value) {
-    value.set(this.demoLayout);
+  private void onAlignmentYChange(CyclingButtonWidget<Alignment> button, Alignment value) {
+    switch (value) {
+      case START -> this.demoLayout.alignSelfTop();
+      case CENTER -> this.demoLayout.alignSelfCenterY();
+      case END -> this.demoLayout.alignSelfBottom();
+    }
     this.layout.refreshPositions();
   }
 
   private void onContentAlignmentChange(CyclingButtonWidget<ContentAlignment> button, ContentAlignment value) {
     value.set(this.demoLayout);
     this.layout.refreshPositions();
-  }
-
-  private enum AlignmentX {
-    LEFT, CENTER, RIGHT;
-
-    public void set(LinearLayoutWidget layout) {
-      switch (this) {
-        case LEFT -> layout.alignSelfLeft();
-        case CENTER -> layout.alignSelfCenterX();
-        case RIGHT -> layout.alignSelfRight();
-      }
-    }
-  }
-
-  private enum AlignmentY {
-    TOP, CENTER, BOTTOM;
-
-    public void set(LinearLayoutWidget layout) {
-      switch (this) {
-        case TOP -> layout.alignSelfTop();
-        case CENTER -> layout.alignSelfCenterY();
-        case BOTTOM -> layout.alignSelfBottom();
-      }
-    }
   }
 
   private enum ContentAlignment {

@@ -2,11 +2,12 @@ package me.roundaround.testmod.client.screen.demo;
 
 import me.roundaround.roundalib.asset.icon.BuiltinIcon;
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.layout.Axis;
 import me.roundaround.roundalib.client.gui.widget.DrawableWidget;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.NarratableEntryListWidget;
-import me.roundaround.roundalib.client.gui.widget.layout.LinearLayoutWidget;
+import me.roundaround.roundalib.client.gui.widget.layout.linear.LinearLayoutWidget;
 import me.roundaround.roundalib.client.gui.widget.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
@@ -43,7 +44,7 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
   protected void init() {
     this.layout.addHeader(this.textRenderer, this.title);
 
-    this.layout.getBody().flowAxis(LinearLayoutWidget.FlowAxis.HORIZONTAL).spacing(2 * GuiUtil.PADDING);
+    this.layout.getBody().flowAxis(Axis.HORIZONTAL).spacing(2 * GuiUtil.PADDING);
 
     LinearLayoutWidget leftPane = this.layout.addBody(
         LinearLayoutWidget.vertical().defaultOffAxisContentAlignEnd().spacing(GuiUtil.PADDING), (parent, self) -> {

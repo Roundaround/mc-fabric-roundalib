@@ -1,10 +1,11 @@
 package me.roundaround.roundalib.client.gui.widget;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.layout.DefaultLayoutMargin;
+import me.roundaround.roundalib.client.gui.layout.Alignment;
+import me.roundaround.roundalib.client.gui.layout.Axis;
 import me.roundaround.roundalib.client.gui.layout.IntRect;
 import me.roundaround.roundalib.client.gui.layout.Spacing;
-import me.roundaround.roundalib.client.gui.layout.TextAlignment;
+import me.roundaround.roundalib.client.gui.widget.layout.linear.LinearLayoutAdapter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.font.TextRenderer;
@@ -23,7 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
-public class LabelWidget extends DrawableWidget implements DefaultLayoutMargin {
+public class LabelWidget extends DrawableWidget implements LinearLayoutAdapter {
   public static final Spacing DEFAULT_PADDING = Spacing.of(1, 2);
 
   private final TextRenderer textRenderer;
@@ -31,8 +32,8 @@ public class LabelWidget extends DrawableWidget implements DefaultLayoutMargin {
 
   private List<Text> lines;
   private int color;
-  private TextAlignment alignmentX;
-  private TextAlignment alignmentY;
+  private Alignment alignmentX;
+  private Alignment alignmentY;
   private Spacing padding;
   private OverflowBehavior overflowBehavior;
   private int scrollMargin;
@@ -58,8 +59,8 @@ public class LabelWidget extends DrawableWidget implements DefaultLayoutMargin {
       int y,
       int width,
       int height,
-      TextAlignment alignmentX,
-      TextAlignment alignmentY,
+      Alignment alignmentX,
+      Alignment alignmentY,
       Spacing padding,
       OverflowBehavior overflowBehavior,
       int scrollMargin,
@@ -126,8 +127,8 @@ public class LabelWidget extends DrawableWidget implements DefaultLayoutMargin {
     textWidth = Math.min(textWidth, this.getAvailableWidth());
     textHeight = Math.min(textHeight, this.getAvailableHeight());
 
-    this.textBounds = IntRect.byDimensions(this.alignmentX.getLeft(this.referenceX, textWidth),
-        this.alignmentY.getTop(this.referenceY, textHeight), textWidth, textHeight
+    this.textBounds = IntRect.byDimensions(this.alignmentX.getPos(this.referenceX, textWidth),
+        this.alignmentY.getPos(this.referenceY, textHeight), textWidth, textHeight
     );
     this.bgBounds = this.textBounds.expand(this.padding).expand(this.bgOverflow);
   }
@@ -233,15 +234,6 @@ public class LabelWidget extends DrawableWidget implements DefaultLayoutMargin {
     return lines * this.textRenderer.fontHeight + (lines - 1) * this.lineSpacing + this.padding.getVertical();
   }
 
-  public Spacing getBgSpacing() {
-    return this.padding.expand(this.bgOverflow);
-  }
-
-  @Override
-  public Spacing getDefaultLayoutMargin() {
-    return this.getBgSpacing();
-  }
-
   public void batchUpdates(Runnable runnable) {
     this.inBatchUpdate = true;
     try {
@@ -271,12 +263,12 @@ public class LabelWidget extends DrawableWidget implements DefaultLayoutMargin {
     this.color = color;
   }
 
-  public void setAlignmentX(TextAlignment alignmentX) {
+  public void setAlignmentX(Alignment alignmentX) {
     this.alignmentX = alignmentX;
     this.calculateBounds();
   }
 
-  public void setAlignmentY(TextAlignment alignmentY) {
+  public void setAlignmentY(Alignment alignmentY) {
     this.alignmentY = alignmentY;
     this.calculateBounds();
   }
@@ -363,6 +355,26 @@ public class LabelWidget extends DrawableWidget implements DefaultLayoutMargin {
   public void setTooltipDelay(Duration tooltipDelay) {
     this.tooltipDelay = tooltipDelay;
     super.setTooltipDelay(tooltipDelay);
+  }
+
+  @Override
+  public Spacing getDefaultLinearLayoutMargin() {
+    return this.padding.expand(this.bgOverflow);
+  }
+
+  @Override
+  public void onSetLinearLayoutAlignment(Axis flowAxis, Alignment alignment) {
+
+  }
+
+  @Override
+  public void setLinearLayoutX(int x) {
+
+  }
+
+  @Override
+  public void setLinearLayoutY(int y) {
+
   }
 
   public IntRect getTextBounds() {
@@ -512,8 +524,8 @@ public class LabelWidget extends DrawableWidget implements DefaultLayoutMargin {
     private int width;
     private int height;
     private int color = GuiUtil.LABEL_COLOR;
-    private TextAlignment alignmentX = TextAlignment.START;
-    private TextAlignment alignmentY = TextAlignment.CENTER;
+    private Alignment alignmentX = Alignment.START;
+    private Alignment alignmentY = Alignment.CENTER;
     private Spacing padding = DEFAULT_PADDING;
     private OverflowBehavior overflowBehavior = OverflowBehavior.SHOW;
     private int scrollMargin = 2;
@@ -609,38 +621,38 @@ public class LabelWidget extends DrawableWidget implements DefaultLayoutMargin {
       return this;
     }
 
-    public Builder alignX(TextAlignment alignmentX) {
+    public Builder alignX(Alignment alignmentX) {
       this.alignmentX = alignmentX;
       return this;
     }
 
     public Builder alignLeft() {
-      return this.alignX(TextAlignment.START);
+      return this.alignX(Alignment.START);
     }
 
     public Builder alignCenterX() {
-      return this.alignX(TextAlignment.CENTER);
+      return this.alignX(Alignment.CENTER);
     }
 
     public Builder alignRight() {
-      return this.alignX(TextAlignment.END);
+      return this.alignX(Alignment.END);
     }
 
-    public Builder alignY(TextAlignment alignmentY) {
+    public Builder alignY(Alignment alignmentY) {
       this.alignmentY = alignmentY;
       return this;
     }
 
     public Builder alignTop() {
-      return this.alignY(TextAlignment.START);
+      return this.alignY(Alignment.START);
     }
 
     public Builder alignCenterY() {
-      return this.alignY(TextAlignment.CENTER);
+      return this.alignY(Alignment.CENTER);
     }
 
     public Builder alignBottom() {
-      return this.alignY(TextAlignment.END);
+      return this.alignY(Alignment.END);
     }
 
     public Builder padding(int space) {

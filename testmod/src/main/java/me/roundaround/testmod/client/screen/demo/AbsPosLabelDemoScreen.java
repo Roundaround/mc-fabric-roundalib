@@ -1,10 +1,11 @@
 package me.roundaround.testmod.client.screen.demo;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.layout.Alignment;
+import me.roundaround.roundalib.client.gui.layout.Axis;
 import me.roundaround.roundalib.client.gui.layout.IntRect;
-import me.roundaround.roundalib.client.gui.layout.TextAlignment;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
-import me.roundaround.roundalib.client.gui.widget.layout.LinearLayoutWidget;
+import me.roundaround.roundalib.client.gui.widget.layout.linear.LinearLayoutWidget;
 import me.roundaround.roundalib.client.gui.widget.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
@@ -49,7 +50,7 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
             .build(Text.empty(), this::onOverflowBehaviorChange));
     this.layout.setHeaderHeight(this.layout.getHeader().getContentHeight() + 2 * GuiUtil.PADDING);
 
-    this.layout.getBody().flowAxis(LinearLayoutWidget.FlowAxis.HORIZONTAL);
+    this.layout.getBody().flowAxis(Axis.HORIZONTAL);
     this.layout.setBodyLayoutHook((parent, self) -> {
       int totalWidth = parent.getWidth() - 2 * GuiUtil.PADDING;
       int contentWidth = 3 * columnWidth(totalWidth) + 2 * columnSpacing(totalWidth);
@@ -58,12 +59,12 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
       self.spacing(columnSpacing(totalWidth));
     });
 
-    for (TextAlignment alignmentX : TextAlignment.values()) {
+    for (Alignment alignmentX : Alignment.values()) {
       LinearLayoutWidget column = this.layout.addBody(LinearLayoutWidget.vertical().spacing(20),
           (parent, self) -> self.setDimensions(columnWidth(parent.getWidth()), parent.getHeight())
       );
 
-      for (TextAlignment alignmentY : TextAlignment.values()) {
+      for (Alignment alignmentY : Alignment.values()) {
         this.addLabel(column, alignmentX, alignmentY);
       }
     }
@@ -117,7 +118,7 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
   }
 
   private void addLabel(
-      LinearLayoutWidget column, TextAlignment alignmentX, TextAlignment alignmentY
+      LinearLayoutWidget column, Alignment alignmentX, Alignment alignmentY
   ) {
     LabelWidget label = LabelWidget.builder(this.textRenderer,
             Text.of(String.format("== == %s/%s == ==", nameX(alignmentX), nameY(alignmentY)))
@@ -167,7 +168,7 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
     return divider.nextInt();
   }
 
-  private static String nameX(TextAlignment alignmentX) {
+  private static String nameX(Alignment alignmentX) {
     return switch (alignmentX) {
       case START -> "Left";
       case CENTER -> "Center";
@@ -175,7 +176,7 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
     };
   }
 
-  private static String nameY(TextAlignment alignmentY) {
+  private static String nameY(Alignment alignmentY) {
     return switch (alignmentY) {
       case START -> "top";
       case CENTER -> "middle";

@@ -1,7 +1,8 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.widget.layout.LinearLayoutWidget;
+import me.roundaround.roundalib.client.gui.widget.layout.linear.Axis;
+import me.roundaround.roundalib.client.gui.widget.layout.linear.LinearLayoutWidget;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -14,7 +15,7 @@ public abstract class Control<D, O extends ConfigOption<D>> extends LinearLayout
   protected boolean valid;
 
   protected Control(MinecraftClient client, O option, int width, int height) {
-    super(FlowAxis.HORIZONTAL, width, height);
+    super(Axis.HORIZONTAL, width, height);
 
     this.client = client;
     this.option = option;
