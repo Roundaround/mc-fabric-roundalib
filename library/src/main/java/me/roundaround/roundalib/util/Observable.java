@@ -1,14 +1,13 @@
 package me.roundaround.roundalib.util;
 
-import java.util.Objects;
-import java.util.WeakHashMap;
-import java.util.function.Consumer;
+import java.util.*;
 
 public class Observable<T> {
   protected static final Object PRESENT = new Object();
+  protected static final Object EMPTY = new Object();
 
   protected T value;
-  protected final WeakHashMap<Consumer<T>, Object> subscribers = new WeakHashMap<>();
+  protected final WeakHashMap<Observer<T>, Object> observers = new WeakHashMap<>();
 
   protected Observable(T initial) {
     this.value = initial;
@@ -16,6 +15,15 @@ public class Observable<T> {
 
   public static <T> Observable<T> of(T initial) {
     return new Observable<>(initial);
+  }
+
+  public static Unsubscriber subscribeToAll(Callback callback, Observable<?>... observables) {
+    List<Unsubscriber> unsubscribers = Arrays.stream(observables)
+        .map((observable) -> observable.subscribe((value) -> callback.handle()))
+        .toList();
+    return () -> {
+      unsubscribers.forEach(Unsubscriber::unsubscribe);
+    };
   }
 
   public T get() {
@@ -41,18 +49,34 @@ public class Observable<T> {
   }
 
   public void emit() {
-    this.subscribers.keySet().forEach((callback) -> callback.accept(this.value));
+    this.observers.keySet().forEach((observer) -> observer.handle(this.value));
   }
 
-  public void subscribe(Consumer<T> callback) {
-    this.subscribers.put(callback, PRESENT);
+  public Unsubscriber subscribe(Observer<T> observer) {
+    this.observers.put(observer, PRESENT);
+    return () -> this.unsubscribe(observer);
   }
 
-  public void unsubscribe(Consumer<T> callback) {
-    this.subscribers.remove(callback);
+  public void unsubscribe(Observer<T> observer) {
+    this.observers.remove(observer);
   }
 
   public void clear() {
-    this.subscribers.clear();
+    this.observers.clear();
+  }
+
+  @FunctionalInterface
+  public interface Observer<T> {
+    void handle(T value);
+  }
+
+  @FunctionalInterface
+  public interface Callback {
+    void handle();
+  }
+
+  @FunctionalInterface
+  public interface Unsubscriber {
+    void unsubscribe();
   }
 }
