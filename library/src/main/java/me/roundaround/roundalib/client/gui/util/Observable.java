@@ -1,13 +1,14 @@
 package me.roundaround.roundalib.client.gui.util;
 
-import java.util.LinkedHashMap;
 import java.util.Objects;
-import java.util.UUID;
+import java.util.WeakHashMap;
 import java.util.function.Consumer;
 
 public class Observable<T> {
+  protected static final Object PRESENT = new Object();
+
   protected T value;
-  protected final LinkedHashMap<UUID, Consumer<T>> subscribers = new LinkedHashMap<>();
+  protected final WeakHashMap<Consumer<T>, Object> subscribers = new WeakHashMap<>();
 
   protected Observable(T initial) {
     this.value = initial;
@@ -39,34 +40,19 @@ public class Observable<T> {
     this.value = value;
   }
 
-  public UUID subscribe(UUID refId, Consumer<T> callback) {
-    this.subscribers.put(refId, callback);
-    return refId;
+  public void emit() {
+    this.subscribers.keySet().forEach((callback) -> callback.accept(this.value));
   }
 
-  public UUID subscribe(Consumer<T> callback) {
-    return this.subscribe(this.getRandomUUID(), callback);
+  public void subscribe(Consumer<T> callback) {
+    this.subscribers.put(callback, PRESENT);
   }
 
-  public boolean unsubscribe(UUID refId) {
-    boolean exists = this.subscribers.containsKey(refId);
-    this.subscribers.remove(refId);
-    return exists;
+  public void unsubscribe(Consumer<T> callback) {
+    this.subscribers.remove(callback);
   }
 
   public void clear() {
     this.subscribers.clear();
-  }
-
-  public void emit() {
-    this.subscribers.values().forEach((callback) -> callback.accept(this.value));
-  }
-
-  protected UUID getRandomUUID() {
-    UUID uuid = UUID.randomUUID();
-    while (this.subscribers.containsKey(uuid)) {
-      uuid = UUID.randomUUID();
-    }
-    return uuid;
   }
 }
