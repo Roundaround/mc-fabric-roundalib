@@ -1,6 +1,6 @@
 package me.roundaround.roundalib.config.panic;
 
-import me.roundaround.roundalib.LoggerOutputStream;
+import me.roundaround.roundalib.util.LoggerOutputStream;
 import me.roundaround.roundalib.RoundaLib;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;

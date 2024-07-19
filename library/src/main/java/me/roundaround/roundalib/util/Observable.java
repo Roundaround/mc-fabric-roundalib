@@ -1,4 +1,4 @@
-package me.roundaround.roundalib.client.gui.util;
+package me.roundaround.roundalib.util;
 
 import java.util.Objects;
 import java.util.WeakHashMap;

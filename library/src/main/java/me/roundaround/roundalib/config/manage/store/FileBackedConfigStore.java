@@ -2,7 +2,7 @@ package me.roundaround.roundalib.config.manage.store;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
-import me.roundaround.roundalib.PathAccessor;
+import me.roundaround.roundalib.util.PathAccessor;
 import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.config.option.ConfigOption;
 

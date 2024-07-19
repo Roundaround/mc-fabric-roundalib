@@ -1,4 +1,4 @@
-package me.roundaround.roundalib;
+package me.roundaround.roundalib.util;
 
 import me.roundaround.roundalib.client.event.MinecraftServerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;

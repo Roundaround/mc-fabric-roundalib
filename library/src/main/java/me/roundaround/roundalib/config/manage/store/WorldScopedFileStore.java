@@ -1,6 +1,6 @@
 package me.roundaround.roundalib.config.manage.store;
 
-import me.roundaround.roundalib.PathAccessor;
+import me.roundaround.roundalib.util.PathAccessor;
 import me.roundaround.roundalib.client.event.MinecraftServerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 

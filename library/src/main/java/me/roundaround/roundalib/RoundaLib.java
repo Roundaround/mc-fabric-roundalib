@@ -1,5 +1,6 @@
 package me.roundaround.roundalib;
 
+import me.roundaround.roundalib.util.PathAccessor;
 import net.fabricmc.loader.api.entrypoint.PreLaunchEntrypoint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

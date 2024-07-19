@@ -1,4 +1,4 @@
-package me.roundaround.roundalib;
+package me.roundaround.roundalib.util;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
