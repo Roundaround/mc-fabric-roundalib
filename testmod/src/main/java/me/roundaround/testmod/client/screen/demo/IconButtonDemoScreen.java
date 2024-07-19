@@ -4,7 +4,7 @@ import me.roundaround.roundalib.asset.icon.BuiltinIcon;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.ResponsiveGridWidget;
-import me.roundaround.roundalib.client.gui.widget.layout.screen.ThreeSectionLayoutWidget;
+import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

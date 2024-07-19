@@ -1,10 +1,10 @@
-package me.roundaround.roundalib.client.gui.widget.layout.linear;
+package me.roundaround.roundalib.client.gui.layout.linear;
 
-import me.roundaround.roundalib.client.gui.layout.Alignment;
-import me.roundaround.roundalib.client.gui.layout.Axis;
-import me.roundaround.roundalib.client.gui.layout.Spacing;
-import me.roundaround.roundalib.client.gui.widget.layout.LayoutHookWithParent;
-import me.roundaround.roundalib.client.gui.widget.layout.SizableLayoutWidget;
+import me.roundaround.roundalib.client.gui.layout.LayoutHookWithParent;
+import me.roundaround.roundalib.client.gui.util.Alignment;
+import me.roundaround.roundalib.client.gui.util.Axis;
+import me.roundaround.roundalib.client.gui.util.Spacing;
+import me.roundaround.roundalib.client.gui.layout.SizableLayoutWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.widget.ClickableWidget;

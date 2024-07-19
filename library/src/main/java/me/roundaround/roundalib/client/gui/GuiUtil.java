@@ -1,6 +1,6 @@
 package me.roundaround.roundalib.client.gui;
 
-import me.roundaround.roundalib.client.gui.layout.Alignment;
+import me.roundaround.roundalib.client.gui.util.Alignment;
 import me.roundaround.roundalib.config.manage.ModConfigImpl;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

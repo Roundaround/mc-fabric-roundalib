@@ -1,7 +1,7 @@
 package me.roundaround.roundalib.client.gui.widget;
 
-import me.roundaround.roundalib.client.gui.layout.Spacing;
-import me.roundaround.roundalib.client.gui.widget.layout.screen.ThreeSectionLayoutWidget;
+import me.roundaround.roundalib.client.gui.util.Spacing;
+import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;

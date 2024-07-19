@@ -1,10 +1,10 @@
-package me.roundaround.roundalib.client.gui.widget.layout.screen;
+package me.roundaround.roundalib.client.gui.layout.screen;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.layout.LayoutHookWithParent;
+import me.roundaround.roundalib.client.gui.layout.SizableLayoutWidget;
+import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
-import me.roundaround.roundalib.client.gui.widget.layout.LayoutHookWithParent;
-import me.roundaround.roundalib.client.gui.widget.layout.linear.LinearLayoutWidget;
-import me.roundaround.roundalib.client.gui.widget.layout.SizableLayoutWidget;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.Widget;

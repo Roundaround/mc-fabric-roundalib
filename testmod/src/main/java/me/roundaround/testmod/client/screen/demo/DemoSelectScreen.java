@@ -3,7 +3,7 @@ package me.roundaround.testmod.client.screen.demo;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.NarratableEntryListWidget;
-import me.roundaround.roundalib.client.gui.widget.layout.screen.ThreeSectionLayoutWidget;
+import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;

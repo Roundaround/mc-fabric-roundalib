@@ -1,4 +1,4 @@
-package me.roundaround.roundalib.client.gui.layout;
+package me.roundaround.roundalib.client.gui.util;
 
 public record Coords(int x, int y) {
   public int u() {

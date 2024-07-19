@@ -1,4 +1,4 @@
-package me.roundaround.roundalib.client.gui.layout;
+package me.roundaround.roundalib.client.gui.util;
 
 public record Spacing(Integer top, Integer right, Integer bottom, Integer left) implements FourSided<Integer> {
   public static Spacing zero() {

@@ -1,11 +1,11 @@
 package me.roundaround.roundalib.client.gui.widget;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.layout.Alignment;
-import me.roundaround.roundalib.client.gui.layout.Axis;
-import me.roundaround.roundalib.client.gui.layout.IntRect;
-import me.roundaround.roundalib.client.gui.layout.Spacing;
-import me.roundaround.roundalib.client.gui.widget.layout.linear.LinearLayoutAdapter;
+import me.roundaround.roundalib.client.gui.util.Alignment;
+import me.roundaround.roundalib.client.gui.util.Axis;
+import me.roundaround.roundalib.client.gui.util.IntRect;
+import me.roundaround.roundalib.client.gui.util.Spacing;
+import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutAdapter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.font.TextRenderer;

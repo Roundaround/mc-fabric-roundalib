@@ -2,12 +2,12 @@ package me.roundaround.testmod.client.screen.demo;
 
 import me.roundaround.roundalib.asset.icon.BuiltinIcon;
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.layout.Alignment;
-import me.roundaround.roundalib.client.gui.layout.IntRect;
+import me.roundaround.roundalib.client.gui.util.Alignment;
+import me.roundaround.roundalib.client.gui.util.IntRect;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
-import me.roundaround.roundalib.client.gui.widget.layout.linear.LinearLayoutWidget;
-import me.roundaround.roundalib.client.gui.widget.layout.screen.ThreeSectionLayoutWidget;
+import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
+import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

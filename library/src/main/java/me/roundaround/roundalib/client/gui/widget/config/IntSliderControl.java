@@ -3,7 +3,7 @@ package me.roundaround.roundalib.client.gui.widget.config;
 import me.roundaround.roundalib.asset.icon.BuiltinIcon;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.IntSliderWidget;
-import me.roundaround.roundalib.client.gui.widget.layout.linear.LinearLayoutWidget;
+import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
 import me.roundaround.roundalib.config.option.IntConfigOption;
 import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
 import me.roundaround.roundalib.config.panic.Panic;

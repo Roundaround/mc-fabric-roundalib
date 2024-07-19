@@ -1,4 +1,4 @@
-package me.roundaround.roundalib.client.gui.layout;
+package me.roundaround.roundalib.client.gui.util;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

@@ -1,4 +1,4 @@
-package me.roundaround.roundalib.client.gui.layout;
+package me.roundaround.roundalib.client.gui.util;
 
 public interface FourSided<N extends Number> {
   N left();
