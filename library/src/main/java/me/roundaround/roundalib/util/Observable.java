@@ -4,13 +4,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.WeakHashMap;
+import java.util.function.Function;
 
 public class Observable<T> {
   protected static final Object PRESENT = new Object();
   protected static final Object EMPTY = new Object();
 
-  protected T value;
   protected final WeakHashMap<Observer<T>, Object> observers = new WeakHashMap<>();
+
+  protected T value;
+  protected Unsubscriber sourceUnsubscriber;
 
   protected Observable(T initial) {
     this.value = initial;
@@ -18,6 +21,10 @@ public class Observable<T> {
 
   public static <T> Observable<T> of(T initial) {
     return new Observable<>(initial);
+  }
+
+  public static <S, T> Observable<T> computed(Observable<S> source, Function<S, T> compute) {
+    return source.computed(compute);
   }
 
   public static Unsubscriber subscribeToAll(Callback callback, Observable<?>... observables) {
@@ -64,8 +71,18 @@ public class Observable<T> {
     this.observers.remove(observer);
   }
 
+  public Unsubscriber getSourceUnsubscriber() {
+    return this.sourceUnsubscriber;
+  }
+
   public void clear() {
     this.observers.clear();
+  }
+
+  public <S> Observable<S> computed(Function<T, S> compute) {
+    Observable<S> computed = Observable.of(compute.apply(this.get()));
+    computed.sourceUnsubscriber = this.subscribe((value) -> computed.set(compute.apply(value)));
+    return computed;
   }
 
   @FunctionalInterface
