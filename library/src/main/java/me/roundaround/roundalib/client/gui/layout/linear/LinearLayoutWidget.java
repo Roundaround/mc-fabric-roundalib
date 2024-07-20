@@ -124,18 +124,15 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
   }
 
   public LinearLayoutWidget mainAxisContentAlignStart() {
-    this.mainAxisContentAlign(Alignment.START);
-    return this;
+    return this.mainAxisContentAlign(Alignment.START);
   }
 
   public LinearLayoutWidget mainAxisContentAlignCenter() {
-    this.mainAxisContentAlign(Alignment.CENTER);
-    return this;
+    return this.mainAxisContentAlign(Alignment.CENTER);
   }
 
   public LinearLayoutWidget mainAxisContentAlignEnd() {
-    this.mainAxisContentAlign(Alignment.END);
-    return this;
+    return this.mainAxisContentAlign(Alignment.END);
   }
 
   public LinearLayoutWidget defaultOffAxisContentAlign(Alignment align) {
