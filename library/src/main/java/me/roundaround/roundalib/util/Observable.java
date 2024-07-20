@@ -1,6 +1,9 @@
 package me.roundaround.roundalib.util;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.WeakHashMap;
 
 public class Observable<T> {
   protected static final Object PRESENT = new Object();
