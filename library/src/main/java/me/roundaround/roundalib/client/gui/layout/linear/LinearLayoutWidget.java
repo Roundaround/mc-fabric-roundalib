@@ -1,10 +1,10 @@
 package me.roundaround.roundalib.client.gui.layout.linear;
 
 import me.roundaround.roundalib.client.gui.layout.LayoutHookWithParent;
+import me.roundaround.roundalib.client.gui.layout.SizableLayoutWidget;
 import me.roundaround.roundalib.client.gui.util.Alignment;
 import me.roundaround.roundalib.client.gui.util.Axis;
 import me.roundaround.roundalib.client.gui.util.Spacing;
-import me.roundaround.roundalib.client.gui.layout.SizableLayoutWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.widget.ClickableWidget;
@@ -158,20 +158,20 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
   }
 
   public <T extends Widget> T add(T widget) {
-    return this.add(widget, (Consumer<Configurator<T>>) null);
+    return this.add(widget, (Consumer<LinearLayoutCellConfigurator<T>>) null);
   }
 
-  public <T extends Widget> T add(T widget, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook) {
+  public <T extends Widget> T add(
+      T widget, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook) {
     return this.add(widget, (configurator) -> configurator.layoutHook(layoutHook));
   }
 
-  public <T extends Widget> T add(T widget, Consumer<Configurator<T>> configure) {
+  public <T extends Widget> T add(T widget, Consumer<LinearLayoutCellConfigurator<T>> configure) {
     CellWidget<T> cell = new CellWidget<>(widget);
     this.cells.add(cell);
 
-    if (widget instanceof LinearLayoutAdapter linearLayoutAdapter) {
-      cell.margin(linearLayoutAdapter.getDefaultLinearLayoutMargin());
-    }
+    AutoLinearLayoutCellConfigurator.of(widget)
+        .ifPresent((autoConfigurator) -> autoConfigurator.onAddToLinearLayout(cell));
 
     if (configure != null) {
       configure.accept(cell);
@@ -220,18 +220,18 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
     this.calculateContentDimensions();
 
     int posMain = switch (this.flowAxis) {
-      case HORIZONTAL ->
-          this.getX() + (int) ((this.getWidth() - this.getContentWidth()) * this.contentAlignMain.floatValue());
-      case VERTICAL ->
-          this.getY() + (int) ((this.getHeight() - this.getContentHeight()) * this.contentAlignMain.floatValue());
+      case HORIZONTAL -> this.getX() +
+          (int) ((this.getWidth() - this.getContentWidth()) * this.contentAlignMain.floatValue());
+      case VERTICAL -> this.getY() +
+          (int) ((this.getHeight() - this.getContentHeight()) * this.contentAlignMain.floatValue());
     };
 
     for (CellWidget<?> cell : this.cells) {
       int posOff = switch (this.flowAxis) {
-        case HORIZONTAL ->
-            this.getY() + (int) ((this.getHeight() - cell.getHeight()) * this.getCellAlign(cell).floatValue());
-        case VERTICAL ->
-            this.getX() + (int) ((this.getWidth() - cell.getWidth()) * this.getCellAlign(cell).floatValue());
+        case HORIZONTAL -> this.getY() +
+            (int) ((this.getHeight() - cell.getHeight()) * this.getCellAlign(cell).floatValue());
+        case VERTICAL -> this.getX() +
+            (int) ((this.getWidth() - cell.getWidth()) * this.getCellAlign(cell).floatValue());
       };
 
       int main = posMain + this.getMainLeadingCellMargin(cell);
@@ -320,30 +320,8 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
   }
 
   @Environment(EnvType.CLIENT)
-  public interface Configurator<T extends Widget> {
-    T getWidget();
-
-    Configurator<T> layoutHook(LayoutHookWithParent<LinearLayoutWidget, T> layoutHook);
-
-    Configurator<T> margin(Spacing margin);
-
-    Configurator<T> align(Alignment align);
-
-    default Configurator<T> alignStart() {
-      return this.align(Alignment.START);
-    }
-
-    default Configurator<T> alignCenter() {
-      return this.align(Alignment.CENTER);
-    }
-
-    default Configurator<T> alignEnd() {
-      return this.align(Alignment.END);
-    }
-  }
-
-  @Environment(EnvType.CLIENT)
-  private static class CellWidget<T extends Widget> implements Configurator<T>, Widget {
+  private static class CellWidget<T extends Widget>
+      implements LinearLayoutCellConfigurator<T>, Widget {
     private final T widget;
 
     private LayoutHookWithParent<LinearLayoutWidget, T> layoutHook = null;
@@ -360,21 +338,18 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
     }
 
     @Override
-    public CellWidget<T> layoutHook(LayoutHookWithParent<LinearLayoutWidget, T> layoutHook) {
+    public void layoutHook(LayoutHookWithParent<LinearLayoutWidget, T> layoutHook) {
       this.layoutHook = layoutHook;
-      return this;
     }
 
     @Override
-    public CellWidget<T> margin(Spacing margin) {
+    public void margin(Spacing margin) {
       this.margin = margin;
-      return this;
     }
 
     @Override
-    public CellWidget<T> align(Alignment align) {
+    public void align(Alignment align) {
       this.align = align;
-      return this;
     }
 
     public void onLayout(LinearLayoutWidget parent) {

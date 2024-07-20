@@ -1,17 +1,16 @@
 package me.roundaround.roundalib.client.gui.widget;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.layout.linear.AutoLinearLayoutCellConfigurator;
+import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutCellConfigurator;
 import me.roundaround.roundalib.client.gui.util.Alignment;
-import me.roundaround.roundalib.client.gui.util.Axis;
 import me.roundaround.roundalib.client.gui.util.IntRect;
 import me.roundaround.roundalib.client.gui.util.Spacing;
-import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutAdapter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.ScreenRect;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.screen.ScreenTexts;
@@ -24,7 +23,8 @@ import java.util.Iterator;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
-public class LabelWidget extends DrawableWidget implements LinearLayoutAdapter {
+public class LabelWidget extends DrawableWidget
+    implements AutoLinearLayoutCellConfigurator<LabelWidget> {
   public static final Spacing DEFAULT_PADDING = Spacing.of(1, 2);
 
   private final TextRenderer textRenderer;
@@ -71,8 +71,7 @@ public class LabelWidget extends DrawableWidget implements LinearLayoutAdapter {
       Spacing bgOverflow,
       boolean shadow,
       Tooltip tooltip,
-      Duration tooltipDelay
-  ) {
+      Duration tooltipDelay) {
     super(x, y, width, height, ScreenTexts.EMPTY);
 
     this.textRenderer = textRenderer;
@@ -120,17 +119,26 @@ public class LabelWidget extends DrawableWidget implements LinearLayoutAdapter {
     int textHeight = lineCount * this.textRenderer.fontHeight + (lineCount - 1) * this.lineSpacing;
 
     if (lineCount == 1 && this.overflowBehavior == OverflowBehavior.WRAP) {
-      textHeight = GuiUtil.measureWrappedTextHeight(
-          this.textRenderer, this.lines.getFirst(), this.getAvailableWidth(), this.maxLines, this.lineSpacing);
+      textHeight = GuiUtil.measureWrappedTextHeight(this.textRenderer,
+          this.lines.getFirst(),
+          this.getAvailableWidth(),
+          this.maxLines,
+          this.lineSpacing);
     }
 
     textWidth = Math.min(textWidth, this.getAvailableWidth());
     textHeight = Math.min(textHeight, this.getAvailableHeight());
 
     this.textBounds = IntRect.byDimensions(this.alignmentX.getPos(this.referenceX, textWidth),
-        this.alignmentY.getPos(this.referenceY, textHeight), textWidth, textHeight
-    );
+        this.alignmentY.getPos(this.referenceY, textHeight),
+        textWidth,
+        textHeight);
     this.bgBounds = this.textBounds.expand(this.padding).expand(this.bgOverflow);
+  }
+
+  @Override
+  public void onAddToLinearLayout(LinearLayoutCellConfigurator<LabelWidget> configurator) {
+    configurator.margin(this.padding.expand(this.bgOverflow));
   }
 
   @Override
@@ -140,11 +148,15 @@ public class LabelWidget extends DrawableWidget implements LinearLayoutAdapter {
     }
 
     IntRect hoveredBounds = this.showBackground ? this.bgBounds : this.textBounds;
-    this.hovered = context.scissorContains(mouseX, mouseY) && hoveredBounds.contains(mouseX, mouseY);
+    this.hovered =
+        context.scissorContains(mouseX, mouseY) && hoveredBounds.contains(mouseX, mouseY);
 
     if (this.showBackground) {
-      context.fill(
-          this.bgBounds.left(), this.bgBounds.top(), this.bgBounds.right(), this.bgBounds.bottom(), this.bgColor);
+      context.fill(this.bgBounds.left(),
+          this.bgBounds.top(),
+          this.bgBounds.right(),
+          this.bgBounds.bottom(),
+          this.bgColor);
     }
 
     OverflowBehavior overflowBehavior = this.overflowBehavior;
@@ -153,8 +165,10 @@ public class LabelWidget extends DrawableWidget implements LinearLayoutAdapter {
     }
 
     if (overflowBehavior == OverflowBehavior.CLIP) {
-      context.enableScissor(
-          this.textBounds.left(), this.textBounds.top(), this.textBounds.right(), this.textBounds.bottom());
+      context.enableScissor(this.textBounds.left(),
+          this.textBounds.top(),
+          this.textBounds.right(),
+          this.textBounds.bottom());
     }
 
     int x = this.referenceX;
@@ -186,23 +200,46 @@ public class LabelWidget extends DrawableWidget implements LinearLayoutAdapter {
       int mouseX,
       int mouseY,
       float delta,
-      OverflowBehavior overflowBehavior
-  ) {
+      OverflowBehavior overflowBehavior) {
     switch (overflowBehavior) {
-      case SHOW, CLIP ->
-          GuiUtil.drawText(context, this.textRenderer, line, x, y, this.color, this.shadow, this.alignmentX);
-      case TRUNCATE ->
-          GuiUtil.drawTruncatedText(context, this.textRenderer, line, x, y, this.color, this.shadow, availableWidth,
-              this.alignmentX
-          );
-      case WRAP ->
-          GuiUtil.drawWrappedText(context, this.textRenderer, line, x, y, this.color, this.shadow, availableWidth,
-              this.maxLines, this.lineSpacing, this.alignmentX
-          );
-      case SCROLL ->
-          GuiUtil.drawScrollingText(context, this.textRenderer, line, x, y, this.color, this.shadow, availableWidth,
-              this.scrollMargin, this.alignmentX
-          );
+      case SHOW, CLIP -> GuiUtil.drawText(context,
+          this.textRenderer,
+          line,
+          x,
+          y,
+          this.color,
+          this.shadow,
+          this.alignmentX);
+      case TRUNCATE -> GuiUtil.drawTruncatedText(context,
+          this.textRenderer,
+          line,
+          x,
+          y,
+          this.color,
+          this.shadow,
+          availableWidth,
+          this.alignmentX);
+      case WRAP -> GuiUtil.drawWrappedText(context,
+          this.textRenderer,
+          line,
+          x,
+          y,
+          this.color,
+          this.shadow,
+          availableWidth,
+          this.maxLines,
+          this.lineSpacing,
+          this.alignmentX);
+      case SCROLL -> GuiUtil.drawScrollingText(context,
+          this.textRenderer,
+          line,
+          x,
+          y,
+          this.color,
+          this.shadow,
+          availableWidth,
+          this.scrollMargin,
+          this.alignmentX);
     }
   }
 
@@ -231,7 +268,8 @@ public class LabelWidget extends DrawableWidget implements LinearLayoutAdapter {
 
   public int getDefaultHeight() {
     int lines = Math.max(1, this.getLineCount());
-    return lines * this.textRenderer.fontHeight + (lines - 1) * this.lineSpacing + this.padding.getVertical();
+    return lines * this.textRenderer.fontHeight + (lines - 1) * this.lineSpacing +
+        this.padding.getVertical();
   }
 
   public void batchUpdates(Runnable runnable) {
@@ -358,23 +396,19 @@ public class LabelWidget extends DrawableWidget implements LinearLayoutAdapter {
   }
 
   @Override
-  public Spacing getDefaultLinearLayoutMargin() {
-    return this.padding.expand(this.bgOverflow);
+  public int getWidth() {
+    if (this.width != 0) {
+      return this.width;
+    }
+    return this.textBounds.getWidth();
   }
 
   @Override
-  public void onSetLinearLayoutAlignment(Axis flowAxis, Alignment alignment) {
-
-  }
-
-  @Override
-  public void setLinearLayoutX(int x) {
-
-  }
-
-  @Override
-  public void setLinearLayoutY(int y) {
-
+  public int getHeight() {
+    if (this.height != 0) {
+      return this.height;
+    }
+    return this.textBounds.getHeight();
   }
 
   public IntRect getTextBounds() {
@@ -459,46 +493,12 @@ public class LabelWidget extends DrawableWidget implements LinearLayoutAdapter {
     };
   }
 
-  public Builder toBuilder() {
-    return new Builder(this.textRenderer, this.lines).position(this.getX(), this.getY())
-        .positionMode(this.positionMode)
-        .dimensions(this.getWidth(), this.getHeight())
-        .color(this.color)
-        .overflowBehavior(this.overflowBehavior)
-        .scrollMargin(this.scrollMargin)
-        .maxLines(this.maxLines)
-        .lineSpacing(this.lineSpacing)
-        .alignX(this.alignmentX)
-        .alignY(this.alignmentY)
-        .padding(this.padding)
-        .background(this.showBackground)
-        .bgColor(this.bgColor)
-        .bgOverflow(this.bgOverflow)
-        .shadow(this.shadow)
-        .tooltip(this.getTooltip())
-        .tooltipDelay(this.tooltipDelay);
-  }
-
   public static Builder builder(TextRenderer textRenderer, Text text) {
     return new Builder(textRenderer, text);
   }
 
   public static Builder builder(TextRenderer textRenderer, List<Text> lines) {
     return new Builder(textRenderer, lines);
-  }
-
-  public static LabelWidget screenTitle(TextRenderer textRenderer, Text text, Screen screen) {
-    return screenTitle(textRenderer, text, screen, GuiUtil.DEFAULT_HEADER_FOOTER_HEIGHT);
-  }
-
-  public static LabelWidget screenTitle(TextRenderer textRenderer, Text text, Screen screen, int headerHeight) {
-    return new Builder(textRenderer, text).refPosition(screen.width / 2, headerHeight / 2)
-        .dimensions(screen.width, headerHeight / 2)
-        .alignCenterY()
-        .alignCenterX()
-        .hideBackground()
-        .showShadow()
-        .build();
   }
 
   public static int getDefaultHeight(TextRenderer textRenderer) {
@@ -509,7 +509,8 @@ public class LabelWidget extends DrawableWidget implements LinearLayoutAdapter {
     return getDefaultHeight(textRenderer, lines, DEFAULT_PADDING.getVertical(), 0);
   }
 
-  public static int getDefaultHeight(TextRenderer textRenderer, int lines, int padding, int spacing) {
+  public static int getDefaultHeight(
+      TextRenderer textRenderer, int lines, int padding, int spacing) {
     return lines * textRenderer.fontHeight + (lines - 1) * spacing + padding;
   }
 
@@ -537,7 +538,6 @@ public class LabelWidget extends DrawableWidget implements LinearLayoutAdapter {
     private boolean shadow = false;
     private Tooltip tooltip = null;
     private Duration tooltipDelay = null;
-    private boolean defaultHeight = true;
 
     public Builder(TextRenderer textRenderer) {
       this(textRenderer, List.of());
@@ -577,14 +577,12 @@ public class LabelWidget extends DrawableWidget implements LinearLayoutAdapter {
 
     public Builder height(int height) {
       this.height = height;
-      this.defaultHeight = false;
       return this;
     }
 
     public Builder dimensions(int width, int height) {
       this.width = width;
       this.height = height;
-      this.defaultHeight = false;
       return this;
     }
 
@@ -731,26 +729,43 @@ public class LabelWidget extends DrawableWidget implements LinearLayoutAdapter {
     }
 
     public LabelWidget build() {
-      int height = this.defaultHeight ?
-          getDefaultHeight(this.textRenderer, this.lines.size(), this.padding.getVertical(), this.lineSpacing) :
-          this.height;
-
-      return new LabelWidget(this.textRenderer, this.lines, this.color, this.positionMode, this.x, this.y, this.width,
-          height, this.alignmentX, this.alignmentY, this.padding, this.overflowBehavior, this.scrollMargin,
-          this.maxLines, this.lineSpacing, this.background, this.bgColor, this.bgOverflow, this.shadow, this.tooltip,
-          this.tooltipDelay
-      );
+      return new LabelWidget(this.textRenderer,
+          this.lines,
+          this.color,
+          this.positionMode,
+          this.x,
+          this.y,
+          this.width,
+          this.height,
+          this.alignmentX,
+          this.alignmentY,
+          this.padding,
+          this.overflowBehavior,
+          this.scrollMargin,
+          this.maxLines,
+          this.lineSpacing,
+          this.background,
+          this.bgColor,
+          this.bgOverflow,
+          this.shadow,
+          this.tooltip,
+          this.tooltipDelay);
     }
   }
 
   @Environment(EnvType.CLIENT)
   public enum PositionMode {
-    REFERENCE, ABSOLUTE
+    REFERENCE,
+    ABSOLUTE
   }
 
   @Environment(EnvType.CLIENT)
   public enum OverflowBehavior {
-    SHOW("show", true), TRUNCATE("truncate", true), WRAP("wrap", false), CLIP("clip", true), SCROLL("scroll", true);
+    SHOW("show", true),
+    TRUNCATE("truncate", true),
+    WRAP("wrap", false),
+    CLIP("clip", true),
+    SCROLL("scroll", true);
 
     private final String id;
     private final boolean supportsMultiline;
