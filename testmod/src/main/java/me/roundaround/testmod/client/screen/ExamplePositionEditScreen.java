@@ -18,10 +18,9 @@ public class ExamplePositionEditScreen extends PositionEditScreen {
   @Override
   protected void initBody() {
     this.valueLabel = this.addDrawableChild(LabelWidget.builder(this.textRenderer, Text.of(this.getValueAsString()))
-        .refPosition(this.getCenterX(), this.getCenterY())
-        .dimensions(this.width, this.layout.getContentHeight())
-        .alignCenterX()
-        .alignCenterY()
+        .position(this.getCenterX(), this.getCenterY())
+        .alignSelfCenterX()
+        .alignSelfCenterY()
         .build());
 
     super.initBody();

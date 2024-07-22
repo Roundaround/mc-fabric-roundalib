@@ -27,12 +27,13 @@ public class LabelWidget extends DrawableWidget implements AutoLinearLayoutCellC
   public static final Spacing PADDING = Spacing.of(2, 2, 1, 3);
 
   private final TextRenderer textRenderer;
-  private final PositionMode positionMode;
 
   private List<Text> lines;
   private int color;
-  private Alignment alignmentX;
-  private Alignment alignmentY;
+  private Alignment alignSelfX;
+  private Alignment alignSelfY;
+  private Alignment alignTextX;
+  private Alignment alignTextY;
   private OverflowBehavior overflowBehavior;
   private int scrollMargin;
   private int maxLines;
@@ -42,21 +43,20 @@ public class LabelWidget extends DrawableWidget implements AutoLinearLayoutCellC
   private boolean shadow;
   private IntRect textBounds = IntRect.zero();
   private IntRect bgBounds = IntRect.zero();
-  private int referenceX;
-  private int referenceY;
   private boolean inBatchUpdate = false;
 
   private LabelWidget(
       TextRenderer textRenderer,
       List<Text> lines,
       int color,
-      PositionMode positionMode,
       int x,
       int y,
       int width,
       int height,
-      Alignment alignmentX,
-      Alignment alignmentY,
+      Alignment alignSelfX,
+      Alignment alignSelfY,
+      Alignment alignTextX,
+      Alignment alignTextY,
       OverflowBehavior overflowBehavior,
       int scrollMargin,
       int maxLines,
@@ -72,9 +72,10 @@ public class LabelWidget extends DrawableWidget implements AutoLinearLayoutCellC
     this.textRenderer = textRenderer;
     this.lines = new ArrayList<>(lines);
     this.color = color;
-    this.positionMode = positionMode;
-    this.alignmentX = alignmentX;
-    this.alignmentY = alignmentY;
+    this.alignSelfX = alignSelfX;
+    this.alignSelfY = alignSelfY;
+    this.alignTextX = alignTextX;
+    this.alignTextY = alignTextY;
     this.overflowBehavior = overflowBehavior;
     this.scrollMargin = scrollMargin;
     this.maxLines = maxLines;
@@ -98,13 +99,7 @@ public class LabelWidget extends DrawableWidget implements AutoLinearLayoutCellC
 
     if (this.lines.isEmpty()) {
       this.textBounds = IntRect.zero();
-      this.bgBounds = IntRect.zero();
-
-      this.referenceX = this.getReferenceX();
-      this.referenceY = this.getReferenceY();
-      super.setX(this.getAbsoluteX());
-      super.setY(this.getAbsoluteY());
-
+      this.bgBounds = IntRect.zero().expand(PADDING);
       return;
     }
 
@@ -121,16 +116,14 @@ public class LabelWidget extends DrawableWidget implements AutoLinearLayoutCellC
     textWidth = Math.min(textWidth, this.getAvailableWidth());
     textHeight = Math.min(textHeight, this.getAvailableHeight());
 
-    this.textBounds = IntRect.byDimensions(this.getX(), this.getY(), textWidth, textHeight);
+    int textX = this.getX() + (int) ((this.getWidth() - textWidth) * this.alignTextX.floatValue());
+    int textY = this.getY() + (int) ((this.getHeight() - textHeight) * this.alignTextY.floatValue());
+
+    this.textBounds = IntRect.byDimensions(textX, textY, textWidth, textHeight);
     if (this.showBackground) {
       this.textBounds = this.textBounds.shift(PADDING.left(), PADDING.top());
     }
     this.bgBounds = this.textBounds.expand(PADDING);
-
-    this.referenceX = this.getReferenceX();
-    this.referenceY = this.getReferenceY();
-    super.setX(this.getAbsoluteX());
-    super.setY(this.getAbsoluteY());
   }
 
   @Override
@@ -163,8 +156,8 @@ public class LabelWidget extends DrawableWidget implements AutoLinearLayoutCellC
       );
     }
 
-    int x = this.alignmentX.getPos(this.textBounds.left(), -this.textBounds.getWidth());
-    int y = this.textBounds.top();
+    int x = this.textBounds.left() + (int) (this.alignTextX.floatValue() * this.textBounds.getWidth());
+    int y = this.textBounds.top() + (int) (this.alignTextY.floatValue() * this.textBounds.getHeight());
     int availableWidth = this.getAvailableWidth();
 
     for (Text line : this.lines) {
@@ -195,18 +188,18 @@ public class LabelWidget extends DrawableWidget implements AutoLinearLayoutCellC
   ) {
     switch (overflowBehavior) {
       case SHOW, CLIP ->
-          GuiUtil.drawText(context, this.textRenderer, line, x, y, this.color, this.shadow, this.alignmentX);
+          GuiUtil.drawText(context, this.textRenderer, line, x, y, this.color, this.shadow, this.alignTextX);
       case TRUNCATE ->
           GuiUtil.drawTruncatedText(context, this.textRenderer, line, x, y, this.color, this.shadow, availableWidth,
-              this.alignmentX
+              this.alignTextX
           );
       case WRAP ->
           GuiUtil.drawWrappedText(context, this.textRenderer, line, x, y, this.color, this.shadow, availableWidth,
-              this.maxLines, this.lineSpacing, this.alignmentX
+              this.maxLines, this.lineSpacing, this.alignTextX
           );
       case SCROLL ->
           GuiUtil.drawScrollingText(context, this.textRenderer, line, x, y, this.color, this.shadow, availableWidth,
-              this.scrollMargin, this.alignmentX
+              this.scrollMargin, this.alignTextX
           );
     }
   }
@@ -268,13 +261,23 @@ public class LabelWidget extends DrawableWidget implements AutoLinearLayoutCellC
     this.color = color;
   }
 
-  public void setAlignmentX(Alignment alignmentX) {
-    this.alignmentX = alignmentX;
+  public void setAlignSelfX(Alignment alignSelfX) {
+    this.alignSelfX = alignSelfX;
     this.calculateDimensions();
   }
 
-  public void setAlignmentY(Alignment alignmentY) {
-    this.alignmentY = alignmentY;
+  public void setAlignSelfY(Alignment alignSelfY) {
+    this.alignSelfY = alignSelfY;
+    this.calculateDimensions();
+  }
+
+  public void setAlignTextX(Alignment alignTextX) {
+    this.alignTextX = alignTextX;
+    this.calculateDimensions();
+  }
+
+  public void setAlignTextY(Alignment alignTextY) {
+    this.alignTextY = alignTextY;
     this.calculateDimensions();
   }
 
@@ -313,19 +316,13 @@ public class LabelWidget extends DrawableWidget implements AutoLinearLayoutCellC
 
   @Override
   public void setX(int x) {
-    switch (this.positionMode) {
-      case ABSOLUTE -> super.setX(x);
-      case REFERENCE -> this.referenceX = x;
-    }
+    super.setX(x);
     this.calculateDimensions();
   }
 
   @Override
   public void setY(int y) {
-    switch (this.positionMode) {
-      case ABSOLUTE -> super.setY(y);
-      case REFERENCE -> this.referenceY = y;
-    }
+    super.setY(y);
     this.calculateDimensions();
   }
 
@@ -348,23 +345,35 @@ public class LabelWidget extends DrawableWidget implements AutoLinearLayoutCellC
   }
 
   @Override
+  public int getX() {
+    return this.alignSelfX.getPos(super.getX(), this.getWidth());
+  }
+
+  @Override
+  public int getY() {
+    return this.alignSelfY.getPos(super.getY(), this.getHeight());
+  }
+
+  @Override
   public int getWidth() {
-    if (this.width != 0) {
-      return this.width;
-    }
-    return this.getBounds().getWidth();
+    return this.width != 0 ? this.width : this.getBounds().getWidth();
   }
 
   @Override
   public int getHeight() {
-    if (this.height != 0) {
-      return this.height;
-    }
-    return this.getBounds().getHeight();
+    return this.height != 0 ? this.height : this.getBounds().getHeight();
   }
 
   public IntRect getBounds() {
     return this.showBackground ? this.bgBounds : this.textBounds;
+  }
+
+  public int getTextWidth() {
+    return this.getBounds().getWidth();
+  }
+
+  public int getTextHeight() {
+    return this.getBounds().getHeight();
   }
 
   protected int getAvailableWidth() {
@@ -379,34 +388,6 @@ public class LabelWidget extends DrawableWidget implements AutoLinearLayoutCellC
       return Integer.MAX_VALUE;
     }
     return Math.max(0, this.showBackground ? this.height - PADDING.getVertical() : this.height);
-  }
-
-  protected int getReferenceX() {
-    if (this.positionMode == PositionMode.REFERENCE) {
-      return this.referenceX;
-    }
-    return this.alignmentX.getPos(this.getX(), this.getBounds().getWidth());
-  }
-
-  protected int getReferenceY() {
-    if (this.positionMode == PositionMode.REFERENCE) {
-      return this.referenceY;
-    }
-    return this.alignmentY.getPos(this.getY(), this.getBounds().getHeight());
-  }
-
-  protected int getAbsoluteX() {
-    if (this.positionMode == PositionMode.ABSOLUTE) {
-      return this.getX();
-    }
-    return this.alignmentX.getPos(this.referenceX, this.getBounds().getWidth());
-  }
-
-  protected int getAbsoluteY() {
-    if (this.positionMode == PositionMode.ABSOLUTE) {
-      return this.getY();
-    }
-    return this.alignmentY.getPos(this.referenceY, this.getBounds().getHeight());
   }
 
   public static Builder builder(TextRenderer textRenderer, Text text) {
@@ -436,14 +417,15 @@ public class LabelWidget extends DrawableWidget implements AutoLinearLayoutCellC
     private final TextRenderer textRenderer;
     private final List<Text> lines;
 
-    private PositionMode positionMode = PositionMode.ABSOLUTE;
     private int x;
     private int y;
     private int width;
     private int height;
     private int color = GuiUtil.LABEL_COLOR;
-    private Alignment alignmentX = Alignment.START;
-    private Alignment alignmentY = Alignment.CENTER;
+    private Alignment alignSelfX = Alignment.START;
+    private Alignment alignSelfY = Alignment.START;
+    private Alignment alignTextX = Alignment.START;
+    private Alignment alignTextY = Alignment.CENTER;
     private OverflowBehavior overflowBehavior = OverflowBehavior.SHOW;
     private int scrollMargin = 2;
     private int maxLines = 0;
@@ -470,18 +452,6 @@ public class LabelWidget extends DrawableWidget implements AutoLinearLayoutCellC
     public Builder position(int x, int y) {
       this.x = x;
       this.y = y;
-      return this;
-    }
-
-    public Builder positionMode(PositionMode positionMode) {
-      this.positionMode = positionMode;
-      return this;
-    }
-
-    public Builder refPosition(int refX, int refY) {
-      this.positionMode = PositionMode.REFERENCE;
-      this.x = refX;
-      this.y = refY;
       return this;
     }
 
@@ -534,38 +504,72 @@ public class LabelWidget extends DrawableWidget implements AutoLinearLayoutCellC
       return this;
     }
 
-    public Builder alignX(Alignment alignmentX) {
-      this.alignmentX = alignmentX;
+    public Builder alignSelfX(Alignment alignmentX) {
+      this.alignSelfX = alignmentX;
       return this;
     }
 
-    public Builder alignLeft() {
-      return this.alignX(Alignment.START);
+    public Builder alignSelfLeft() {
+      return this.alignSelfX(Alignment.START);
     }
 
-    public Builder alignCenterX() {
-      return this.alignX(Alignment.CENTER);
+    public Builder alignSelfCenterX() {
+      return this.alignSelfX(Alignment.CENTER);
     }
 
-    public Builder alignRight() {
-      return this.alignX(Alignment.END);
+    public Builder alignSelfRight() {
+      return this.alignSelfX(Alignment.END);
     }
 
-    public Builder alignY(Alignment alignmentY) {
-      this.alignmentY = alignmentY;
+    public Builder alignSelfY(Alignment alignmentY) {
+      this.alignSelfY = alignmentY;
       return this;
     }
 
-    public Builder alignTop() {
-      return this.alignY(Alignment.START);
+    public Builder alignSelfTop() {
+      return this.alignSelfY(Alignment.START);
     }
 
-    public Builder alignCenterY() {
-      return this.alignY(Alignment.CENTER);
+    public Builder alignSelfCenterY() {
+      return this.alignSelfY(Alignment.CENTER);
     }
 
-    public Builder alignBottom() {
-      return this.alignY(Alignment.END);
+    public Builder alignSelfBottom() {
+      return this.alignSelfY(Alignment.END);
+    }
+
+    public Builder alignTextX(Alignment alignmentX) {
+      this.alignTextX = alignmentX;
+      return this;
+    }
+
+    public Builder alignTextLeft() {
+      return this.alignTextX(Alignment.START);
+    }
+
+    public Builder alignTextCenterX() {
+      return this.alignTextX(Alignment.CENTER);
+    }
+
+    public Builder alignTextRight() {
+      return this.alignTextX(Alignment.END);
+    }
+
+    public Builder alignTextY(Alignment alignmentY) {
+      this.alignTextY = alignmentY;
+      return this;
+    }
+
+    public Builder alignTextTop() {
+      return this.alignTextY(Alignment.START);
+    }
+
+    public Builder alignTextCenterY() {
+      return this.alignTextY(Alignment.CENTER);
+    }
+
+    public Builder alignTextBottom() {
+      return this.alignTextY(Alignment.END);
     }
 
     public Builder hideBackground() {
@@ -614,16 +618,11 @@ public class LabelWidget extends DrawableWidget implements AutoLinearLayoutCellC
     }
 
     public LabelWidget build() {
-      return new LabelWidget(this.textRenderer, this.lines, this.color, this.positionMode, this.x, this.y, this.width,
-          this.height, this.alignmentX, this.alignmentY, this.overflowBehavior, this.scrollMargin, this.maxLines,
-          this.lineSpacing, this.background, this.bgColor, this.shadow, this.tooltip, this.tooltipDelay
+      return new LabelWidget(this.textRenderer, this.lines, this.color, this.x, this.y, this.width, this.height,
+          this.alignSelfX, this.alignSelfY, this.alignTextX, this.alignTextY, this.overflowBehavior, this.scrollMargin,
+          this.maxLines, this.lineSpacing, this.background, this.bgColor, this.shadow, this.tooltip, this.tooltipDelay
       );
     }
-  }
-
-  @Environment(EnvType.CLIENT)
-  public enum PositionMode {
-    REFERENCE, ABSOLUTE
   }
 
   @Environment(EnvType.CLIENT)

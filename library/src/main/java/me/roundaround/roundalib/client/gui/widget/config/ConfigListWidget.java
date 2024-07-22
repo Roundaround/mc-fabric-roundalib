@@ -2,12 +2,12 @@ package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.asset.icon.BuiltinIcon;
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
+import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.ParentElementEntryListWidget;
 import me.roundaround.roundalib.client.gui.widget.TooltipWidget;
-import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
-import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.roundalib.config.manage.ModConfig;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.panic.IllegalStatePanic;
@@ -110,24 +110,24 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
       this.setMarginY(DEFAULT_MARGIN.getVertical() + GuiUtil.PADDING);
 
       this.label = LabelWidget.builder(textRenderer, label)
-          .refPosition(this.getContentCenterX(), this.getContentCenterY())
-          .dimensions(this.getContentWidth(), this.getContentHeight())
-          .alignCenterX()
-          .alignCenterY()
+          .alignTextCenterX()
+          .alignTextCenterY()
           .overflowBehavior(LabelWidget.OverflowBehavior.SCROLL)
           .showShadow()
           .hideBackground()
           .build();
 
-      this.addDrawableChild(this.label);
+      this.addDrawable(this.label);
     }
 
     @Override
     public void refreshPositions() {
       this.label.batchUpdates(() -> {
-        this.label.setPosition(this.getContentCenterX(), this.getContentCenterY());
+        this.label.setPosition(this.getContentLeft(), this.getContentTop());
         this.label.setDimensions(this.getContentWidth(), this.getContentHeight());
       });
+
+      super.refreshPositions();
     }
 
     @Override
@@ -151,10 +151,8 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
       this.setMarginY(DEFAULT_MARGIN.getVertical());
 
       this.label = LabelWidget.builder(textRenderer, label)
-          .refPosition(this.getContentCenterX(), this.getContentCenterY())
-          .dimensions(this.getContentWidth(), this.getContentHeight())
-          .alignCenterX()
-          .alignCenterY()
+          .alignTextCenterX()
+          .alignTextCenterY()
           .overflowBehavior(LabelWidget.OverflowBehavior.SCROLL)
           .showShadow()
           .hideBackground()
@@ -166,9 +164,11 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     @Override
     public void refreshPositions() {
       this.label.batchUpdates(() -> {
-        this.label.setPosition(this.getContentCenterX(), this.getContentCenterY());
+        this.label.setPosition(this.getContentLeft(), this.getContentTop());
         this.label.setDimensions(this.getContentWidth(), this.getContentHeight());
       });
+
+      super.refreshPositions();
     }
 
     @Override
@@ -207,8 +207,8 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
           .defaultOffAxisContentAlignCenter();
 
       this.label = LabelWidget.builder(client.textRenderer, option.getLabel())
-          .alignLeft()
-          .alignCenterY()
+          .alignTextLeft()
+          .alignTextCenterY()
           .overflowBehavior(LabelWidget.OverflowBehavior.WRAP)
           .maxLines(2)
           .showShadow()

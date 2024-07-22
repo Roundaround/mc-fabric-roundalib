@@ -41,15 +41,9 @@ public class DemoSelectScreen extends Screen implements DemoScreen {
     }, index, left, top, width
     ));
     list.addEntry((index, left, top, width) -> new DemoSelectListWidget.Entry(this.textRenderer,
-        Text.translatable("testmod.refposlabeldemoscreen.title"), () -> {
+        Text.translatable("testmod.labeldemoscreen.title"), () -> {
       GuiUtil.playClickSound();
-      this.navigate(new RefPosLabelDemoScreen(this));
-    }, index, left, top, width
-    ));
-    list.addEntry((index, left, top, width) -> new DemoSelectListWidget.Entry(this.textRenderer,
-        Text.translatable("testmod.absposlabeldemoscreen.title"), () -> {
-      GuiUtil.playClickSound();
-      this.navigate(new AbsPosLabelDemoScreen(this));
+      this.navigate(new LabelDemoScreen(this));
     }, index, left, top, width
     ));
     list.addEntry((index, left, top, width) -> new DemoSelectListWidget.Entry(this.textRenderer,
@@ -118,8 +112,8 @@ public class DemoSelectScreen extends Screen implements DemoScreen {
         this.action = action;
 
         this.label = LabelWidget.builder(textRenderer, this.text)
-            .alignCenterX()
-            .alignCenterY()
+            .alignTextCenterX()
+            .alignTextRight()
             .overflowBehavior(LabelWidget.OverflowBehavior.SCROLL)
             .showShadow()
             .hideBackground()

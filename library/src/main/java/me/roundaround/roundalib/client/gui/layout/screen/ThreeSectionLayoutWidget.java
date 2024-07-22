@@ -137,8 +137,8 @@ public class ThreeSectionLayoutWidget extends SizableLayoutWidget {
 
   public LabelWidget addHeader(TextRenderer textRenderer, Text title) {
     return this.header.add(LabelWidget.builder(textRenderer, title)
-        .alignCenterX()
-        .alignCenterY()
+        .alignTextCenterX()
+        .alignTextCenterY()
         .hideBackground()
         .showShadow()
         .build());

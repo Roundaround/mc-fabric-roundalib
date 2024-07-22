@@ -75,12 +75,12 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
     this.layout.addBody(this.body);
 
     this.helpLabel = this.addDrawableChild(LabelWidget.builder(this.textRenderer, this.getHelpShort())
-        .refPosition(GuiUtil.PADDING, this.height - GuiUtil.PADDING)
+        .position(GuiUtil.PADDING, this.height - GuiUtil.PADDING)
         .lineSpacing(2)
         .hideBackground()
         .showShadow()
-        .alignLeft()
-        .alignBottom()
+        .alignSelfLeft()
+        .alignSelfBottom()
         .build());
   }
 
