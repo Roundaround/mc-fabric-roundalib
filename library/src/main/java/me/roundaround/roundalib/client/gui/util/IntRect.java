@@ -69,6 +69,26 @@ public record IntRect(Integer left, Integer top, Integer right, Integer bottom) 
     return this.expand(-other.left(), -other.top(), -other.right(), -other.bottom());
   }
 
+  public IntRect shift(int amountX, int amountY) {
+    return IntRect.byBounds(this.left + amountX, this.top + amountY, this.right + amountX, this.bottom + amountY);
+  }
+
+  public IntRect shiftLeft(int amount) {
+    return this.shift(-amount, 0);
+  }
+
+  public IntRect shiftUp(int amount) {
+    return this.shift(0, -amount);
+  }
+
+  public IntRect shiftRight(int amount) {
+    return this.shift(amount, 0);
+  }
+
+  public IntRect shiftDown(int amount) {
+    return this.shift(0, amount);
+  }
+
   public ScreenRect toScreenRect() {
     return new ScreenRect(this.left, this.top, this.getWidth(), this.getHeight());
   }

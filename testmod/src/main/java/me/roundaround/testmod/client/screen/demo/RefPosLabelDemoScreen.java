@@ -1,11 +1,11 @@
 package me.roundaround.testmod.client.screen.demo;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.layout.LayoutCollectionWidget;
+import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.roundalib.client.gui.util.Alignment;
 import me.roundaround.roundalib.client.gui.util.IntRect;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
-import me.roundaround.roundalib.client.gui.layout.LayoutCollectionWidget;
-import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -65,7 +65,8 @@ public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
   public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
     if (keyCode == GLFW.GLFW_KEY_D && hasControlDown()) {
       this.debug = !this.debug;
-      this.labels.forEach((label) -> label.setShowBackground(!this.debug));
+      this.labels.forEach(
+          (label) -> label.setBgColor(this.debug ? GuiUtil.TRANSPARENT_COLOR : GuiUtil.BACKGROUND_COLOR));
       GuiUtil.playClickSound();
       return true;
     }
@@ -78,17 +79,8 @@ public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
 
     if (this.debug) {
       for (LabelWidget label : this.labels) {
-        context.fill(label.getX(), label.getY(), label.getRight(), label.getBottom(),
-            GuiUtil.genColorInt(0.3f, 0, 0.1f, 0.5f)
-        );
-        context.drawBorder(label.getX(), label.getY(), label.getWidth(), label.getHeight(),
-            GuiUtil.genColorInt(1f, 1f, 1f, 0.3f)
-        );
-
-        IntRect textBounds = label.getTextBounds();
-        context.fill(textBounds.left(), textBounds.top(), textBounds.right(), textBounds.bottom(),
-            GuiUtil.genColorInt(0, 0.4f, 0.9f)
-        );
+        IntRect bounds = label.getBounds();
+        context.fill(bounds.left(), bounds.top(), bounds.right(), bounds.bottom(), GuiUtil.genColorInt(0, 0.4f, 0.9f));
       }
     }
   }
@@ -97,10 +89,7 @@ public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
   private void addLabel(
       LayoutCollectionWidget labelsContainer, Alignment alignmentX, Alignment alignmentY
   ) {
-    float relativeX = relative(alignmentX);
-    float relativeY = relative(alignmentY);
-
-    LabelWidget label = LabelWidget.builder(this.textRenderer,
+    LabelWidget label = labelsContainer.add(LabelWidget.builder(this.textRenderer,
             Text.of(String.format("== == %s/%s == ==", nameX(alignmentX), nameY(alignmentY)))
         )
         .alignX(alignmentX)
@@ -108,16 +97,14 @@ public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
         .positionMode(LabelWidget.PositionMode.REFERENCE)
         .overflowBehavior(OverflowBehavior.SHOW)
         .maxLines(3)
-        .build();
-
-    this.labels.add(label);
-
-    labelsContainer.add(label, (parent, self) -> {
-      label.batchUpdates(() -> {
-        self.setPosition(this.relativeX(relativeX), this.relativeY(relativeY));
+        .build(), (parent, self) -> {
+      self.batchUpdates(() -> {
+        self.setPosition(this.getX(alignmentX), this.getY(alignmentY));
         self.setDimensions(this.columnWidth(), this.rowHeight());
       });
     });
+
+    this.labels.add(label);
   }
 
   @Override
@@ -130,14 +117,13 @@ public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
     Objects.requireNonNull(this.client).setScreen(this.parent);
   }
 
-  private int relativeX(float scale) {
-    int paddedContentWidth = this.width - 2 * GuiUtil.PADDING;
-    return GuiUtil.PADDING + (int) (paddedContentWidth * scale);
+  private int getX(Alignment alignmentX) {
+    return alignmentX.getPos(GuiUtil.PADDING, -(this.width - 2 * GuiUtil.PADDING));
   }
 
-  private int relativeY(float scale) {
-    int paddedContentHeight = this.layout.getBodyHeight() - 2 * GuiUtil.PADDING;
-    return this.layout.getHeaderHeight() + GuiUtil.PADDING + (int) (paddedContentHeight * scale);
+  private int getY(Alignment alignmentY) {
+    return alignmentY.getPos(
+        this.layout.getHeaderHeight() + GuiUtil.PADDING, -(this.layout.getBodyHeight() - 2 * GuiUtil.PADDING));
   }
 
   private int columnWidth() {
@@ -153,14 +139,6 @@ public class RefPosLabelDemoScreen extends Screen implements DemoScreen {
   ) {
     this.labels.forEach((label) -> label.setOverflowBehavior(value));
     this.initTabNavigation();
-  }
-
-  private static float relative(Alignment alignment) {
-    return switch (alignment) {
-      case START -> 0f;
-      case CENTER -> 0.5f;
-      case END -> 1f;
-    };
   }
 
   private static String nameX(Alignment alignmentX) {

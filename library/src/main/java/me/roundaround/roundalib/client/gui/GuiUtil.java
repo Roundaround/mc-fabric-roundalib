@@ -30,6 +30,7 @@ public final class GuiUtil {
   public static final int LABEL_COLOR = genColorInt(1f, 1f, 1f);
   public static final int ERROR_COLOR = genColorInt(1f, 0.15f, 0.15f);
   public static final int BACKGROUND_COLOR = genColorInt(0f, 0f, 0f, 0.5f);
+  public static final int TRANSPARENT_COLOR = genColorInt(0f, 0f, 0f, 0f);
   public static final int PADDING = 4;
   public static final int SCROLLBAR_WIDTH = 6;
   public static final int DEFAULT_HEADER_FOOTER_HEIGHT = 33;

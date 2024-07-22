@@ -1,12 +1,12 @@
 package me.roundaround.testmod.client.screen.demo;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
+import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.roundalib.client.gui.util.Alignment;
 import me.roundaround.roundalib.client.gui.util.Axis;
 import me.roundaround.roundalib.client.gui.util.IntRect;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
-import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
-import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -26,7 +26,7 @@ import static me.roundaround.roundalib.client.gui.widget.LabelWidget.OverflowBeh
 
 @Environment(EnvType.CLIENT)
 public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
-  private static final Text TITLE_TEXT = Text.translatable("testmod.refposlabeldemoscreen.title");
+  private static final Text TITLE_TEXT = Text.translatable("testmod.absposlabeldemoscreen.title");
 
   private final Screen parent;
   private final ThreeSectionLayoutWidget layout = new ThreeSectionLayoutWidget(this);
@@ -79,7 +79,8 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
   public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
     if (keyCode == GLFW.GLFW_KEY_D && hasControlDown()) {
       this.debug = !this.debug;
-      this.labels.forEach((label) -> label.setShowBackground(!this.debug));
+      this.labels.forEach(
+          (label) -> label.setBgColor(this.debug ? GuiUtil.TRANSPARENT_COLOR : GuiUtil.BACKGROUND_COLOR));
       GuiUtil.playClickSound();
       return true;
     }
@@ -96,17 +97,8 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
       this.highlightSection(context, this.layout.getFooter(), GuiUtil.genColorInt(0f, 0f, 1f));
 
       for (LabelWidget label : this.labels) {
-        context.fill(label.getX(), label.getY(), label.getRight(), label.getBottom(),
-            GuiUtil.genColorInt(0.3f, 0, 0.1f, 0.5f)
-        );
-        context.drawBorder(label.getX(), label.getY(), label.getWidth(), label.getHeight(),
-            GuiUtil.genColorInt(1f, 1f, 1f, 0.3f)
-        );
-
-        IntRect textBounds = label.getTextBounds();
-        context.fill(textBounds.left(), textBounds.top(), textBounds.right(), textBounds.bottom(),
-            GuiUtil.genColorInt(0, 0.4f, 0.9f)
-        );
+        IntRect bounds = label.getBounds();
+        context.fill(bounds.left(), bounds.top(), bounds.right(), bounds.bottom(), GuiUtil.genColorInt(0, 0.4f, 0.9f));
       }
     }
   }
@@ -120,7 +112,8 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
   private void addLabel(
       LinearLayoutWidget column, Alignment alignmentX, Alignment alignmentY
   ) {
-    LabelWidget label = LabelWidget.builder(this.textRenderer,
+    int index = column.getChildren().size();
+    LabelWidget label = column.add(LabelWidget.builder(this.textRenderer,
             Text.of(String.format("== == %s/%s == ==", nameX(alignmentX), nameY(alignmentY)))
         )
         .alignX(alignmentX)
@@ -128,12 +121,11 @@ public class AbsPosLabelDemoScreen extends Screen implements DemoScreen {
         .overflowBehavior(OverflowBehavior.SHOW)
         .maxLines(3)
         .tooltip(Text.of("WOW"))
-        .build();
+        .build(), (parent, self) -> {
+      self.setDimensions(parent.getWidth(), rowHeight(parent, index));
+    });
 
     this.labels.add(label);
-
-    int index = column.getChildren().size();
-    column.add(label, (parent, self) -> self.setDimensions(parent.getWidth(), rowHeight(parent, index)));
   }
 
   @Override

@@ -1,9 +1,9 @@
 package me.roundaround.testmod.client.screen.demo;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.NarratableEntryListWidget;
-import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -118,9 +118,7 @@ public class DemoSelectScreen extends Screen implements DemoScreen {
         this.action = action;
 
         this.label = LabelWidget.builder(textRenderer, this.text)
-            .refPosition(this.getContentLeft(), this.getContentCenterY())
-            .dimensions(this.getContentWidth(), this.getContentHeight())
-            .alignLeft()
+            .alignCenterX()
             .alignCenterY()
             .overflowBehavior(LabelWidget.OverflowBehavior.SCROLL)
             .showShadow()
@@ -133,7 +131,7 @@ public class DemoSelectScreen extends Screen implements DemoScreen {
       @Override
       public void refreshPositions() {
         this.label.batchUpdates(() -> {
-          this.label.setPosition(this.getContentLeft(), this.getContentCenterY());
+          this.label.setPosition(this.getContentLeft(), this.getContentTop());
           this.label.setDimensions(this.getContentWidth(), this.getContentHeight());
         });
 

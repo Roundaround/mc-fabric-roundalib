@@ -2,13 +2,13 @@ package me.roundaround.testmod.client.screen.demo;
 
 import me.roundaround.roundalib.asset.icon.BuiltinIcon;
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.layout.WrapperLayoutWidget;
+import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
+import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.roundalib.client.gui.util.Alignment;
 import me.roundaround.roundalib.client.gui.util.Axis;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
-import me.roundaround.roundalib.client.gui.layout.WrapperLayoutWidget;
-import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
-import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -41,31 +41,36 @@ public class LinearLayoutWidgetDemoScreen extends Screen implements DemoScreen {
   protected void init() {
     this.layout.addHeader(this.textRenderer, this.getTitle());
 
-    LinearLayoutWidget buttonRow = LinearLayoutWidget.horizontal()
+    LinearLayoutWidget firstRow = LinearLayoutWidget.horizontal()
         .spacing(GuiUtil.PADDING)
         .defaultOffAxisContentAlignCenter();
-    buttonRow.add(
+    firstRow.add(
         new CyclingButtonWidget.Builder<Axis>((value) -> Text.of("Axis: " + value.name())).values(Axis.values())
             .initially(Axis.HORIZONTAL)
             .omitKeyText()
             .build(0, 0, 100, 20, Text.empty(), this::onFlowAxisChange));
-    buttonRow.add(
+    firstRow.add(
         new CyclingButtonWidget.Builder<Alignment>((value) -> Text.of("X: " + value.name())).values(Alignment.values())
             .initially(Alignment.START)
             .omitKeyText()
             .build(0, 0, 100, 20, Text.empty(), this::onAlignmentXChange));
-    buttonRow.add(
+    firstRow.add(
         new CyclingButtonWidget.Builder<Alignment>((value) -> Text.of("Y: " + value.name())).values(Alignment.values())
             .initially(Alignment.START)
             .omitKeyText()
             .build(0, 0, 100, 20, Text.empty(), this::onAlignmentYChange));
-    buttonRow.add(
+    this.layout.addHeader(firstRow);
+
+    LinearLayoutWidget secondRow = LinearLayoutWidget.horizontal()
+        .spacing(GuiUtil.PADDING)
+        .defaultOffAxisContentAlignCenter();
+    secondRow.add(
         new CyclingButtonWidget.Builder<ContentAlignment>((value) -> Text.of("Content: " + value.name())).values(
                 ContentAlignment.values())
             .initially(ContentAlignment.CENTER)
             .omitKeyText()
             .build(0, 0, 100, 20, Text.empty(), this::onContentAlignmentChange));
-    this.layout.addHeader(buttonRow);
+    this.layout.addHeader(secondRow);
 
     this.layout.setHeaderHeight(this.layout.getHeader().getContentHeight() + 2 * GuiUtil.PADDING);
 
