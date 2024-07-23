@@ -1,6 +1,7 @@
 package me.roundaround.roundalib.client.gui;
 
 import me.roundaround.roundalib.client.gui.util.Alignment;
+import me.roundaround.roundalib.client.gui.util.Dimensions;
 import me.roundaround.roundalib.config.manage.ModConfigImpl;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -119,7 +120,7 @@ public final class GuiUtil {
   public static void drawText(
       DrawContext context, TextRenderer textRenderer, OrderedText text, int x, int y, int color, boolean shadow
   ) {
-    drawText(context, textRenderer, text, x, y, color, shadow, Alignment.START);
+    drawText(context, textRenderer, text, x, y, color, shadow, 0, Alignment.START);
   }
 
   public static void drawText(
@@ -130,9 +131,10 @@ public final class GuiUtil {
       int y,
       int color,
       boolean shadow,
+      int viewWidth,
       Alignment alignment
   ) {
-    drawText(context, textRenderer, text.asOrderedText(), x, y, color, shadow, alignment);
+    drawText(context, textRenderer, text.asOrderedText(), x, y, color, shadow, viewWidth, alignment);
   }
 
   public static void drawText(
@@ -143,15 +145,17 @@ public final class GuiUtil {
       int y,
       int color,
       boolean shadow,
+      int viewWidth,
       Alignment alignment
   ) {
-    context.drawText(textRenderer, text, alignment.getPos(x, textRenderer.getWidth(text)), y, color, shadow);
+    int textWidth = textRenderer.getWidth(text);
+    context.drawText(textRenderer, text, alignment.getPosInContainer(x, viewWidth, textWidth), y, color, shadow);
   }
 
   public static void drawTruncatedText(
-      DrawContext context, TextRenderer textRenderer, Text text, int x, int y, int color, boolean shadow, int maxWidth
+      DrawContext context, TextRenderer textRenderer, Text text, int x, int y, int color, boolean shadow, int viewWidth
   ) {
-    drawTruncatedText(context, textRenderer, text, x, y, color, shadow, maxWidth, Alignment.START);
+    drawTruncatedText(context, textRenderer, text, x, y, color, shadow, viewWidth, Alignment.START);
   }
 
   public static void drawTruncatedText(
@@ -162,26 +166,25 @@ public final class GuiUtil {
       int y,
       int color,
       boolean shadow,
-      int maxWidth,
+      int viewWidth,
       Alignment alignment
   ) {
-    if (maxWidth <= 0 || textRenderer.getWidth(text) < maxWidth) {
-      drawText(context, textRenderer, text, x, y, color, shadow, alignment);
+    if (textRenderer.getWidth(text) < viewWidth) {
+      drawText(context, textRenderer, text, x, y, color, shadow, viewWidth, alignment);
       return;
     }
 
-    StringVisitable trimmed = text;
     MutableText ellipsis = ScreenTexts.ELLIPSIS.copy().setStyle(text.getStyle());
-    trimmed = textRenderer.trimToWidth(text, maxWidth - textRenderer.getWidth(ellipsis));
+    StringVisitable trimmed = textRenderer.trimToWidth(text, viewWidth - textRenderer.getWidth(ellipsis));
     trimmed = StringVisitable.concat(trimmed, ellipsis);
 
-    drawText(context, textRenderer, Language.getInstance().reorder(trimmed), x, y, color, shadow, alignment);
+    drawText(context, textRenderer, Language.getInstance().reorder(trimmed), x, y, color, shadow, viewWidth, alignment);
   }
 
   public static void drawWrappedText(
-      DrawContext context, TextRenderer textRenderer, Text text, int x, int y, int color, boolean shadow, int maxWidth
+      DrawContext context, TextRenderer textRenderer, Text text, int x, int y, int color, boolean shadow, int viewWidth
   ) {
-    drawWrappedText(context, textRenderer, text, x, y, color, shadow, maxWidth, 0, 0);
+    drawWrappedText(context, textRenderer, text, x, y, color, shadow, viewWidth, 0, 0);
   }
 
   public static void drawWrappedText(
@@ -192,11 +195,12 @@ public final class GuiUtil {
       int y,
       int color,
       boolean shadow,
-      int maxWidth,
+      int viewWidth,
       int lineSpacing,
       int maxLines
   ) {
-    drawWrappedText(context, textRenderer, text, x, y, color, shadow, maxWidth, maxLines, lineSpacing, Alignment.START);
+    drawWrappedText(
+        context, textRenderer, text, x, y, color, shadow, viewWidth, maxLines, lineSpacing, Alignment.START);
   }
 
   public static void drawWrappedText(
@@ -207,38 +211,42 @@ public final class GuiUtil {
       int y,
       int color,
       boolean shadow,
-      int maxWidth,
+      int viewWidth,
       int maxLines,
       int lineSpacing,
       Alignment alignment
   ) {
-    if (maxWidth <= 0 || textRenderer.getWidth(text) < maxWidth) {
-      drawText(context, textRenderer, text, x, y, color, shadow, alignment);
+    if (textRenderer.getWidth(text) < viewWidth) {
+      drawText(context, textRenderer, text, x, y, color, shadow, viewWidth, alignment);
       return;
     }
 
-    List<OrderedText> lines = textRenderer.wrapLines(text, maxWidth);
-    int yCursor = y;
+    List<OrderedText> lines = textRenderer.wrapLines(text, viewWidth);
+    int cursorY = y;
     for (OrderedText line : lines.subList(0, Math.min(lines.size(), maxLines))) {
-      drawText(context, textRenderer, line, x, yCursor, color, shadow, alignment);
-      yCursor += textRenderer.fontHeight + lineSpacing;
+      int lineWidth = textRenderer.getWidth(line);
+      int lineX = alignment.getPosInContainer(x, viewWidth, lineWidth);
+      drawText(context, textRenderer, line, lineX, cursorY, color, shadow, viewWidth, alignment);
+      cursorY += textRenderer.fontHeight + lineSpacing;
     }
   }
 
-  public static int measureWrappedTextHeight(
+  public static Dimensions measureWrappedText(
       TextRenderer textRenderer, Text text, int maxWidth, int maxLines, int lineSpacing
   ) {
     if (maxWidth <= 0) {
-      return textRenderer.fontHeight;
+      return Dimensions.of(textRenderer.getWidth(text), textRenderer.fontHeight);
     }
 
     List<OrderedText> lines = textRenderer.wrapLines(text, maxWidth);
     if (lines.size() <= 1) {
-      return textRenderer.fontHeight;
+      return Dimensions.of(textRenderer.getWidth(text), textRenderer.fontHeight);
     }
 
     int lineCount = Math.min(lines.size(), maxLines);
-    return textRenderer.fontHeight * lineCount + lineSpacing * (lineCount - 1);
+    return Dimensions.of(lines.stream().mapToInt(textRenderer::getWidth).max().orElse(0),
+        lineCount * textRenderer.fontHeight + (lineCount - 1) * lineSpacing
+    );
   }
 
   public static void drawScrollingText(
@@ -249,28 +257,30 @@ public final class GuiUtil {
       int y,
       int color,
       boolean shadow,
-      int maxWidth,
+      int viewWidth,
       int margin,
       Alignment alignment
   ) {
     int textWidth = textRenderer.getWidth(text);
-    if (maxWidth <= 0 || textWidth < maxWidth) {
-      drawText(context, textRenderer, text, x, y, color, shadow, alignment);
+    if (textWidth < viewWidth) {
+      drawText(context, textRenderer, text, x, y, color, shadow, viewWidth, alignment);
       return;
     }
 
-    int left = alignment.getPos(x, maxWidth);
-
     // Based largely on the scrolling text from ClickableWidget.
-    double X = (double) textWidth - maxWidth + 2 * margin;
+    double X = (double) textWidth - viewWidth + 2 * margin;
     double t = Util.getMeasuringTimeMs() / 1000.0;
     double T = Math.max(X / 2, 3);
-    double c = Math.sin((Math.PI / 2) * Math.cos(2 * Math.PI * t / T)) / 2 + 0.5;
+    double c = Math.sin((Math.PI / 2) * Math.cos(2 * Math.PI * (t + alignment.floatValue()) / T)) / 2 + 0.5;
     double dx = c * X;
 
-    context.enableScissor(left, y - textRenderer.fontHeight, left + maxWidth, y + 2 * textRenderer.fontHeight);
-    drawText(context, textRenderer, text, left - (int) dx + margin, y, color, shadow, Alignment.START);
+    context.enableScissor(x, y - textRenderer.fontHeight, x + viewWidth, y + 2 * textRenderer.fontHeight);
+    drawText(context, textRenderer, text, x - (int) dx + margin, y, color, shadow);
     context.disableScissor();
+  }
+
+  public static int getLineYOffset(TextRenderer textRenderer, int index, int lineSpacing) {
+    return index * textRenderer.fontHeight + Math.max(0, index - 1) * lineSpacing;
   }
 
   public static int genColorInt(float r, float g, float b) {

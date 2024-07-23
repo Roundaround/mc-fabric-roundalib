@@ -17,6 +17,10 @@ public enum Alignment {
     return base - (int) (size * this.floatValue);
   }
 
+  public int getPosInContainer(int base, int containerSize, int elementSize) {
+    return base + (int) ((containerSize - elementSize) * this.floatValue);
+  }
+
   public float floatValue() {
     return this.floatValue;
   }

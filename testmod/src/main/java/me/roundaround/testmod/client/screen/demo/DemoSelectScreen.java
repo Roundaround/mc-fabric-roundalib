@@ -113,7 +113,7 @@ public class DemoSelectScreen extends Screen implements DemoScreen {
 
         this.label = LabelWidget.builder(textRenderer, this.text)
             .alignTextCenterX()
-            .alignTextRight()
+            .alignTextCenterY()
             .overflowBehavior(LabelWidget.OverflowBehavior.SCROLL)
             .showShadow()
             .hideBackground()

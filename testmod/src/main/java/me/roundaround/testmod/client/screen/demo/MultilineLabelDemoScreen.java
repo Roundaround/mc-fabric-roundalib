@@ -62,12 +62,12 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
             .build(0, 0, 80, 20, Text.empty(), this::onOverflowBehaviorChange));
     firstRow.add(new CyclingButtonWidget.Builder<Alignment>((value) -> Text.of("Self X: " + value.name())).values(
             Alignment.values())
-        .initially(Alignment.START)
+        .initially(Alignment.CENTER)
         .omitKeyText()
         .build(0, 0, 80, 20, Text.empty(), this::onAlignSelfXChange));
     firstRow.add(new CyclingButtonWidget.Builder<Alignment>((value) -> Text.of("Self Y: " + value.name())).values(
             Alignment.values())
-        .initially(Alignment.START)
+        .initially(Alignment.CENTER)
         .omitKeyText()
         .build(0, 0, 80, 20, Text.empty(), this::onAlignSelfYChange));
     this.layout.addHeader(firstRow);
@@ -77,12 +77,12 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
         .defaultOffAxisContentAlignCenter();
     secondRow.add(new CyclingButtonWidget.Builder<Alignment>((value) -> Text.of("Text X: " + value.name())).values(
             Alignment.values())
-        .initially(Alignment.CENTER)
+        .initially(Alignment.START)
         .omitKeyText()
         .build(0, 0, 80, 20, Text.empty(), this::onAlignTextXChange));
     secondRow.add(new CyclingButtonWidget.Builder<Alignment>((value) -> Text.of("Text Y: " + value.name())).values(
             Alignment.values())
-        .initially(Alignment.CENTER)
+        .initially(Alignment.START)
         .omitKeyText()
         .build(0, 0, 80, 20, Text.empty(), this::onAlignTextYChange));
     this.minusButton = secondRow.add(IconButtonWidget.builder(BuiltinIcon.MINUS_18, TestMod.MOD_ID)
@@ -97,8 +97,10 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
 
     this.label = LabelWidget.builder(this.textRenderer, this.generateLines())
         .width(60)
-        .alignTextCenterX()
-        .alignTextCenterY()
+        .alignSelfCenterX()
+        .alignSelfCenterY()
+        .alignTextLeft()
+        .alignTextTop()
         .lineSpacing(1)
         .build();
     this.layout.addBody(new WrapperLayoutWidget<>(this.label, (parent, self) -> {
