@@ -1,5 +1,6 @@
 package me.roundaround.roundalib.client.gui.widget;
 
+import me.roundaround.roundalib.RoundaLib;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.linear.AutoLinearLayoutCellConfigurator;
 import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutCellConfigurator;
@@ -104,31 +105,45 @@ public class LabelWidget extends DrawableWidget implements AutoLinearLayoutCellC
       return;
     }
 
-    int lineCount = this.lines.size();
-    int textWidth = this.lines.stream().mapToInt(this.textRenderer::getWidth).max().orElse(0);
-    int textHeight = lineCount * this.textRenderer.fontHeight + (lineCount - 1) * this.lineSpacing;
+    Dimensions dimensions = this.lines.size() == 1 && this.overflowBehavior == OverflowBehavior.WRAP ?
+        this.getWrappedTextDimensions() :
+        this.getFullTextDimensions();
 
-    if (lineCount == 1 && this.overflowBehavior == OverflowBehavior.WRAP) {
-      Dimensions dimensions = GuiUtil.measureWrappedText(this.textRenderer, this.lines.getFirst(),
-          this.getAvailableWidth(), this.maxLines, this.lineSpacing
-      );
-      textWidth = dimensions.width();
-      textHeight = dimensions.height();
+    int textWidth = Math.min(dimensions.width(), this.getAvailableWidth());
+    int textHeight = Math.min(dimensions.height(), this.getAvailableHeight());
+
+    int containerWidth = this.width != 0 ? this.width : textWidth;
+    int containerHeight = this.height != 0 ? this.height : textHeight;
+
+    int x = this.getX();
+    int y = this.getY();
+
+    if (this.showBackground) {
+      x += PADDING.left();
+      y += PADDING.top();
     }
 
-    textWidth = Math.min(textWidth, this.getAvailableWidth());
-    textHeight = Math.min(textHeight, this.getAvailableHeight());
-
-    int textX = this.alignTextX.getPos(this.getX(), textWidth - this.getWidth());
-    int textY = this.alignTextY.getPos(this.getY(), textHeight - this.getHeight());
+    int textX = this.alignTextX.getPosInContainer(x, containerWidth, textWidth);
+    int textY = this.alignTextY.getPosInContainer(y, containerHeight, textHeight);
 
     this.textBounds = IntRect.byDimensions(textX, textY, textWidth, textHeight);
     this.bgBounds = this.textBounds.expand(PADDING);
   }
 
+  private Dimensions getFullTextDimensions() {
+    return Dimensions.of(this.lines.stream().mapToInt(this.textRenderer::getWidth).max().orElse(0),
+        this.lines.size() * this.textRenderer.fontHeight + (this.lines.size() - 1) * this.lineSpacing
+    );
+  }
+
+  private Dimensions getWrappedTextDimensions() {
+    return GuiUtil.measureWrappedText(this.textRenderer, this.lines.getFirst(), this.getAvailableWidth(), this.maxLines,
+        this.lineSpacing
+    );
+  }
+
   @Override
   public void onAddToLinearLayout(LinearLayoutCellConfigurator<LabelWidget> configurator) {
-
   }
 
   @Override
@@ -140,9 +155,7 @@ public class LabelWidget extends DrawableWidget implements AutoLinearLayoutCellC
     this.hovered = context.scissorContains(mouseX, mouseY) && this.getBounds().contains(mouseX, mouseY);
 
     if (this.showBackground) {
-      context.fill(this.bgBounds.left(), this.bgBounds.top(), this.bgBounds.right(), this.bgBounds.bottom(),
-          this.bgColor
-      );
+      GuiUtil.fill(context, this.bgBounds, this.bgColor);
     }
 
     OverflowBehavior overflowBehavior = this.overflowBehavior;
@@ -151,9 +164,7 @@ public class LabelWidget extends DrawableWidget implements AutoLinearLayoutCellC
     }
 
     if (overflowBehavior == OverflowBehavior.CLIP) {
-      context.enableScissor(this.textBounds.left(), this.textBounds.top(), this.textBounds.right(),
-          this.textBounds.bottom()
-      );
+      GuiUtil.enableScissor(context, this.textBounds);
     }
 
     for (int index = 0; index < this.lines.size(); index++) {
@@ -161,7 +172,7 @@ public class LabelWidget extends DrawableWidget implements AutoLinearLayoutCellC
     }
 
     if (overflowBehavior == OverflowBehavior.CLIP) {
-      context.disableScissor();
+      GuiUtil.disableScissor(context);
     }
   }
 
@@ -174,17 +185,17 @@ public class LabelWidget extends DrawableWidget implements AutoLinearLayoutCellC
 
     switch (overflowBehavior) {
       case SHOW, CLIP ->
-          GuiUtil.drawText(context, this.textRenderer, line, x, y, this.color, this.shadow, this.getAvailableWidth(),
+          GuiUtil.drawText(context, this.textRenderer, line, x, y, this.color, this.shadow, this.getViewportWidth(),
               this.alignTextX
           );
       case TRUNCATE -> GuiUtil.drawTruncatedText(context, this.textRenderer, line, x, y, this.color, this.shadow,
-          this.getAvailableWidth(), this.alignTextX
+          this.getViewportWidth(), this.alignTextX
       );
       case WRAP -> GuiUtil.drawWrappedText(context, this.textRenderer, line, x, y, this.color, this.shadow,
-          this.getAvailableWidth(), this.maxLines, this.lineSpacing, this.alignTextX
+          this.getViewportWidth(), this.maxLines, this.lineSpacing, this.alignTextX
       );
       case SCROLL -> GuiUtil.drawScrollingText(context, this.textRenderer, line, x, y, this.color, this.shadow,
-          this.getAvailableWidth(), this.scrollMargin, this.alignTextX
+          this.getViewportWidth(), this.scrollMargin, this.alignTextX
       );
     }
   }
@@ -218,6 +229,11 @@ public class LabelWidget extends DrawableWidget implements AutoLinearLayoutCellC
   }
 
   public void batchUpdates(Runnable runnable) {
+    if (this.inBatchUpdate) {
+      runnable.run();
+      return;
+    }
+
     this.inBatchUpdate = true;
     try {
       runnable.run();
@@ -312,6 +328,13 @@ public class LabelWidget extends DrawableWidget implements AutoLinearLayoutCellC
   }
 
   @Override
+  public void setPosition(int x, int y) {
+    this.batchUpdates(() -> {
+      super.setPosition(x, y);
+    });
+  }
+
+  @Override
   public void setWidth(int width) {
     super.setWidth(width);
     this.calculateBounds();
@@ -325,8 +348,16 @@ public class LabelWidget extends DrawableWidget implements AutoLinearLayoutCellC
 
   @Override
   public void setDimensions(int width, int height) {
-    super.setDimensions(width, height);
-    this.calculateBounds();
+    this.batchUpdates(() -> {
+      super.setDimensions(width, height);
+    });
+  }
+
+  @Override
+  public void setDimensionsAndPosition(int width, int height, int x, int y) {
+    this.batchUpdates(() -> {
+      super.setDimensionsAndPosition(width, height, x, y);
+    });
   }
 
   @Override
@@ -378,6 +409,13 @@ public class LabelWidget extends DrawableWidget implements AutoLinearLayoutCellC
       return Integer.MAX_VALUE;
     }
     return Math.max(0, this.showBackground ? this.height - PADDING.getVertical() : this.height);
+  }
+
+  protected int getViewportWidth() {
+    if (this.width == 0 || this.overflowBehavior == OverflowBehavior.SHOW) {
+      return this.textBounds.getWidth();
+    }
+    return this.getAvailableWidth();
   }
 
   public static Builder builder(TextRenderer textRenderer, Text text) {

@@ -96,23 +96,9 @@ public class LinearLayoutWidgetDemoScreen extends Screen implements DemoScreen {
       );
     });
     this.addDrawable((context, mouseX, mouseY, delta) -> {
-      int color = GuiUtil.genColorInt(1f, 1f, 1f, 0.7f);
-      int left = wrapper.getX();
-      int right = wrapper.getX() + wrapper.getWidth();
-      int top = wrapper.getY();
-      int bottom = wrapper.getY() + wrapper.getHeight();
-
-      // Left
-      context.fill(left - 5 * GuiUtil.PADDING, top, left - GuiUtil.PADDING, bottom, color);
-      // Right
-      context.fill(right + GuiUtil.PADDING, top, right + 5 * GuiUtil.PADDING, bottom, color);
-      // Top
-      context.fill(left, top - 5 * GuiUtil.PADDING, right, top - GuiUtil.PADDING, color);
-      // Bottom
-      context.fill(left, bottom + GuiUtil.PADDING, right, bottom + 5 * GuiUtil.PADDING, color);
-      // Center
-      context.fill(left, top, right, bottom, color);
+      GuiUtil.drawCrosshair(context, wrapper.getX(), wrapper.getY());
     });
+
     this.layout.forEachChild(this::addDrawableChild);
     this.initTabNavigation();
   }
@@ -126,7 +112,7 @@ public class LinearLayoutWidgetDemoScreen extends Screen implements DemoScreen {
   public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
     if (keyCode == GLFW.GLFW_KEY_D && hasControlDown()) {
       this.debug = !this.debug;
-      GuiUtil.playClickSound();
+      GuiUtil.playClickSound(this.client);
       return true;
     }
     return super.keyPressed(keyCode, scanCode, modifiers);

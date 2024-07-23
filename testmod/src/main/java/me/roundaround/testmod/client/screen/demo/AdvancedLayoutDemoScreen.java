@@ -2,13 +2,13 @@ package me.roundaround.testmod.client.screen.demo;
 
 import me.roundaround.roundalib.asset.icon.BuiltinIcon;
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
+import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.roundalib.client.gui.util.Axis;
 import me.roundaround.roundalib.client.gui.widget.DrawableWidget;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.NarratableEntryListWidget;
-import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
-import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -63,7 +63,7 @@ public class AdvancedLayoutDemoScreen extends Screen implements DemoScreen {
     searchRow.add(IconButtonWidget.builder(BuiltinIcon.FILTER_18, TestMod.MOD_ID)
         .vanillaSize()
         .messageAndTooltip(Text.of("Filter"))
-        .onPress((button) -> GuiUtil.playClickSound())
+        .onPress((button) -> GuiUtil.playClickSound(this.client))
         .build());
 
     PlaceholderListWidget listWidget = leftPane.add(new PlaceholderListWidget(this.client),

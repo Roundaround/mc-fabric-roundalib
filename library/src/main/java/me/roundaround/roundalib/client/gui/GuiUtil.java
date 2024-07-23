@@ -2,7 +2,7 @@ package me.roundaround.roundalib.client.gui;
 
 import me.roundaround.roundalib.client.gui.util.Alignment;
 import me.roundaround.roundalib.client.gui.util.Dimensions;
-import me.roundaround.roundalib.config.manage.ModConfigImpl;
+import me.roundaround.roundalib.client.gui.util.IntRect;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -17,7 +17,6 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.Language;
 import net.minecraft.util.Util;
 
@@ -31,6 +30,7 @@ public final class GuiUtil {
   public static final int LABEL_COLOR = genColorInt(1f, 1f, 1f);
   public static final int ERROR_COLOR = genColorInt(1f, 0.15f, 0.15f);
   public static final int BACKGROUND_COLOR = genColorInt(0f, 0f, 0f, 0.5f);
+  public static final int CROSSHAIR_COLOR = genColorInt(1f, 1f, 1f, 0.7f);
   public static final int TRANSPARENT_COLOR = genColorInt(0f, 0f, 0f, 0f);
   public static final int PADDING = 4;
   public static final int SCROLLBAR_WIDTH = 6;
@@ -38,10 +38,6 @@ public final class GuiUtil {
   public static final int COMPACT_HEADER_HEIGHT = 17;
 
   private static final MinecraftClient CLIENT = MinecraftClient.getInstance();
-
-  public static Identifier getWidgetsTexture(ModConfigImpl config) {
-    return new Identifier(config.getModId(), "textures/roundalib.png");
-  }
 
   public static int getScaledWindowWidth() {
     return getScaledWindowWidth(CLIENT);
@@ -97,18 +93,6 @@ public final class GuiUtil {
 
   public static void setScreen(MinecraftClient client, Screen screen) {
     client.setScreen(screen);
-  }
-
-  public static void playSoundEvent(SoundEvent soundEvent) {
-    playSoundEvent(CLIENT, soundEvent);
-  }
-
-  public static void playSoundEvent(MinecraftClient client, SoundEvent soundEvent) {
-    client.getSoundManager().play(PositionedSoundInstance.master(soundEvent, 1));
-  }
-
-  public static TextRenderer getTextRenderer() {
-    return CLIENT.textRenderer;
   }
 
   public static void drawText(
@@ -280,7 +264,51 @@ public final class GuiUtil {
   }
 
   public static int getLineYOffset(TextRenderer textRenderer, int index, int lineSpacing) {
-    return index * textRenderer.fontHeight + Math.max(0, index - 1) * lineSpacing;
+    return index * (textRenderer.fontHeight + lineSpacing);
+  }
+
+  public static void fill(DrawContext context, IntRect rect, int color) {
+    context.fill(rect.left(), rect.top(), rect.right(), rect.bottom(), color);
+  }
+
+  public static void drawBorder(DrawContext context, IntRect rect, int color) {
+    drawBorder(context, rect, color, false);
+  }
+
+  public static void drawBorder(DrawContext context, IntRect rect, int color, boolean outside) {
+    if (outside) {
+      rect = rect.expand(1);
+    }
+    context.drawBorder(rect.left(), rect.top(), rect.getWidth(), rect.getHeight(), color);
+  }
+
+  public static void drawCrosshair(DrawContext context, int x, int y, int thickness, int gap, int length, int color) {
+    thickness = Math.max(1, thickness);
+    gap = Math.max(0, gap);
+    length = Math.max(0, length);
+
+    // Left
+    context.fill(x - gap - length, y, x - gap, y + thickness, color);
+    // Right
+    context.fill(x + thickness + gap, y, x + thickness + gap + length, y + thickness, color);
+    // Top
+    context.fill(x, y - gap - length, x + thickness, y - gap, color);
+    // Bottom
+    context.fill(x, y + thickness + gap, x + thickness, y + thickness + gap + length, color);
+    // Center
+    context.fill(x, y, x + thickness, y + thickness, color);
+  }
+
+  public static void drawCrosshair(DrawContext context, int x, int y) {
+    drawCrosshair(context, x, y, 2, PADDING, 4 * PADDING, CROSSHAIR_COLOR);
+  }
+
+  public static void enableScissor(DrawContext context, IntRect rect) {
+    context.enableScissor(rect.left(), rect.top(), rect.right(), rect.bottom());
+  }
+
+  public static void disableScissor(DrawContext context) {
+    context.disableScissor();
   }
 
   public static int genColorInt(float r, float g, float b) {
@@ -291,11 +319,19 @@ public final class GuiUtil {
     return ((int) (a * 255) << 24) | ((int) (r * 255) << 16) | ((int) (g * 255) << 8) | (int) (b * 255);
   }
 
-  public static void playClickSound() {
-    playClickSound(1f);
+  public static void playSound(MinecraftClient client, SoundEvent soundEvent, float volume) {
+    client.getSoundManager().play(PositionedSoundInstance.master(soundEvent, volume));
   }
 
-  public static void playClickSound(float volume) {
-    CLIENT.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, volume));
+  public static void playSound(MinecraftClient client, SoundEvent soundEvent) {
+    playSound(CLIENT, soundEvent, 0.25f);
+  }
+
+  public static void playClickSound(MinecraftClient client, float volume) {
+    playSound(client, SoundEvents.UI_BUTTON_CLICK.value(), volume);
+  }
+
+  public static void playClickSound(MinecraftClient client) {
+    playClickSound(client, 1f);
   }
 }

@@ -36,31 +36,31 @@ public class DemoSelectScreen extends Screen implements DemoScreen {
 
     list.addEntry((index, left, top, width) -> new DemoSelectListWidget.Entry(this.textRenderer,
         Text.translatable("testmod.iconbuttondemoscreen.title"), () -> {
-      GuiUtil.playClickSound();
+      GuiUtil.playClickSound(this.client);
       this.navigate(new IconButtonDemoScreen(this));
     }, index, left, top, width
     ));
     list.addEntry((index, left, top, width) -> new DemoSelectListWidget.Entry(this.textRenderer,
         Text.translatable("testmod.labeldemoscreen.title"), () -> {
-      GuiUtil.playClickSound();
+      GuiUtil.playClickSound(this.client);
       this.navigate(new LabelDemoScreen(this));
     }, index, left, top, width
     ));
     list.addEntry((index, left, top, width) -> new DemoSelectListWidget.Entry(this.textRenderer,
         Text.translatable("testmod.multilinelabeldemoscreen.title"), () -> {
-      GuiUtil.playClickSound();
+      GuiUtil.playClickSound(this.client);
       this.navigate(new MultilineLabelDemoScreen(this));
     }, index, left, top, width
     ));
     list.addEntry((index, left, top, width) -> new DemoSelectListWidget.Entry(this.textRenderer,
         Text.translatable("testmod.linearlayoutdemoscreen.title"), () -> {
-      GuiUtil.playClickSound();
+      GuiUtil.playClickSound(this.client);
       this.navigate(new LinearLayoutWidgetDemoScreen(this));
     }, index, left, top, width
     ));
     list.addEntry((index, left, top, width) -> new DemoSelectListWidget.Entry(this.textRenderer,
         Text.translatable("testmod.advancedlayoutdemoscreen.title"), () -> {
-      GuiUtil.playClickSound();
+      GuiUtil.playClickSound(this.client);
       this.navigate(new AdvancedLayoutDemoScreen(this));
     }, index, left, top, width
     ));

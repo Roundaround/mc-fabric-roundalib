@@ -81,7 +81,7 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
       this.debug = !this.debug;
       this.labels.forEach(
           (label) -> label.setBgColor(this.debug ? GuiUtil.TRANSPARENT_COLOR : GuiUtil.BACKGROUND_COLOR));
-      GuiUtil.playClickSound();
+      GuiUtil.playClickSound(this.client);
       return true;
     }
     return super.keyPressed(keyCode, scanCode, modifiers);
