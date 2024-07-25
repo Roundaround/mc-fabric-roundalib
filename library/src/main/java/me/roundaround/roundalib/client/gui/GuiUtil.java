@@ -242,7 +242,6 @@ public final class GuiUtil {
       int color,
       boolean shadow,
       int viewWidth,
-      int margin,
       Alignment alignment
   ) {
     int textWidth = textRenderer.getWidth(text);
@@ -252,14 +251,14 @@ public final class GuiUtil {
     }
 
     // Based largely on the scrolling text from ClickableWidget.
-    double X = (double) textWidth - viewWidth + 2 * margin;
+    double X = (double) textWidth - viewWidth;
     double t = Util.getMeasuringTimeMs() / 1000.0;
     double T = Math.max(X / 2, 3);
     double c = Math.sin((Math.PI / 2) * Math.cos(2 * Math.PI * (t + alignment.floatValue()) / T)) / 2 + 0.5;
     double dx = c * X;
 
     context.enableScissor(x, y - textRenderer.fontHeight, x + viewWidth, y + 2 * textRenderer.fontHeight);
-    drawText(context, textRenderer, text, x - (int) dx + margin, y, color, shadow);
+    drawText(context, textRenderer, text, x - (int) dx, y, color, shadow);
     context.disableScissor();
   }
 
@@ -280,27 +279,6 @@ public final class GuiUtil {
       rect = rect.expand(1);
     }
     context.drawBorder(rect.left(), rect.top(), rect.getWidth(), rect.getHeight(), color);
-  }
-
-  public static void drawCrosshair(DrawContext context, int x, int y, int thickness, int gap, int length, int color) {
-    thickness = Math.max(1, thickness);
-    gap = Math.max(0, gap);
-    length = Math.max(0, length);
-
-    // Left
-    context.fill(x - gap - length, y, x - gap, y + thickness, color);
-    // Right
-    context.fill(x + thickness + gap, y, x + thickness + gap + length, y + thickness, color);
-    // Top
-    context.fill(x, y - gap - length, x + thickness, y - gap, color);
-    // Bottom
-    context.fill(x, y + thickness + gap, x + thickness, y + thickness + gap + length, color);
-    // Center
-    context.fill(x, y, x + thickness, y + thickness, color);
-  }
-
-  public static void drawCrosshair(DrawContext context, int x, int y) {
-    drawCrosshair(context, x, y, 2, PADDING, 4 * PADDING, CROSSHAIR_COLOR);
   }
 
   public static void enableScissor(DrawContext context, IntRect rect) {

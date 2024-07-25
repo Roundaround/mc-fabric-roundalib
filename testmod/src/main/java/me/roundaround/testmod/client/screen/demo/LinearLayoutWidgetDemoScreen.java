@@ -2,23 +2,24 @@ package me.roundaround.testmod.client.screen.demo;
 
 import me.roundaround.roundalib.asset.icon.BuiltinIcon;
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.layout.FillerWidget;
 import me.roundaround.roundalib.client.gui.layout.WrapperLayoutWidget;
 import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
 import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.roundalib.client.gui.util.Alignment;
 import me.roundaround.roundalib.client.gui.util.Axis;
+import me.roundaround.roundalib.client.gui.util.IntRect;
+import me.roundaround.roundalib.client.gui.widget.CrosshairWidget;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.Objects;
 
@@ -30,7 +31,10 @@ public class LinearLayoutWidgetDemoScreen extends Screen implements DemoScreen {
   private final ThreeSectionLayoutWidget layout = new ThreeSectionLayoutWidget(this);
 
   private LinearLayoutWidget demoLayout;
-  private boolean debug = false;
+  private IconButtonWidget spacingMinusButton;
+  private IconButtonWidget spacingPlusButton;
+  private int spacing = GuiUtil.PADDING;
+  private CrosshairWidget crosshair;
 
   public LinearLayoutWidgetDemoScreen(Screen parent) {
     super(TITLE_TEXT);
@@ -45,58 +49,57 @@ public class LinearLayoutWidgetDemoScreen extends Screen implements DemoScreen {
         .spacing(GuiUtil.PADDING)
         .defaultOffAxisContentAlignCenter();
     firstRow.add(
-        new CyclingButtonWidget.Builder<Axis>((value) -> Text.of("Axis: " + value.name())).values(Axis.values())
+        new CyclingButtonWidget.Builder<Axis>((value) -> value.getDisplayText(TestMod.MOD_ID)).values(Axis.values())
             .initially(Axis.HORIZONTAL)
-            .omitKeyText()
-            .build(0, 0, 100, 20, Text.empty(), this::onFlowAxisChange));
-    firstRow.add(
-        new CyclingButtonWidget.Builder<Alignment>((value) -> Text.of("X: " + value.name())).values(Alignment.values())
-            .initially(Alignment.START)
-            .omitKeyText()
-            .build(0, 0, 100, 20, Text.empty(), this::onAlignmentXChange));
-    firstRow.add(
-        new CyclingButtonWidget.Builder<Alignment>((value) -> Text.of("Y: " + value.name())).values(Alignment.values())
-            .initially(Alignment.START)
-            .omitKeyText()
-            .build(0, 0, 100, 20, Text.empty(), this::onAlignmentYChange));
+            .build(0, 0, 100, 20, Text.of("Axis"), this::onFlowAxisChange));
+    firstRow.add(new CyclingButtonWidget.Builder<Alignment>((value) -> value.getDisplayText(TestMod.MOD_ID)).values(
+            Alignment.values())
+        .initially(Alignment.START)
+        .build(0, 0, 100, 20, Text.of("X"), this::onAlignmentXChange));
+    firstRow.add(new CyclingButtonWidget.Builder<Alignment>((value) -> value.getDisplayText(TestMod.MOD_ID)).values(
+            Alignment.values())
+        .initially(Alignment.START)
+        .build(0, 0, 100, 20, Text.of("Y"), this::onAlignmentYChange));
     this.layout.addHeader(firstRow);
 
     LinearLayoutWidget secondRow = LinearLayoutWidget.horizontal()
         .spacing(GuiUtil.PADDING)
         .defaultOffAxisContentAlignCenter();
-    secondRow.add(
-        new CyclingButtonWidget.Builder<ContentAlignment>((value) -> Text.of("Content: " + value.name())).values(
-                ContentAlignment.values())
-            .initially(ContentAlignment.CENTER)
-            .omitKeyText()
-            .build(0, 0, 100, 20, Text.empty(), this::onContentAlignmentChange));
+    secondRow.add(new CyclingButtonWidget.Builder<Alignment>((value) -> value.getDisplayText(TestMod.MOD_ID)).values(
+            Alignment.values())
+        .initially(Alignment.CENTER)
+        .build(0, 0, 100, 20, Text.of("Content"), this::onContentAlignmentChange));
+    secondRow.add(FillerWidget.ofWidth(2 * GuiUtil.PADDING));
+    secondRow.add(LabelWidget.builder(this.textRenderer, Text.of("Spacing:")).build());
+    this.spacingMinusButton = secondRow.add(IconButtonWidget.builder(BuiltinIcon.MINUS_18, TestMod.MOD_ID)
+        .onPress((button) -> this.onSpacingChange(this.spacing - 1))
+        .build());
+    this.spacingPlusButton = secondRow.add(IconButtonWidget.builder(BuiltinIcon.PLUS_18, TestMod.MOD_ID)
+        .onPress((button) -> this.onSpacingChange(this.spacing + 1))
+        .build());
     this.layout.addHeader(secondRow);
 
     this.layout.setHeaderHeight(this.layout.getHeader().getContentHeight() + 2 * GuiUtil.PADDING);
 
-    this.demoLayout = LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING);
+    this.crosshair = this.addDrawable(new CrosshairWidget(this.layout.getBody().getBounds()));
+    this.layout.setBodyLayoutHook((parent, self) -> {
+      this.crosshair.centerOn(this.layout.getBody().getBounds());
+    });
+
+    this.demoLayout = LinearLayoutWidget.horizontal().spacing(this.spacing);
     this.demoLayout.add(IconButtonWidget.builder(BuiltinIcon.MINUS_13, TestMod.MOD_ID).medium().build());
     this.demoLayout.add(IconButtonWidget.builder(BuiltinIcon.CHECKMARK_18, TestMod.MOD_ID).vanillaSize().build());
     this.demoLayout.add(IconButtonWidget.builder(BuiltinIcon.PLUS_13, TestMod.MOD_ID).medium().build());
     this.demoLayout.add(LabelWidget.builder(this.textRenderer, Text.of("Label")).build());
-    WrapperLayoutWidget<LinearLayoutWidget> wrapper = WrapperLayoutWidget.builder(this.demoLayout)
-        .setDimensions(2, 2)
-        .setLayoutHook((parent, self) -> {
-          self.setPosition(parent.getX() + 1, parent.getY() + 1);
-        })
-        .build();
-    this.layout.addBody(wrapper);
+    this.layout.addBody(new WrapperLayoutWidget<>(this.demoLayout, (parent, self) -> {
+      self.setPosition(this.crosshair.getX() + 1, this.crosshair.getY() + 1);
+    }));
 
     this.layout.addFooter(ButtonWidget.builder(ScreenTexts.DONE, (button) -> this.close()).build());
 
     this.addDrawable((context, mouseX, mouseY, delta) -> {
-      LinearLayoutWidget layout = LinearLayoutWidgetDemoScreen.this.demoLayout;
-      context.fill(layout.getX(), layout.getY(), layout.getX() + layout.getWidth(), layout.getY() + layout.getHeight(),
-          GuiUtil.genColorInt(0, 0.4f, 0.9f, 0.2f)
-      );
-    });
-    this.addDrawable((context, mouseX, mouseY, delta) -> {
-      GuiUtil.drawCrosshair(context, wrapper.getX(), wrapper.getY());
+      IntRect bounds = LinearLayoutWidgetDemoScreen.this.demoLayout.getBounds();
+      GuiUtil.fill(context, bounds, GuiUtil.genColorInt(0, 0.4f, 0.9f, 0.3f));
     });
 
     this.layout.forEachChild(this::addDrawableChild);
@@ -106,33 +109,6 @@ public class LinearLayoutWidgetDemoScreen extends Screen implements DemoScreen {
   @Override
   protected void initTabNavigation() {
     this.layout.refreshPositions();
-  }
-
-  @Override
-  public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-    if (keyCode == GLFW.GLFW_KEY_D && hasControlDown()) {
-      this.debug = !this.debug;
-      GuiUtil.playClickSound(this.client);
-      return true;
-    }
-    return super.keyPressed(keyCode, scanCode, modifiers);
-  }
-
-  @Override
-  public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
-    super.renderBackground(context, mouseX, mouseY, delta);
-
-    if (this.debug) {
-      this.highlightSection(context, this.layout.getHeader(), GuiUtil.genColorInt(1f, 0f, 0f));
-      this.highlightSection(context, this.layout.getBody(), GuiUtil.genColorInt(0f, 1f, 0f));
-      this.highlightSection(context, this.layout.getFooter(), GuiUtil.genColorInt(0f, 0f, 1f));
-    }
-  }
-
-  private void highlightSection(DrawContext context, LinearLayoutWidget section, int color) {
-    context.fill(section.getX(), section.getY(), section.getX() + section.getWidth(),
-        section.getY() + section.getHeight(), color
-    );
   }
 
   @Override
@@ -163,20 +139,20 @@ public class LinearLayoutWidgetDemoScreen extends Screen implements DemoScreen {
     this.layout.refreshPositions();
   }
 
-  private void onContentAlignmentChange(CyclingButtonWidget<ContentAlignment> button, ContentAlignment value) {
-    value.set(this.demoLayout);
+  private void onContentAlignmentChange(CyclingButtonWidget<Alignment> button, Alignment value) {
+    switch (value) {
+      case START -> this.demoLayout.defaultOffAxisContentAlignStart();
+      case CENTER -> this.demoLayout.defaultOffAxisContentAlignCenter();
+      case END -> this.demoLayout.defaultOffAxisContentAlignEnd();
+    }
     this.layout.refreshPositions();
   }
 
-  private enum ContentAlignment {
-    START, CENTER, END;
-
-    public void set(LinearLayoutWidget layout) {
-      switch (this) {
-        case START -> layout.defaultOffAxisContentAlignStart();
-        case CENTER -> layout.defaultOffAxisContentAlignCenter();
-        case END -> layout.defaultOffAxisContentAlignEnd();
-      }
-    }
+  private void onSpacingChange(int spacing) {
+    this.spacing = spacing;
+    this.demoLayout.spacing(this.spacing);
+    this.spacingMinusButton.active = this.spacing > 0;
+    this.spacingPlusButton.active = this.spacing < 8;
+    this.layout.refreshPositions();
   }
 }

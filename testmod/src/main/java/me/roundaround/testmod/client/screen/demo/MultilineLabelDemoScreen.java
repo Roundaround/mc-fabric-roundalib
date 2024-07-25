@@ -3,24 +3,23 @@ package me.roundaround.testmod.client.screen.demo;
 import me.roundaround.roundalib.asset.icon.BuiltinIcon;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.FillerWidget;
+import me.roundaround.roundalib.client.gui.layout.WrapperLayoutWidget;
 import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
 import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.roundalib.client.gui.util.Alignment;
 import me.roundaround.roundalib.client.gui.util.Axis;
 import me.roundaround.roundalib.client.gui.util.IntRect;
+import me.roundaround.roundalib.client.gui.widget.CrosshairWidget;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.MathHelper;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -35,13 +34,14 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
   private final ThreeSectionLayoutWidget layout = new ThreeSectionLayoutWidget(this);
 
   private LabelWidget label;
+  private Size size = Size.AUTO;
   private IconButtonWidget linesMinusButton;
   private IconButtonWidget linesPlusButton;
   private int lineCount = 3;
   private IconButtonWidget spacingMinusButton;
   private IconButtonWidget spacingPlusButton;
   private int spacing = 1;
-  private boolean debug = false;
+  private CrosshairWidget crosshair;
 
   public MultilineLabelDemoScreen(Screen parent) {
     super(TITLE_TEXT);
@@ -56,7 +56,7 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
         .spacing(GuiUtil.PADDING)
         .defaultOffAxisContentAlignCenter();
     firstRow.add(new CyclingButtonWidget.Builder<Size>((value) -> Text.of(value.name())).values(Size.values())
-        .initially(Size.AUTO)
+        .initially(this.size)
         .build(0, 0, 80, 20, Text.of("Size"), this::onSizeChange));
     firstRow.add(new CyclingButtonWidget.Builder<Alignment>(
         (value) -> value.getDisplayText(TestMod.MOD_ID, Axis.HORIZONTAL)).values(Alignment.values())
@@ -89,6 +89,10 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
     LinearLayoutWidget thirdRow = LinearLayoutWidget.horizontal()
         .spacing(GuiUtil.PADDING)
         .defaultOffAxisContentAlignCenter();
+    thirdRow.add(CyclingButtonWidget.onOffBuilder(ScreenTexts.YES, ScreenTexts.NO)
+        .initially(false)
+        .build(0, 0, 80, 20, Text.of("Shadow"), this::onShadowChange));
+    thirdRow.add(FillerWidget.ofWidth(GuiUtil.PADDING));
     thirdRow.add(LabelWidget.builder(this.textRenderer, Text.of("Lines:")).build());
     this.linesMinusButton = thirdRow.add(IconButtonWidget.builder(BuiltinIcon.MINUS_18, TestMod.MOD_ID)
         .onPress((button) -> this.onLineCountChange(this.lineCount - 1))
@@ -96,7 +100,7 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
     this.linesPlusButton = thirdRow.add(IconButtonWidget.builder(BuiltinIcon.PLUS_18, TestMod.MOD_ID)
         .onPress((button) -> this.onLineCountChange(this.lineCount + 1))
         .build());
-    thirdRow.add(FillerWidget.ofWidth(2 * GuiUtil.PADDING));
+    thirdRow.add(FillerWidget.ofWidth(GuiUtil.PADDING));
     thirdRow.add(LabelWidget.builder(this.textRenderer, Text.of("Spacing:")).build());
     this.spacingMinusButton = thirdRow.add(IconButtonWidget.builder(BuiltinIcon.MINUS_18, TestMod.MOD_ID)
         .onPress((button) -> this.onSpacingChange(this.spacing - 1))
@@ -108,20 +112,32 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
 
     this.layout.setHeaderHeight(this.layout.getHeader().getContentHeight() + 2 * GuiUtil.PADDING);
 
-    this.label = this.layout.addBody(LabelWidget.builder(this.textRenderer, this.generateLines())
+    this.crosshair = this.addDrawable(new CrosshairWidget(this.layout.getBody().getBounds()));
+    this.layout.setBodyLayoutHook((parent, self) -> {
+      this.crosshair.centerOn(this.layout.getBody().getBounds());
+    });
+
+    this.label = LabelWidget.builder(this.textRenderer, this.generateLines())
         .alignSelfLeft()
         .alignSelfTop()
         .alignTextLeft()
         .alignTextTop()
-        .build());
+        .lineSpacing(this.spacing)
+        .position(this.crosshair.getX() + 1, this.crosshair.getY() + 1)
+        .build();
+    this.layout.addBody(new WrapperLayoutWidget<>(this.label, (parent, self) -> {
+      if (this.size == Size.FULL) {
+        self.setPosition(this.layout.getBody().getX(), this.layout.getBody().getY());
+      } else {
+        self.setPosition(this.crosshair.getX() + 1, this.crosshair.getY() + 1);
+      }
+    }));
 
     this.layout.addFooter(ButtonWidget.builder(ScreenTexts.DONE, (button) -> this.close()).build());
 
     this.addDrawable(((context, mouseX, mouseY, delta) -> {
-      IntRect bounds = this.layout.getBody().getBounds();
-      int x = bounds.left() + MathHelper.floor((bounds.getWidth() - 2.5f) * 0.5f);
-      int y = bounds.top() + MathHelper.floor((bounds.getHeight() - 2.5f) * 0.5f);
-      GuiUtil.drawCrosshair(context, x, y);
+      IntRect bounds = this.label.getWidgetBounds();
+      GuiUtil.fill(context, bounds, GuiUtil.genColorInt(0, 0.4f, 0.9f, 0.3f));
     }));
 
     this.layout.forEachChild(this::addDrawableChild);
@@ -131,27 +147,6 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
   @Override
   protected void initTabNavigation() {
     this.layout.refreshPositions();
-  }
-
-  @Override
-  public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-    if (keyCode == GLFW.GLFW_KEY_D && hasControlDown()) {
-      this.debug = !this.debug;
-      this.label.setBgColor(this.debug ? GuiUtil.TRANSPARENT_COLOR : GuiUtil.BACKGROUND_COLOR);
-      GuiUtil.playClickSound(this.client);
-      return true;
-    }
-    return super.keyPressed(keyCode, scanCode, modifiers);
-  }
-
-  @Override
-  public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
-    super.renderBackground(context, mouseX, mouseY, delta);
-
-    if (this.debug) {
-      IntRect bounds = this.label.getBounds();
-      context.fill(bounds.left(), bounds.top(), bounds.right(), bounds.bottom(), GuiUtil.genColorInt(0, 0.4f, 0.9f));
-    }
   }
 
   @Override
@@ -167,6 +162,8 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
   }
 
   private void onSizeChange(CyclingButtonWidget<Size> button, Size value) {
+    this.size = value;
+
     int width = switch (value) {
       case AUTO -> 0;
       case SIXTY -> 60;
@@ -177,6 +174,7 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
       case SIXTY -> 60;
       case FULL -> this.layout.getBody().getHeight();
     };
+
     this.label.setDimensions(width, height);
     this.layout.refreshPositions();
   }
@@ -201,6 +199,11 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
     this.layout.refreshPositions();
   }
 
+  private void onShadowChange(CyclingButtonWidget<Boolean> button, boolean value) {
+    this.label.setShadow(value);
+    this.layout.refreshPositions();
+  }
+
   private void onLineCountChange(int lineCount) {
     this.lineCount = lineCount;
     this.label.setText(this.generateLines());
@@ -222,7 +225,7 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
   private void onSpacingChange(int spacing) {
     this.spacing = spacing;
     this.label.setLineSpacing(this.spacing);
-    this.spacingMinusButton.active = this.spacing > 1;
+    this.spacingMinusButton.active = this.spacing > 0;
     this.spacingPlusButton.active = this.spacing < 8;
     this.layout.refreshPositions();
   }
