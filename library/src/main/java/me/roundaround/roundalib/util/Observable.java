@@ -1,5 +1,6 @@
 package me.roundaround.roundalib.util;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.WeakHashMap;
@@ -11,6 +12,7 @@ public class Observable<T> {
   protected static final Object EMPTY = new Object();
 
   protected final WeakHashMap<Observer<T>, Object> observers = new WeakHashMap<>();
+  protected final HashMap<Observer<T>, Object> hardReferences = new HashMap<>();
 
   protected T value;
 
@@ -22,27 +24,45 @@ public class Observable<T> {
     return new Observable<>(initial);
   }
 
-  public static <S, T> Computed<T> computed(Observable<S> source, Mapper<S, T> mapper) {
+  public static <S, T> Computed<T> computed(
+      Observable<S> source, Mapper<S, T> mapper, SubscribeOptions options
+  ) {
     Computed<T> computed = Computed.of(() -> mapper.apply(source.get()));
-    computed.sourceUnsubscriber = source.subscribe((value) -> computed.set(mapper.apply(value)));
+    computed.sourceSubscription = source.subscribe((value) -> computed.set(mapper.apply(value)));
     return computed;
   }
 
   public static <S1, S2, T> Computed<T> computed(
       Observable<S1> source1, Observable<S2> source2, Mapper2<S1, S2, T> mapper
   ) {
+    return computed(source1, source2, mapper, SubscribeOptions.create());
+  }
+
+  public static <S1, S2, T> Computed<T> computed(
+      Observable<S1> source1, Observable<S2> source2, Mapper2<S1, S2, T> mapper, SubscribeOptions options
+  ) {
     Computed<T> computed = Computed.of(() -> mapper.apply(source1.get(), source2.get()));
-    computed.sourceUnsubscriber = subscribeToAll(
-        source1, source2, false, (value1, value2) -> computed.set(mapper.apply(value1, value2)));
+    computed.sourceSubscription = subscribeToAll(
+        source1, source2, (value1, value2) -> computed.set(mapper.apply(value1, value2)), options);
     return computed;
   }
 
   public static <S1, S2, S3, T> Computed<T> computed(
       Observable<S1> source1, Observable<S2> source2, Observable<S3> source3, Mapper3<S1, S2, S3, T> mapper
   ) {
+    return computed(source1, source2, source3, mapper, SubscribeOptions.create());
+  }
+
+  public static <S1, S2, S3, T> Computed<T> computed(
+      Observable<S1> source1,
+      Observable<S2> source2,
+      Observable<S3> source3,
+      Mapper3<S1, S2, S3, T> mapper,
+      SubscribeOptions options
+  ) {
     Computed<T> computed = Computed.of(() -> mapper.apply(source1.get(), source2.get(), source3.get()));
-    computed.sourceUnsubscriber = subscribeToAll(source1, source2, source3, false,
-        (value1, value2, value3) -> computed.set(mapper.apply(value1, value2, value3))
+    computed.sourceSubscription = subscribeToAll(source1, source2, source3,
+        (value1, value2, value3) -> computed.set(mapper.apply(value1, value2, value3)), options
     );
     return computed;
   }
@@ -54,9 +74,20 @@ public class Observable<T> {
       Observable<S4> source4,
       Mapper4<S1, S2, S3, S4, T> mapper
   ) {
+    return computed(source1, source2, source3, source4, mapper, SubscribeOptions.create());
+  }
+
+  public static <S1, S2, S3, S4, T> Computed<T> computed(
+      Observable<S1> source1,
+      Observable<S2> source2,
+      Observable<S3> source3,
+      Observable<S4> source4,
+      Mapper4<S1, S2, S3, S4, T> mapper,
+      SubscribeOptions options
+  ) {
     Computed<T> computed = Computed.of(() -> mapper.apply(source1.get(), source2.get(), source3.get(), source4.get()));
-    computed.sourceUnsubscriber = subscribeToAll(source1, source2, source3, source4, false,
-        (value1, value2, value3, value4) -> computed.set(mapper.apply(value1, value2, value3, value4))
+    computed.sourceSubscription = subscribeToAll(source1, source2, source3, source4,
+        (value1, value2, value3, value4) -> computed.set(mapper.apply(value1, value2, value3, value4)), options
     );
     return computed;
   }
@@ -69,85 +100,104 @@ public class Observable<T> {
       Observable<S5> source5,
       Mapper5<S1, S2, S3, S4, S5, T> mapper
   ) {
+    return computed(source1, source2, source3, source4, source5, mapper, SubscribeOptions.create());
+  }
+
+  public static <S1, S2, S3, S4, S5, T> Computed<T> computed(
+      Observable<S1> source1,
+      Observable<S2> source2,
+      Observable<S3> source3,
+      Observable<S4> source4,
+      Observable<S5> source5,
+      Mapper5<S1, S2, S3, S4, S5, T> mapper,
+      SubscribeOptions options
+  ) {
     Computed<T> computed = Computed.of(
         () -> mapper.apply(source1.get(), source2.get(), source3.get(), source4.get(), source5.get()));
-    computed.sourceUnsubscriber = subscribeToAll(source1, source2, source3, source4, source5, false,
-        (value1, value2, value3, value4, value5) -> computed.set(mapper.apply(value1, value2, value3, value4, value5))
+    computed.sourceSubscription = subscribeToAll(source1, source2, source3, source4, source5,
+        (value1, value2, value3, value4, value5) -> computed.set(mapper.apply(value1, value2, value3, value4, value5)),
+        options
     );
     return computed;
   }
 
-  public static <S1, S2> Unsubscriber subscribeToAll(
+  public static <S1, S2> Subscription subscribeToAll(
       Observable<S1> source1, Observable<S2> source2, Observer2<S1, S2> observer
   ) {
-    return subscribeToAll(source1, source2, true, observer);
+    return subscribeToAll(source1, source2, observer, SubscribeOptions.create());
   }
 
-  public static <S1, S2> Unsubscriber subscribeToAll(
-      Observable<S1> source1, Observable<S2> source2, boolean runImmediately, Observer2<S1, S2> observer
+  public static <S1, S2> Subscription subscribeToAll(
+      Observable<S1> source1, Observable<S2> source2, Observer2<S1, S2> observer, SubscribeOptions options
   ) {
     NoParamObserver commonObserver = () -> observer.handle(source1.get(), source2.get());
-    if (runImmediately) {
+    if (options.emitImmediately()) {
       commonObserver.handle();
     }
-    List<Unsubscriber> unsubscribers = Stream.of(source1, source2)
-        .map((observable) -> observable.subscribe(commonObserver))
+    List<Subscription> subscriptions = Stream.of(source1, source2)
+        .map((observable) -> observable.subscribe(commonObserver,
+            options.toBuilder().emittingImmediately(false).build()
+        ))
         .toList();
-    return () -> unsubscribers.forEach(Unsubscriber::unsubscribe);
+    return () -> subscriptions.forEach(Subscription::unsubscribe);
   }
 
-  public static <S1, S2, S3> Unsubscriber subscribeToAll(
+  public static <S1, S2, S3> Subscription subscribeToAll(
       Observable<S1> source1, Observable<S2> source2, Observable<S3> source3, Observer3<S1, S2, S3> observer
   ) {
-    return subscribeToAll(source1, source2, source3, true, observer);
+    return subscribeToAll(source1, source2, source3, observer, SubscribeOptions.create());
   }
 
-  public static <S1, S2, S3> Unsubscriber subscribeToAll(
+  public static <S1, S2, S3> Subscription subscribeToAll(
       Observable<S1> source1,
       Observable<S2> source2,
       Observable<S3> source3,
-      boolean runImmediately,
-      Observer3<S1, S2, S3> observer
+      Observer3<S1, S2, S3> observer,
+      SubscribeOptions options
   ) {
     NoParamObserver commonObserver = () -> observer.handle(source1.get(), source2.get(), source3.get());
-    if (runImmediately) {
+    if (options.emitImmediately()) {
       commonObserver.handle();
     }
-    List<Unsubscriber> unsubscribers = Stream.of(source1, source2, source3)
-        .map((observable) -> observable.subscribe(commonObserver))
+    List<Subscription> subscriptions = Stream.of(source1, source2, source3)
+        .map((observable) -> observable.subscribe(commonObserver,
+            options.toBuilder().emittingImmediately(false).build()
+        ))
         .toList();
-    return () -> unsubscribers.forEach(Unsubscriber::unsubscribe);
+    return () -> subscriptions.forEach(Subscription::unsubscribe);
   }
 
-  public static <S1, S2, S3, S4> Unsubscriber subscribeToAll(
+  public static <S1, S2, S3, S4> Subscription subscribeToAll(
       Observable<S1> source1,
       Observable<S2> source2,
       Observable<S3> source3,
       Observable<S4> source4,
       Observer4<S1, S2, S3, S4> observer
   ) {
-    return subscribeToAll(source1, source2, source3, source4, true, observer);
+    return subscribeToAll(source1, source2, source3, source4, observer, SubscribeOptions.create());
   }
 
-  public static <S1, S2, S3, S4> Unsubscriber subscribeToAll(
+  public static <S1, S2, S3, S4> Subscription subscribeToAll(
       Observable<S1> source1,
       Observable<S2> source2,
       Observable<S3> source3,
       Observable<S4> source4,
-      boolean runImmediately,
-      Observer4<S1, S2, S3, S4> observer
+      Observer4<S1, S2, S3, S4> observer,
+      SubscribeOptions options
   ) {
     NoParamObserver commonObserver = () -> observer.handle(source1.get(), source2.get(), source3.get(), source4.get());
-    if (runImmediately) {
+    if (options.emitImmediately()) {
       commonObserver.handle();
     }
-    List<Unsubscriber> unsubscribers = Stream.of(source1, source2, source3, source4)
-        .map((observable) -> observable.subscribe(commonObserver))
+    List<Subscription> subscriptions = Stream.of(source1, source2, source3, source4)
+        .map((observable) -> observable.subscribe(commonObserver,
+            options.toBuilder().emittingImmediately(false).build()
+        ))
         .toList();
-    return () -> unsubscribers.forEach(Unsubscriber::unsubscribe);
+    return () -> subscriptions.forEach(Subscription::unsubscribe);
   }
 
-  public static <S1, S2, S3, S4, S5> Unsubscriber subscribeToAll(
+  public static <S1, S2, S3, S4, S5> Subscription subscribeToAll(
       Observable<S1> source1,
       Observable<S2> source2,
       Observable<S3> source3,
@@ -155,27 +205,29 @@ public class Observable<T> {
       Observable<S5> source5,
       Observer5<S1, S2, S3, S4, S5> observer
   ) {
-    return subscribeToAll(source1, source2, source3, source4, source5, true, observer);
+    return subscribeToAll(source1, source2, source3, source4, source5, observer, SubscribeOptions.create());
   }
 
-  public static <S1, S2, S3, S4, S5> Unsubscriber subscribeToAll(
+  public static <S1, S2, S3, S4, S5> Subscription subscribeToAll(
       Observable<S1> source1,
       Observable<S2> source2,
       Observable<S3> source3,
       Observable<S4> source4,
       Observable<S5> source5,
-      boolean runImmediately,
-      Observer5<S1, S2, S3, S4, S5> observer
+      Observer5<S1, S2, S3, S4, S5> observer,
+      SubscribeOptions options
   ) {
     NoParamObserver commonObserver = () -> observer.handle(
         source1.get(), source2.get(), source3.get(), source4.get(), source5.get());
-    if (runImmediately) {
+    if (options.emitImmediately()) {
       commonObserver.handle();
     }
-    List<Unsubscriber> unsubscribers = Stream.of(source1, source2, source3, source4, source5)
-        .map((observable) -> observable.subscribe(commonObserver))
+    List<Subscription> subscriptions = Stream.of(source1, source2, source3, source4, source5)
+        .map((observable) -> observable.subscribe(commonObserver,
+            options.toBuilder().emittingImmediately(false).build()
+        ))
         .toList();
-    return () -> unsubscribers.forEach(Unsubscriber::unsubscribe);
+    return () -> subscriptions.forEach(Subscription::unsubscribe);
   }
 
   public T get() {
@@ -204,35 +256,37 @@ public class Observable<T> {
     this.observers.keySet().forEach((observer) -> observer.handle(this.value));
   }
 
-  public Unsubscriber subscribe(boolean runImmediately, NoParamObserver observer) {
-    if (runImmediately) {
-      observer.handle();
-    }
+  public Subscription subscribe(NoParamObserver observer) {
     return this.subscribe((value) -> observer.handle());
   }
 
-  public Unsubscriber subscribe(NoParamObserver observer) {
-    return this.subscribe(true, observer);
+  public Subscription subscribe(NoParamObserver observer, SubscribeOptions options) {
+    return this.subscribe((value) -> observer.handle(), SubscribeOptions.create());
   }
 
-  public Unsubscriber subscribe(boolean runImmediately, Observer<T> observer) {
-    if (runImmediately) {
+  public Subscription subscribe(Observer<T> observer) {
+    return this.subscribe(observer, SubscribeOptions.create());
+  }
+
+  public Subscription subscribe(Observer<T> observer, SubscribeOptions options) {
+    if (options.emitImmediately()) {
       observer.handle(this.value);
+    }
+    if (options.keepHardReference()) {
+      this.hardReferences.put(observer, PRESENT);
     }
     this.observers.put(observer, PRESENT);
     return () -> this.unsubscribe(observer);
   }
 
-  public Unsubscriber subscribe(Observer<T> observer) {
-    return this.subscribe(true, observer);
-  }
-
   public void unsubscribe(Observer<T> observer) {
     this.observers.remove(observer);
+    this.hardReferences.remove(observer);
   }
 
   public void clear() {
     this.observers.clear();
+    this.hardReferences.clear();
   }
 
   @FunctionalInterface
@@ -266,7 +320,7 @@ public class Observable<T> {
   }
 
   @FunctionalInterface
-  public interface Unsubscriber {
+  public interface Subscription {
     void unsubscribe();
   }
 
@@ -296,7 +350,7 @@ public class Observable<T> {
   }
 
   public static class Computed<T> extends Observable<T> {
-    protected Unsubscriber sourceUnsubscriber;
+    protected Subscription sourceSubscription;
     protected Supplier<T> computeHandler;
 
     private Computed(Supplier<T> computeHandler) {
@@ -309,11 +363,72 @@ public class Observable<T> {
     }
 
     public void unsubscribeFromSource() {
-      this.sourceUnsubscriber.unsubscribe();
+      this.sourceSubscription.unsubscribe();
     }
 
     public void recompute() {
       this.set(this.computeHandler.get());
+    }
+  }
+
+  public record SubscribeOptions(boolean emitImmediately, boolean keepHardReference) {
+    public Builder toBuilder() {
+      return new Builder(this);
+    }
+
+    public static SubscribeOptions create(boolean emitImmediately, boolean keepHardReference) {
+      return new Builder().emittingImmediately(emitImmediately).withHardReference(keepHardReference).build();
+    }
+
+    public static SubscribeOptions notEmittingImmediately() {
+      return new Builder().notEmittingImmediately().build();
+    }
+
+    public static SubscribeOptions withHardReference() {
+      return new Builder().withHardReference().build();
+    }
+
+    public static SubscribeOptions create() {
+      return new Builder().build();
+    }
+
+    public static Builder builder() {
+      return new Builder();
+    }
+
+    public static class Builder {
+      private boolean emitImmediately = true;
+      private boolean keepHardReference = false;
+
+      private Builder() {
+      }
+
+      private Builder(SubscribeOptions options) {
+        this.emitImmediately = options.emitImmediately();
+        this.keepHardReference = options.keepHardReference();
+      }
+
+      public Builder notEmittingImmediately() {
+        return this.emittingImmediately(false);
+      }
+
+      public Builder emittingImmediately(boolean emitImmediately) {
+        this.emitImmediately = emitImmediately;
+        return this;
+      }
+
+      public Builder withHardReference() {
+        return this.withHardReference(true);
+      }
+
+      public Builder withHardReference(boolean keepHardReference) {
+        this.keepHardReference = keepHardReference;
+        return this;
+      }
+
+      public SubscribeOptions build() {
+        return new SubscribeOptions(this.emitImmediately, this.keepHardReference);
+      }
     }
   }
 }
