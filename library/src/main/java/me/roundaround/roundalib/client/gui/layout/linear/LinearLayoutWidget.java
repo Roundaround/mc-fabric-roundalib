@@ -160,7 +160,8 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
   }
 
   public <T extends Widget> T add(
-      T widget, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook) {
+      T widget, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook
+  ) {
     return this.add(widget, (configurator) -> configurator.layoutHook(layoutHook));
   }
 
@@ -218,18 +219,18 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
     this.calculateContentDimensions();
 
     int posMain = switch (this.flowAxis) {
-      case HORIZONTAL -> this.getX() +
-          (int) ((this.getWidth() - this.getContentWidth()) * this.contentAlignMain.floatValue());
-      case VERTICAL -> this.getY() +
-          (int) ((this.getHeight() - this.getContentHeight()) * this.contentAlignMain.floatValue());
+      case HORIZONTAL ->
+          this.getX() + (int) ((this.getWidth() - this.getContentWidth()) * this.contentAlignMain.floatValue());
+      case VERTICAL ->
+          this.getY() + (int) ((this.getHeight() - this.getContentHeight()) * this.contentAlignMain.floatValue());
     };
 
     for (CellWidget<?> cell : this.cells) {
       int posOff = switch (this.flowAxis) {
-        case HORIZONTAL -> this.getY() +
-            (int) ((this.getHeight() - cell.getHeight()) * this.getCellAlign(cell).floatValue());
-        case VERTICAL -> this.getX() +
-            (int) ((this.getWidth() - cell.getWidth()) * this.getCellAlign(cell).floatValue());
+        case HORIZONTAL ->
+            this.getY() + (int) ((this.getHeight() - cell.getHeight()) * this.getCellAlign(cell).floatValue());
+        case VERTICAL ->
+            this.getX() + (int) ((this.getWidth() - cell.getWidth()) * this.getCellAlign(cell).floatValue());
       };
 
       int main = posMain + this.getMainLeadingCellMargin(cell);
@@ -330,8 +331,7 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
   }
 
   @Environment(EnvType.CLIENT)
-  private static class CellWidget<T extends Widget>
-      implements LinearLayoutCellConfigurator<T>, Widget {
+  private static class CellWidget<T extends Widget> implements LinearLayoutCellConfigurator<T>, Widget {
     private final T widget;
 
     private LayoutHookWithParent<LinearLayoutWidget, T> layoutHook = null;
@@ -390,12 +390,12 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
 
     @Override
     public int getWidth() {
-      return this.widget.getWidth();
+      return this.widget.getWidth() + (this.margin != null ? this.margin.getHorizontal() : 0);
     }
 
     @Override
     public int getHeight() {
-      return this.widget.getHeight();
+      return this.widget.getHeight() + (this.margin != null ? this.margin.getVertical() : 0);
     }
 
     @Override
