@@ -169,9 +169,6 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
     CellWidget<T> cell = new CellWidget<>(widget);
     this.cells.add(cell);
 
-    AutoLinearLayoutCellConfigurator.of(widget)
-        .ifPresent((autoConfigurator) -> autoConfigurator.onAddToLinearLayout(cell));
-
     if (configure != null) {
       configure.accept(cell);
     }

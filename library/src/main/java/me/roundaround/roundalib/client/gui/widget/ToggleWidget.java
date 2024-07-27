@@ -28,7 +28,8 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
 
   private static final Identifier TEXTURE = new Identifier("widget/slider");
   private static final Identifier HANDLE_TEXTURE = new Identifier("widget/slider_handle");
-  private static final Identifier HANDLE_HIGHLIGHTED_TEXTURE = new Identifier("widget/slider_handle_highlighted");
+  private static final Identifier HANDLE_HIGHLIGHTED_TEXTURE =
+      new Identifier("widget/slider_handle_highlighted");
 
   private final Consumer<ToggleWidget> pressAction;
   private final TextRenderer textRenderer;
@@ -59,8 +60,7 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
       Consumer<Boolean> valueChanged,
       ValueToTextMapper valueTextMapper,
       ValueToTextMapper tooltipTextMapper,
-      boolean initialValue
-  ) {
+      boolean initialValue) {
     super(x, y, width, height, labelTextMapper.apply(initialValue));
 
     this.pressAction = pressAction;
@@ -77,9 +77,13 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
 
     this.value = initialValue;
 
-    this.layout = LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING / 2).defaultOffAxisContentAlignCenter();
-    this.displayLabel = this.layout.add(
-        LabelWidget.builder(this.textRenderer, this.labelTextMapper.apply(this.value)).build());
+    this.layout = LinearLayoutWidget.horizontal()
+        .spacing(GuiUtil.PADDING / 2)
+        .defaultOffAxisContentAlignCenter();
+    this.displayLabel = this.layout.add(LabelWidget.builder(this.textRenderer,
+            this.labelTextMapper.apply(this.value))
+        .overflowBehavior(LabelWidget.OverflowBehavior.SCROLL)
+        .build());
 
     this.layout.add(new DrawableWidget() {
       @Override
@@ -104,15 +108,22 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
 
-        context.drawGuiTexture(TEXTURE, this.getX(), this.getY(), this.getWidth(), this.getHeight());
-        context.drawGuiTexture(
-            ToggleWidget.this.getHandleTexture(), this.getX() + offset, this.getY(), barWidth, this.getHeight());
+        context.drawGuiTexture(TEXTURE,
+            this.getX(),
+            this.getY(),
+            this.getWidth(),
+            this.getHeight());
+        context.drawGuiTexture(ToggleWidget.this.getHandleTexture(),
+            this.getX() + offset,
+            this.getY(),
+            barWidth,
+            this.getHeight());
       }
     });
 
     if (this.valueTextMapper != null) {
-      this.valueLabel = this.layout.add(
-          LabelWidget.builder(this.textRenderer, this.valueTextMapper.apply(this.value)).build());
+      this.valueLabel = this.layout.add(LabelWidget.builder(this.textRenderer,
+          this.valueTextMapper.apply(this.value)).alignTextCenterX().build());
     } else {
       this.valueLabel = null;
     }
@@ -161,15 +172,22 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
 
   @Override
   public void refreshPositions() {
-    int valueWidth = this.valueTextMapper == null ?
-        0 :
-        Math.max(this.textRenderer.getWidth(this.valueTextMapper.apply(true)),
-            this.textRenderer.getWidth(this.valueTextMapper.apply(false))
-        ) + this.layout.getSpacing();
+    int labelWidth = this.getWidth() - this.controlWidth - this.layout.getSpacing();
 
-    this.displayLabel.setWidth(this.getWidth() - valueWidth - this.controlWidth - this.layout.getSpacing());
+    if (this.valueTextMapper != null && this.valueLabel != null) {
+      int width = Math.max(this.textRenderer.getWidth(this.valueTextMapper.apply(true)),
+          this.textRenderer.getWidth(this.valueTextMapper.apply(false)));
+      labelWidth -= width + this.layout.getSpacing();
 
-    this.layout.setPositionAndDimensions(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+      this.valueLabel.setWidth(width);
+    }
+
+    this.displayLabel.setWidth(labelWidth);
+
+    this.layout.setPositionAndDimensions(this.getX(),
+        this.getY(),
+        this.getWidth(),
+        this.getHeight());
     this.layout.refreshPositions();
   }
 
@@ -266,9 +284,9 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
   }
 
   public static Builder enabledDisabledBuilder(
-      TextRenderer textRenderer, ValueToTextMapper labelTextMapper, String modId
-  ) {
-    return new Builder(textRenderer, labelTextMapper).showValue(ValueToTextMapper.enabledDisabled(modId));
+      TextRenderer textRenderer, ValueToTextMapper labelTextMapper, String modId) {
+    return new Builder(textRenderer, labelTextMapper).showValue(ValueToTextMapper.enabledDisabled(
+        modId));
   }
 
   @Environment(EnvType.CLIENT)
@@ -282,9 +300,9 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
     }
 
     static ValueToTextMapper enabledDisabled(String modId) {
-      return (value) -> value ?
-          Text.translatable(modId + ".roundalib.toggle.enabled") :
-          Text.translatable(modId + ".roundalib.toggle.disabled");
+      return (value) -> value
+          ? Text.translatable(modId + ".roundalib.toggle.enabled")
+          : Text.translatable(modId + ".roundalib.toggle.disabled");
     }
   }
 
@@ -307,8 +325,7 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
     private boolean initialValue = false;
 
     private Builder(
-        TextRenderer textRenderer, ValueToTextMapper labelTextMapper
-    ) {
+        TextRenderer textRenderer, ValueToTextMapper labelTextMapper) {
       this.textRenderer = textRenderer;
       this.labelTextMapper = labelTextMapper;
     }
@@ -417,10 +434,20 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
     }
 
     public ToggleWidget build() {
-      return new ToggleWidget(this.x, this.y, this.width, this.height, this.pressAction, this.textRenderer,
-          this.labelTextMapper, this.controlWidth, this.controlHeight, this.barWidth, this.valueChanged,
-          this.valueTextMapper, this.tooltipTextMapper, this.initialValue
-      );
+      return new ToggleWidget(this.x,
+          this.y,
+          this.width,
+          this.height,
+          this.pressAction,
+          this.textRenderer,
+          this.labelTextMapper,
+          this.controlWidth,
+          this.controlHeight,
+          this.barWidth,
+          this.valueChanged,
+          this.valueTextMapper,
+          this.tooltipTextMapper,
+          this.initialValue);
     }
   }
 }
