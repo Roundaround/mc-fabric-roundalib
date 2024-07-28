@@ -169,7 +169,7 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
       this.valueLabel.setWidth(this.getValueWidth());
     }
 
-    if (this.getWidth() != 0) {
+    if (this.width != 0) {
       int labelWidth = this.getWidth() - this.controlWidth - this.layout.getSpacing();
       if (this.valueLabel != null) {
         labelWidth -= this.valueLabel.getWidth() + this.layout.getSpacing();
@@ -179,6 +179,16 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
 
     this.layout.setPositionAndDimensions(this.getX(), this.getY(), this.getWidth(), this.getHeight());
     this.layout.refreshPositions();
+  }
+
+  @Override
+  public int getWidth() {
+    return this.width != 0 ? this.width : this.layout.getWidth();
+  }
+
+  @Override
+  public int getHeight() {
+    return this.height != 0 ? this.height : this.layout.getHeight();
   }
 
   public void matchTooltipWithLabel() {
@@ -261,7 +271,7 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
   protected int getValueWidth() {
     return Math.max(this.textRenderer.getWidth(this.valueTextMapper.apply(true)),
         this.textRenderer.getWidth(this.valueTextMapper.apply(false))
-    );
+    ) + LabelWidget.PADDING.getHorizontal();
   }
 
   protected Identifier getHandleTexture() {
