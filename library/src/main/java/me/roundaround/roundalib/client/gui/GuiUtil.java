@@ -10,6 +10,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.sound.PositionedSoundInstance;
+import net.minecraft.client.sound.SoundManager;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -297,19 +298,19 @@ public final class GuiUtil {
     return ((int) (a * 255) << 24) | ((int) (r * 255) << 16) | ((int) (g * 255) << 8) | (int) (b * 255);
   }
 
+  public static void playSound(SoundManager soundManager, SoundEvent soundEvent, float volume) {
+    soundManager.play(PositionedSoundInstance.master(soundEvent, volume));
+  }
+
   public static void playSound(MinecraftClient client, SoundEvent soundEvent, float volume) {
-    client.getSoundManager().play(PositionedSoundInstance.master(soundEvent, volume));
-  }
-
-  public static void playSound(MinecraftClient client, SoundEvent soundEvent) {
-    playSound(CLIENT, soundEvent, 0.25f);
-  }
-
-  public static void playClickSound(MinecraftClient client, float volume) {
-    playSound(client, SoundEvents.UI_BUTTON_CLICK.value(), volume);
+    playSound(client.getSoundManager(), soundEvent, volume);
   }
 
   public static void playClickSound(MinecraftClient client) {
-    playClickSound(client, 1f);
+    playSound(client, SoundEvents.UI_BUTTON_CLICK.value(), 1f);
+  }
+
+  public static void playClickSound(SoundManager soundManager) {
+    playSound(soundManager, SoundEvents.UI_BUTTON_CLICK.value(), 1f);
   }
 }
