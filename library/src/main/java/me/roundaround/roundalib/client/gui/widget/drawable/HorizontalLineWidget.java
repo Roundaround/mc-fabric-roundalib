@@ -47,6 +47,10 @@ public class HorizontalLineWidget extends DrawableWidget {
     return this.height + this.marginTop + this.marginBottom;
   }
 
+  public HorizontalLineWidget margin(int margin) {
+    return this.margin(margin, margin);
+  }
+
   public HorizontalLineWidget margin(int marginTop, int marginBottom) {
     this.marginTop = marginTop;
     this.marginBottom = marginBottom;
