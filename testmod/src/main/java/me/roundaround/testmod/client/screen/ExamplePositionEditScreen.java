@@ -1,7 +1,7 @@
 package me.roundaround.testmod.client.screen;
 
 import me.roundaround.roundalib.client.gui.screen.PositionEditScreen;
-import me.roundaround.roundalib.client.gui.widget.LabelWidget;
+import me.roundaround.roundalib.client.gui.widget.drawable.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.config.SubScreenControl;
 import me.roundaround.roundalib.config.option.PositionConfigOption;
 import me.roundaround.roundalib.config.value.Position;

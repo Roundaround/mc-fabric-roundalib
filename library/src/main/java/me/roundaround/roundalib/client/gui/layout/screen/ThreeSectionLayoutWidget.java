@@ -5,7 +5,7 @@ import me.roundaround.roundalib.client.gui.layout.LayoutHookWithParent;
 import me.roundaround.roundalib.client.gui.layout.SizableLayoutWidget;
 import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutCellConfigurator;
 import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
-import me.roundaround.roundalib.client.gui.widget.LabelWidget;
+import me.roundaround.roundalib.client.gui.widget.drawable.LabelWidget;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.Widget;

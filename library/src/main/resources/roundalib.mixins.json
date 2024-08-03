@@ -7,6 +7,8 @@
     "VanillaDataPackProviderMixin"
   ],
   "client": [
+    "DrawContextAccessor",
+    "DrawContextNineSliceAccessor",
     "MinecraftClientMixin",
     "ScreenMixin"
   ],

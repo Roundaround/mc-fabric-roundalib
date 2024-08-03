@@ -9,9 +9,9 @@ import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidge
 import me.roundaround.roundalib.client.gui.util.Alignment;
 import me.roundaround.roundalib.client.gui.util.Axis;
 import me.roundaround.roundalib.client.gui.util.IntRect;
-import me.roundaround.roundalib.client.gui.widget.CrosshairWidget;
+import me.roundaround.roundalib.client.gui.widget.drawable.CrosshairWidget;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
-import me.roundaround.roundalib.client.gui.widget.LabelWidget;
+import me.roundaround.roundalib.client.gui.widget.drawable.LabelWidget;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -24,7 +24,7 @@ import net.minecraft.text.Text;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import static me.roundaround.roundalib.client.gui.widget.LabelWidget.OverflowBehavior;
+import static me.roundaround.roundalib.client.gui.widget.drawable.LabelWidget.OverflowBehavior;
 
 @Environment(EnvType.CLIENT)
 public class MultilineLabelDemoScreen extends Screen implements DemoScreen {

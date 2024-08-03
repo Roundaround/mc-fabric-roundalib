@@ -3,6 +3,8 @@ package me.roundaround.roundalib.client.gui.widget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
+import me.roundaround.roundalib.client.gui.widget.drawable.DrawableWidget;
+import me.roundaround.roundalib.client.gui.widget.drawable.LabelWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.font.TextRenderer;
@@ -59,7 +61,8 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
       Consumer<Boolean> valueChanged,
       ValueToTextMapper valueTextMapper,
       ValueToTextMapper tooltipTextMapper,
-      boolean initialValue
+      boolean initialValue,
+      Consumer<LabelWidget.Builder> labelBuilderHook
   ) {
     super(x, y, width, height, labelTextMapper.apply(initialValue));
 
@@ -79,7 +82,9 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
 
     this.layout = LinearLayoutWidget.horizontal().spacing(GuiUtil.PADDING / 2).defaultOffAxisContentAlignCenter();
     this.displayLabel = this.layout.add(LabelWidget.builder(this.textRenderer, this.labelTextMapper.apply(this.value))
+        .configure(labelBuilderHook)
         .overflowBehavior(LabelWidget.OverflowBehavior.SCROLL)
+        .alignTextRight()
         .build());
 
     this.layout.add(new DrawableWidget() {
@@ -114,6 +119,7 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
 
     if (this.valueTextMapper != null) {
       this.valueLabel = this.layout.add(LabelWidget.builder(this.textRenderer, this.valueTextMapper.apply(this.value))
+          .configure(labelBuilderHook)
           .width(this.getValueWidth())
           .alignTextCenterX()
           .build());
@@ -329,6 +335,10 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
     private ValueToTextMapper valueTextMapper = null;
     private ValueToTextMapper tooltipTextMapper = null;
     private boolean initialValue = false;
+    private Consumer<LabelWidget.Builder> labelBackground = null;
+    private Consumer<LabelWidget.Builder> labelShadow = null;
+    private Consumer<LabelWidget.Builder> labelColor = null;
+    private Consumer<LabelWidget.Builder> labelBgColor = null;
 
     private Builder(
         TextRenderer textRenderer, ValueToTextMapper labelTextMapper
@@ -440,10 +450,47 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
       return this;
     }
 
+    public Builder labelBackground(boolean labelBackground) {
+      this.labelBackground = (builder) -> builder.background(labelBackground);
+      return this;
+    }
+
+    public Builder labelShadow(boolean labelShadow) {
+      this.labelShadow = (builder) -> builder.shadow(labelShadow);
+      return this;
+    }
+
+    public Builder labelColor(int labelColor) {
+      this.labelColor = (builder) -> builder.color(labelColor);
+      return this;
+    }
+
+    public Builder labelBgColor(int labelBgColor) {
+      this.labelBgColor = (builder) -> builder.bgColor(labelBgColor);
+      return this;
+    }
+
+    private Consumer<LabelWidget.Builder> consolidateLabelBuilderHook() {
+      return (builder) -> {
+        if (this.labelBackground != null) {
+          this.labelBackground.accept(builder);
+        }
+        if (this.labelShadow != null) {
+          this.labelShadow.accept(builder);
+        }
+        if (this.labelColor != null) {
+          this.labelColor.accept(builder);
+        }
+        if (this.labelBgColor != null) {
+          this.labelBgColor.accept(builder);
+        }
+      };
+    }
+
     public ToggleWidget build() {
       return new ToggleWidget(this.x, this.y, this.width, this.height, this.pressAction, this.textRenderer,
           this.labelTextMapper, this.controlWidth, this.controlHeight, this.barWidth, this.valueChanged,
-          this.valueTextMapper, this.tooltipTextMapper, this.initialValue
+          this.valueTextMapper, this.tooltipTextMapper, this.initialValue, this.consolidateLabelBuilderHook()
       );
     }
   }

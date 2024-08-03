@@ -1,24 +1,20 @@
-package me.roundaround.roundalib.client.gui.widget;
+package me.roundaround.roundalib.client.gui.widget.drawable;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.util.Coords;
 import me.roundaround.roundalib.client.gui.util.IntRect;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.function.Consumer;
 
-public class CrosshairWidget implements Drawable, Widget {
+public class CrosshairWidget extends DrawableWidget {
   private static final int DEFAULT_THICKNESS = 2;
   private static final int DEFAULT_GAP = GuiUtil.PADDING;
   private static final int DEFAULT_LENGTH = 4 * GuiUtil.PADDING;
   private static final int DEFAULT_COLOR = GuiUtil.CROSSHAIR_COLOR;
 
-  private int x;
-  private int y;
   private int thickness;
   private int gap;
   private int length;
@@ -43,7 +39,8 @@ public class CrosshairWidget implements Drawable, Widget {
   }
 
   public CrosshairWidget(int x, int y, int thickness, int gap, int length, int color) {
-    this.setPosition(x, y);
+    super(x, y, thickness, thickness);
+
     this.setThickness(thickness);
     this.setGap(gap);
     this.setLength(length);
@@ -51,11 +48,11 @@ public class CrosshairWidget implements Drawable, Widget {
   }
 
   @Override
-  public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-    int left = this.x;
-    int top = this.y;
-    int right = this.x + this.thickness;
-    int bottom = this.y + this.thickness;
+  public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    int left = this.getX();
+    int top = this.getY();
+    int right = this.getRight();
+    int bottom = this.getBottom();
 
     // Left
     context.fill(left - this.gap - this.length, top, left - this.gap, bottom, this.color);
@@ -69,39 +66,9 @@ public class CrosshairWidget implements Drawable, Widget {
     context.fill(left, top, right, bottom, this.color);
   }
 
-  @Override
-  public void setX(int x) {
-    this.x = x;
-  }
-
-  @Override
-  public void setY(int y) {
-    this.y = y;
-  }
-
   public void centerOn(IntRect bounds) {
     Coords centerCoords = getCenterCoords(bounds, this.thickness);
     this.setPosition(centerCoords.x(), centerCoords.y());
-  }
-
-  @Override
-  public int getX() {
-    return this.x;
-  }
-
-  @Override
-  public int getY() {
-    return this.y;
-  }
-
-  @Override
-  public int getWidth() {
-    return this.thickness;
-  }
-
-  @Override
-  public int getHeight() {
-    return this.thickness;
   }
 
   @Override
@@ -110,6 +77,7 @@ public class CrosshairWidget implements Drawable, Widget {
 
   public void setThickness(int thickness) {
     this.thickness = Math.max(1, thickness);
+    this.setDimensions(this.thickness, this.thickness);
   }
 
   public void setGap(int gap) {

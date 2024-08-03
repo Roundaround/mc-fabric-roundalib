@@ -2,8 +2,8 @@ package me.roundaround.testmod.client.screen.demo;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
-import me.roundaround.roundalib.client.gui.widget.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.NarratableEntryListWidget;
+import me.roundaround.roundalib.client.gui.widget.drawable.LabelWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -36,32 +36,38 @@ public class DemoSelectScreen extends Screen implements DemoScreen {
 
     list.addEntry((index, left, top, width) -> new DemoSelectListWidget.Entry(this.textRenderer,
         Text.translatable("testmod.iconbuttondemoscreen.title"), () -> {
-      GuiUtil.playClickSound(this.client);
+      GuiUtil.playClickSound();
       this.navigate(new IconButtonDemoScreen(this));
     }, index, left, top, width
     ));
     list.addEntry((index, left, top, width) -> new DemoSelectListWidget.Entry(this.textRenderer,
         Text.translatable("testmod.labeldemoscreen.title"), () -> {
-      GuiUtil.playClickSound(this.client);
+      GuiUtil.playClickSound();
       this.navigate(new LabelDemoScreen(this));
     }, index, left, top, width
     ));
     list.addEntry((index, left, top, width) -> new DemoSelectListWidget.Entry(this.textRenderer,
         Text.translatable("testmod.multilinelabeldemoscreen.title"), () -> {
-      GuiUtil.playClickSound(this.client);
+      GuiUtil.playClickSound();
       this.navigate(new MultilineLabelDemoScreen(this));
     }, index, left, top, width
     ));
     list.addEntry((index, left, top, width) -> new DemoSelectListWidget.Entry(this.textRenderer,
         Text.translatable("testmod.linearlayoutdemoscreen.title"), () -> {
-      GuiUtil.playClickSound(this.client);
+      GuiUtil.playClickSound();
       this.navigate(new LinearLayoutWidgetDemoScreen(this));
     }, index, left, top, width
     ));
     list.addEntry((index, left, top, width) -> new DemoSelectListWidget.Entry(this.textRenderer,
         Text.translatable("testmod.advancedlayoutdemoscreen.title"), () -> {
-      GuiUtil.playClickSound(this.client);
+      GuiUtil.playClickSound();
       this.navigate(new AdvancedLayoutDemoScreen(this));
+    }, index, left, top, width
+    ));
+    list.addEntry((index, left, top, width) -> new DemoSelectListWidget.Entry(this.textRenderer,
+        Text.translatable("testmod.framewidgetdemoscreen.title"), () -> {
+      GuiUtil.playClickSound();
+      this.navigate(new FrameWidgetDemoScreen(this));
     }, index, left, top, width
     ));
 

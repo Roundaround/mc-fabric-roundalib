@@ -3,6 +3,9 @@ package me.roundaround.roundalib.client.gui;
 import me.roundaround.roundalib.client.gui.util.Alignment;
 import me.roundaround.roundalib.client.gui.util.Dimensions;
 import me.roundaround.roundalib.client.gui.util.IntRect;
+import me.roundaround.roundalib.client.gui.util.Spacing;
+import me.roundaround.roundalib.mixin.DrawContextAccessor;
+import me.roundaround.roundalib.mixin.DrawContextNineSliceAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -11,6 +14,8 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.sound.SoundManager;
+import net.minecraft.client.texture.Scaling;
+import net.minecraft.client.texture.Sprite;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -18,6 +23,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Language;
 import net.minecraft.util.Util;
 
@@ -38,10 +44,17 @@ public final class GuiUtil {
   public static final int DEFAULT_HEADER_FOOTER_HEIGHT = 33;
   public static final int COMPACT_HEADER_HEIGHT = 17;
 
-  private static final MinecraftClient CLIENT = MinecraftClient.getInstance();
+  private static MinecraftClient client = null;
+
+  public static MinecraftClient getClient() {
+    if (client == null) {
+      client = MinecraftClient.getInstance();
+    }
+    return client;
+  }
 
   public static int getScaledWindowWidth() {
-    return getScaledWindowWidth(CLIENT);
+    return getScaledWindowWidth(getClient());
   }
 
   public static int getScaledWindowWidth(MinecraftClient client) {
@@ -49,7 +62,7 @@ public final class GuiUtil {
   }
 
   public static int getScaledWindowHeight() {
-    return getScaledWindowHeight(CLIENT);
+    return getScaledWindowHeight(getClient());
   }
 
   public static int getScaledWindowHeight(MinecraftClient client) {
@@ -57,7 +70,7 @@ public final class GuiUtil {
   }
 
   public static int getDisplayWidth() {
-    return getDisplayWidth(CLIENT);
+    return getDisplayWidth(getClient());
   }
 
   public static int getDisplayWidth(MinecraftClient client) {
@@ -65,7 +78,7 @@ public final class GuiUtil {
   }
 
   public static int getDisplayHeight() {
-    return getDisplayHeight(CLIENT);
+    return getDisplayHeight(getClient());
   }
 
   public static int getDisplayHeight(MinecraftClient client) {
@@ -73,7 +86,7 @@ public final class GuiUtil {
   }
 
   public static double getScaleFactor() {
-    return getScaleFactor(CLIENT);
+    return getScaleFactor(getClient());
   }
 
   public static double getScaleFactor(MinecraftClient client) {
@@ -81,7 +94,7 @@ public final class GuiUtil {
   }
 
   public static Screen getCurrentScreen() {
-    return getCurrentScreen(CLIENT);
+    return getCurrentScreen(getClient());
   }
 
   public static Screen getCurrentScreen(MinecraftClient client) {
@@ -89,11 +102,7 @@ public final class GuiUtil {
   }
 
   public static void setScreen(Screen screen) {
-    setScreen(CLIENT, screen);
-  }
-
-  public static void setScreen(MinecraftClient client, Screen screen) {
-    client.setScreen(screen);
+    getClient().setScreen(screen);
   }
 
   public static void drawText(
@@ -282,6 +291,127 @@ public final class GuiUtil {
     context.drawBorder(rect.left(), rect.top(), rect.getWidth(), rect.getHeight(), color);
   }
 
+  public static Sprite getSprite(Identifier texture) {
+    return getClient().getGuiAtlasManager().getSprite(texture);
+  }
+
+  public static void drawNineSlice(
+      DrawContext context, Sprite sprite, int x, int y, int width, int height, int texWidth, int texHeight, int border
+  ) {
+    drawNineSlice(context, sprite, x, y, 0, width, height, texWidth, texHeight, border);
+  }
+
+  public static void drawNineSlice(
+      DrawContext context,
+      Identifier texture,
+      int x,
+      int y,
+      int width,
+      int height,
+      int texWidth,
+      int texHeight,
+      int border
+  ) {
+    drawNineSlice(context, texture, x, y, 0, width, height, texWidth, texHeight, border);
+  }
+
+  public static void drawNineSlice(
+      DrawContext context,
+      Sprite sprite,
+      int x,
+      int y,
+      int z,
+      int width,
+      int height,
+      int texWidth,
+      int texHeight,
+      int border
+  ) {
+    drawNineSlice(context, sprite, x, y, z, width, height, texWidth, texHeight, Spacing.of(border));
+  }
+
+  public static void drawNineSlice(
+      DrawContext context,
+      Identifier texture,
+      int x,
+      int y,
+      int z,
+      int width,
+      int height,
+      int texWidth,
+      int texHeight,
+      int border
+  ) {
+    drawNineSlice(context, texture, x, y, z, width, height, texWidth, texHeight, Spacing.of(border));
+  }
+
+  public static void drawNineSlice(
+      DrawContext context,
+      Identifier texture,
+      int x,
+      int y,
+      int width,
+      int height,
+      int texWidth,
+      int texHeight,
+      Spacing border
+  ) {
+    drawNineSlice(context, texture, x, y, 0, width, height, texWidth, texHeight, border);
+  }
+
+  public static void drawNineSlice(
+      DrawContext context,
+      Sprite sprite,
+      int x,
+      int y,
+      int width,
+      int height,
+      int texWidth,
+      int texHeight,
+      Spacing border
+  ) {
+    drawNineSlice(context, sprite, x, y, 0, width, height, texWidth, texHeight, border);
+  }
+
+  public static void drawNineSlice(
+      DrawContext context,
+      Identifier texture,
+      int x,
+      int y,
+      int z,
+      int width,
+      int height,
+      int texWidth,
+      int texHeight,
+      Spacing border
+  ) {
+    drawNineSlice(context, getSprite(texture), x, y, z, width, height, texWidth, texHeight, border);
+  }
+
+  public static void drawNineSlice(
+      DrawContext context,
+      Sprite sprite,
+      int x,
+      int y,
+      int z,
+      int width,
+      int height,
+      int texWidth,
+      int texHeight,
+      Spacing border
+  ) {
+    Scaling.NineSlice nineSlice = new Scaling.NineSlice(texWidth, texHeight,
+        new Scaling.NineSlice.Border(border.left(), border.top(), border.right(), border.bottom())
+    );
+    ((DrawContextNineSliceAccessor) context).invokeDrawSprite(sprite, nineSlice, x, y, z, width, height);
+  }
+
+  public static void drawSprite(
+      DrawContext context, Sprite sprite, int i, int j, int k, int l, int x, int y, int z, int width, int height
+  ) {
+    ((DrawContextAccessor) context).invokeDrawSprite(sprite, i, j, k, l, x, y, z, width, height);
+  }
+
   public static void enableScissor(DrawContext context, IntRect rect) {
     context.enableScissor(rect.left(), rect.top(), rect.right(), rect.bottom());
   }
@@ -302,12 +432,12 @@ public final class GuiUtil {
     soundManager.play(PositionedSoundInstance.master(soundEvent, volume));
   }
 
-  public static void playSound(MinecraftClient client, SoundEvent soundEvent, float volume) {
-    playSound(client.getSoundManager(), soundEvent, volume);
+  public static void playSound(SoundEvent soundEvent, float volume) {
+    playSound(getClient().getSoundManager(), soundEvent, volume);
   }
 
-  public static void playClickSound(MinecraftClient client) {
-    playSound(client, SoundEvents.UI_BUTTON_CLICK.value(), 1f);
+  public static void playClickSound() {
+    playSound(SoundEvents.UI_BUTTON_CLICK.value(), 1f);
   }
 
   public static void playClickSound(SoundManager soundManager) {

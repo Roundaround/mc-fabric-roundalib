@@ -6,7 +6,7 @@ import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidge
 import me.roundaround.roundalib.client.gui.util.Alignment;
 import me.roundaround.roundalib.client.gui.util.Axis;
 import me.roundaround.roundalib.client.gui.util.IntRect;
-import me.roundaround.roundalib.client.gui.widget.LabelWidget;
+import me.roundaround.roundalib.client.gui.widget.drawable.LabelWidget;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -22,7 +22,7 @@ import org.lwjgl.glfw.GLFW;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import static me.roundaround.roundalib.client.gui.widget.LabelWidget.OverflowBehavior;
+import static me.roundaround.roundalib.client.gui.widget.drawable.LabelWidget.OverflowBehavior;
 
 @Environment(EnvType.CLIENT)
 public class LabelDemoScreen extends Screen implements DemoScreen {
@@ -81,7 +81,7 @@ public class LabelDemoScreen extends Screen implements DemoScreen {
       this.debug = !this.debug;
       this.labels.forEach(
           (label) -> label.setBgColor(this.debug ? GuiUtil.TRANSPARENT_COLOR : GuiUtil.BACKGROUND_COLOR));
-      GuiUtil.playClickSound(this.client);
+      GuiUtil.playClickSound();
       return true;
     }
     return super.keyPressed(keyCode, scanCode, modifiers);
