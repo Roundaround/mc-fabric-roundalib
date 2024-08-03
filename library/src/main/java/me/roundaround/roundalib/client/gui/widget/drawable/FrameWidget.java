@@ -4,7 +4,7 @@ import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.util.IntRect;
 import me.roundaround.roundalib.client.gui.util.Spacing;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.gui.widget.LayoutWidget;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.screen.slot.Slot;
@@ -12,13 +12,14 @@ import net.minecraft.util.Identifier;
 
 import java.util.function.Consumer;
 
-public class FrameWidget extends DrawableWidget {
+public class FrameWidget extends DrawableWidget implements LayoutWidget {
   public static final int DEFAULT_OVERFLOW = 2;
 
   private static final Identifier TEXTURE = new Identifier("hud/hotbar_selection");
-  private static final int SLOT_SIZE = 16;
   private static final Spacing NINE_SLIDE_BORDER = Spacing.of(4, 4, 3, 4);
 
+  private Slot refSlot = null;
+  private Widget refWidget = null;
   private int overflow;
 
   public FrameWidget() {
@@ -42,7 +43,17 @@ public class FrameWidget extends DrawableWidget {
   }
 
   public FrameWidget(Slot slot, int overflow) {
-    this(IntRect.byBounds(slot.x, slot.y, SLOT_SIZE, SLOT_SIZE), overflow);
+    this(IntRect.fromSlot(slot), overflow);
+    this.refSlot = slot;
+  }
+
+  public FrameWidget(Widget widget) {
+    this(widget, DEFAULT_OVERFLOW);
+  }
+
+  public FrameWidget(Widget widget, int overflow) {
+    this(IntRect.fromWidget(widget), overflow);
+    this.refWidget = widget;
   }
 
   public FrameWidget(IntRect targetBounds) {
@@ -78,20 +89,42 @@ public class FrameWidget extends DrawableWidget {
   }
 
   @Override
-  public void forEachChild(Consumer<ClickableWidget> consumer) {
+  public void forEachElement(Consumer<Widget> consumer) {
+  }
+
+  @Override
+  public void refreshPositions() {
+    if (this.refSlot != null) {
+      this.setBounds(IntRect.fromSlot(this.refSlot));
+    } else if (this.refWidget != null) {
+      this.setBounds(IntRect.fromWidget(this.refWidget));
+    }
   }
 
   public void setOverflow(int overflow) {
     this.overflow = overflow;
   }
 
-  public void frame(IntRect targetBounds) {
-    this.setPosition(targetBounds.left(), targetBounds.top());
-    this.setDimensions(targetBounds.getWidth(), targetBounds.getHeight());
+  public void frame(Slot slot) {
+    this.refSlot = slot;
+    this.refWidget = null;
+    this.setBounds(IntRect.fromSlot(slot));
   }
 
   public void frame(Widget widget) {
-    this.setPosition(widget.getX(), widget.getY());
-    this.setDimensions(widget.getWidth(), widget.getHeight());
+    this.refWidget = widget;
+    this.refSlot = null;
+    this.setBounds(IntRect.fromWidget(this.refWidget));
+  }
+
+  public void frame(IntRect targetBounds) {
+    this.refSlot = null;
+    this.refWidget = null;
+    this.setBounds(targetBounds);
+  }
+
+  private void setBounds(IntRect targetBounds) {
+    this.setPosition(targetBounds.left(), targetBounds.top());
+    this.setDimensions(targetBounds.getWidth(), targetBounds.getHeight());
   }
 }

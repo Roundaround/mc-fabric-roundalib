@@ -70,6 +70,12 @@ public class DemoSelectScreen extends Screen implements DemoScreen {
       this.navigate(new FrameWidgetDemoScreen(this));
     }, index, left, top, width
     ));
+    list.addEntry((index, left, top, width) -> new DemoSelectListWidget.Entry(this.textRenderer,
+        Text.translatable("testmod.horizontallinewidgetdemoscreen.title"), () -> {
+      GuiUtil.playClickSound();
+      this.navigate(new HorizontalLineWidgetDemoScreen(this));
+    }, index, left, top, width
+    ));
 
     for (int i = 0; i < 15; i++) {
       int num = i + 1;

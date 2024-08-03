@@ -2,9 +2,12 @@ package me.roundaround.roundalib.client.gui.util;
 
 import net.minecraft.client.gui.ScreenRect;
 import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.screen.slot.Slot;
 
 @SuppressWarnings("unused")
 public record IntRect(Integer left, Integer top, Integer right, Integer bottom) implements FourSided<Integer> {
+  private static final int SLOT_SIZE = 16;
+
   public static IntRect zero() {
     return byBounds(0, 0, 0, 0);
   }
@@ -15,6 +18,10 @@ public record IntRect(Integer left, Integer top, Integer right, Integer bottom) 
 
   public static IntRect byDimensions(int left, int top, int width, int height) {
     return new IntRect(left, top, left + width, top + height);
+  }
+
+  public static IntRect fromSlot(Slot slot) {
+    return IntRect.byBounds(slot.x, slot.y, SLOT_SIZE, SLOT_SIZE);
   }
 
   public static IntRect fromWidget(Widget widget) {

@@ -7,8 +7,6 @@ import net.minecraft.util.Identifier;
 
 public class HorizontalLineWidget extends DrawableWidget {
   private static final int HEIGHT = 2;
-  private static final Identifier TEXTURE_TOP = Screen.HEADER_SEPARATOR_TEXTURE;
-  private static final Identifier TEXTURE_BOTTOM = Screen.FOOTER_SEPARATOR_TEXTURE;
 
   private final Identifier texture;
 
@@ -26,12 +24,25 @@ public class HorizontalLineWidget extends DrawableWidget {
 
   public HorizontalLineWidget(int x, int y, int width, boolean bottom) {
     super(x, y, width, HEIGHT);
-    this.texture = bottom ? TEXTURE_BOTTOM : TEXTURE_TOP;
+    this.texture = bottom ? Screen.FOOTER_SEPARATOR_TEXTURE : Screen.HEADER_SEPARATOR_TEXTURE;
+  }
+
+  public static HorizontalLineWidget ofWidth(int width) {
+    return new HorizontalLineWidget(width);
+  }
+
+  public static HorizontalLineWidget ofWidth(int width, boolean bottom) {
+    return new HorizontalLineWidget(width, bottom);
+  }
+
+  public static HorizontalLineWidget ofWidthBottom(int width) {
+    return new HorizontalLineWidget(width, true);
   }
 
   @Override
   public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    RenderSystem.enableBlend();
     RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-    context.drawGuiTexture(this.texture, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+    context.drawTexture(this.texture, this.getX(), this.getY(), 0, 0, this.getWidth(), this.getHeight(), 32, HEIGHT);
   }
 }

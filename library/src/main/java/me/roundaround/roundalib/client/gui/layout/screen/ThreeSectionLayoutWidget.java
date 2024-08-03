@@ -2,6 +2,7 @@ package me.roundaround.roundalib.client.gui.layout.screen;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.LayoutHookWithParent;
+import me.roundaround.roundalib.client.gui.layout.NonPositioningLayoutWidget;
 import me.roundaround.roundalib.client.gui.layout.SizableLayoutWidget;
 import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutCellConfigurator;
 import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
@@ -20,6 +21,7 @@ public class ThreeSectionLayoutWidget extends SizableLayoutWidget {
   private final LinearLayoutWidget header;
   private final LinearLayoutWidget body;
   private final LinearLayoutWidget footer;
+  private final NonPositioningLayoutWidget nonPositioned;
 
   private int headerHeight;
   private int footerHeight;
@@ -52,13 +54,11 @@ public class ThreeSectionLayoutWidget extends SizableLayoutWidget {
         .mainAxisContentAlignCenter()
         .defaultOffAxisContentAlignCenter()
         .spacing(GuiUtil.PADDING);
-    this.footer = LinearLayoutWidget.horizontal(0,
-            this.height - this.footerHeight,
-            this.width,
-            this.footerHeight)
+    this.footer = LinearLayoutWidget.horizontal(0, this.height - this.footerHeight, this.width, this.footerHeight)
         .mainAxisContentAlignCenter()
         .defaultOffAxisContentAlignCenter()
         .spacing(2 * GuiUtil.PADDING);
+    this.nonPositioned = new NonPositioningLayoutWidget();
   }
 
   @Override
@@ -66,6 +66,7 @@ public class ThreeSectionLayoutWidget extends SizableLayoutWidget {
     this.header.forEachElement(consumer);
     this.body.forEachElement(consumer);
     this.footer.forEachElement(consumer);
+    this.nonPositioned.forEachElement(consumer);
   }
 
   @Override
@@ -75,10 +76,7 @@ public class ThreeSectionLayoutWidget extends SizableLayoutWidget {
 
     this.header.setPositionAndDimensions(0, 0, this.width, this.headerHeight);
     this.body.setPositionAndDimensions(0, this.headerHeight, this.width, this.bodyHeight);
-    this.footer.setPositionAndDimensions(0,
-        this.height - this.footerHeight,
-        this.width,
-        this.footerHeight);
+    this.footer.setPositionAndDimensions(0, this.height - this.footerHeight, this.width, this.footerHeight);
 
     if (this.headerLayoutHook != null) {
       this.headerLayoutHook.run(this, this.header);
@@ -93,6 +91,7 @@ public class ThreeSectionLayoutWidget extends SizableLayoutWidget {
     this.header.refreshPositions();
     this.body.refreshPositions();
     this.footer.refreshPositions();
+    this.nonPositioned.refreshPositions();
   }
 
   public int getHeaderHeight() {
@@ -149,12 +148,14 @@ public class ThreeSectionLayoutWidget extends SizableLayoutWidget {
   }
 
   public <T extends Widget> T addHeader(
-      T widget, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook) {
+      T widget, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook
+  ) {
     return this.header.add(widget, layoutHook);
   }
 
   public <T extends Widget> T addHeader(
-      T widget, Consumer<LinearLayoutCellConfigurator<T>> configure) {
+      T widget, Consumer<LinearLayoutCellConfigurator<T>> configure
+  ) {
     return this.header.add(widget, configure);
   }
 
@@ -163,12 +164,14 @@ public class ThreeSectionLayoutWidget extends SizableLayoutWidget {
   }
 
   public <T extends Widget> T addBody(
-      T widget, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook) {
+      T widget, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook
+  ) {
     return this.body.add(widget, layoutHook);
   }
 
   public <T extends Widget> T addBody(
-      T widget, Consumer<LinearLayoutCellConfigurator<T>> configure) {
+      T widget, Consumer<LinearLayoutCellConfigurator<T>> configure
+  ) {
     return this.body.add(widget, configure);
   }
 
@@ -177,13 +180,23 @@ public class ThreeSectionLayoutWidget extends SizableLayoutWidget {
   }
 
   public <T extends Widget> T addFooter(
-      T widget, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook) {
+      T widget, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook
+  ) {
     return this.footer.add(widget, layoutHook);
   }
 
   public <T extends Widget> T addFooter(
-      T widget, Consumer<LinearLayoutCellConfigurator<T>> configure) {
+      T widget, Consumer<LinearLayoutCellConfigurator<T>> configure
+  ) {
     return this.footer.add(widget, configure);
+  }
+
+  public <T extends Widget> T addNonPositioned(T widget) {
+    return this.nonPositioned.add(widget);
+  }
+
+  public <T extends Widget> T addNonPositioned(T widget, LayoutHookWithParent<NonPositioningLayoutWidget, T> layoutHook) {
+    return this.nonPositioned.add(widget, layoutHook);
   }
 
   public void setHeaderLayoutHook(LayoutHookWithParent<ThreeSectionLayoutWidget, LinearLayoutWidget> layoutHook) {
