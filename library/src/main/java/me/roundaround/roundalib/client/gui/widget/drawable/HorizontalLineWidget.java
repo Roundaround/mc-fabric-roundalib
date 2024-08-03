@@ -10,6 +10,9 @@ public class HorizontalLineWidget extends DrawableWidget {
 
   private final Identifier texture;
 
+  private int marginTop;
+  private int marginBottom;
+
   public HorizontalLineWidget() {
     this(0);
   }
@@ -40,9 +43,31 @@ public class HorizontalLineWidget extends DrawableWidget {
   }
 
   @Override
+  public int getHeight() {
+    return this.height + this.marginTop + this.marginBottom;
+  }
+
+  public HorizontalLineWidget margin(int marginTop, int marginBottom) {
+    this.marginTop = marginTop;
+    this.marginBottom = marginBottom;
+    return this;
+  }
+
+  public HorizontalLineWidget marginTop(int marginTop) {
+    this.marginTop = marginTop;
+    return this;
+  }
+
+  public HorizontalLineWidget marginBottom(int marginBottom) {
+    this.marginBottom = marginBottom;
+    return this;
+  }
+
+  @Override
   public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
     RenderSystem.enableBlend();
     RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-    context.drawTexture(this.texture, this.getX(), this.getY(), 0, 0, this.getWidth(), this.getHeight(), 32, HEIGHT);
+    context.drawTexture(
+        this.texture, this.getX(), this.getY() + this.marginTop, 0, 0, this.width, this.height, 32, HEIGHT);
   }
 }
