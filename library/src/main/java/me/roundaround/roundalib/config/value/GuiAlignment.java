@@ -4,7 +4,7 @@ import me.roundaround.roundalib.client.gui.GuiUtil;
 
 import java.util.Arrays;
 
-public enum GuiAlignment implements ListOptionValue<GuiAlignment> {
+public enum GuiAlignment implements EnumValue<GuiAlignment> {
   TOP_LEFT(AlignmentY.TOP, AlignmentX.LEFT),
   TOP_RIGHT(AlignmentY.TOP, AlignmentX.RIGHT),
   BOTTOM_LEFT(AlignmentY.BOTTOM, AlignmentX.LEFT),

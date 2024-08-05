@@ -4,7 +4,7 @@ import me.roundaround.roundalib.client.gui.GuiUtil;
 
 import java.util.Arrays;
 
-public enum GuiAlignmentWithCenter implements ListOptionValue<GuiAlignmentWithCenter> {
+public enum GuiAlignmentWithCenter implements EnumValue<GuiAlignmentWithCenter> {
   TOP_LEFT(AlignmentY.TOP, AlignmentX.LEFT), TOP_CENTER(AlignmentY.TOP, AlignmentX.CENTER), TOP_RIGHT(
       AlignmentY.TOP, AlignmentX.RIGHT), MIDDLE_LEFT(AlignmentY.MIDDLE, AlignmentX.LEFT), MIDDLE_CENTER(
       AlignmentY.MIDDLE, AlignmentX.CENTER), MIDDLE_RIGHT(AlignmentY.MIDDLE, AlignmentX.RIGHT), BOTTOM_LEFT(

@@ -3,7 +3,7 @@ package me.roundaround.roundalib.config.value;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Text;
 
-public interface ListOptionValue<T extends ListOptionValue<T>> {
+public interface EnumValue<T extends EnumValue<T>> {
   String getId();
 
   String getI18nKey(String modId);

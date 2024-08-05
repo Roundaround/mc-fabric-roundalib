@@ -2,7 +2,7 @@ package me.roundaround.roundalib.config.value;
 
 import java.util.Arrays;
 
-public enum Difficulty implements ListOptionValue<Difficulty> {
+public enum Difficulty implements EnumValue<Difficulty> {
   PEACEFUL(net.minecraft.world.Difficulty.PEACEFUL), EASY(net.minecraft.world.Difficulty.EASY), NORMAL(
       net.minecraft.world.Difficulty.NORMAL), HARD(net.minecraft.world.Difficulty.HARD);
 

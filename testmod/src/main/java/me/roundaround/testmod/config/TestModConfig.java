@@ -24,7 +24,7 @@ public class TestModConfig extends ModConfigImpl implements GameScopedFileStore 
 
   public BooleanConfigOption first;
   public BooleanConfigOption second;
-  public OptionListConfigOption<Difficulty> third;
+  public EnumConfigOption<Difficulty> third;
   public StringConfigOption fourth;
   public IntConfigOption fifth;
   public IntConfigOption sixth;
@@ -50,7 +50,7 @@ public class TestModConfig extends ModConfigImpl implements GameScopedFileStore 
         .onUpdate((option) -> option.setDisabled(!this.first.getPendingValue()))
         .build());
 
-    this.third = this.register(OptionListConfigOption.builder(ConfigPath.of("group0", "testOption2"),
+    this.third = this.register(EnumConfigOption.builder(ConfigPath.of("group0", "testOption2"),
             Arrays.stream(Difficulty.values()).toList()
         )
         .setDefaultValue(Difficulty.getDefault())

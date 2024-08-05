@@ -46,11 +46,11 @@ public class ControlRegistry {
     byClazz.put(clazz, factory);
   }
 
-  public static <S extends ListOptionValue<S>> void registerOptionList(Class<S> clazz) throws RegistrationException {
-    registerOptionList(clazz, OptionListControl::new);
+  public static <S extends EnumValue<S>> void registerOptionList(Class<S> clazz) throws RegistrationException {
+    registerOptionList(clazz, EnumCycleControl::new);
   }
 
-  public static <S extends ListOptionValue<S>, T extends OptionListConfigOption<S>> void registerOptionList(
+  public static <S extends EnumValue<S>, T extends EnumConfigOption<S>> void registerOptionList(
       Class<S> clazz, Control.ControlFactory<S, T> factory
   ) throws RegistrationException {
     if (byOptionListClazz.containsKey(clazz)) {
@@ -81,7 +81,7 @@ public class ControlRegistry {
       return (Control.ControlFactory<D, T>) byClazz.get(clazz);
     }
 
-    if (clazz.equals(OptionListConfigOption.class)) {
+    if (clazz.equals(EnumConfigOption.class)) {
       Class<?> subClazz = configOption.getValue().getClass();
       if (byOptionListClazz.containsKey(subClazz)) {
         return (Control.ControlFactory<D, T>) byOptionListClazz.get(subClazz);

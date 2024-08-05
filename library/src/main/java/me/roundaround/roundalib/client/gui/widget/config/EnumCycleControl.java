@@ -1,16 +1,16 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
-import me.roundaround.roundalib.config.option.OptionListConfigOption;
-import me.roundaround.roundalib.config.value.ListOptionValue;
+import me.roundaround.roundalib.config.option.EnumConfigOption;
+import me.roundaround.roundalib.config.value.EnumValue;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.text.Text;
 
-public class OptionListControl<S extends ListOptionValue<S>> extends Control<S, OptionListConfigOption<S>> {
+public class EnumCycleControl<S extends EnumValue<S>> extends Control<S, EnumConfigOption<S>> {
   private final CyclingButtonWidget<S> button;
 
-  public OptionListControl(
-      MinecraftClient client, OptionListConfigOption<S> option, int width, int height
+  public EnumCycleControl(
+      MinecraftClient client, EnumConfigOption<S> option, int width, int height
   ) {
     super(client, option, width, height);
 

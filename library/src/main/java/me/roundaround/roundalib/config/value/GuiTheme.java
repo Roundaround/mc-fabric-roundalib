@@ -2,7 +2,7 @@ package me.roundaround.roundalib.config.value;
 
 import java.util.Arrays;
 
-public enum GuiTheme implements ListOptionValue<GuiTheme> {
+public enum GuiTheme implements EnumValue<GuiTheme> {
   LIGHT("light"), DARK("dark"), AUTO("auto");
 
   private final String id;

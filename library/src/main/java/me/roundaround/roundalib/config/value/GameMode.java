@@ -2,7 +2,7 @@ package me.roundaround.roundalib.config.value;
 
 import java.util.Arrays;
 
-public enum GameMode implements ListOptionValue<GameMode> {
+public enum GameMode implements EnumValue<GameMode> {
   SURVIVAL(net.minecraft.world.GameMode.SURVIVAL), CREATIVE(net.minecraft.world.GameMode.CREATIVE), ADVENTURE(
       net.minecraft.world.GameMode.ADVENTURE), SPECTATOR(net.minecraft.world.GameMode.SPECTATOR);
 
