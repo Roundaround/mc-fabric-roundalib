@@ -4,7 +4,10 @@ import me.roundaround.roundalib.config.ConfigPath;
 import me.roundaround.roundalib.config.manage.ModConfigImpl;
 import me.roundaround.roundalib.config.manage.store.WorldScopedFileStore;
 import me.roundaround.roundalib.config.option.BooleanConfigOption;
+import me.roundaround.roundalib.config.option.ListConfigOption;
 import me.roundaround.testmod.TestMod;
+
+import java.util.List;
 
 public class PerWorldTestModConfig extends ModConfigImpl implements WorldScopedFileStore {
   private static PerWorldTestModConfig instance = null;
@@ -22,6 +25,7 @@ public class PerWorldTestModConfig extends ModConfigImpl implements WorldScopedF
   public BooleanConfigOption fourth;
   public BooleanConfigOption fifth;
   public BooleanConfigOption sixth;
+  public ListConfigOption<String> list;
 
   private PerWorldTestModConfig() {
     super(TestMod.MOD_ID, "pw");
@@ -52,9 +56,9 @@ public class PerWorldTestModConfig extends ModConfigImpl implements WorldScopedF
         .onUpdate((option) -> option.setDisabled(!this.first.getPendingValue()))
         .build()).serverOnly().commit();
 
-    this.sixth = this.buildRegistration(BooleanConfigOption.builder(ConfigPath.of("pwTestOption5"))
-        .setDefaultValue(true)
-        .onUpdate((option) -> option.setDisabled(!this.first.getPendingValue()))
-        .build()).noGuiControl().commit();
+    this.list = this.buildRegistration(
+            ListConfigOption.<String>builder(ConfigPath.of("pwTestListOption")).setDefaultValue(List.of("A")).build())
+        .noGuiControl()
+        .commit();
   }
 }

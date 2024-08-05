@@ -9,6 +9,10 @@ public class ListConfigOption<T> extends ConfigOption<List<T>> {
     super(builder);
   }
 
+  public static <T> Builder<T> builder(ConfigPath path) {
+    return new Builder<>(path);
+  }
+
   public static class Builder<T> extends ConfigOption.AbstractBuilder<List<T>, ListConfigOption<T>, Builder<T>> {
     private Builder(ConfigPath path) {
       super(path);
