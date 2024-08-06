@@ -2,10 +2,7 @@ package me.roundaround.roundalib.config.option;
 
 import me.roundaround.roundalib.config.ConfigPath;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class StringListConfigOption extends ConfigOption<List<String>> {
   protected StringListConfigOption(Builder builder) {
@@ -53,6 +50,18 @@ public class StringListConfigOption extends ConfigOption<List<String>> {
       }
     }
     return true;
+  }
+
+  public void add(String entry) {
+    List<String> copy = new ArrayList<>(super.getValue());
+    copy.add(entry);
+    this.setValue(copy);
+  }
+
+  public void remove(String entry) {
+    List<String> copy = new ArrayList<>(super.getValue());
+    copy.remove(entry);
+    this.setValue(copy);
   }
 
   public static Builder builder(ConfigPath path) {
