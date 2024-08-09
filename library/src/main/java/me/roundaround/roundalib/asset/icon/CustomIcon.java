@@ -13,7 +13,7 @@ public class CustomIcon implements Icon {
 
   @Override
   public Identifier getTexture(String modId) {
-    return new Identifier(modId, "icon/" + this.name);
+    return Identifier.of(modId, "icon/" + this.name);
   }
 
   @Override

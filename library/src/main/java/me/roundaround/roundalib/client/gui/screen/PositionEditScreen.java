@@ -76,7 +76,7 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
     this.addDrawable((context, mouseX, mouseY, delta) -> {
       RenderSystem.enableBlend();
       context.drawGuiTexture(
-          new Identifier(this.modId, "hud/roundalib/crosshair-9"),
+          Identifier.of(this.modId, "hud/roundalib/crosshair-9"),
           this.mover.getX() + (this.mover.getWidth() - CROSSHAIR_SIZE) / 2,
           this.mover.getY() + (this.mover.getHeight() - CROSSHAIR_SIZE) / 2, CROSSHAIR_SIZE, CROSSHAIR_SIZE
       );

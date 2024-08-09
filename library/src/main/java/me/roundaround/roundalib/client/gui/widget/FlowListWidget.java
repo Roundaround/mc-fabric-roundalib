@@ -2,9 +2,9 @@ package me.roundaround.roundalib.client.gui.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.util.Spacing;
 import me.roundaround.roundalib.client.gui.layout.LayoutHook;
 import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
+import me.roundaround.roundalib.client.gui.util.Spacing;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -719,26 +719,24 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
       RenderSystem.defaultBlendFunc();
       RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 
-      Tessellator tessellator = Tessellator.getInstance();
-      BufferBuilder bufferBuilder = tessellator.getBuffer();
       Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
+      BufferBuilder bufferBuilder = Tessellator.getInstance()
+          .begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+      bufferBuilder.vertex(matrix4f, left + fadeWidth, top, 0).color(0, 0, 0, shadeStrength);
+      bufferBuilder.vertex(matrix4f, left, top, 0).color(0, 0, 0, 0);
+      bufferBuilder.vertex(matrix4f, left, bottom, 0).color(0, 0, 0, 0);
+      bufferBuilder.vertex(matrix4f, left + fadeWidth, bottom, 0).color(0, 0, 0, shadeStrength);
 
-      bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-      bufferBuilder.vertex(matrix4f, left + fadeWidth, top, 0).color(0, 0, 0, shadeStrength).next();
-      bufferBuilder.vertex(matrix4f, left, top, 0).color(0, 0, 0, 0).next();
-      bufferBuilder.vertex(matrix4f, left, bottom, 0).color(0, 0, 0, 0).next();
-      bufferBuilder.vertex(matrix4f, left + fadeWidth, bottom, 0).color(0, 0, 0, shadeStrength).next();
+      bufferBuilder.vertex(matrix4f, right - fadeWidth, top, 0).color(0, 0, 0, shadeStrength);
+      bufferBuilder.vertex(matrix4f, left + fadeWidth, top, 0).color(0, 0, 0, shadeStrength);
+      bufferBuilder.vertex(matrix4f, left + fadeWidth, bottom, 0).color(0, 0, 0, shadeStrength);
+      bufferBuilder.vertex(matrix4f, right - fadeWidth, bottom, 0).color(0, 0, 0, shadeStrength);
 
-      bufferBuilder.vertex(matrix4f, right - fadeWidth, top, 0).color(0, 0, 0, shadeStrength).next();
-      bufferBuilder.vertex(matrix4f, left + fadeWidth, top, 0).color(0, 0, 0, shadeStrength).next();
-      bufferBuilder.vertex(matrix4f, left + fadeWidth, bottom, 0).color(0, 0, 0, shadeStrength).next();
-      bufferBuilder.vertex(matrix4f, right - fadeWidth, bottom, 0).color(0, 0, 0, shadeStrength).next();
-
-      bufferBuilder.vertex(matrix4f, right, top, 0).color(0, 0, 0, 0).next();
-      bufferBuilder.vertex(matrix4f, right - fadeWidth, top, 0).color(0, 0, 0, shadeStrength).next();
-      bufferBuilder.vertex(matrix4f, right - fadeWidth, bottom, 0).color(0, 0, 0, shadeStrength).next();
-      bufferBuilder.vertex(matrix4f, right, bottom, 0).color(0, 0, 0, 0).next();
-      tessellator.draw();
+      bufferBuilder.vertex(matrix4f, right, top, 0).color(0, 0, 0, 0);
+      bufferBuilder.vertex(matrix4f, right - fadeWidth, top, 0).color(0, 0, 0, shadeStrength);
+      bufferBuilder.vertex(matrix4f, right - fadeWidth, bottom, 0).color(0, 0, 0, shadeStrength);
+      bufferBuilder.vertex(matrix4f, right, bottom, 0).color(0, 0, 0, 0);
+      BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
 
       RenderSystem.disableBlend();
     }
@@ -964,12 +962,12 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
   @Environment(EnvType.CLIENT)
   protected final static class Textures {
-    static final Identifier SCROLLBAR_BG = new Identifier("widget/scroller_background");
-    static final Identifier SCROLLBAR = new Identifier("widget/scroller");
-    static final Identifier LIST_BG = new Identifier("textures/gui/menu_list_background.png");
+    static final Identifier SCROLLBAR_BG = Identifier.ofVanilla("widget/scroller_background");
+    static final Identifier SCROLLBAR = Identifier.ofVanilla("widget/scroller");
+    static final Identifier LIST_BG = Identifier.ofVanilla("textures/gui/menu_list_background.png");
     static final Identifier BORDER_TOP = Screen.HEADER_SEPARATOR_TEXTURE;
     static final Identifier BORDER_BOTTOM = Screen.FOOTER_SEPARATOR_TEXTURE;
-    static final Identifier IN_WORLD_LIST_BG = new Identifier("textures/gui/inworld_menu_list_background.png");
+    static final Identifier IN_WORLD_LIST_BG = Identifier.ofVanilla("textures/gui/inworld_menu_list_background.png");
     static final Identifier IN_WORLD_BORDER_TOP = Screen.INWORLD_HEADER_SEPARATOR_TEXTURE;
     static final Identifier IN_WORLD_BORDER_BOTTOM = Screen.INWORLD_FOOTER_SEPARATOR_TEXTURE;
 

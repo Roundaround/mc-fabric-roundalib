@@ -66,7 +66,7 @@ public enum BuiltinIcon implements Icon {
 
   @Override
   public Identifier getTexture(String modId) {
-    return new Identifier(modId, String.format("icon/roundalib/%s-%s", this.name, this.size));
+    return Identifier.of(modId, String.format("icon/roundalib/%s-%s", this.name, this.size));
   }
 
   @Override

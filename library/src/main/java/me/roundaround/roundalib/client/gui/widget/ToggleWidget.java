@@ -28,9 +28,9 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
   public static final int DEFAULT_CONTROL_HEIGHT = 12;
   public static final int DEFAULT_BAR_WIDTH = 10;
 
-  private static final Identifier TEXTURE = new Identifier("widget/slider");
-  private static final Identifier HANDLE_TEXTURE = new Identifier("widget/slider_handle");
-  private static final Identifier HANDLE_HIGHLIGHTED_TEXTURE = new Identifier("widget/slider_handle_highlighted");
+  private static final Identifier TEXTURE = Identifier.ofVanilla("widget/slider");
+  private static final Identifier HANDLE_TEXTURE = Identifier.ofVanilla("widget/slider_handle");
+  private static final Identifier HANDLE_HIGHLIGHTED_TEXTURE = Identifier.ofVanilla("widget/slider_handle_highlighted");
 
   private final Consumer<ToggleWidget> pressAction;
   private final TextRenderer textRenderer;
