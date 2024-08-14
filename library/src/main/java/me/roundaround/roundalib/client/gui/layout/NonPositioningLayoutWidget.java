@@ -1,9 +1,6 @@
 package me.roundaround.roundalib.client.gui.layout;
 
 import me.roundaround.roundalib.client.gui.util.Alignment;
-import me.roundaround.roundalib.client.gui.util.Coords;
-import me.roundaround.roundalib.client.gui.util.Dimensions;
-import me.roundaround.roundalib.client.gui.util.IntRect;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.widget.ClickableWidget;
@@ -117,18 +114,6 @@ public class NonPositioningLayoutWidget extends SizableLayoutWidget {
   @Override
   public int getY() {
     return this.alignSelfY.getPos(super.getY(), this.getHeight());
-  }
-
-  public IntRect getBounds() {
-    return IntRect.byDimensions(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-  }
-
-  public Coords getPosition() {
-    return Coords.of(this.getX(), this.getY());
-  }
-
-  public Dimensions getDimensions() {
-    return Dimensions.of(this.getWidth(), this.getHeight());
   }
 
   @Environment(EnvType.CLIENT)

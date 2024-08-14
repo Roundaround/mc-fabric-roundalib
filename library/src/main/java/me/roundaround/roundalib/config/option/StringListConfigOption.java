@@ -23,12 +23,6 @@ public class StringListConfigOption extends ConfigOption<List<String>> {
   }
 
   @Override
-  public List<String> getValue() {
-    // Only ever give the current value as an immutable view of the actual data
-    return Collections.unmodifiableList(super.getValue());
-  }
-
-  @Override
   protected boolean areValuesEqual(List<String> a, List<String> b) {
     if ((a == null) != (b == null)) {
       return false;

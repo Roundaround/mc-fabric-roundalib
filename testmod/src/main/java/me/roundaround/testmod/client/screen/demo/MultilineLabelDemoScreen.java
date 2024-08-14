@@ -3,14 +3,12 @@ package me.roundaround.testmod.client.screen.demo;
 import me.roundaround.roundalib.asset.icon.BuiltinIcon;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.FillerWidget;
-import me.roundaround.roundalib.client.gui.layout.WrapperLayoutWidget;
 import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
 import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.roundalib.client.gui.util.Alignment;
 import me.roundaround.roundalib.client.gui.util.Axis;
-import me.roundaround.roundalib.client.gui.util.IntRect;
-import me.roundaround.roundalib.client.gui.widget.drawable.CrosshairWidget;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
+import me.roundaround.roundalib.client.gui.widget.drawable.CrosshairWidget;
 import me.roundaround.roundalib.client.gui.widget.drawable.LabelWidget;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
@@ -31,8 +29,8 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
   private static final Text TITLE_TEXT = Text.translatable("testmod.multilinelabeldemoscreen.title");
 
   private final Screen parent;
-  private final ThreeSectionLayoutWidget layout = new ThreeSectionLayoutWidget(this);
 
+  private ThreeSectionLayoutWidget layout;
   private LabelWidget label;
   private Size size = Size.AUTO;
   private IconButtonWidget linesMinusButton;
@@ -41,7 +39,6 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
   private IconButtonWidget spacingMinusButton;
   private IconButtonWidget spacingPlusButton;
   private int spacing = 1;
-  private CrosshairWidget crosshair;
 
   public MultilineLabelDemoScreen(Screen parent) {
     super(TITLE_TEXT);
@@ -50,6 +47,8 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
 
   @Override
   protected void init() {
+    this.layout = new ThreeSectionLayoutWidget(this);
+
     this.layout.addHeader(this.textRenderer, this.getTitle());
 
     LinearLayoutWidget firstRow = LinearLayoutWidget.horizontal()
@@ -112,32 +111,29 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
 
     this.layout.setHeaderHeight(this.layout.getHeader().getContentHeight() + 2 * GuiUtil.PADDING);
 
-    this.crosshair = this.addDrawable(new CrosshairWidget(this.layout.getBody().getBounds()));
-    this.layout.setBodyLayoutHook((parent, self) -> {
-      this.crosshair.centerOn(this.layout.getBody().getBounds());
-    });
+    CrosshairWidget crosshairWidget = this.layout.addBody(new CrosshairWidget());
 
-    this.label = LabelWidget.builder(this.textRenderer, this.generateLines())
+    this.label = this.layout.addNonPositioned(LabelWidget.builder(this.textRenderer, this.generateLines())
         .alignSelfLeft()
         .alignSelfTop()
         .alignTextLeft()
         .alignTextTop()
         .lineSpacing(this.spacing)
-        .position(this.crosshair.getX() + 1, this.crosshair.getY() + 1)
-        .build();
-    this.layout.addBody(new WrapperLayoutWidget<>(this.label, (parent, self) -> {
+        .build(), (parent, self) -> {
       if (this.size == Size.FULL) {
         self.setPosition(this.layout.getBody().getX(), this.layout.getBody().getY());
       } else {
-        self.setPosition(this.crosshair.getX() + 1, this.crosshair.getY() + 1);
+        self.setPosition(
+            crosshairWidget.getX() + crosshairWidget.getWidth() / 2,
+            crosshairWidget.getY() + crosshairWidget.getHeight() / 2
+        );
       }
-    }));
+    });
 
     this.layout.addFooter(ButtonWidget.builder(ScreenTexts.DONE, (button) -> this.close()).build());
 
     this.addDrawable(((context, mouseX, mouseY, delta) -> {
-      IntRect bounds = this.label.getWidgetBounds();
-      GuiUtil.fill(context, bounds, GuiUtil.genColorInt(0, 0.4f, 0.9f, 0.3f));
+      GuiUtil.fill(context, this.label.getWidgetBounds(), GuiUtil.genColorInt(0, 0.4f, 0.9f, 0.3f));
     }));
 
     this.layout.forEachChild(this::addDrawableChild);

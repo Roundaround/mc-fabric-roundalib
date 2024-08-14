@@ -2,8 +2,8 @@ package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.asset.icon.BuiltinIcon;
 import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
+import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.config.option.IntConfigOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -61,8 +61,6 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
       this.plusButton = null;
       this.minusButton = null;
     }
-
-    this.update();
   }
 
   @Override
@@ -78,21 +76,20 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
   }
 
   @Override
-  protected void update() {
+  protected void update(Integer value, boolean isDisabled) {
     IntConfigOption option = this.getOption();
-    boolean disabled = option.isDisabled();
 
-    this.textField.active = !disabled;
-    this.textField.setEditable(!disabled);
+    this.textField.active = !isDisabled;
+    this.textField.setEditable(!isDisabled);
 
-    String value = option.getPendingValueAsString();
-    if (!value.equals(this.textField.getText())) {
-      this.textField.setText(value);
+    String strValue = option.getValueAsString(value);
+    if (!strValue.equals(this.textField.getText())) {
+      this.textField.setText(strValue);
     }
 
     if (option.showStepButtons()) {
-      this.plusButton.active = !disabled && option.canIncrement();
-      this.minusButton.active = !disabled && option.canDecrement();
+      this.plusButton.active = !isDisabled && option.canIncrement();
+      this.minusButton.active = !isDisabled && option.canDecrement();
     }
   }
 

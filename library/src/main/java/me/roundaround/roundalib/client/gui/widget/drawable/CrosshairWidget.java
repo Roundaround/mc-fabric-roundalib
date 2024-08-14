@@ -4,10 +4,7 @@ import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.util.Coords;
 import me.roundaround.roundalib.client.gui.util.IntRect;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.util.math.MathHelper;
-
-import java.util.function.Consumer;
 
 public class CrosshairWidget extends DrawableWidget {
   private static final int DEFAULT_THICKNESS = 2;
@@ -20,11 +17,13 @@ public class CrosshairWidget extends DrawableWidget {
   private int length;
   private int color;
 
+  public CrosshairWidget() {
+    this(0, 0);
+  }
+
   public CrosshairWidget(IntRect bounds) {
     this(0, 0);
-
-    Coords centerCoords = getCenterCoords(bounds, DEFAULT_THICKNESS);
-    this.setPosition(centerCoords.x(), centerCoords.y());
+    this.centerOn(bounds);
   }
 
   public CrosshairWidget(int x, int y) {
@@ -33,26 +32,31 @@ public class CrosshairWidget extends DrawableWidget {
 
   public CrosshairWidget(IntRect bounds, int thickness, int gap, int length, int color) {
     this(0, 0, thickness, gap, length, color);
+    this.centerOn(bounds);
+  }
 
-    Coords centerCoords = getCenterCoords(bounds, thickness);
-    this.setPosition(centerCoords.x(), centerCoords.y());
+  public CrosshairWidget(int thickness, int gap, int length, int color) {
+    this(0, 0, thickness, gap, length, color);
   }
 
   public CrosshairWidget(int x, int y, int thickness, int gap, int length, int color) {
-    super(x, y, thickness, thickness);
+    super(x, y, 0, 0);
 
-    this.setThickness(thickness);
-    this.setGap(gap);
-    this.setLength(length);
-    this.setColor(color);
+    this.thickness = Math.max(1, thickness);
+    this.gap = Math.max(0, gap);
+    this.length = Math.max(0, length);
+    this.color = color;
+
+    int size = getSize(this.thickness, this.gap, this.length);
+    this.setDimensions(size, size);
   }
 
   @Override
   public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-    int left = this.getX();
-    int top = this.getY();
-    int right = this.getRight();
-    int bottom = this.getBottom();
+    int left = this.getX() + this.length + this.gap;
+    int top = this.getY() + this.length + this.gap;
+    int right = this.getRight() - this.length - this.gap;
+    int bottom = this.getBottom() - this.length - this.gap;
 
     // Left
     context.fill(left - this.gap - this.length, top, left - this.gap, bottom, this.color);
@@ -67,38 +71,40 @@ public class CrosshairWidget extends DrawableWidget {
   }
 
   public void centerOn(IntRect bounds) {
-    Coords centerCoords = getCenterCoords(bounds, this.thickness);
+    Coords centerCoords = getCenterCoords(bounds, this.thickness, this.gap, this.length);
     this.setPosition(centerCoords.x(), centerCoords.y());
-  }
-
-  @Override
-  public void forEachChild(Consumer<ClickableWidget> consumer) {
   }
 
   public void setThickness(int thickness) {
     this.thickness = Math.max(1, thickness);
-    this.setDimensions(this.thickness, this.thickness);
+    int size = getSize(this.thickness, this.gap, this.length);
+    this.setDimensions(size, size);
   }
 
   public void setGap(int gap) {
     this.gap = Math.max(0, gap);
+    int size = getSize(this.thickness, this.gap, this.length);
+    this.setDimensions(size, size);
   }
 
   public void setLength(int length) {
     this.length = Math.max(0, length);
+    int size = getSize(this.thickness, this.gap, this.length);
+    this.setDimensions(size, size);
   }
 
   public void setColor(int color) {
     this.color = color;
   }
 
-  public static Coords getCenterCoords(IntRect bounds) {
-    return getCenterCoords(bounds, DEFAULT_THICKNESS);
+  public static Coords getCenterCoords(IntRect bounds, int thickness, int gap, int length) {
+    int size = getSize(thickness, gap, length);
+    int x = bounds.left() + MathHelper.floor((bounds.getWidth() - size - 0.5f) * 0.5f);
+    int y = bounds.top() + MathHelper.floor((bounds.getHeight() - size - 0.5f) * 0.5f);
+    return Coords.of(x, y);
   }
 
-  public static Coords getCenterCoords(IntRect bounds, int thickness) {
-    int x = bounds.left() + MathHelper.floor((bounds.getWidth() - thickness - 0.5f) * 0.5f);
-    int y = bounds.top() + MathHelper.floor((bounds.getHeight() - thickness - 0.5f) * 0.5f);
-    return Coords.of(x, y);
+  public static int getSize(int thickness, int gap, int length) {
+    return thickness + 2 * (gap + length);
   }
 }

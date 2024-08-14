@@ -1,7 +1,10 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.screen.ConfigScreen;
 import me.roundaround.roundalib.config.option.ConfigOption;
+import me.roundaround.roundalib.config.panic.IllegalStatePanic;
+import me.roundaround.roundalib.config.panic.Panic;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -34,18 +37,18 @@ public class SubScreenControl<D, O extends ConfigOption<D>> extends Control<D, O
     this.messageFactory = messageFactory;
     this.subScreenFactory = subScreenFactory;
 
-    this.button = this.add(ButtonWidget.builder(this.messageFactory.apply(this.getOption()),
-        (button) -> GuiUtil.setScreen(this.subScreenFactory.create(this.client.currentScreen, this.getOption()))
-    ).build(), (parent, self) -> {
-      self.setDimensions(parent.getWidth(), parent.getHeight());
-    });
-
-    this.update();
+    this.button = this.add(ButtonWidget.builder(this.messageFactory.apply(this.getOption()), (button) -> {
+      if (!(client.currentScreen instanceof ConfigScreen screen)) {
+        Panic.panic(new IllegalStatePanic("Sub-screens can only be created from ConfigScreens."), option.getModId());
+        return;
+      }
+      GuiUtil.setScreen(this.subScreenFactory.create(screen, this.getOption()));
+    }).build(), (parent, self) -> self.setDimensions(parent.getWidth(), parent.getHeight()));
   }
 
   @Override
-  protected void update() {
-    this.button.active = !this.getOption().isDisabled();
+  protected void update(D value, boolean isDisabled) {
+    this.button.active = !isDisabled;
     this.button.setMessage(this.messageFactory.apply(this.getOption()));
   }
 
@@ -55,6 +58,6 @@ public class SubScreenControl<D, O extends ConfigOption<D>> extends Control<D, O
 
   @FunctionalInterface
   public interface SubScreenFactory<D, O extends ConfigOption<D>> {
-    Screen create(Screen screen, O option);
+    Screen create(ConfigScreen parent, O option);
   }
 }

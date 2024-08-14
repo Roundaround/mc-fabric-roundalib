@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.WeakHashMap;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -15,20 +16,36 @@ public class Observable<T> {
   protected final HashMap<Observer<T>, Object> hardReferences = new HashMap<>();
 
   protected T value;
+  protected BiFunction<T, T, Boolean> equalityFunction;
 
   protected Observable(T initial) {
+    this(initial, Objects::equals);
+  }
+
+  protected Observable(T initial, BiFunction<T, T, Boolean> equalityFunction) {
     this.value = initial;
+    this.equalityFunction = equalityFunction;
   }
 
   public static <T> Observable<T> of(T initial) {
     return new Observable<>(initial);
   }
 
+  public static <T> Observable<T> of(T initial, BiFunction<T, T, Boolean> equalityFunction) {
+    return new Observable<>(initial, equalityFunction);
+  }
+
+  public static <S, T> Computed<T> computed(
+      Observable<S> source, Mapper<S, T> mapper
+  ) {
+    return computed(source, mapper, SubscribeOptions.create());
+  }
+
   public static <S, T> Computed<T> computed(
       Observable<S> source, Mapper<S, T> mapper, SubscribeOptions options
   ) {
     Computed<T> computed = Computed.of(() -> mapper.apply(source.get()));
-    computed.sourceSubscription = source.subscribe((value) -> computed.set(mapper.apply(value)));
+    computed.sourceSubscription = source.subscribe((value) -> computed.set(mapper.apply(value)), options);
     return computed;
   }
 
@@ -235,7 +252,7 @@ public class Observable<T> {
   }
 
   public void set(T value) {
-    if (Objects.equals(this.value, value)) {
+    if (this.equalityFunction.apply(this.value, value)) {
       return;
     }
 
@@ -287,6 +304,10 @@ public class Observable<T> {
   public void clear() {
     this.observers.clear();
     this.hardReferences.clear();
+  }
+
+  public void setEqualityFunction(BiFunction<T, T, Boolean> equalityFunction) {
+    this.equalityFunction = equalityFunction;
   }
 
   @FunctionalInterface
@@ -377,15 +398,15 @@ public class Observable<T> {
     }
 
     public static SubscribeOptions create(boolean emitImmediately, boolean keepHardReference) {
-      return new Builder().emittingImmediately(emitImmediately).withHardReference(keepHardReference).build();
+      return new Builder().emittingImmediately(emitImmediately).keepHardReference(keepHardReference).build();
     }
 
     public static SubscribeOptions notEmittingImmediately() {
       return new Builder().notEmittingImmediately().build();
     }
 
-    public static SubscribeOptions withHardReference() {
-      return new Builder().withHardReference().build();
+    public static SubscribeOptions withoutHardReference() {
+      return new Builder().withoutHardReference().build();
     }
 
     public static SubscribeOptions create() {
@@ -398,7 +419,7 @@ public class Observable<T> {
 
     public static class Builder {
       private boolean emitImmediately = true;
-      private boolean keepHardReference = false;
+      private boolean keepHardReference = true;
 
       private Builder() {
       }
@@ -417,11 +438,11 @@ public class Observable<T> {
         return this;
       }
 
-      public Builder withHardReference() {
-        return this.withHardReference(true);
+      public Builder withoutHardReference() {
+        return this.keepHardReference(false);
       }
 
-      public Builder withHardReference(boolean keepHardReference) {
+      public Builder keepHardReference(boolean keepHardReference) {
         this.keepHardReference = keepHardReference;
         return this;
       }

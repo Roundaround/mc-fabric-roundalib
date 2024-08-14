@@ -1,16 +1,14 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.asset.icon.BuiltinIcon;
+import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.IntSliderWidget;
-import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
 import me.roundaround.roundalib.config.option.IntConfigOption;
 import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
 import me.roundaround.roundalib.config.panic.Panic;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
-
-import java.util.Objects;
 
 public class IntSliderControl extends Control<Integer, IntConfigOption> {
   private final IntSliderWidget slider;
@@ -61,25 +59,18 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
       this.plusButton = null;
       this.minusButton = null;
     }
-
-    this.update();
   }
 
   @Override
-  protected void update() {
+  protected void update(Integer value, boolean isDisabled) {
     IntConfigOption option = this.getOption();
-    boolean disabled = option.isDisabled();
 
-    this.slider.active = !disabled;
-
-    int value = option.getPendingValue();
-    if (!Objects.equals(value, this.slider.getIntValue())) {
-      this.slider.setIntValue(value);
-    }
+    this.slider.active = !isDisabled;
+    this.slider.setIntValue(value);
 
     if (option.showStepButtons()) {
-      this.plusButton.active = !disabled && option.canIncrement();
-      this.minusButton.active = !disabled && option.canDecrement();
+      this.plusButton.active = !isDisabled && option.canIncrement();
+      this.minusButton.active = !isDisabled && option.canDecrement();
     }
   }
 

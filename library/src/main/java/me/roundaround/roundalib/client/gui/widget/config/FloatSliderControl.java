@@ -27,18 +27,12 @@ public class FloatSliderControl extends Control<Float, FloatConfigOption> {
     ), (parent, self) -> {
       self.setDimensions(parent.getWidth(), parent.getHeight());
     });
-
-    this.update();
   }
 
   @Override
-  protected void update() {
-    this.slider.active = !this.getOption().isDisabled();
-
-    float value = this.getOption().getPendingValue();
-    if (!this.getOption().areValuesEqual(value, this.slider.getFloatValue())) {
-      this.slider.setFloatValue(value);
-    }
+  protected void update(Float value, boolean isDisabled) {
+    this.slider.active = !isDisabled;
+    this.slider.setFloatValue(value);
   }
 
   private float step(int multi) {

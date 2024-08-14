@@ -2,7 +2,10 @@ package me.roundaround.roundalib.client.gui.layout.linear;
 
 import me.roundaround.roundalib.client.gui.layout.LayoutHookWithParent;
 import me.roundaround.roundalib.client.gui.layout.SizableLayoutWidget;
-import me.roundaround.roundalib.client.gui.util.*;
+import me.roundaround.roundalib.client.gui.util.Alignment;
+import me.roundaround.roundalib.client.gui.util.Axis;
+import me.roundaround.roundalib.client.gui.util.IntRect;
+import me.roundaround.roundalib.client.gui.util.Spacing;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.widget.ClickableWidget;
@@ -270,18 +273,6 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
 
   public int getContentHeight() {
     return this.contentHeight;
-  }
-
-  public IntRect getBounds() {
-    return IntRect.byDimensions(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-  }
-
-  public Coords getPosition() {
-    return Coords.of(this.getX(), this.getY());
-  }
-
-  public Dimensions getDimensions() {
-    return Dimensions.of(this.getWidth(), this.getHeight());
   }
 
   public int getSpacing() {
