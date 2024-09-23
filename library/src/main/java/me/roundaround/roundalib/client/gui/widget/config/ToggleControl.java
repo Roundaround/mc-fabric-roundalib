@@ -15,13 +15,11 @@ public class ToggleControl extends Control<Boolean, BooleanConfigOption> {
           self.setDimensions(parent.getWidth(), parent.getHeight());
         }
     );
-
-    this.update();
   }
 
   @Override
-  protected void update() {
-    this.button.active = !this.getOption().isDisabled();
-    this.button.setMessage(this.getOption().getValueLabel());
+  protected void update(Boolean value, boolean isDisabled) {
+    this.button.active = !isDisabled;
+    this.button.setMessage(this.getOption().getValueLabel(value));
   }
 }

@@ -1,5 +1,8 @@
 package me.roundaround.roundalib.client.gui.layout;
 
+import me.roundaround.roundalib.client.gui.util.Coords;
+import me.roundaround.roundalib.client.gui.util.Dimensions;
+import me.roundaround.roundalib.client.gui.util.IntRect;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.widget.LayoutWidget;
@@ -68,5 +71,17 @@ public abstract class SizableLayoutWidget implements LayoutWidget {
   public void setPositionAndDimensions(int x, int y, int width, int height) {
     this.setPosition(x, y);
     this.setDimensions(width, height);
+  }
+
+  public IntRect getBounds() {
+    return IntRect.byDimensions(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+  }
+
+  public Coords getPosition() {
+    return Coords.of(this.getX(), this.getY());
+  }
+
+  public Dimensions getDimensions() {
+    return Dimensions.of(this.getWidth(), this.getHeight());
   }
 }

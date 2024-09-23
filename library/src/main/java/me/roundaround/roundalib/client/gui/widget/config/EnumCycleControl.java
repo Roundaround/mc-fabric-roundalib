@@ -22,14 +22,12 @@ public class EnumCycleControl<S extends EnumValue<S>> extends Control<S, EnumCon
             .build(Text.empty(), this::buttonClicked), (parent, self) -> {
           self.setDimensions(parent.getWidth(), parent.getHeight());
         });
-
-    this.update();
   }
 
   @Override
-  protected void update() {
-    this.button.active = !this.getOption().isDisabled();
-    this.button.setValue(this.getOption().getPendingValue());
+  protected void update(S value, boolean isDisabled) {
+    this.button.active = !isDisabled;
+    this.button.setValue(value);
   }
 
   private void buttonClicked(CyclingButtonWidget<S> button, S value) {

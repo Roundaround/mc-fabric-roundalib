@@ -1,17 +1,13 @@
 package me.roundaround.roundalib.client.gui.screen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.asset.icon.BuiltinIcon;
 import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
+import me.roundaround.roundalib.client.gui.widget.drawable.CrosshairWidget;
 import me.roundaround.roundalib.config.option.PositionConfigOption;
 import me.roundaround.roundalib.config.value.Position;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.DirectionalLayoutWidget;
-import net.minecraft.client.gui.widget.EmptyWidget;
-import net.minecraft.client.gui.widget.SimplePositioningWidget;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
@@ -23,65 +19,31 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
   protected final Text helpMoveSingleText;
   protected final Text helpMoveMultiText;
 
-  private final SimplePositioningWidget mover = new SimplePositioningWidget();
-  private final DirectionalLayoutWidget column = DirectionalLayoutWidget.vertical().spacing(GuiUtil.PADDING);
-  private final DirectionalLayoutWidget row = DirectionalLayoutWidget.horizontal().spacing(GuiUtil.PADDING);
+  protected LinearLayoutWidget bottomRight;
+  protected LinearLayoutWidget mover;
 
   protected PositionEditScreen(
-      Text title, Screen parent, PositionConfigOption configOption
+      Text title, ConfigScreen parent, PositionConfigOption configOption
   ) {
     super(title, parent, configOption);
 
     this.helpMoveSingleText = Text.translatable(this.modId + ".roundalib.help.position.single");
     this.helpMoveMultiText = Text.translatable(this.modId + ".roundalib.help.position.multi");
-
-    this.column.getMainPositioner().alignHorizontalCenter();
-    this.row.getMainPositioner().alignVerticalCenter();
-
-    this.buttonRow.spacing(7);
-    this.body.getMainPositioner().alignBottom().alignRight().margin(GuiUtil.PADDING);
   }
 
   @Override
-  protected void initBody() {
-    super.initBody();
+  protected void initElements() {
+    this.bottomRight = LinearLayoutWidget.vertical()
+        .spacing(GuiUtil.PADDING)
+        .defaultOffAxisContentAlignCenter()
+        .alignSelfRight()
+        .alignSelfBottom();
+    super.placeActionRow(this.bottomRight);
 
-    this.body.add(this.mover);
-    this.mover.add(this.column, (positioner) -> positioner.alignBottom().alignRight());
+    this.mover = this.createMover();
+    this.placeMover(this.mover);
 
-    this.column.add(IconButtonWidget.builder(BuiltinIcon.UP_13, this.modId)
-        .dimensions(IconButtonWidget.SIZE_M)
-        .messageAndTooltip(Text.translatable(this.modId + ".roundalib.up.tooltip"))
-        .onPress((button) -> this.moveUp())
-        .build());
-    this.column.add(this.row);
-    this.column.add(IconButtonWidget.builder(BuiltinIcon.DOWN_13, this.modId)
-        .dimensions(IconButtonWidget.SIZE_M)
-        .messageAndTooltip(Text.translatable(this.modId + ".roundalib.down.tooltip"))
-        .onPress((button) -> this.moveDown())
-        .build());
-
-    this.row.add(IconButtonWidget.builder(BuiltinIcon.LEFT_13, this.modId)
-        .dimensions(IconButtonWidget.SIZE_M)
-        .messageAndTooltip(Text.translatable(this.modId + ".roundalib.left.tooltip"))
-        .onPress((button) -> this.moveLeft())
-        .build());
-    this.row.add(EmptyWidget.ofWidth(CROSSHAIR_SIZE));
-    this.row.add(IconButtonWidget.builder(BuiltinIcon.RIGHT_13, this.modId)
-        .dimensions(IconButtonWidget.SIZE_M)
-        .messageAndTooltip(Text.translatable(this.modId + ".roundalib.right.tooltip"))
-        .onPress((button) -> this.moveRight())
-        .build());
-
-    this.addDrawable((context, mouseX, mouseY, delta) -> {
-      RenderSystem.enableBlend();
-      context.drawGuiTexture(
-          Identifier.of(this.modId, "hud/roundalib/crosshair-9"),
-          this.mover.getX() + (this.mover.getWidth() - CROSSHAIR_SIZE) / 2,
-          this.mover.getY() + (this.mover.getHeight() - CROSSHAIR_SIZE) / 2, CROSSHAIR_SIZE, CROSSHAIR_SIZE
-      );
-      RenderSystem.disableBlend();
-    });
+    super.initElements();
   }
 
   @Override
@@ -142,5 +104,50 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
 
   protected void moveRight() {
     this.move(Position.Direction.RIGHT);
+  }
+
+  protected LinearLayoutWidget createMover() {
+    LinearLayoutWidget mover = LinearLayoutWidget.vertical()
+        .spacing(GuiUtil.PADDING)
+        .defaultOffAxisContentAlignCenter();
+
+    mover.add(IconButtonWidget.builder(BuiltinIcon.UP_13, this.modId)
+        .dimensions(IconButtonWidget.SIZE_M)
+        .messageAndTooltip(Text.translatable(this.modId + ".roundalib.up.tooltip"))
+        .onPress((button) -> this.moveUp())
+        .build());
+
+    LinearLayoutWidget centerRow = LinearLayoutWidget.horizontal()
+        .spacing(GuiUtil.PADDING)
+        .defaultOffAxisContentAlignCenter();
+    centerRow.add(IconButtonWidget.builder(BuiltinIcon.LEFT_13, this.modId)
+        .dimensions(IconButtonWidget.SIZE_M)
+        .messageAndTooltip(Text.translatable(this.modId + ".roundalib.left.tooltip"))
+        .onPress((button) -> this.moveLeft())
+        .build());
+    centerRow.add(new CrosshairWidget(1, 1, 3, GuiUtil.CROSSHAIR_COLOR));
+    centerRow.add(IconButtonWidget.builder(BuiltinIcon.RIGHT_13, this.modId)
+        .dimensions(IconButtonWidget.SIZE_M)
+        .messageAndTooltip(Text.translatable(this.modId + ".roundalib.right.tooltip"))
+        .onPress((button) -> this.moveRight())
+        .build());
+    mover.add(centerRow);
+
+    mover.add(IconButtonWidget.builder(BuiltinIcon.DOWN_13, this.modId)
+        .dimensions(IconButtonWidget.SIZE_M)
+        .messageAndTooltip(Text.translatable(this.modId + ".roundalib.down.tooltip"))
+        .onPress((button) -> this.moveDown())
+        .build());
+
+    return mover;
+  }
+
+  protected void placeMover(LinearLayoutWidget mover) {
+    this.bottomRight.add(mover);
+  }
+
+  @Override
+  protected void placeActionRow(LinearLayoutWidget actionRow) {
+    this.bottomRight.add(actionRow);
   }
 }

@@ -18,8 +18,6 @@ public class TextControl extends Control<String, StringConfigOption> {
 
     this.textField.setText(this.option.getPendingValue());
     this.textField.setChangedListener(this::onTextChanged);
-
-    this.update();
   }
 
   @Override
@@ -35,12 +33,10 @@ public class TextControl extends Control<String, StringConfigOption> {
   }
 
   @Override
-  protected void update() {
-    boolean disabled = this.getOption().isDisabled();
-    this.textField.active = !disabled;
-    this.textField.setEditable(!disabled);
+  protected void update(String value, boolean isDisabled) {
+    this.textField.active = !isDisabled;
+    this.textField.setEditable(!isDisabled);
 
-    String value = this.getOption().getPendingValue();
     if (!value.equals(this.textField.getText())) {
       this.textField.setText(value);
     }

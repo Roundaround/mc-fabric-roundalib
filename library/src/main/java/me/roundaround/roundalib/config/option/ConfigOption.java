@@ -1,15 +1,17 @@
 package me.roundaround.roundalib.config.option;
 
 import me.roundaround.roundalib.config.ConfigPath;
-import me.roundaround.roundalib.config.PendingValueListener;
-import me.roundaround.roundalib.config.SavedValueListener;
 import me.roundaround.roundalib.config.manage.ModConfig;
 import me.roundaround.roundalib.config.manage.ModConfigImpl;
 import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
 import me.roundaround.roundalib.config.panic.Panic;
+import me.roundaround.roundalib.util.Observable;
 import net.minecraft.text.Text;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -29,16 +31,15 @@ public abstract class ConfigOption<D> {
   private final Consumer<ConfigOption<D>> onUpdate;
   private final DisabledValueBehavior disabledValueBehavior;
   private final Function<ConfigOption<D>, D> disabledValueSupplier;
-  private final HashSet<SavedValueListener<D>> savedValueChangeListeners = new HashSet<>();
-  private final HashSet<PendingValueListener<D>> pendingValueChangeListeners = new HashSet<>();
+
+  public final Observable<D> pendingValue;
+  public final Observable<D> savedValue;
+  public final Observable<Boolean> isDisabled;
+  public final Observable<Boolean> isDirty;
+  public final Observable<Boolean> isPendingDefault;
+  public final Observable<Boolean> isDefault;
 
   private String modId;
-  private boolean isDisabled;
-  private D pendingValue;
-  private D savedValue;
-  private boolean isDirty;
-  private boolean isPendingDefault;
-  private boolean isDefault;
 
   protected <C extends ConfigOption<D>, B extends AbstractBuilder<D, C, B>> ConfigOption(AbstractBuilder<D, C, B> builder) {
     this(builder.path, builder.label, builder.defaultValue, builder.noGui, builder.toStringFunction, builder.comment,
@@ -69,12 +70,18 @@ public abstract class ConfigOption<D> {
     this.disabledValueBehavior = disabledValueBehavior;
     this.disabledValueSupplier = disabledValueSupplier;
 
-    this.pendingValue = this.defaultValue;
-    this.savedValue = this.defaultValue;
-
-    this.isDirty = false;
-    this.isPendingDefault = true;
-    this.isDefault = true;
+    this.pendingValue = Observable.of(this.defaultValue, this::areValuesEqual);
+    this.savedValue = Observable.of(this.defaultValue, this::areValuesEqual);
+    this.isDisabled = Observable.of(false);
+    this.isDirty = Observable.computed(this.pendingValue, this.savedValue, (pendingValue, savedValue) -> {
+      return !this.areValuesEqual(pendingValue, savedValue);
+    });
+    this.isPendingDefault = Observable.computed(this.pendingValue, (pendingValue) -> {
+      return this.areValuesEqual(pendingValue, this.defaultValue);
+    });
+    this.isDefault = Observable.computed(this.savedValue, (savedValue) -> {
+      return this.areValuesEqual(savedValue, this.defaultValue);
+    });
   }
 
   public void setModId(String modId) {
@@ -113,11 +120,11 @@ public abstract class ConfigOption<D> {
   }
 
   public boolean isDisabled() {
-    return this.isDisabled;
+    return this.isDisabled.get();
   }
 
   public D getValue() {
-    return this.savedValue;
+    return this.savedValue.get();
   }
 
   public D getPendingValue() {
@@ -128,7 +135,7 @@ public abstract class ConfigOption<D> {
         case PRODUCE -> this.disabledValueSupplier.apply(this);
       };
     }
-    return this.pendingValue;
+    return this.pendingValue.get();
   }
 
   public final String getPendingValueAsString() {
@@ -144,31 +151,38 @@ public abstract class ConfigOption<D> {
   }
 
   /**
+   * Mark whether this ConfigOption should be disabled.
+   */
+  public void setDisabled(boolean disabled) {
+    this.isDisabled.set(disabled);
+  }
+
+  /**
    * Manually mark this ConfigOption is dirty, which will force it to write its value to the store.
    */
   public void markDirty() {
-    this.isDirty = true;
+    this.isDirty.set(true);
   }
 
   /**
    * Whether this ConfigOption has pending changes to its value.
    */
   public boolean isDirty() {
-    return this.isDirty;
+    return this.isDirty.get();
   }
 
   /**
    * Whether this ConfigOption's pending value is equal to the default.
    */
   public boolean isPendingDefault() {
-    return this.isPendingDefault;
+    return this.isPendingDefault.get();
   }
 
   /**
    * Whether this ConfigOption's value is different from the default.
    */
   public boolean isDefault() {
-    return this.isDefault;
+    return this.isDefault.get();
   }
 
   /**
@@ -187,16 +201,7 @@ public abstract class ConfigOption<D> {
     if (this.isDisabled()) {
       return;
     }
-
-    D prevPendingValue = this.getPendingValue();
-    if (this.areValuesEqual(prevPendingValue, pendingValue)) {
-      return;
-    }
-
-    this.pendingValue = pendingValue;
-    this.isDirty = !this.areValuesEqual(this.getPendingValue(), this.getValue());
-    this.isPendingDefault = this.areValuesEqual(this.getPendingValue(), this.getDefaultValue());
-    this.pendingValueChangeListeners.forEach((listener) -> listener.onPendingValueChange(this.getPendingValue()));
+    this.pendingValue.set(pendingValue);
   }
 
   /**
@@ -205,15 +210,7 @@ public abstract class ConfigOption<D> {
    * not need to call this yourself.
    */
   public void commit() {
-    D prevSavedValue = this.getValue();
-    this.savedValue = this.getPendingValue();
-
-    this.isDirty = false;
-    this.isDefault = !this.areValuesEqual(this.getValue(), this.getDefaultValue());
-
-    if (!this.areValuesEqual(prevSavedValue, this.getValue())) {
-      this.savedValueChangeListeners.forEach((listener) -> listener.onSavedValueChange(this.getValue()));
-    }
+    this.savedValue.set(this.getPendingValue());
   }
 
   /**
@@ -234,10 +231,6 @@ public abstract class ConfigOption<D> {
     this.setValue(this.getValue());
   }
 
-  public void setDisabled(boolean isDisabled) {
-    this.isDisabled = isDisabled;
-  }
-
   public boolean validate(D value) {
     if (this.validators.isEmpty()) {
       return true;
@@ -256,22 +249,6 @@ public abstract class ConfigOption<D> {
 
   public void update() {
     this.onUpdate.accept(this);
-  }
-
-  public final void subscribe(SavedValueListener<D> listener) {
-    this.savedValueChangeListeners.add(listener);
-  }
-
-  public final void unsubscribe(SavedValueListener<D> listener) {
-    this.savedValueChangeListeners.remove(listener);
-  }
-
-  public final void subscribePending(PendingValueListener<D> listener) {
-    this.pendingValueChangeListeners.add(listener);
-  }
-
-  public final void unsubscribePending(PendingValueListener<D> listener) {
-    this.pendingValueChangeListeners.remove(listener);
   }
 
   public enum DisabledValueBehavior {

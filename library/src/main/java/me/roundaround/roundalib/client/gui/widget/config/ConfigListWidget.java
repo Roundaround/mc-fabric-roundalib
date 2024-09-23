@@ -5,13 +5,14 @@ import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
 import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
-import me.roundaround.roundalib.client.gui.widget.drawable.LabelWidget;
 import me.roundaround.roundalib.client.gui.widget.ParentElementEntryListWidget;
 import me.roundaround.roundalib.client.gui.widget.TooltipWidget;
+import me.roundaround.roundalib.client.gui.widget.drawable.LabelWidget;
 import me.roundaround.roundalib.config.manage.ModConfig;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.panic.IllegalStatePanic;
 import me.roundaround.roundalib.config.panic.Panic;
+import me.roundaround.roundalib.util.Observable;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -24,6 +25,7 @@ import java.util.Map;
 
 public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWidget.Entry> {
   protected final String modId;
+  protected final ArrayList<Observable.Subscription> subscriptions = new ArrayList<>();
 
   public ConfigListWidget(
       MinecraftClient client, ThreeSectionLayoutWidget layout, String modId, List<ModConfig> configs
@@ -69,7 +71,9 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
 
     this.addEntry((index, left, top, width) -> {
       try {
-        return new OptionEntry<>(this.client, option, index, left, top, width);
+        OptionEntry<?, ?> optionEntry = new OptionEntry<>(this.client, option, index, left, top, width);
+        this.subscriptions.addAll(optionEntry.initSubscriptions());
+        return optionEntry;
       } catch (ControlRegistry.NotRegisteredException e) {
         Panic.panic(new IllegalStatePanic(String.format("Failed to create control for config option: %s", option), e));
         return null;
@@ -77,12 +81,14 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     });
   }
 
-  public void tick() {
-    this.forEachEntry(Entry::tick);
+  public List<Observable.Subscription> collectSubscriptions() {
+    List<Observable.Subscription> copy = List.copyOf(this.subscriptions);
+    this.subscriptions.clear();
+    return copy;
   }
 
-  public void update() {
-    this.forEachEntry(Entry::update);
+  public void tick() {
+    this.forEachEntry(Entry::tick);
   }
 
   public abstract static class Entry extends ParentElementEntryListWidget.Entry {
@@ -91,9 +97,6 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     }
 
     public void tick() {
-    }
-
-    public void update() {
     }
   }
 
@@ -236,12 +239,20 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
             this.getContentLeft(), this.getContentTop(), this.getContentWidth(), this.getContentHeight());
       });
       this.layout.forEachChild(this::addDrawableChild);
-
-      this.update();
     }
 
     public O getOption() {
       return this.option;
+    }
+
+    public List<Observable.Subscription> initSubscriptions() {
+      return List.of(this.control.initSubscriptions(),
+          Observable.subscribeToAll(this.option.isPendingDefault, this.option.isDisabled,
+              (isPendingDefault, isDisabled) -> {
+                this.resetButton.active = !isPendingDefault && !isDisabled;
+              }
+          )
+      );
     }
 
     private int getLabelWidth(LinearLayoutWidget layout) {
@@ -263,12 +274,6 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     @Override
     public void tick() {
       this.control.tick();
-    }
-
-    @Override
-    public void update() {
-      this.control.update();
-      this.resetButton.active = !this.option.isPendingDefault() && !this.option.isDisabled();
     }
   }
 

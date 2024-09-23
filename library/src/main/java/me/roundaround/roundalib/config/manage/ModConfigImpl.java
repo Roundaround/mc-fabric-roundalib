@@ -3,12 +3,12 @@ package me.roundaround.roundalib.config.manage;
 import me.roundaround.roundalib.config.ConfigPath;
 import me.roundaround.roundalib.config.ConnectedWorldContext;
 import me.roundaround.roundalib.config.option.ConfigOption;
+import me.roundaround.roundalib.util.Observable;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.text.Text;
 
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -21,7 +21,7 @@ public abstract class ModConfigImpl implements ModConfig {
   protected final HashMap<ConfigPath, EnvType> envType = new HashMap<>();
   protected final HashSet<ConfigPath> noGuiControl = new HashSet<>();
   protected final HashSet<ConfigPath> singlePlayerOnly = new HashSet<>();
-  protected final List<Consumer<ModConfig>> listeners = new ArrayList<>();
+  protected final List<Observable.Subscription> subscriptions = new ArrayList<>();
 
   protected int storeSuppliedVersion;
   protected boolean isInitialized = false;
@@ -96,25 +96,9 @@ public abstract class ModConfigImpl implements ModConfig {
   }
 
   @Override
-  public void subscribe(Consumer<ModConfig> listener) {
-    this.listeners.add(listener);
-  }
-
-  @Override
-  public void unsubscribe(Consumer<ModConfig> listener) {
-    this.listeners.remove(listener);
-  }
-
-  @Override
-  public Collection<Consumer<ModConfig>> getListeners() {
-    return Collections.unmodifiableList(this.listeners);
-  }
-
-  @Override
   public void clear() {
     this.byGroup.clear();
     this.byPath.clear();
-    this.listeners.clear();
   }
 
   protected boolean isActive(ConfigOption<?> option) {
@@ -173,7 +157,7 @@ public abstract class ModConfigImpl implements ModConfig {
 
   protected <T extends ConfigOption<?>> T register(T option) {
     option.setModId(this.modId);
-    option.subscribePending((value) -> this.refresh());
+    option.pendingValue.subscribe(this::refresh, Observable.SubscribeOptions.notEmittingImmediately());
 
     this.byGroup.computeIfAbsent(option.getGroup(), (group) -> new ArrayList<>()).add(option);
     this.byPath.put(option.getPath(), option);

@@ -28,6 +28,10 @@ public class BooleanConfigOption extends ConfigOption<Boolean> {
     return this.disabledLabel;
   }
 
+  public Text getValueLabel(boolean value) {
+    return value ? this.getEnabledLabel() : this.getDisabledLabel();
+  }
+
   public Text getValueLabel() {
     return this.getPendingValue() ? this.getEnabledLabel() : this.getDisabledLabel();
   }

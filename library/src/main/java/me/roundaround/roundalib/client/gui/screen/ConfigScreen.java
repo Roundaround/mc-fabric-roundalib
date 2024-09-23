@@ -1,8 +1,9 @@
 package me.roundaround.roundalib.client.gui.screen;
 
-import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
 import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
+import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
 import me.roundaround.roundalib.config.manage.ModConfig;
+import me.roundaround.roundalib.util.Observable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.screen.ScreenTexts;
@@ -10,15 +11,17 @@ import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.Objects;
 
 public class ConfigScreen extends Screen {
   protected final ThreeSectionLayoutWidget layout = new ThreeSectionLayoutWidget(this);
 
   private final Screen parent;
   private final String modId;
+  private final double prevScrollAmount;
   private final ArrayList<ModConfig> configs = new ArrayList<>();
-  private final Consumer<ModConfig> updateListener;
+  private final ArrayList<Observable.Subscription> subscriptions = new ArrayList<>();
+
   private ConfigListWidget configListWidget;
   private CloseAction closeAction = CloseAction.NOOP;
 
@@ -35,12 +38,14 @@ public class ConfigScreen extends Screen {
   }
 
   public ConfigScreen(Text title, Screen parent, String modId, Iterable<ModConfig> configs) {
+    this(title, parent, modId, configs, 0);
+  }
+
+  private ConfigScreen(Text title, Screen parent, String modId, Iterable<ModConfig> configs, double scrollAmount) {
     super(title);
     this.parent = parent;
     this.modId = modId;
-    this.updateListener = (config) -> {
-      this.configListWidget.update();
-    };
+    this.prevScrollAmount = scrollAmount;
 
     for (ModConfig config : configs) {
       if (config.isReady()) {
@@ -51,6 +56,11 @@ public class ConfigScreen extends Screen {
 
   public String getModId() {
     return this.modId;
+  }
+
+  public ConfigScreen copy() {
+    return new ConfigScreen(
+        this.getTitle(), this.parent, this.modId, this.configs, this.configListWidget.getScrollAmount());
   }
 
   @Override
@@ -72,12 +82,13 @@ public class ConfigScreen extends Screen {
         new ConfigListWidget(this.client, this.layout, this.modId, this.configs), (parent, self) -> {
           self.setDimensionsAndPosition(parent.getWidth(), parent.getHeight(), parent.getX(), parent.getY());
         });
-    this.configs.forEach((config) -> config.subscribe(this.updateListener));
+    this.configListWidget.setScrollAmount(this.prevScrollAmount);
+    this.subscriptions.addAll(this.configListWidget.collectSubscriptions());
   }
 
   protected void initFooter() {
-    this.layout.addFooter(ButtonWidget.builder(ScreenTexts.CANCEL, this::cancel).build());
-    this.layout.addFooter(ButtonWidget.builder(ScreenTexts.DONE, this::done).build());
+    this.layout.addFooter(ButtonWidget.builder(ScreenTexts.CANCEL, (button) -> this.cancel()).build());
+    this.layout.addFooter(ButtonWidget.builder(ScreenTexts.DONE, (button) -> this.done()).build());
   }
 
   @Override
@@ -87,14 +98,15 @@ public class ConfigScreen extends Screen {
 
   @Override
   public void close() {
-    assert this.client != null;
-    this.client.setScreen(this.parent);
+    Objects.requireNonNull(this.client).setScreen(this.parent);
   }
 
   @Override
   public void removed() {
+    this.subscriptions.forEach(Observable.Subscription::unsubscribe);
+    this.subscriptions.clear();
+
     this.configs.forEach((config) -> {
-      config.unsubscribe(this.updateListener);
       this.closeAction.run(config);
     });
   }
@@ -104,12 +116,12 @@ public class ConfigScreen extends Screen {
     this.configListWidget.tick();
   }
 
-  private void cancel(ButtonWidget button) {
+  private void cancel() {
     this.closeAction = ModConfig::readFromStore;
     this.close();
   }
 
-  private void done(ButtonWidget button) {
+  private void done() {
     this.closeAction = ModConfig::writeToStore;
     this.close();
   }

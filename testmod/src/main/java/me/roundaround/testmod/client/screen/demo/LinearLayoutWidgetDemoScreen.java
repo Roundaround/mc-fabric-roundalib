@@ -3,14 +3,12 @@ package me.roundaround.testmod.client.screen.demo;
 import me.roundaround.roundalib.asset.icon.BuiltinIcon;
 import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.FillerWidget;
-import me.roundaround.roundalib.client.gui.layout.WrapperLayoutWidget;
 import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
 import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.roundalib.client.gui.util.Alignment;
 import me.roundaround.roundalib.client.gui.util.Axis;
-import me.roundaround.roundalib.client.gui.util.IntRect;
-import me.roundaround.roundalib.client.gui.widget.drawable.CrosshairWidget;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
+import me.roundaround.roundalib.client.gui.widget.drawable.CrosshairWidget;
 import me.roundaround.roundalib.client.gui.widget.drawable.LabelWidget;
 import me.roundaround.testmod.TestMod;
 import net.fabricmc.api.EnvType;
@@ -28,13 +26,12 @@ public class LinearLayoutWidgetDemoScreen extends Screen implements DemoScreen {
   private static final Text TITLE_TEXT = Text.translatable("testmod.linearlayoutdemoscreen.title");
 
   private final Screen parent;
-  private final ThreeSectionLayoutWidget layout = new ThreeSectionLayoutWidget(this);
 
+  private ThreeSectionLayoutWidget layout;
   private LinearLayoutWidget demoLayout;
   private IconButtonWidget spacingMinusButton;
   private IconButtonWidget spacingPlusButton;
   private int spacing = GuiUtil.PADDING;
-  private CrosshairWidget crosshair;
 
   public LinearLayoutWidgetDemoScreen(Screen parent) {
     super(TITLE_TEXT);
@@ -43,6 +40,8 @@ public class LinearLayoutWidgetDemoScreen extends Screen implements DemoScreen {
 
   @Override
   protected void init() {
+    this.layout = new ThreeSectionLayoutWidget(this);
+
     this.layout.addHeader(this.textRenderer, this.getTitle());
 
     LinearLayoutWidget firstRow = LinearLayoutWidget.horizontal()
@@ -53,13 +52,9 @@ public class LinearLayoutWidgetDemoScreen extends Screen implements DemoScreen {
             .initially(Axis.HORIZONTAL)
             .build(0, 0, 100, 20, Text.of("Axis"), this::onFlowAxisChange));
     firstRow.add(new CyclingButtonWidget.Builder<Alignment>((value) -> value.getDisplayText(TestMod.MOD_ID)).values(
-            Alignment.values())
-        .initially(Alignment.START)
-        .build(0, 0, 100, 20, Text.of("X"), this::onAlignmentXChange));
+        Alignment.values()).initially(Alignment.START).build(0, 0, 100, 20, Text.of("X"), this::onAlignmentXChange));
     firstRow.add(new CyclingButtonWidget.Builder<Alignment>((value) -> value.getDisplayText(TestMod.MOD_ID)).values(
-            Alignment.values())
-        .initially(Alignment.START)
-        .build(0, 0, 100, 20, Text.of("Y"), this::onAlignmentYChange));
+        Alignment.values()).initially(Alignment.START).build(0, 0, 100, 20, Text.of("Y"), this::onAlignmentYChange));
     this.layout.addHeader(firstRow);
 
     LinearLayoutWidget secondRow = LinearLayoutWidget.horizontal()
@@ -81,25 +76,24 @@ public class LinearLayoutWidgetDemoScreen extends Screen implements DemoScreen {
 
     this.layout.setHeaderHeight(this.layout.getHeader().getContentHeight() + 2 * GuiUtil.PADDING);
 
-    this.crosshair = this.addDrawable(new CrosshairWidget(this.layout.getBody().getBounds()));
-    this.layout.setBodyLayoutHook((parent, self) -> {
-      this.crosshair.centerOn(this.layout.getBody().getBounds());
-    });
+    CrosshairWidget crosshairWidget = this.layout.addBody(new CrosshairWidget());
 
     this.demoLayout = LinearLayoutWidget.horizontal().spacing(this.spacing);
     this.demoLayout.add(IconButtonWidget.builder(BuiltinIcon.MINUS_13, TestMod.MOD_ID).medium().build());
     this.demoLayout.add(IconButtonWidget.builder(BuiltinIcon.CHECKMARK_18, TestMod.MOD_ID).vanillaSize().build());
     this.demoLayout.add(IconButtonWidget.builder(BuiltinIcon.PLUS_13, TestMod.MOD_ID).medium().build());
     this.demoLayout.add(LabelWidget.builder(this.textRenderer, Text.of("Label")).build());
-    this.layout.addBody(new WrapperLayoutWidget<>(this.demoLayout, (parent, self) -> {
-      self.setPosition(this.crosshair.getX() + 1, this.crosshair.getY() + 1);
-    }));
+    this.layout.addNonPositioned(this.demoLayout, (parent, self) -> {
+      self.setPosition(
+          crosshairWidget.getX() + crosshairWidget.getWidth() / 2,
+          crosshairWidget.getY() + crosshairWidget.getHeight() / 2
+      );
+    });
 
     this.layout.addFooter(ButtonWidget.builder(ScreenTexts.DONE, (button) -> this.close()).build());
 
     this.addDrawable((context, mouseX, mouseY, delta) -> {
-      IntRect bounds = LinearLayoutWidgetDemoScreen.this.demoLayout.getBounds();
-      GuiUtil.fill(context, bounds, GuiUtil.genColorInt(0, 0.4f, 0.9f, 0.3f));
+      GuiUtil.fill(context, this.demoLayout.getBounds(), GuiUtil.genColorInt(0, 0.4f, 0.9f, 0.3f));
     });
 
     this.layout.forEachChild(this::addDrawableChild);
