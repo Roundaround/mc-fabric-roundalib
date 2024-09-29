@@ -1,7 +1,7 @@
 package me.roundaround.roundalib.client.gui.widget;
 
-import me.roundaround.roundalib.client.gui.util.Spacing;
 import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
+import me.roundaround.roundalib.client.gui.util.Spacing;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -14,10 +14,13 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
 
 @Environment(EnvType.CLIENT)
-public abstract class NarratableEntryListWidget<E extends NarratableEntryListWidget.Entry> extends FlowListWidget<E> {
+public abstract class NarratableEntryListWidget<E extends NarratableEntryListWidget.Entry>
+    extends FlowListWidget<E> {
   protected static final Text SELECTION_USAGE_TEXT = Text.translatable("narration.selection.usage");
 
   private boolean highlightSelection = true;
+  private boolean highlightHover = true;
+  private boolean highlightSelectionDuringHover = false;
 
   protected NarratableEntryListWidget(MinecraftClient client, ThreeSectionLayoutWidget layout) {
     super(client, layout);
@@ -91,18 +94,38 @@ public abstract class NarratableEntryListWidget<E extends NarratableEntryListWid
 
   @Override
   protected void renderEntry(DrawContext context, int mouseX, int mouseY, float delta, E entry) {
-    boolean showSelected = this.highlightSelection && entry == this.getSelected();
-    if (showSelected) {
+    boolean noHovers = !this.highlightHover || this.getHoveredEntry() == null;
+    boolean renderHover = this.highlightHover && entry == this.getHoveredEntry();
+    boolean renderSelection = this.highlightSelection && entry == this.getSelected() &&
+        (noHovers || this.highlightSelectionDuringHover);
+
+    if (renderHover) {
+      entry.renderHoverBackground(context);
+    }
+    if (renderSelection) {
       entry.renderSelectionBackground(context);
     }
+
     super.renderEntry(context, mouseX, mouseY, delta, entry);
-    if (showSelected) {
+
+    if (renderHover) {
+      entry.renderHoverHighlight(context);
+    }
+    if (renderSelection) {
       entry.renderSelectionHighlight(context);
     }
   }
 
-  protected void setHighlightSelection(boolean highlightSelection) {
+  protected void setShouldHighlightSelection(boolean highlightSelection) {
     this.highlightSelection = highlightSelection;
+  }
+
+  protected void setShouldHighlightHover(boolean highlightHover) {
+    this.highlightHover = highlightHover;
+  }
+
+  protected void setShouldHighlightSelectionDuringHover(boolean highlightSelectionDuringHover) {
+    this.highlightSelectionDuringHover = highlightSelectionDuringHover;
   }
 
   @Environment(EnvType.CLIENT)
@@ -137,13 +160,28 @@ public abstract class NarratableEntryListWidget<E extends NarratableEntryListWid
       return true;
     }
 
+    protected void renderHoverBackground(DrawContext context) {
+      context.fill(this.getX(), this.getY(), this.getRight(), this.getBottom(), Colors.BLACK);
+    }
+
+    protected void renderHoverHighlight(DrawContext context) {
+      context.drawBorder(this.getX(),
+          this.getY(),
+          this.getWidth(),
+          this.getHeight(),
+          Colors.LIGHT_GRAY);
+    }
+
     protected void renderSelectionBackground(DrawContext context) {
       context.fill(this.getX(), this.getY(), this.getRight(), this.getBottom(), Colors.BLACK);
     }
 
     protected void renderSelectionHighlight(DrawContext context) {
-      context.drawBorder(
-          this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.isFocused() ? Colors.WHITE : Colors.GRAY);
+      context.drawBorder(this.getX(),
+          this.getY(),
+          this.getWidth(),
+          this.getHeight(),
+          this.isFocused() ? Colors.WHITE : Colors.GRAY);
     }
   }
 }
