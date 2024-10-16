@@ -16,14 +16,14 @@ import java.util.Objects;
 public class ConfigScreen extends Screen {
   protected final ThreeSectionLayoutWidget layout = new ThreeSectionLayoutWidget(this);
 
-  private final Screen parent;
-  private final String modId;
-  private final double prevScrollAmount;
-  private final ArrayList<ModConfig> configs = new ArrayList<>();
-  private final ArrayList<Observable.Subscription> subscriptions = new ArrayList<>();
+  protected final Screen parent;
+  protected final String modId;
+  protected final double prevScrollAmount;
+  protected final ArrayList<ModConfig> configs = new ArrayList<>();
+  protected final ArrayList<Observable.Subscription> subscriptions = new ArrayList<>();
 
-  private ConfigListWidget configListWidget;
-  private CloseAction closeAction = CloseAction.NOOP;
+  protected ConfigListWidget configListWidget;
+  protected CloseAction closeAction = CloseAction.NOOP;
 
   public ConfigScreen(Screen parent, String modId, ModConfig... configs) {
     this(Text.translatable(modId + ".config.title"), parent, modId, configs);
@@ -41,7 +41,7 @@ public class ConfigScreen extends Screen {
     this(title, parent, modId, configs, 0);
   }
 
-  private ConfigScreen(Text title, Screen parent, String modId, Iterable<ModConfig> configs, double scrollAmount) {
+  protected ConfigScreen(Text title, Screen parent, String modId, Iterable<ModConfig> configs, double scrollAmount) {
     super(title);
     this.parent = parent;
     this.modId = modId;
@@ -116,18 +116,18 @@ public class ConfigScreen extends Screen {
     this.configListWidget.tick();
   }
 
-  private void cancel() {
+  protected void cancel() {
     this.closeAction = ModConfig::readFromStore;
     this.close();
   }
 
-  private void done() {
+  protected void done() {
     this.closeAction = ModConfig::writeToStore;
     this.close();
   }
 
   @FunctionalInterface
-  private interface CloseAction {
+  protected interface CloseAction {
     CloseAction NOOP = (config) -> {
     };
 
