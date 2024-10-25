@@ -21,10 +21,11 @@ public class IconButtonWidget extends ButtonWidget {
   protected static final PressAction NOOP = (button) -> {
   };
 
-  protected final Identifier texture;
   protected final int iconSize;
   protected final boolean dimIconWhenDisabled;
   protected final boolean hideMessage;
+
+  protected Identifier texture;
 
   protected IconButtonWidget(
       int x,
@@ -38,8 +39,7 @@ public class IconButtonWidget extends ButtonWidget {
       boolean hideMessage,
       PressAction onPress,
       Tooltip tooltip,
-      NarrationSupplier narrationSupplier
-  ) {
+      NarrationSupplier narrationSupplier) {
     super(x, y, width, height, message, onPress, narrationSupplier);
 
     this.texture = texture;
@@ -72,6 +72,10 @@ public class IconButtonWidget extends ButtonWidget {
       return;
     }
     super.drawMessage(context, textRenderer, color);
+  }
+
+  public void setTexture(Identifier texture) {
+    this.texture = texture;
   }
 
   public static Builder builder(Identifier texture, int iconSize) {
@@ -190,9 +194,18 @@ public class IconButtonWidget extends ButtonWidget {
     }
 
     public IconButtonWidget build() {
-      return new IconButtonWidget(this.x, this.y, this.width, this.height, this.texture, this.iconSize,
-          this.dimIconWhenDisabled, this.message, this.hideMessage, this.onPress, this.tooltip, this.narrationSupplier
-      );
+      return new IconButtonWidget(this.x,
+          this.y,
+          this.width,
+          this.height,
+          this.texture,
+          this.iconSize,
+          this.dimIconWhenDisabled,
+          this.message,
+          this.hideMessage,
+          this.onPress,
+          this.tooltip,
+          this.narrationSupplier);
     }
   }
 }
