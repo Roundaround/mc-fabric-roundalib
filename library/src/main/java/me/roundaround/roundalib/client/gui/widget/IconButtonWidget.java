@@ -24,8 +24,10 @@ public class IconButtonWidget extends ButtonWidget {
   protected final int iconSize;
   protected final boolean dimIconWhenDisabled;
   protected final boolean hideMessage;
+  protected final boolean hideBackground;
 
   protected Identifier texture;
+  protected Identifier activeTexture;
 
   protected IconButtonWidget(
       int x,
@@ -33,19 +35,23 @@ public class IconButtonWidget extends ButtonWidget {
       int width,
       int height,
       Identifier texture,
+      Identifier activeTexture,
       int iconSize,
       boolean dimIconWhenDisabled,
       Text message,
       boolean hideMessage,
+      boolean hideBackground,
       PressAction onPress,
       Tooltip tooltip,
       NarrationSupplier narrationSupplier) {
     super(x, y, width, height, message, onPress, narrationSupplier);
 
     this.texture = texture;
+    this.activeTexture = activeTexture;
     this.iconSize = iconSize;
     this.dimIconWhenDisabled = dimIconWhenDisabled;
     this.hideMessage = hideMessage;
+    this.hideBackground = hideBackground;
 
     if (tooltip != null) {
       this.setTooltip(tooltip);
@@ -54,15 +60,18 @@ public class IconButtonWidget extends ButtonWidget {
 
   @Override
   public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-    super.renderWidget(context, mouseX, mouseY, delta);
+    if (!this.hideBackground) {
+      super.renderWidget(context, mouseX, mouseY, delta);
+    }
 
+    Identifier texture =
+        this.active && this.activeTexture != null ? this.activeTexture : this.texture;
     float brightness = this.active || !this.dimIconWhenDisabled ? 1f : 0.6f;
-
     int x = this.getX() + (this.getWidth() - this.iconSize) / 2;
     int y = this.getY() + (this.getHeight() - this.iconSize) / 2;
 
     RenderSystem.setShaderColor(brightness, brightness, brightness, 1f);
-    context.drawGuiTexture(this.texture, x, y, this.iconSize, this.iconSize);
+    context.drawGuiTexture(texture, x, y, this.iconSize, this.iconSize);
     RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
   }
 
@@ -74,8 +83,20 @@ public class IconButtonWidget extends ButtonWidget {
     super.drawMessage(context, textRenderer, color);
   }
 
+  public void setTexture(Icon icon, String modId) {
+    this.texture = icon.getTexture(modId);
+  }
+
   public void setTexture(Identifier texture) {
     this.texture = texture;
+  }
+
+  public void setActiveTexture(Icon icon, String modId) {
+    this.activeTexture = icon.getTexture(modId);
+  }
+
+  public void setActiveTexture(Identifier texture) {
+    this.activeTexture = texture;
   }
 
   public static Builder builder(Identifier texture, int iconSize) {
@@ -93,9 +114,11 @@ public class IconButtonWidget extends ButtonWidget {
     private int y = 0;
     private int width = SIZE_L;
     private int height = SIZE_L;
+    private Identifier activeTexture = null;
     private boolean dimIconWhenDisabled = true;
     private Text message = Text.empty();
     private boolean hideMessage = true;
+    private boolean hideBackground = false;
     private PressAction onPress = NOOP;
     private Tooltip tooltip = null;
     private NarrationSupplier narrationSupplier = DEFAULT_NARRATION_SUPPLIER;
@@ -108,6 +131,16 @@ public class IconButtonWidget extends ButtonWidget {
     private Builder(Identifier texture, int iconSize) {
       this.texture = texture;
       this.iconSize = iconSize;
+    }
+
+    public Builder activeTexture(Icon icon, String modId) {
+      this.activeTexture = icon.getTexture(modId);
+      return this;
+    }
+
+    public Builder activeTexture(Identifier texture) {
+      this.activeTexture = texture;
+      return this;
     }
 
     public Builder dimensions(int size) {
@@ -199,10 +232,12 @@ public class IconButtonWidget extends ButtonWidget {
           this.width,
           this.height,
           this.texture,
+          this.activeTexture,
           this.iconSize,
           this.dimIconWhenDisabled,
           this.message,
           this.hideMessage,
+          this.hideBackground,
           this.onPress,
           this.tooltip,
           this.narrationSupplier);
