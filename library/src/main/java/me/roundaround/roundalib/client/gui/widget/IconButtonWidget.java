@@ -27,7 +27,7 @@ public class IconButtonWidget extends ButtonWidget {
   protected final boolean hideBackground;
 
   protected Identifier texture;
-  protected Identifier activeTexture;
+  protected Identifier highlightedTexture;
 
   protected IconButtonWidget(
       int x,
@@ -35,7 +35,7 @@ public class IconButtonWidget extends ButtonWidget {
       int width,
       int height,
       Identifier texture,
-      Identifier activeTexture,
+      Identifier highlightedTexture,
       int iconSize,
       boolean dimIconWhenDisabled,
       Text message,
@@ -47,7 +47,7 @@ public class IconButtonWidget extends ButtonWidget {
     super(x, y, width, height, message, onPress, narrationSupplier);
 
     this.texture = texture;
-    this.activeTexture = activeTexture;
+    this.highlightedTexture = highlightedTexture;
     this.iconSize = iconSize;
     this.dimIconWhenDisabled = dimIconWhenDisabled;
     this.hideMessage = hideMessage;
@@ -64,8 +64,9 @@ public class IconButtonWidget extends ButtonWidget {
       super.renderWidget(context, mouseX, mouseY, delta);
     }
 
-    Identifier texture =
-        this.active && this.activeTexture != null ? this.activeTexture : this.texture;
+    Identifier texture = this.isSelected() && this.highlightedTexture != null
+        ? this.highlightedTexture
+        : this.texture;
     float brightness = this.active || !this.dimIconWhenDisabled ? 1f : 0.6f;
     int x = this.getX() + (this.getWidth() - this.iconSize) / 2;
     int y = this.getY() + (this.getHeight() - this.iconSize) / 2;
@@ -91,12 +92,12 @@ public class IconButtonWidget extends ButtonWidget {
     this.texture = texture;
   }
 
-  public void setActiveTexture(Icon icon, String modId) {
-    this.activeTexture = icon.getTexture(modId);
+  public void setHighlightedTexture(Icon icon, String modId) {
+    this.highlightedTexture = icon.getTexture(modId);
   }
 
-  public void setActiveTexture(Identifier texture) {
-    this.activeTexture = texture;
+  public void setHighlightedTexture(Identifier texture) {
+    this.highlightedTexture = texture;
   }
 
   public static Builder builder(Identifier texture, int iconSize) {
@@ -114,7 +115,7 @@ public class IconButtonWidget extends ButtonWidget {
     private int y = 0;
     private int width = SIZE_L;
     private int height = SIZE_L;
-    private Identifier activeTexture = null;
+    private Identifier highlightedTexture = null;
     private boolean dimIconWhenDisabled = true;
     private Text message = Text.empty();
     private boolean hideMessage = true;
@@ -133,13 +134,13 @@ public class IconButtonWidget extends ButtonWidget {
       this.iconSize = iconSize;
     }
 
-    public Builder activeTexture(Icon icon, String modId) {
-      this.activeTexture = icon.getTexture(modId);
+    public Builder highlightedTexture(Icon icon, String modId) {
+      this.highlightedTexture = icon.getTexture(modId);
       return this;
     }
 
-    public Builder activeTexture(Identifier texture) {
-      this.activeTexture = texture;
+    public Builder highlightedTexture(Identifier texture) {
+      this.highlightedTexture = texture;
       return this;
     }
 
@@ -200,6 +201,11 @@ public class IconButtonWidget extends ButtonWidget {
       return this;
     }
 
+    public Builder hideBackground() {
+      this.hideBackground = true;
+      return this;
+    }
+
     public Builder onPress(PressAction onPress) {
       this.onPress = onPress;
       return this;
@@ -232,7 +238,7 @@ public class IconButtonWidget extends ButtonWidget {
           this.width,
           this.height,
           this.texture,
-          this.activeTexture,
+          this.highlightedTexture,
           this.iconSize,
           this.dimIconWhenDisabled,
           this.message,
