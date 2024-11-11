@@ -107,9 +107,10 @@ public class LabelWidget extends DrawableWidget {
       return;
     }
 
-    Dimensions dimensions = this.lines.size() == 1 && this.overflowBehavior == OverflowBehavior.WRAP ?
-        this.getWrappedTextDimensions() :
-        this.getFullTextDimensions();
+    Dimensions dimensions =
+        this.lines.size() == 1 && this.overflowBehavior == OverflowBehavior.WRAP ?
+            this.getWrappedTextDimensions() :
+            this.getFullTextDimensions();
 
     int textWidth = Math.min(dimensions.width(), this.getAvailableWidth());
     int textHeight = Math.min(dimensions.height(), this.getAvailableHeight());
@@ -129,12 +130,16 @@ public class LabelWidget extends DrawableWidget {
 
   private Dimensions getFullTextDimensions() {
     return Dimensions.of(this.lines.stream().mapToInt(this.textRenderer::getWidth).max().orElse(0),
-        this.lines.size() * this.textRenderer.fontHeight + (this.lines.size() - 1) * this.lineSpacing
+        this.lines.size() * this.textRenderer.fontHeight +
+            (this.lines.size() - 1) * this.lineSpacing
     );
   }
 
   private Dimensions getWrappedTextDimensions() {
-    return GuiUtil.measureWrappedText(this.textRenderer, this.lines.getFirst(), this.getAvailableWidth(), this.maxLines,
+    return GuiUtil.measureWrappedText(this.textRenderer,
+        this.lines.getFirst(),
+        this.getAvailableWidth(),
+        this.maxLines,
         this.lineSpacing
     );
   }
@@ -145,7 +150,8 @@ public class LabelWidget extends DrawableWidget {
       return;
     }
 
-    this.hovered = context.scissorContains(mouseX, mouseY) && this.getBounds().contains(mouseX, mouseY);
+    this.hovered =
+        context.scissorContains(mouseX, mouseY) && this.getBounds().contains(mouseX, mouseY);
 
     if (this.showBackground) {
       GuiUtil.fill(context, this.bgBounds, this.bgColor);
@@ -170,30 +176,62 @@ public class LabelWidget extends DrawableWidget {
   }
 
   protected void renderLine(
-      int index, OverflowBehavior overflowBehavior, DrawContext context, int mouseX, int mouseY, float delta
+      int index,
+      OverflowBehavior overflowBehavior,
+      DrawContext context,
+      int mouseX,
+      int mouseY,
+      float delta
   ) {
     Text line = this.lines.get(index);
     int x = this.textBounds.left();
-    int y = this.textBounds.top() + GuiUtil.getLineYOffset(this.textRenderer, index, this.lineSpacing);
+    int y =
+        this.textBounds.top() + GuiUtil.getLineYOffset(this.textRenderer, index, this.lineSpacing);
     int viewportWidth = this.textBounds.getWidth();
 
     switch (overflowBehavior) {
-      case SHOW, CLIP ->
-          GuiUtil.drawText(context, this.textRenderer, line, x, y, this.color, this.shadow, viewportWidth,
-              this.alignTextX
-          );
-      case TRUNCATE ->
-          GuiUtil.drawTruncatedText(context, this.textRenderer, line, x, y, this.color, this.shadow, viewportWidth,
-              this.alignTextX
-          );
-      case WRAP ->
-          GuiUtil.drawWrappedText(context, this.textRenderer, line, x, y, this.color, this.shadow, viewportWidth,
-              this.maxLines, this.lineSpacing, this.alignTextX
-          );
-      case SCROLL ->
-          GuiUtil.drawScrollingText(context, this.textRenderer, line, x, y, this.color, this.shadow, viewportWidth,
-              this.alignTextX
-          );
+      case SHOW, CLIP -> GuiUtil.drawText(context,
+          this.textRenderer,
+          line,
+          x,
+          y,
+          this.color,
+          this.shadow,
+          viewportWidth,
+          this.alignTextX
+      );
+      case TRUNCATE -> GuiUtil.drawTruncatedText(context,
+          this.textRenderer,
+          line,
+          x,
+          y,
+          this.color,
+          this.shadow,
+          viewportWidth,
+          this.alignTextX
+      );
+      case WRAP -> GuiUtil.drawWrappedText(context,
+          this.textRenderer,
+          line,
+          x,
+          y,
+          this.color,
+          this.shadow,
+          viewportWidth,
+          this.maxLines,
+          this.lineSpacing,
+          this.alignTextX
+      );
+      case SCROLL -> GuiUtil.drawScrollingText(context,
+          this.textRenderer,
+          line,
+          x,
+          y,
+          this.color,
+          this.shadow,
+          viewportWidth,
+          this.alignTextX
+      );
     }
   }
 
@@ -222,7 +260,8 @@ public class LabelWidget extends DrawableWidget {
 
   public int getDefaultHeight() {
     int lines = Math.max(1, this.getLineCount());
-    return lines * this.textRenderer.fontHeight + (lines - 1) * this.lineSpacing + PADDING.getVertical();
+    return lines * this.textRenderer.fontHeight + (lines - 1) * this.lineSpacing +
+        PADDING.getVertical();
   }
 
   public void batchUpdates(Runnable runnable) {
@@ -504,7 +543,15 @@ public class LabelWidget extends DrawableWidget {
       return this.color(GuiUtil.genColorInt(r, g, b));
     }
 
+    public Builder color(float r, float g, float b) {
+      return this.color(GuiUtil.genColorInt(r, g, b));
+    }
+
     public Builder color(int r, int g, int b, int a) {
+      return this.color(GuiUtil.genColorInt(r, g, b, a));
+    }
+
+    public Builder color(float r, float g, float b, float a) {
       return this.color(GuiUtil.genColorInt(r, g, b, a));
     }
 
@@ -637,16 +684,36 @@ public class LabelWidget extends DrawableWidget {
     }
 
     public LabelWidget build() {
-      return new LabelWidget(this.textRenderer, this.lines, this.color, this.x, this.y, this.width, this.height,
-          this.alignSelfX, this.alignSelfY, this.alignTextX, this.alignTextY, this.overflowBehavior, this.maxLines,
-          this.lineSpacing, this.background, this.bgColor, this.shadow, this.tooltip, this.tooltipDelay
+      return new LabelWidget(this.textRenderer,
+          this.lines,
+          this.color,
+          this.x,
+          this.y,
+          this.width,
+          this.height,
+          this.alignSelfX,
+          this.alignSelfY,
+          this.alignTextX,
+          this.alignTextY,
+          this.overflowBehavior,
+          this.maxLines,
+          this.lineSpacing,
+          this.background,
+          this.bgColor,
+          this.shadow,
+          this.tooltip,
+          this.tooltipDelay
       );
     }
   }
 
   @Environment(EnvType.CLIENT)
   public enum OverflowBehavior {
-    SHOW("show", true), TRUNCATE("truncate", true), WRAP("wrap", false), CLIP("clip", true), SCROLL("scroll", true);
+    SHOW("show", true),
+    TRUNCATE("truncate", true),
+    WRAP("wrap", false),
+    CLIP("clip", true),
+    SCROLL("scroll", true);
 
     private final String id;
     private final boolean supportsMultiline;
