@@ -6,8 +6,10 @@ import me.roundaround.roundalib.client.gui.util.Spacing;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.LayoutWidget;
 import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
 
 import java.util.function.Consumer;
@@ -84,8 +86,10 @@ public class FrameWidget extends DrawableWidget implements LayoutWidget {
     int height = this.getHeight() + 2 * this.overflow - 1;
 
     Sprite sprite = GuiUtil.getSprite(TEXTURE);
-    GuiUtil.drawNineSlice(context, sprite, x, y, width, height, 24, 23, NINE_SLIDE_BORDER);
-    GuiUtil.drawSprite(context, sprite, 24, 23, 0, 0, x, y + height, 0, width, 1);
+    GuiUtil.drawSpriteNineSliced(
+        context, RenderLayer::getGuiTextured, sprite, x, y, width, height, 24, 23, Colors.WHITE, NINE_SLIDE_BORDER);
+    GuiUtil.drawSpriteRegion(
+        context, RenderLayer::getGuiTextured, sprite, 24, 23, 0, 0, x, y + height, width, 1, Colors.WHITE);
   }
 
   @Override

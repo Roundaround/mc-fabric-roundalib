@@ -137,11 +137,11 @@ public class MultilineLabelDemoScreen extends Screen implements DemoScreen {
     }));
 
     this.layout.forEachChild(this::addDrawableChild);
-    this.initTabNavigation();
+    this.refreshWidgetPositions();
   }
 
   @Override
-  protected void initTabNavigation() {
+  protected void refreshWidgetPositions() {
     this.layout.refreshPositions();
   }
 

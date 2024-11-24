@@ -52,7 +52,7 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   protected void init() {
     this.initElements();
     this.nonPositioningRoot.forEachChild(this::addDrawableChild);
-    this.initTabNavigation();
+    this.refreshWidgetPositions();
   }
 
   protected void initElements() {
@@ -67,7 +67,7 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   }
 
   @Override
-  protected void initTabNavigation() {
+  protected void refreshWidgetPositions() {
     this.nonPositioningRoot.setPositionAndDimensions(0, 0, this.width, this.height);
     this.nonPositioningRoot.refreshPositions();
   }

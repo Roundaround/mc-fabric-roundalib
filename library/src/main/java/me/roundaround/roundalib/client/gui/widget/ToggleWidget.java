@@ -15,6 +15,7 @@ import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.LayoutWidget;
 import net.minecraft.client.gui.widget.PressableWidget;
 import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -110,9 +111,10 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
 
-        context.drawGuiTexture(TEXTURE, this.getX(), this.getY(), this.getWidth(), this.getHeight());
-        context.drawGuiTexture(ToggleWidget.this.getHandleTexture(), this.getX() + offset, this.getY(), barWidth,
-            this.getHeight()
+        context.drawGuiTexture(
+            RenderLayer::getGuiTextured, TEXTURE, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+        context.drawGuiTexture(RenderLayer::getGuiTextured, ToggleWidget.this.getHandleTexture(), this.getX() + offset,
+            this.getY(), barWidth, this.getHeight()
         );
       }
     });

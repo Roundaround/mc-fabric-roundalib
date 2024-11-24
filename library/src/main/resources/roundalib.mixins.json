@@ -8,7 +8,6 @@
   ],
   "client": [
     "DrawContextAccessor",
-    "DrawContextNineSliceAccessor",
     "MinecraftClientMixin",
     "ScreenMixin"
   ],

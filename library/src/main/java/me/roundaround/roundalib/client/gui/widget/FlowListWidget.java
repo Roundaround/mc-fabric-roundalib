@@ -16,12 +16,11 @@ import net.minecraft.client.gui.screen.narration.NarrationPart;
 import net.minecraft.client.gui.widget.ContainerWidget;
 import net.minecraft.client.gui.widget.LayoutWidget;
 import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.client.render.*;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
-import org.joml.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -163,7 +162,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
   protected void calculateContentHeight() {
     this.contentHeight = this.contentPadding.getVertical() + this.entries.stream().mapToInt(Entry::getHeight).sum() +
-        Math.max(0, this.getEntryCount() - 1) * this.rowSpacing;
+                         Math.max(0, this.getEntryCount() - 1) * this.rowSpacing;
   }
 
   protected void calculateScrollbarX() {
@@ -181,8 +180,8 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
   protected void renderListBackground(DrawContext context) {
     RenderSystem.enableBlend();
-    context.drawTexture(Textures.listBg(this.client), this.getX(), this.getY(), this.getRight(),
-        this.getBottom() + (int) this.getScrollAmount(), this.getWidth(), this.getHeight(), 32, 32
+    context.drawTexture(RenderLayer::getGuiTextured, Textures.listBg(this.client), this.getX(), this.getY(),
+        this.getRight(), this.getBottom() + (int) this.getScrollAmount(), this.getWidth(), this.getHeight(), 32, 32
     );
     RenderSystem.disableBlend();
   }
@@ -218,17 +217,23 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     int handleY = this.getY() + (int) Math.round(yPercent * movableSpace);
 
     RenderSystem.enableBlend();
-    context.drawGuiTexture(
-        Textures.SCROLLBAR_BG, this.scrollbarX, this.getY(), GuiUtil.SCROLLBAR_WIDTH, this.getHeight());
-    context.drawGuiTexture(Textures.SCROLLBAR, this.scrollbarX, handleY, GuiUtil.SCROLLBAR_WIDTH, handleHeight);
+    context.drawGuiTexture(RenderLayer::getGuiTextured, Textures.SCROLLBAR_BG, this.scrollbarX, this.getY(),
+        GuiUtil.SCROLLBAR_WIDTH, this.getHeight()
+    );
+    context.drawGuiTexture(RenderLayer::getGuiTextured, Textures.SCROLLBAR, this.scrollbarX, handleY,
+        GuiUtil.SCROLLBAR_WIDTH, handleHeight
+    );
     RenderSystem.disableBlend();
   }
 
   protected void renderListBorders(DrawContext context) {
     RenderSystem.enableBlend();
-    context.drawTexture(Textures.borderTop(this.client), this.getX(), this.getY() - 2, 0, 0, this.getWidth(), 2, 32, 2);
-    context.drawTexture(
-        Textures.borderBottom(this.client), this.getX(), this.getBottom(), 0, 0, this.getWidth(), 2, 32, 2);
+    context.drawTexture(RenderLayer::getGuiTextured, Textures.borderTop(this.client), this.getX(), this.getY() - 2, 0,
+        0, this.getWidth(), 2, 32, 2
+    );
+    context.drawTexture(RenderLayer::getGuiTextured, Textures.borderBottom(this.client), this.getX(), this.getBottom(),
+        0, 0, this.getWidth(), 2, 32, 2
+    );
     RenderSystem.disableBlend();
   }
 
@@ -715,30 +720,10 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     protected static void renderRowShade(
         DrawContext context, int left, int top, int right, int bottom, int fadeWidth, int shadeStrength
     ) {
-      RenderSystem.enableBlend();
-      RenderSystem.defaultBlendFunc();
-      RenderSystem.setShader(GameRenderer::getPositionColorProgram);
-
-      Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
-      BufferBuilder bufferBuilder = Tessellator.getInstance()
-          .begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-      bufferBuilder.vertex(matrix4f, left + fadeWidth, top, 0).color(0, 0, 0, shadeStrength);
-      bufferBuilder.vertex(matrix4f, left, top, 0).color(0, 0, 0, 0);
-      bufferBuilder.vertex(matrix4f, left, bottom, 0).color(0, 0, 0, 0);
-      bufferBuilder.vertex(matrix4f, left + fadeWidth, bottom, 0).color(0, 0, 0, shadeStrength);
-
-      bufferBuilder.vertex(matrix4f, right - fadeWidth, top, 0).color(0, 0, 0, shadeStrength);
-      bufferBuilder.vertex(matrix4f, left + fadeWidth, top, 0).color(0, 0, 0, shadeStrength);
-      bufferBuilder.vertex(matrix4f, left + fadeWidth, bottom, 0).color(0, 0, 0, shadeStrength);
-      bufferBuilder.vertex(matrix4f, right - fadeWidth, bottom, 0).color(0, 0, 0, shadeStrength);
-
-      bufferBuilder.vertex(matrix4f, right, top, 0).color(0, 0, 0, 0);
-      bufferBuilder.vertex(matrix4f, right - fadeWidth, top, 0).color(0, 0, 0, shadeStrength);
-      bufferBuilder.vertex(matrix4f, right - fadeWidth, bottom, 0).color(0, 0, 0, shadeStrength);
-      bufferBuilder.vertex(matrix4f, right, bottom, 0).color(0, 0, 0, 0);
-      BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
-
-      RenderSystem.disableBlend();
+      int shadeColor = GuiUtil.genColorInt(0, 0, 0, shadeStrength);
+      GuiUtil.fillHorizontalGradient(context, left, top, left + fadeWidth, bottom, 0, shadeColor);
+      context.fill(left + fadeWidth, top, right - fadeWidth, bottom, shadeColor);
+      GuiUtil.fillHorizontalGradient(context, right - fadeWidth, top, right, bottom, shadeColor, 0);
     }
 
     protected void renderContent(DrawContext context, int mouseX, int mouseY, float delta) {

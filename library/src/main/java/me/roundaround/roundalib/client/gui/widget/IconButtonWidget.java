@@ -8,6 +8,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -72,7 +73,7 @@ public class IconButtonWidget extends ButtonWidget {
     int y = this.getY() + (this.getHeight() - this.iconSize) / 2;
 
     RenderSystem.setShaderColor(brightness, brightness, brightness, 1f);
-    context.drawGuiTexture(texture, x, y, this.iconSize, this.iconSize);
+    context.drawGuiTexture(RenderLayer::getGuiTextured, texture, x, y, this.iconSize, this.iconSize);
     RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
   }
 

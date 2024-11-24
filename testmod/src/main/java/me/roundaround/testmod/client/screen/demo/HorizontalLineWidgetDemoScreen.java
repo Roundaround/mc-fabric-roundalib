@@ -51,11 +51,11 @@ public class HorizontalLineWidgetDemoScreen extends Screen implements DemoScreen
     this.layout.addFooter(ButtonWidget.builder(ScreenTexts.DONE, (button) -> this.close()).build());
 
     this.layout.forEachChild(this::addDrawableChild);
-    this.initTabNavigation();
+    this.refreshWidgetPositions();
   }
 
   @Override
-  protected void initTabNavigation() {
+  protected void refreshWidgetPositions() {
     this.layout.refreshPositions();
   }
 

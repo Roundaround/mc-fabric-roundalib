@@ -68,7 +68,7 @@ public class FrameWidgetDemoScreen extends Screen implements DemoScreen {
     this.frameWidget = this.layout.addNonPositioned(new FrameWidget(this.activeButton));
 
     this.layout.forEachChild(this::addDrawableChild);
-    this.initTabNavigation();
+    this.refreshWidgetPositions();
   }
 
   private void setActive(ButtonWidget button) {
@@ -77,7 +77,7 @@ public class FrameWidgetDemoScreen extends Screen implements DemoScreen {
   }
 
   @Override
-  protected void initTabNavigation() {
+  protected void refreshWidgetPositions() {
     this.layout.refreshPositions();
   }
 
