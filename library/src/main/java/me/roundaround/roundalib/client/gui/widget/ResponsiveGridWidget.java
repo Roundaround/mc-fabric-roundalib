@@ -33,6 +33,7 @@ public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidge
   private int rowSpacing = GuiUtil.PADDING;
   private int columnSpacing = GuiUtil.PADDING;
   private Float relative = null;
+  private int contentHeight = 0;
 
   public ResponsiveGridWidget(int width, int height, int columnWidth, int rowHeight) {
     this(0, 0, width, height, columnWidth, rowHeight, Axis.HORIZONTAL);
@@ -77,9 +78,12 @@ public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidge
 
     Coords offset = this.getCenteredOffset();
 
+    int numRows = 0;
     for (CellWidget<?> cell : this.cells) {
       int column = this.flowAxis == Axis.HORIZONTAL ? main : other;
       int row = this.flowAxis == Axis.HORIZONTAL ? other : main;
+
+      numRows = Math.max(numRows, row);
 
       cell.setPosition(this.calcPosX(column) + offset.x(),
           this.calcPosY(row) + offset.y(),
@@ -94,6 +98,18 @@ public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidge
     }
 
     LayoutWidget.super.refreshPositions();
+
+    this.contentHeight = numRows * (this.rowHeight + this.rowSpacing) + this.rowSpacing;
+  }
+
+  @Override
+  protected int getContentsHeightWithPadding() {
+    return this.contentHeight;
+  }
+
+  @Override
+  protected double getDeltaYPerScroll() {
+    return (double) (this.rowHeight + this.rowSpacing) / 2.0;
   }
 
   private int getMaxCountForMainAxis() {
