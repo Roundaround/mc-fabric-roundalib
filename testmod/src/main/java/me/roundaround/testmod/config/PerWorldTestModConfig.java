@@ -24,8 +24,8 @@ public class PerWorldTestModConfig extends ModConfigImpl implements WorldScopedF
   public BooleanConfigOption third;
   public BooleanConfigOption fourth;
   public BooleanConfigOption fifth;
-  public BooleanConfigOption sixth;
   public StringListConfigOption list;
+  public BooleanConfigOption serverOrSingle;
 
   private PerWorldTestModConfig() {
     super(TestMod.MOD_ID, "pw");
@@ -33,8 +33,9 @@ public class PerWorldTestModConfig extends ModConfigImpl implements WorldScopedF
 
   @Override
   protected void registerOptions() {
-    this.first = this.register(
-        BooleanConfigOption.builder(ConfigPath.of("pwTestOption0")).setDefaultValue(true).build());
+    this.first = this.register(BooleanConfigOption.builder(ConfigPath.of("pwTestOption0"))
+        .setDefaultValue(true)
+        .build());
 
     this.second = this.register(BooleanConfigOption.builder(ConfigPath.of("pwTestOption1"))
         .setDefaultValue(true)
@@ -56,9 +57,14 @@ public class PerWorldTestModConfig extends ModConfigImpl implements WorldScopedF
         .onUpdate((option) -> option.setDisabled(!this.first.getPendingValue()))
         .build()).serverOnly().commit();
 
-    this.list = this.buildRegistration(
-            StringListConfigOption.builder(ConfigPath.of("pwTestListOption")).setDefaultValue(List.of("A")).build())
-        .noGuiControl()
-        .commit();
+    this.list =
+        this.buildRegistration(StringListConfigOption.builder(ConfigPath.of("pwTestListOption"))
+            .setDefaultValue(List.of("A"))
+            .build()).noGuiControl().commit();
+
+    this.serverOrSingle =
+        this.buildRegistration(BooleanConfigOption.builder(ConfigPath.of("pwTestServerOrSingle"))
+            .setDefaultValue(true)
+            .build()).serverOrSinglePlayer().commit();
   }
 }
