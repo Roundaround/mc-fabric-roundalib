@@ -4,6 +4,7 @@
   "package": "me.roundaround.roundalib.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "ResourcePackProfileMixin",
     "VanillaDataPackProviderMixin"
   ],
   "client": [

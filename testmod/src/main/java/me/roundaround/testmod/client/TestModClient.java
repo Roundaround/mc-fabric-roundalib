@@ -6,12 +6,15 @@ import me.roundaround.roundalib.client.gui.widget.config.ControlRegistry;
 import me.roundaround.roundalib.client.gui.widget.config.SubScreenControl;
 import me.roundaround.roundalib.config.option.PositionConfigOption;
 import me.roundaround.roundalib.config.value.Position;
+import me.roundaround.roundalib.util.BuiltinResourcePack;
+import me.roundaround.testmod.TestMod;
 import me.roundaround.testmod.client.screen.ExamplePositionEditScreen;
 import me.roundaround.testmod.client.screen.demo.DemoScreen;
 import me.roundaround.testmod.client.screen.demo.DemoSelectScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
 public class TestModClient implements ClientModInitializer {
@@ -34,6 +37,8 @@ public class TestModClient implements ClientModInitializer {
       }
       return false;
     });
+
+    BuiltinResourcePack.register(TestMod.MOD_ID, "example", Text.of("Example Builtin Pack"));
   }
 
   private static SubScreenControl<Position, PositionConfigOption> getSubScreenControl(
