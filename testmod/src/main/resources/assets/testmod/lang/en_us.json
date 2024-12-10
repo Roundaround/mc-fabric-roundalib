@@ -33,5 +33,6 @@
   "testmod.pwTestOption2.label": "Per-world option 2",
   "testmod.pwTestOption3.label": "Per-world option 3",
   "testmod.pwTestOption4.label": "Per-world option 4",
-  "testmod.pwTestOption5.label": "Per-world option 5"
+  "testmod.pwTestOption5.label": "Per-world option 5",
+  "testmod.pwTestServerOrSingle.label": "Server side or single player only"
 }

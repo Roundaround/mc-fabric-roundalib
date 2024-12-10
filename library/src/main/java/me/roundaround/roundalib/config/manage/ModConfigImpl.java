@@ -21,6 +21,7 @@ public abstract class ModConfigImpl implements ModConfig {
   protected final HashMap<ConfigPath, EnvType> envType = new HashMap<>();
   protected final HashSet<ConfigPath> noGuiControl = new HashSet<>();
   protected final HashSet<ConfigPath> singlePlayerOnly = new HashSet<>();
+  protected final HashSet<ConfigPath> serverOrSinglePlayer = new HashSet<>();
   protected final List<Observable.Subscription> subscriptions = new ArrayList<>();
 
   protected int storeSuppliedVersion;
@@ -109,7 +110,17 @@ public abstract class ModConfigImpl implements ModConfig {
       return false;
     }
 
-    return !this.singlePlayerOnly.contains(path) || ConnectedWorldContext.isSinglePlayer();
+    if (this.singlePlayerOnly.contains(path) && !ConnectedWorldContext.isSinglePlayer()) {
+      return false;
+    }
+
+    if (this.serverOrSinglePlayer.contains(path) &&
+        !(FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER ||
+            ConnectedWorldContext.isSinglePlayer())) {
+      return false;
+    }
+
+    return true;
   }
 
   protected boolean shouldShowGuiControl(ConfigOption<?> option) {
@@ -157,7 +168,8 @@ public abstract class ModConfigImpl implements ModConfig {
 
   protected <T extends ConfigOption<?>> T register(T option) {
     option.setModId(this.modId);
-    option.pendingValue.subscribe(this::refresh, Observable.SubscribeOptions.notEmittingImmediately());
+    option.pendingValue.subscribe(this::refresh,
+        Observable.SubscribeOptions.notEmittingImmediately());
 
     this.byGroup.computeIfAbsent(option.getGroup(), (group) -> new ArrayList<>()).add(option);
     this.byPath.put(option.getPath(), option);
@@ -178,6 +190,9 @@ public abstract class ModConfigImpl implements ModConfig {
       if (builder.singlePlayerOnly) {
         this.singlePlayerOnly.add(path);
       }
+      if (builder.serverOrSinglePlayer) {
+        this.serverOrSinglePlayer.add(path);
+      }
       return outOption;
     });
   }
@@ -189,6 +204,7 @@ public abstract class ModConfigImpl implements ModConfig {
     protected EnvType envType = null;
     protected boolean noGuiControl = false;
     protected boolean singlePlayerOnly = false;
+    protected boolean serverOrSinglePlayer = false;
 
     public RegistrationBuilder(T option, Function<? super RegistrationBuilder<T>, T> onCommit) {
       this.option = option;
@@ -213,6 +229,11 @@ public abstract class ModConfigImpl implements ModConfig {
     public RegistrationBuilder<T> singlePlayerOnly() {
       this.envType = EnvType.CLIENT;
       this.singlePlayerOnly = true;
+      return this;
+    }
+
+    public RegistrationBuilder<T> serverOrSinglePlayer() {
+      this.serverOrSinglePlayer = true;
       return this;
     }
 
