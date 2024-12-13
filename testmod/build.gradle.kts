@@ -1,6 +1,7 @@
 plugins {
-  id("io.github.goooler.shadow") version "8.1.7"
-  id("roundalib") version "0.8.0-SNAPSHOT"
+  id("fabric-loom") version "1.9-SNAPSHOT"
+  id("com.gradleup.shadow") version "9.0.0-beta2"
+  id("roundalib") version "0.9.0-SNAPSHOT"
 }
 
 val testGroupId = project.properties["group_id"].toString()
@@ -32,19 +33,19 @@ val importTextures = tasks.register<me.roundaround.roundalib.gradle.tasks.Import
   roundaLibSource.from(roundaLibConfig)
 }
 
-val registerPreLaunch =
-  tasks.register<me.roundaround.roundalib.gradle.tasks.RegisterPreLaunchTask>("registerPreLaunch") {
+val registerEntrypoint =
+  tasks.register<me.roundaround.roundalib.gradle.tasks.RegisterEntrypointTask>("registerEntrypoint") {
     modId.set(testModId)
     roundaLibPackage.set("$testGroupId.$testModId.roundalib")
     mustRunAfter(importMixins)
   }
 
 tasks.processResources {
-  dependsOn(importLangFiles, importMixins, importTextures, registerPreLaunch)
+  dependsOn(importLangFiles, importMixins, importTextures, registerEntrypoint)
   from(
     importLangFiles.get().outputDir,
     importMixins.get().outputDir,
     importTextures.get().outputDir,
-    registerPreLaunch.get().outputDir
+    registerEntrypoint.get().outputDir
   )
 }
