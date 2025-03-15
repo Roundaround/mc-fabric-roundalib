@@ -1,25 +1,30 @@
 package me.roundaround.roundalib.network;
 
+import io.netty.buffer.ByteBuf;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.codec.PacketDecoder;
 import net.minecraft.network.codec.ValueFirstEncoder;
 import net.minecraft.network.packet.CustomPayload;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 
 public final class CustomCodecs {
-  private CustomCodecs() {
-  }
+  public static final PacketCodec<ByteBuf, Date> DATE = PacketCodec.tuple(
+      PacketCodecs.VAR_LONG,
+      Date::getTime,
+      Date::new
+  );
 
   public static <T extends CustomPayload> PacketCodec<RegistryByteBuf, T> empty(Supplier<T> supplier) {
-    return PacketCodec.of((val, buf) -> {
-    }, (buf) -> supplier.get());
+    return PacketCodec.of(
+        (val, buf) -> {
+        }, (buf) -> supplier.get()
+    );
   }
 
   public static <B extends PacketByteBuf, V> PacketCodec<B, List<V>> forList(PacketCodec<? super B, V> entryCodec) {
@@ -27,7 +32,8 @@ public final class CustomCodecs {
   }
 
   public static <B extends PacketByteBuf, V> PacketCodec<B, List<V>> forList(
-      ValueFirstEncoder<? super B, V> encoder, PacketDecoder<? super B, V> decoder
+      ValueFirstEncoder<? super B, V> encoder,
+      PacketDecoder<? super B, V> decoder
   ) {
     return new PacketCodec<>() {
       @Override
@@ -67,9 +73,13 @@ public final class CustomCodecs {
   }
 
   public static <B extends PacketByteBuf, K, V> PacketCodec<B, Map<K, V>> forMap(
-      PacketCodec<? super B, K> keyCodec, PacketCodec<? super B, V> valueCodec
+      PacketCodec<? super B, K> keyCodec,
+      PacketCodec<? super B, V> valueCodec
   ) {
-    return forMap((value, buf) -> keyCodec.encode(buf, value), keyCodec, (value, buf) -> valueCodec.encode(buf, value),
+    return forMap(
+        (value, buf) -> keyCodec.encode(buf, value),
+        keyCodec,
+        (value, buf) -> valueCodec.encode(buf, value),
         valueCodec
     );
   }
@@ -100,5 +110,25 @@ public final class CustomCodecs {
         });
       }
     };
+  }
+
+  public static <B extends ByteBuf, V> PacketCodec<B, V> nullable(PacketCodec<B, V> codec) {
+    return new PacketCodec<>() {
+      public @Nullable V decode(B byteBuf) {
+        return byteBuf.readBoolean() ? codec.decode(byteBuf) : null;
+      }
+
+      public void encode(B byteBuf, @Nullable V nullable) {
+        if (nullable != null) {
+          byteBuf.writeBoolean(true);
+          codec.encode(byteBuf, nullable);
+        } else {
+          byteBuf.writeBoolean(false);
+        }
+      }
+    };
+  }
+
+  private CustomCodecs() {
   }
 }
