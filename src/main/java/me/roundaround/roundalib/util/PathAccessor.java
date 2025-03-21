@@ -1,6 +1,6 @@
 package me.roundaround.roundalib.util;
 
-import me.roundaround.roundalib.client.event.MinecraftServerEvents;
+import me.roundaround.roundalib.event.ResourceManagerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.MinecraftServer;
@@ -16,7 +16,7 @@ public class PathAccessor {
   private Path worldDirectory = null;
 
   private PathAccessor() {
-    MinecraftServerEvents.RESOURCE_MANAGER_CREATING.register(this::beforeResourceManagerCreated);
+    ResourceManagerEvents.CREATING.register(this::beforeResourceManagerCreated);
     ServerLifecycleEvents.SERVER_STOPPED.register(this::serverStopped);
   }
 

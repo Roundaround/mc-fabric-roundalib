@@ -1,4 +1,4 @@
-package me.roundaround.roundalib.client.event;
+package me.roundaround.roundalib.event;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

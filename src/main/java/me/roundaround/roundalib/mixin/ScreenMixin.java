@@ -1,6 +1,6 @@
 package me.roundaround.roundalib.mixin;
 
-import me.roundaround.roundalib.client.event.ScreenInputEvent;
+import me.roundaround.roundalib.event.ScreenInputEvent;
 import net.minecraft.client.gui.screen.Screen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

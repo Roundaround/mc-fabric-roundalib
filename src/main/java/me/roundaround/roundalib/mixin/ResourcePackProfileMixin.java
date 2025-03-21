@@ -21,7 +21,9 @@ public class ResourcePackProfileMixin {
   )
   )
   private static Range<Integer> adjustSupportedFormatsRange(
-      String packId, PackResourceMetadata metadata, Operation<Range<Integer>> original
+      String packId,
+      PackResourceMetadata metadata,
+      Operation<Range<Integer>> original
   ) {
     if (!BuiltinResourcePack.shouldForceVersionCompat(packId)) {
       return original.call(packId, metadata);

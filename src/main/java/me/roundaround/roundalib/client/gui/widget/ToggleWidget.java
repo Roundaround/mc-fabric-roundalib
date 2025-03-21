@@ -1,7 +1,7 @@
 package me.roundaround.roundalib.client.gui.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
 import me.roundaround.roundalib.client.gui.widget.drawable.DrawableWidget;
 import me.roundaround.roundalib.client.gui.widget.drawable.LabelWidget;

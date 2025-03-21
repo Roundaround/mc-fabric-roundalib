@@ -1,6 +1,6 @@
 package me.roundaround.roundalib.client.gui.layout.screen;
 
-import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.LayoutHookWithParent;
 import me.roundaround.roundalib.client.gui.layout.NonPositioningLayoutWidget;
 import me.roundaround.roundalib.client.gui.layout.SizableLayoutWidget;

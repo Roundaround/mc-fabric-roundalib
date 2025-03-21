@@ -1,7 +1,7 @@
 package me.roundaround.roundalib.client.gui.widget.drawable;
 
 import me.roundaround.roundalib.RoundaLib;
-import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.client.gui.util.Alignment;
 import me.roundaround.roundalib.client.gui.util.Dimensions;
 import me.roundaround.roundalib.client.gui.util.IntRect;

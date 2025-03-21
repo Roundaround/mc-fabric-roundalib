@@ -1,9 +1,5 @@
-package me.roundaround.roundalib.client.gui;
+package me.roundaround.roundalib.client.gui.util;
 
-import me.roundaround.roundalib.client.gui.util.Alignment;
-import me.roundaround.roundalib.client.gui.util.Dimensions;
-import me.roundaround.roundalib.client.gui.util.IntRect;
-import me.roundaround.roundalib.client.gui.util.Spacing;
 import me.roundaround.roundalib.mixin.DrawContextAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

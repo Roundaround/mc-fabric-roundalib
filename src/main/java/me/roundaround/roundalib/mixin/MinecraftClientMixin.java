@@ -1,6 +1,6 @@
 package me.roundaround.roundalib.mixin;
 
-import me.roundaround.roundalib.client.event.MinecraftClientEvents;
+import me.roundaround.roundalib.event.MinecraftClientEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.RunArgs;
 import org.spongepowered.asm.mixin.Mixin;

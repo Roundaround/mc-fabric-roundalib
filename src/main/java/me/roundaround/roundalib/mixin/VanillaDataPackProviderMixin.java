@@ -1,6 +1,6 @@
 package me.roundaround.roundalib.mixin;
 
-import me.roundaround.roundalib.client.event.MinecraftServerEvents;
+import me.roundaround.roundalib.event.ResourceManagerEvents;
 import net.minecraft.resource.ResourcePackManager;
 import net.minecraft.resource.VanillaDataPackProvider;
 import net.minecraft.world.level.storage.LevelStorage;
@@ -13,21 +13,23 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class VanillaDataPackProviderMixin {
   @Inject(
       method = "createManager(Lnet/minecraft/world/level/storage/LevelStorage$Session;)" +
-          "Lnet/minecraft/resource/ResourcePackManager;", at = @At("HEAD")
+               "Lnet/minecraft/resource/ResourcePackManager;", at = @At("HEAD")
   )
   private static void beforeResourceManagerCreated(
-      LevelStorage.Session session, CallbackInfoReturnable<ResourcePackManager> cir
+      LevelStorage.Session session,
+      CallbackInfoReturnable<ResourcePackManager> cir
   ) {
-    MinecraftServerEvents.RESOURCE_MANAGER_CREATING.invoker().beforeResourceManagerCreated(session);
+    ResourceManagerEvents.CREATING.invoker().beforeResourceManagerCreated(session);
   }
 
   @Inject(
       method = "createManager(Lnet/minecraft/world/level/storage/LevelStorage$Session;)" +
-          "Lnet/minecraft/resource/ResourcePackManager;", at = @At("RETURN")
+               "Lnet/minecraft/resource/ResourcePackManager;", at = @At("RETURN")
   )
   private static void afterResourceManagerCreated(
-      LevelStorage.Session session, CallbackInfoReturnable<ResourcePackManager> cir
+      LevelStorage.Session session,
+      CallbackInfoReturnable<ResourcePackManager> cir
   ) {
-    MinecraftServerEvents.RESOURCE_MANAGER_CREATED.invoker().afterResourceManagerCreated(session, cir.getReturnValue());
+    ResourceManagerEvents.CREATED.invoker().afterResourceManagerCreated(session, cir.getReturnValue());
   }
 }

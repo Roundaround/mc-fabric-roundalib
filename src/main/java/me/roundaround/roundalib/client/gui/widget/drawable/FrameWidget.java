@@ -1,6 +1,6 @@
 package me.roundaround.roundalib.client.gui.widget.drawable;
 
-import me.roundaround.roundalib.client.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.client.gui.util.IntRect;
 import me.roundaround.roundalib.client.gui.util.Spacing;
 import net.minecraft.client.gui.DrawContext;
