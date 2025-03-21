@@ -1,4 +1,4 @@
-package me.roundaround.roundalib.asset.icon;
+package me.roundaround.roundalib.client.gui.icon;
 
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;

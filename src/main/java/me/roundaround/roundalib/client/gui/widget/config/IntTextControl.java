@@ -1,6 +1,6 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
-import me.roundaround.roundalib.asset.icon.BuiltinIcon;
+import me.roundaround.roundalib.client.gui.icon.BuiltinIcon;
 import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
