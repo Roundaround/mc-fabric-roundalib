@@ -70,7 +70,7 @@ public interface FileBackedConfigStore extends ConfigStore {
     }
 
     if (!this.isDirty()) {
-      RoundaLib.LOGGER.info("Skipping saving {} config to file because nothing has changed.", this.getModId());
+      RoundaLib.LOGGER.debug("Skipping saving {} config to file because nothing has changed.", this.getModId());
       return;
     }
 
