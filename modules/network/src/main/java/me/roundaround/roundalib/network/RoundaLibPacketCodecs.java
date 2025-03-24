@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Supplier;
 
-public final class CustomCodecs {
+public final class RoundaLibPacketCodecs {
   public static final PacketCodec<ByteBuf, Date> DATE = PacketCodec.tuple(
       PacketCodecs.VAR_LONG,
       Date::getTime,
@@ -129,6 +129,6 @@ public final class CustomCodecs {
     };
   }
 
-  private CustomCodecs() {
+  private RoundaLibPacketCodecs() {
   }
 }
