@@ -4,5 +4,4 @@ plugins {
 
 roundalib {
   configureForLibrary()
-  constants.enabled = false
 }
