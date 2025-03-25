@@ -5,3 +5,7 @@ plugins {
 roundalib {
   configureForLibrary()
 }
+
+dependencies {
+  implementation(project(":core"))
+}
