@@ -1,7 +1,7 @@
 package me.roundaround.roundalib;
 
+import me.roundaround.gradle.api.annotation.Entrypoint;
 import me.roundaround.roundalib.generated.Constants;
-import me.roundaround.roundalib.gradle.api.annotation.Entrypoint;
 import me.roundaround.roundalib.util.PathAccessor;
 import net.fabricmc.api.ModInitializer;
 import org.apache.logging.log4j.LogManager;
