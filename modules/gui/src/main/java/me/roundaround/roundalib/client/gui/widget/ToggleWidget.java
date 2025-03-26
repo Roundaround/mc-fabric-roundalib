@@ -1,8 +1,8 @@
 package me.roundaround.roundalib.client.gui.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
+import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.drawable.DrawableWidget;
 import me.roundaround.roundalib.client.gui.widget.drawable.LabelWidget;
 import net.fabricmc.api.EnvType;
@@ -107,14 +107,21 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
         int offset = value ? this.getWidth() - barWidth : 0;
 
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.enableDepthTest();
-
         context.drawGuiTexture(
-            RenderLayer::getGuiTextured, TEXTURE, this.getX(), this.getY(), this.getWidth(), this.getHeight());
-        context.drawGuiTexture(RenderLayer::getGuiTextured, ToggleWidget.this.getHandleTexture(), this.getX() + offset,
-            this.getY(), barWidth, this.getHeight()
+            RenderLayer::getGuiTextured,
+            TEXTURE,
+            this.getX(),
+            this.getY(),
+            this.getWidth(),
+            this.getHeight()
+        );
+        context.drawGuiTexture(
+            RenderLayer::getGuiTextured,
+            ToggleWidget.this.getHandleTexture(),
+            this.getX() + offset,
+            this.getY(),
+            barWidth,
+            this.getHeight()
         );
       }
     });
@@ -277,7 +284,8 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
   }
 
   protected int getValueWidth() {
-    return Math.max(this.textRenderer.getWidth(this.valueTextMapper.apply(true)),
+    return Math.max(
+        this.textRenderer.getWidth(this.valueTextMapper.apply(true)),
         this.textRenderer.getWidth(this.valueTextMapper.apply(false))
     ) + LabelWidget.PADDING.getHorizontal();
   }
@@ -298,7 +306,9 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
   }
 
   public static Builder enabledDisabledBuilder(
-      TextRenderer textRenderer, ValueToTextMapper labelTextMapper, String modId
+      TextRenderer textRenderer,
+      ValueToTextMapper labelTextMapper,
+      String modId
   ) {
     return new Builder(textRenderer, labelTextMapper).showValue(ValueToTextMapper.enabledDisabled(modId));
   }
@@ -342,9 +352,7 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
     private Consumer<LabelWidget.Builder> labelColor = null;
     private Consumer<LabelWidget.Builder> labelBgColor = null;
 
-    private Builder(
-        TextRenderer textRenderer, ValueToTextMapper labelTextMapper
-    ) {
+    private Builder(TextRenderer textRenderer, ValueToTextMapper labelTextMapper) {
       this.textRenderer = textRenderer;
       this.labelTextMapper = labelTextMapper;
     }
@@ -490,9 +498,22 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
     }
 
     public ToggleWidget build() {
-      return new ToggleWidget(this.x, this.y, this.width, this.height, this.pressAction, this.textRenderer,
-          this.labelTextMapper, this.controlWidth, this.controlHeight, this.barWidth, this.valueChanged,
-          this.valueTextMapper, this.tooltipTextMapper, this.initialValue, this.consolidateLabelBuilderHook()
+      return new ToggleWidget(
+          this.x,
+          this.y,
+          this.width,
+          this.height,
+          this.pressAction,
+          this.textRenderer,
+          this.labelTextMapper,
+          this.controlWidth,
+          this.controlHeight,
+          this.barWidth,
+          this.valueChanged,
+          this.valueTextMapper,
+          this.tooltipTextMapper,
+          this.initialValue,
+          this.consolidateLabelBuilderHook()
       );
     }
   }

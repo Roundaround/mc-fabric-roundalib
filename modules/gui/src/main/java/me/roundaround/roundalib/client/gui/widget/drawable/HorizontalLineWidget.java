@@ -70,7 +70,6 @@ public class HorizontalLineWidget extends DrawableWidget {
 
   @Override
   public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-    RenderSystem.enableBlend();
     RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
     context.drawTexture(RenderLayer::getGuiTextured, this.texture, this.getX(), this.getY() + this.marginTop, 0, 0,
         this.width, this.height, 32, HEIGHT
