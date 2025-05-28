@@ -499,11 +499,6 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     return this.getMaxScroll() > 0;
   }
 
-  @Override
-  protected int getContentsHeightWithPadding() {
-    return this.getContentHeight();
-  }
-
   public void setContentPaddingX(int paddingX) {
     this.contentPadding = this.contentPadding.setHorizontal(paddingX);
   }
@@ -630,11 +625,6 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   protected void updateScrollingState(double mouseX, double mouseY, int button) {
     this.scrolling = button == 0 && mouseX >= (double) this.scrollbarX &&
         mouseX < (this.scrollbarX + GuiUtil.SCROLLBAR_WIDTH);
-  }
-
-  @Override
-  protected double getDeltaYPerScroll() {
-    return this.getScrollUnit();
   }
 
   protected double getScrollUnit() {

@@ -33,7 +33,6 @@ public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidge
   private int rowSpacing = GuiUtil.PADDING;
   private int columnSpacing = GuiUtil.PADDING;
   private Float relative = null;
-  private int contentHeight = 0;
 
   public ResponsiveGridWidget(int width, int height, int columnWidth, int rowHeight) {
     this(0, 0, width, height, columnWidth, rowHeight, Axis.HORIZONTAL);
@@ -43,13 +42,11 @@ public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidge
     this(x, y, width, height, columnWidth, rowHeight, Axis.HORIZONTAL);
   }
 
-  public ResponsiveGridWidget(
-      int width, int height, int columnWidth, int rowHeight, Axis flowAxis) {
+  public ResponsiveGridWidget(int width, int height, int columnWidth, int rowHeight, Axis flowAxis) {
     this(0, 0, width, height, columnWidth, rowHeight, flowAxis);
   }
 
-  public ResponsiveGridWidget(
-      int x, int y, int width, int height, int columnWidth, int rowHeight, Axis flowAxis) {
+  public ResponsiveGridWidget(int x, int y, int width, int height, int columnWidth, int rowHeight, Axis flowAxis) {
     super(x, y, width, height, ScreenTexts.EMPTY);
 
     this.columnWidth = columnWidth;
@@ -85,10 +82,12 @@ public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidge
 
       numRows = Math.max(numRows, row);
 
-      cell.setPosition(this.calcPosX(column) + offset.x(),
+      cell.setPosition(
+          this.calcPosX(column) + offset.x(),
           this.calcPosY(row) + offset.y(),
           this.columnWidth,
-          this.rowHeight);
+          this.rowHeight
+      );
 
       main++;
       if (main > maxCount - 1) {
@@ -98,24 +97,11 @@ public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidge
     }
 
     LayoutWidget.super.refreshPositions();
-
-    this.contentHeight = numRows * (this.rowHeight + this.rowSpacing) + this.rowSpacing;
-  }
-
-  @Override
-  protected int getContentsHeightWithPadding() {
-    return this.contentHeight;
-  }
-
-  @Override
-  protected double getDeltaYPerScroll() {
-    return (double) (this.rowHeight + this.rowSpacing) / 2.0;
   }
 
   private int getMaxCountForMainAxis() {
     return switch (this.flowAxis) {
-      case HORIZONTAL ->
-          (this.width + this.columnSpacing) / (this.columnWidth + this.columnSpacing);
+      case HORIZONTAL -> (this.width + this.columnSpacing) / (this.columnWidth + this.columnSpacing);
       case VERTICAL -> (this.height + this.rowSpacing) / (this.rowHeight + this.rowSpacing);
     };
   }
@@ -243,8 +229,7 @@ public class ResponsiveGridWidget extends ContainerWidget implements LayoutWidge
 
   @Environment(EnvType.CLIENT)
   public enum Axis {
-    HORIZONTAL,
-    VERTICAL;
+    HORIZONTAL, VERTICAL;
   }
 
   @Environment(EnvType.CLIENT)
