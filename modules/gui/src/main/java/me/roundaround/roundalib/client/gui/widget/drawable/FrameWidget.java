@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 public class FrameWidget extends DrawableWidget implements LayoutWidget {
   public static final int DEFAULT_OVERFLOW = 2;
 
-  private static final Identifier TEXTURE = Identifier.ofVanilla("hud/hotbar_selection");
+  private static final Identifier TEXTURE = Identifier.of(Identifier.DEFAULT_NAMESPACE, "hud/hotbar_selection");
   private static final Spacing NINE_SLIDE_BORDER = Spacing.of(4, 4, 3, 4);
 
   private Slot refSlot = null;
