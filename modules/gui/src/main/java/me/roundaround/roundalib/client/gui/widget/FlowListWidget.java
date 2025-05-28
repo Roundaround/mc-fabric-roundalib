@@ -1,9 +1,9 @@
 package me.roundaround.roundalib.client.gui.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.LayoutHook;
 import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
+import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.client.gui.util.Spacing;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -16,7 +16,6 @@ import net.minecraft.client.gui.screen.narration.NarrationPart;
 import net.minecraft.client.gui.widget.ContainerWidget;
 import net.minecraft.client.gui.widget.LayoutWidget;
 import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -30,8 +29,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 @Environment(EnvType.CLIENT)
-public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends ContainerWidget
-    implements LayoutWidget {
+public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends ContainerWidget implements LayoutWidget {
   protected static final int VANILLA_LIST_WIDTH_S = 220;
   protected static final int VANILLA_LIST_WIDTH_M = 280;
   protected static final int VANILLA_LIST_WIDTH_L = 340;
@@ -61,11 +59,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   protected int scrollbarX;
 
   protected FlowListWidget(MinecraftClient client, ThreeSectionLayoutWidget layout) {
-    super(0,
-        layout.getHeaderHeight(),
-        layout.getWidth(),
-        layout.getBodyHeight(),
-        ScreenTexts.EMPTY);
+    super(0, layout.getHeaderHeight(), layout.getWidth(), layout.getBodyHeight(), ScreenTexts.EMPTY);
 
     this.client = client;
     this.parentLayout = layout;
@@ -79,10 +73,12 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   public <T extends E> T addEntry(EntryFactory<T> factory) {
-    T entry = factory.create(this.entries.size(),
+    T entry = factory.create(
+        this.entries.size(),
         this.getContentLeft(),
         this.getNextEntryTop(),
-        this.getContentWidth());
+        this.getContentWidth()
+    );
 
     if (entry == null) {
       return null;
@@ -146,10 +142,12 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   @Override
   public void refreshPositions() {
     if (this.parentLayout != null) {
-      this.setDimensionsAndPosition(this.parentLayout.getWidth(),
+      this.setDimensionsAndPosition(
+          this.parentLayout.getWidth(),
           this.parentLayout.getBodyHeight(),
           0,
-          this.parentLayout.getHeaderHeight());
+          this.parentLayout.getHeaderHeight()
+      );
     }
 
     this.calculateContentHeight();
@@ -169,9 +167,8 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   protected void calculateContentHeight() {
-    this.contentHeight =
-        this.contentPadding.getVertical() + this.entries.stream().mapToInt(Entry::getHeight).sum() +
-            Math.max(0, this.getEntryCount() - 1) * this.rowSpacing;
+    this.contentHeight = this.contentPadding.getVertical() + this.entries.stream().mapToInt(Entry::getHeight).sum() +
+                         Math.max(0, this.getEntryCount() - 1) * this.rowSpacing;
   }
 
   protected void calculateScrollbarX() {
@@ -189,7 +186,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
   protected void renderListBackground(DrawContext context) {
     RenderSystem.enableBlend();
-    context.drawTexture(RenderLayer::getGuiTextured,
+    context.drawTexture(
         Textures.listBg(this.client),
         this.getX(),
         this.getY(),
@@ -198,7 +195,8 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
         this.getWidth(),
         this.getHeight(),
         32,
-        32);
+        32
+    );
     RenderSystem.disableBlend();
   }
 
@@ -233,34 +231,21 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     int handleY = this.getY() + (int) Math.round(yPercent * movableSpace);
 
     RenderSystem.enableBlend();
-    context.drawGuiTexture(RenderLayer::getGuiTextured,
+    context.drawGuiTexture(
         Textures.SCROLLBAR_BG,
         this.scrollbarX,
         this.getY(),
         GuiUtil.SCROLLBAR_WIDTH,
-        this.getHeight());
-    context.drawGuiTexture(RenderLayer::getGuiTextured,
-        Textures.SCROLLBAR,
-        this.scrollbarX,
-        handleY,
-        GuiUtil.SCROLLBAR_WIDTH,
-        handleHeight);
+        this.getHeight()
+    );
+    context.drawGuiTexture(Textures.SCROLLBAR, this.scrollbarX, handleY, GuiUtil.SCROLLBAR_WIDTH, handleHeight);
     RenderSystem.disableBlend();
   }
 
   protected void renderListBorders(DrawContext context) {
     RenderSystem.enableBlend();
-    context.drawTexture(RenderLayer::getGuiTextured,
-        Textures.borderTop(this.client),
-        this.getX(),
-        this.getY() - 2,
-        0,
-        0,
-        this.getWidth(),
-        2,
-        32,
-        2);
-    context.drawTexture(RenderLayer::getGuiTextured,
+    context.drawTexture(Textures.borderTop(this.client), this.getX(), this.getY() - 2, 0, 0, this.getWidth(), 2, 32, 2);
+    context.drawTexture(
         Textures.borderBottom(this.client),
         this.getX(),
         this.getBottom(),
@@ -269,7 +254,8 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
         this.getWidth(),
         2,
         32,
-        2);
+        2
+    );
     RenderSystem.disableBlend();
   }
 
@@ -317,8 +303,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     return this.getNeighboringEntry(direction, predicate, this.getSelected());
   }
 
-  protected E getNeighboringEntry(
-      NavigationDirection direction, Predicate<E> predicate, E selected) {
+  protected E getNeighboringEntry(NavigationDirection direction, Predicate<E> predicate, E selected) {
     if (this.entries.isEmpty()) {
       return null;
     }
@@ -373,8 +358,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
   @Override
   public boolean isMouseOver(double mouseX, double mouseY) {
-    return mouseX >= this.getX() && mouseX <= this.getRight() && mouseY >= this.getY() &&
-        mouseY <= this.getBottom();
+    return mouseX >= this.getX() && mouseX <= this.getRight() && mouseY >= this.getY() && mouseY <= this.getBottom();
   }
 
   protected boolean isSelectButton(int button) {
@@ -420,8 +404,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   @Override
-  public boolean mouseDragged(
-      double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+  public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
     if (super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)) {
       return true;
     }
@@ -445,8 +428,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   @Override
-  public boolean mouseScrolled(
-      double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+  public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
     if (this.allowScrollPassThrough()) {
       E entry = this.getEntryAtPosition(mouseX, mouseY);
       if (entry != null && entry.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount)) {
@@ -623,8 +605,8 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   protected void updateScrollingState(double mouseX, double mouseY, int button) {
-    this.scrolling = button == 0 && mouseX >= (double) this.scrollbarX &&
-        mouseX < (this.scrollbarX + GuiUtil.SCROLLBAR_WIDTH);
+    this.scrolling =
+        button == 0 && mouseX >= (double) this.scrollbarX && mouseX < (this.scrollbarX + GuiUtil.SCROLLBAR_WIDTH);
   }
 
   protected double getScrollUnit() {
@@ -752,13 +734,15 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     }
 
     protected void renderRowShade(DrawContext context) {
-      renderRowShade(context,
+      renderRowShade(
+          context,
           this.getX(),
           this.getY(),
           this.getRight(),
           this.getBottom(),
           this.getRowShadeFadeWidth(),
-          this.getRowShadeStrength());
+          this.getRowShadeStrength()
+      );
     }
 
     protected static void renderRowShade(
@@ -768,7 +752,8 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
         int right,
         int bottom,
         int fadeWidth,
-        int shadeStrength) {
+        int shadeStrength
+    ) {
       int shadeColor = GuiUtil.genColorInt(0, 0, 0, shadeStrength);
       GuiUtil.fillHorizontalGradient(context, left, top, left + fadeWidth, bottom, 0, shadeColor);
       context.fill(left + fadeWidth, top, right - fadeWidth, bottom, shadeColor);
@@ -789,8 +774,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
     @Override
     public boolean isMouseOver(double mouseX, double mouseY) {
-      return mouseX >= this.getX() && mouseX <= this.getRight() && mouseY >= this.getY() &&
-          mouseY <= this.getBottom();
+      return mouseX >= this.getX() && mouseX <= this.getRight() && mouseY >= this.getY() && mouseY <= this.getBottom();
     }
 
     @Override
@@ -893,8 +877,9 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     }
 
     public int getShadingPadding() {
-      return (this.getAlternatingRowShading() || this.getForceRowShading()) &&
-          this.getAutoPadForShading() ? this.getRowShadeFadeWidth() : 0;
+      return (this.getAlternatingRowShading() || this.getForceRowShading()) && this.getAutoPadForShading() ?
+          this.getRowShadeFadeWidth() :
+          0;
     }
 
     public boolean hasRowShading() {
@@ -1001,8 +986,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     static final Identifier LIST_BG = Identifier.ofVanilla("textures/gui/menu_list_background.png");
     static final Identifier BORDER_TOP = Screen.HEADER_SEPARATOR_TEXTURE;
     static final Identifier BORDER_BOTTOM = Screen.FOOTER_SEPARATOR_TEXTURE;
-    static final Identifier IN_WORLD_LIST_BG =
-        Identifier.ofVanilla("textures/gui/inworld_menu_list_background.png");
+    static final Identifier IN_WORLD_LIST_BG = Identifier.ofVanilla("textures/gui/inworld_menu_list_background.png");
     static final Identifier IN_WORLD_BORDER_TOP = Screen.INWORLD_HEADER_SEPARATOR_TEXTURE;
     static final Identifier IN_WORLD_BORDER_BOTTOM = Screen.INWORLD_FOOTER_SEPARATOR_TEXTURE;
 

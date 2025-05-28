@@ -8,7 +8,6 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -44,7 +43,8 @@ public class IconButtonWidget extends ButtonWidget {
       boolean hideBackground,
       PressAction onPress,
       Tooltip tooltip,
-      NarrationSupplier narrationSupplier) {
+      NarrationSupplier narrationSupplier
+  ) {
     super(x, y, width, height, message, onPress, narrationSupplier);
 
     this.texture = texture;
@@ -65,15 +65,13 @@ public class IconButtonWidget extends ButtonWidget {
       super.renderWidget(context, mouseX, mouseY, delta);
     }
 
-    Identifier texture = this.isSelected() && this.highlightedTexture != null
-        ? this.highlightedTexture
-        : this.texture;
+    Identifier texture = this.isSelected() && this.highlightedTexture != null ? this.highlightedTexture : this.texture;
     float brightness = this.active || !this.dimIconWhenDisabled ? 1f : 0.6f;
     int x = this.getX() + (this.getWidth() - this.iconSize) / 2;
     int y = this.getY() + (this.getHeight() - this.iconSize) / 2;
 
     RenderSystem.setShaderColor(brightness, brightness, brightness, 1f);
-    context.drawGuiTexture(RenderLayer::getGuiTextured, texture, x, y, this.iconSize, this.iconSize);
+    context.drawGuiTexture(texture, x, y, this.iconSize, this.iconSize);
     RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
   }
 
@@ -234,7 +232,8 @@ public class IconButtonWidget extends ButtonWidget {
     }
 
     public IconButtonWidget build() {
-      return new IconButtonWidget(this.x,
+      return new IconButtonWidget(
+          this.x,
           this.y,
           this.width,
           this.height,
@@ -247,7 +246,8 @@ public class IconButtonWidget extends ButtonWidget {
           this.hideBackground,
           this.onPress,
           this.tooltip,
-          this.narrationSupplier);
+          this.narrationSupplier
+      );
     }
   }
 }

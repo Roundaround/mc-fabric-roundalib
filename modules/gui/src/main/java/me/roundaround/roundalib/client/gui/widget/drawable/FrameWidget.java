@@ -87,9 +87,9 @@ public class FrameWidget extends DrawableWidget implements LayoutWidget {
 
     Sprite sprite = GuiUtil.getSprite(TEXTURE);
     GuiUtil.drawSpriteNineSliced(
-        context, RenderLayer::getGuiTextured, sprite, x, y, width, height, 24, 23, Colors.WHITE, NINE_SLIDE_BORDER);
+        context, sprite, x, y, width, height, 24, 23, Colors.WHITE, NINE_SLIDE_BORDER);
     GuiUtil.drawSpriteRegion(
-        context, RenderLayer::getGuiTextured, sprite, 24, 23, 0, 0, x, y + height, width, 1, Colors.WHITE);
+        context, sprite, 24, 23, 0, 0, x, y + height, width, 1, Colors.WHITE);
   }
 
   @Override

@@ -70,7 +70,7 @@ public class ConfigScreen extends Screen {
     this.initFooter();
 
     this.layout.forEachChild(this::addDrawableChild);
-    this.refreshWidgetPositions();
+    this.initTabNavigation();
   }
 
   protected void initHeader() {
@@ -92,7 +92,7 @@ public class ConfigScreen extends Screen {
   }
 
   @Override
-  protected void refreshWidgetPositions() {
+  protected void initTabNavigation() {
     this.layout.refreshPositions();
   }
 

@@ -18,25 +18,12 @@ public interface DrawContextAccessor {
   VertexConsumerProvider.Immediate getVertexConsumers();
 
   @Invoker
-  void invokeDrawSpriteRegion(
-      Function<Identifier, RenderLayer> renderLayers,
+  void invokeDrawSprite(
       Sprite sprite,
       int textureWidth,
       int textureHeight,
       int u,
       int v,
-      int x,
-      int y,
-      int width,
-      int height,
-      int color
-  );
-
-  @Invoker
-  void invokeDrawSpriteNineSliced(
-      Function<Identifier, RenderLayer> renderLayers,
-      Sprite sprite,
-      Scaling.NineSlice nineSlice,
       int x,
       int y,
       int width,
