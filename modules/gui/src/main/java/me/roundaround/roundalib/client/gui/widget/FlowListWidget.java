@@ -106,6 +106,29 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     return entry;
   }
 
+  public E removeEntry() {
+    if (this.entries.isEmpty()) {
+      return null;
+    }
+
+    boolean wasScrollbarVisible = this.isScrollbarVisible();
+
+    E entry = this.entries.removeLast();
+    this.calculateContentHeight();
+    if (!this.isScrollbarVisible() && wasScrollbarVisible) {
+      this.refreshPositions();
+    }
+
+    E selected = this.getSelected();
+    if (selected == entry) {
+      this.setSelected(null);
+    } else if (selected != null) {
+      this.ensureVisible(selected);
+    }
+    
+    return entry;
+  }
+
   public void clearEntries() {
     this.entries.clear();
     this.contentHeight = this.contentPadding.getVertical();
