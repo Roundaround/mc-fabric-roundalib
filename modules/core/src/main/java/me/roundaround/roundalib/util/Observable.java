@@ -36,38 +36,66 @@ public class Observable<T> {
   }
 
   public static <S, T> Computed<T> computed(
-      Observable<S> source, Mapper<S, T> mapper
-  ) {
+      Observable<S> source, Mapper<S, T> mapper) {
     return computed(source, mapper, SubscribeOptions.create());
   }
 
   public static <S, T> Computed<T> computed(
-      Observable<S> source, Mapper<S, T> mapper, SubscribeOptions options
-  ) {
-    Computed<T> computed = Computed.of(() -> mapper.apply(source.get()));
+      Observable<S> source, Mapper<S, T> mapper, BiFunction<T, T, Boolean> equalityFunction) {
+    return computed(source, mapper, equalityFunction, SubscribeOptions.create());
+  }
+
+  public static <S, T> Computed<T> computed(
+      Observable<S> source, Mapper<S, T> mapper, SubscribeOptions options) {
+    Computed<T> computed = new Computed<>(() -> mapper.apply(source.get()));
+    computed.sourceSubscription = source.subscribe((value) -> computed.set(mapper.apply(value)), options);
+    return computed;
+  }
+
+  public static <S, T> Computed<T> computed(
+      Observable<S> source, Mapper<S, T> mapper, BiFunction<T, T, Boolean> equalityFunction, SubscribeOptions options) {
+    Computed<T> computed = new Computed<>(() -> mapper.apply(source.get()), equalityFunction);
     computed.sourceSubscription = source.subscribe((value) -> computed.set(mapper.apply(value)), options);
     return computed;
   }
 
   public static <S1, S2, T> Computed<T> computed(
-      Observable<S1> source1, Observable<S2> source2, Mapper2<S1, S2, T> mapper
-  ) {
+      Observable<S1> source1, Observable<S2> source2, Mapper2<S1, S2, T> mapper) {
     return computed(source1, source2, mapper, SubscribeOptions.create());
   }
 
   public static <S1, S2, T> Computed<T> computed(
-      Observable<S1> source1, Observable<S2> source2, Mapper2<S1, S2, T> mapper, SubscribeOptions options
-  ) {
-    Computed<T> computed = Computed.of(() -> mapper.apply(source1.get(), source2.get()));
+      Observable<S1> source1, Observable<S2> source2, Mapper2<S1, S2, T> mapper,
+      BiFunction<T, T, Boolean> equalityFunction) {
+    return computed(source1, source2, mapper, equalityFunction, SubscribeOptions.create());
+  }
+
+  public static <S1, S2, T> Computed<T> computed(
+      Observable<S1> source1, Observable<S2> source2, Mapper2<S1, S2, T> mapper, SubscribeOptions options) {
+    Computed<T> computed = new Computed<>(() -> mapper.apply(source1.get(), source2.get()));
+    computed.sourceSubscription = subscribeToAll(
+        source1, source2, (value1, value2) -> computed.set(mapper.apply(value1, value2)), options);
+    return computed;
+  }
+
+  public static <S1, S2, T> Computed<T> computed(
+      Observable<S1> source1, Observable<S2> source2, Mapper2<S1, S2, T> mapper,
+      BiFunction<T, T, Boolean> equalityFunction, SubscribeOptions options) {
+    Computed<T> computed = new Computed<>(() -> mapper.apply(source1.get(), source2.get()), equalityFunction);
     computed.sourceSubscription = subscribeToAll(
         source1, source2, (value1, value2) -> computed.set(mapper.apply(value1, value2)), options);
     return computed;
   }
 
   public static <S1, S2, S3, T> Computed<T> computed(
-      Observable<S1> source1, Observable<S2> source2, Observable<S3> source3, Mapper3<S1, S2, S3, T> mapper
-  ) {
+      Observable<S1> source1, Observable<S2> source2, Observable<S3> source3, Mapper3<S1, S2, S3, T> mapper) {
     return computed(source1, source2, source3, mapper, SubscribeOptions.create());
+  }
+
+  public static <S1, S2, S3, T> Computed<T> computed(
+      Observable<S1> source1, Observable<S2> source2, Observable<S3> source3, Mapper3<S1, S2, S3, T> mapper,
+      BiFunction<T, T, Boolean> equalityFunction) {
+    return computed(source1, source2, source3, mapper, equalityFunction, SubscribeOptions.create());
   }
 
   public static <S1, S2, S3, T> Computed<T> computed(
@@ -75,12 +103,24 @@ public class Observable<T> {
       Observable<S2> source2,
       Observable<S3> source3,
       Mapper3<S1, S2, S3, T> mapper,
-      SubscribeOptions options
-  ) {
-    Computed<T> computed = Computed.of(() -> mapper.apply(source1.get(), source2.get(), source3.get()));
+      SubscribeOptions options) {
+    Computed<T> computed = new Computed<>(() -> mapper.apply(source1.get(), source2.get(), source3.get()));
     computed.sourceSubscription = subscribeToAll(source1, source2, source3,
-        (value1, value2, value3) -> computed.set(mapper.apply(value1, value2, value3)), options
-    );
+        (value1, value2, value3) -> computed.set(mapper.apply(value1, value2, value3)), options);
+    return computed;
+  }
+
+  public static <S1, S2, S3, T> Computed<T> computed(
+      Observable<S1> source1,
+      Observable<S2> source2,
+      Observable<S3> source3,
+      Mapper3<S1, S2, S3, T> mapper,
+      BiFunction<T, T, Boolean> equalityFunction,
+      SubscribeOptions options) {
+    Computed<T> computed = new Computed<>(() -> mapper.apply(source1.get(), source2.get(), source3.get()),
+        equalityFunction);
+    computed.sourceSubscription = subscribeToAll(source1, source2, source3,
+        (value1, value2, value3) -> computed.set(mapper.apply(value1, value2, value3)), options);
     return computed;
   }
 
@@ -89,8 +129,7 @@ public class Observable<T> {
       Observable<S2> source2,
       Observable<S3> source3,
       Observable<S4> source4,
-      Mapper4<S1, S2, S3, S4, T> mapper
-  ) {
+      Mapper4<S1, S2, S3, S4, T> mapper) {
     return computed(source1, source2, source3, source4, mapper, SubscribeOptions.create());
   }
 
@@ -100,12 +139,36 @@ public class Observable<T> {
       Observable<S3> source3,
       Observable<S4> source4,
       Mapper4<S1, S2, S3, S4, T> mapper,
-      SubscribeOptions options
-  ) {
-    Computed<T> computed = Computed.of(() -> mapper.apply(source1.get(), source2.get(), source3.get(), source4.get()));
+      BiFunction<T, T, Boolean> equalityFunction) {
+    return computed(source1, source2, source3, source4, mapper, equalityFunction, SubscribeOptions.create());
+  }
+
+  public static <S1, S2, S3, S4, T> Computed<T> computed(
+      Observable<S1> source1,
+      Observable<S2> source2,
+      Observable<S3> source3,
+      Observable<S4> source4,
+      Mapper4<S1, S2, S3, S4, T> mapper,
+      SubscribeOptions options) {
+    Computed<T> computed = new Computed<>(
+        () -> mapper.apply(source1.get(), source2.get(), source3.get(), source4.get()));
     computed.sourceSubscription = subscribeToAll(source1, source2, source3, source4,
-        (value1, value2, value3, value4) -> computed.set(mapper.apply(value1, value2, value3, value4)), options
-    );
+        (value1, value2, value3, value4) -> computed.set(mapper.apply(value1, value2, value3, value4)), options);
+    return computed;
+  }
+
+  public static <S1, S2, S3, S4, T> Computed<T> computed(
+      Observable<S1> source1,
+      Observable<S2> source2,
+      Observable<S3> source3,
+      Observable<S4> source4,
+      Mapper4<S1, S2, S3, S4, T> mapper,
+      BiFunction<T, T, Boolean> equalityFunction,
+      SubscribeOptions options) {
+    Computed<T> computed = new Computed<>(
+        () -> mapper.apply(source1.get(), source2.get(), source3.get(), source4.get()), equalityFunction);
+    computed.sourceSubscription = subscribeToAll(source1, source2, source3, source4,
+        (value1, value2, value3, value4) -> computed.set(mapper.apply(value1, value2, value3, value4)), options);
     return computed;
   }
 
@@ -115,8 +178,7 @@ public class Observable<T> {
       Observable<S3> source3,
       Observable<S4> source4,
       Observable<S5> source5,
-      Mapper5<S1, S2, S3, S4, S5, T> mapper
-  ) {
+      Mapper5<S1, S2, S3, S4, S5, T> mapper) {
     return computed(source1, source2, source3, source4, source5, mapper, SubscribeOptions.create());
   }
 
@@ -127,41 +189,64 @@ public class Observable<T> {
       Observable<S4> source4,
       Observable<S5> source5,
       Mapper5<S1, S2, S3, S4, S5, T> mapper,
-      SubscribeOptions options
-  ) {
-    Computed<T> computed = Computed.of(
+      BiFunction<T, T, Boolean> equalityFunction) {
+    return computed(source1, source2, source3, source4, source5, mapper, equalityFunction, SubscribeOptions.create());
+  }
+
+  public static <S1, S2, S3, S4, S5, T> Computed<T> computed(
+      Observable<S1> source1,
+      Observable<S2> source2,
+      Observable<S3> source3,
+      Observable<S4> source4,
+      Observable<S5> source5,
+      Mapper5<S1, S2, S3, S4, S5, T> mapper,
+      SubscribeOptions options) {
+    Computed<T> computed = new Computed<>(
         () -> mapper.apply(source1.get(), source2.get(), source3.get(), source4.get(), source5.get()));
     computed.sourceSubscription = subscribeToAll(source1, source2, source3, source4, source5,
         (value1, value2, value3, value4, value5) -> computed.set(mapper.apply(value1, value2, value3, value4, value5)),
-        options
-    );
+        options);
+    return computed;
+  }
+
+  public static <S1, S2, S3, S4, S5, T> Computed<T> computed(
+      Observable<S1> source1,
+      Observable<S2> source2,
+      Observable<S3> source3,
+      Observable<S4> source4,
+      Observable<S5> source5,
+      Mapper5<S1, S2, S3, S4, S5, T> mapper,
+      BiFunction<T, T, Boolean> equalityFunction,
+      SubscribeOptions options) {
+    Computed<T> computed = new Computed<>(
+        () -> mapper.apply(source1.get(), source2.get(), source3.get(), source4.get(), source5.get()),
+        equalityFunction);
+    computed.sourceSubscription = subscribeToAll(source1, source2, source3, source4, source5,
+        (value1, value2, value3, value4, value5) -> computed.set(mapper.apply(value1, value2, value3, value4, value5)),
+        options);
     return computed;
   }
 
   public static <S1, S2> Subscription subscribeToAll(
-      Observable<S1> source1, Observable<S2> source2, Observer2<S1, S2> observer
-  ) {
+      Observable<S1> source1, Observable<S2> source2, Observer2<S1, S2> observer) {
     return subscribeToAll(source1, source2, observer, SubscribeOptions.create());
   }
 
   public static <S1, S2> Subscription subscribeToAll(
-      Observable<S1> source1, Observable<S2> source2, Observer2<S1, S2> observer, SubscribeOptions options
-  ) {
+      Observable<S1> source1, Observable<S2> source2, Observer2<S1, S2> observer, SubscribeOptions options) {
     NoParamObserver commonObserver = () -> observer.handle(source1.get(), source2.get());
     if (options.emitImmediately()) {
       commonObserver.handle();
     }
     List<Subscription> subscriptions = Stream.of(source1, source2)
         .map((observable) -> observable.subscribe(commonObserver,
-            options.toBuilder().emittingImmediately(false).build()
-        ))
+            options.toBuilder().emittingImmediately(false).build()))
         .toList();
     return () -> subscriptions.forEach(Subscription::unsubscribe);
   }
 
   public static <S1, S2, S3> Subscription subscribeToAll(
-      Observable<S1> source1, Observable<S2> source2, Observable<S3> source3, Observer3<S1, S2, S3> observer
-  ) {
+      Observable<S1> source1, Observable<S2> source2, Observable<S3> source3, Observer3<S1, S2, S3> observer) {
     return subscribeToAll(source1, source2, source3, observer, SubscribeOptions.create());
   }
 
@@ -170,16 +255,14 @@ public class Observable<T> {
       Observable<S2> source2,
       Observable<S3> source3,
       Observer3<S1, S2, S3> observer,
-      SubscribeOptions options
-  ) {
+      SubscribeOptions options) {
     NoParamObserver commonObserver = () -> observer.handle(source1.get(), source2.get(), source3.get());
     if (options.emitImmediately()) {
       commonObserver.handle();
     }
     List<Subscription> subscriptions = Stream.of(source1, source2, source3)
         .map((observable) -> observable.subscribe(commonObserver,
-            options.toBuilder().emittingImmediately(false).build()
-        ))
+            options.toBuilder().emittingImmediately(false).build()))
         .toList();
     return () -> subscriptions.forEach(Subscription::unsubscribe);
   }
@@ -189,8 +272,7 @@ public class Observable<T> {
       Observable<S2> source2,
       Observable<S3> source3,
       Observable<S4> source4,
-      Observer4<S1, S2, S3, S4> observer
-  ) {
+      Observer4<S1, S2, S3, S4> observer) {
     return subscribeToAll(source1, source2, source3, source4, observer, SubscribeOptions.create());
   }
 
@@ -200,16 +282,14 @@ public class Observable<T> {
       Observable<S3> source3,
       Observable<S4> source4,
       Observer4<S1, S2, S3, S4> observer,
-      SubscribeOptions options
-  ) {
+      SubscribeOptions options) {
     NoParamObserver commonObserver = () -> observer.handle(source1.get(), source2.get(), source3.get(), source4.get());
     if (options.emitImmediately()) {
       commonObserver.handle();
     }
     List<Subscription> subscriptions = Stream.of(source1, source2, source3, source4)
         .map((observable) -> observable.subscribe(commonObserver,
-            options.toBuilder().emittingImmediately(false).build()
-        ))
+            options.toBuilder().emittingImmediately(false).build()))
         .toList();
     return () -> subscriptions.forEach(Subscription::unsubscribe);
   }
@@ -220,8 +300,7 @@ public class Observable<T> {
       Observable<S3> source3,
       Observable<S4> source4,
       Observable<S5> source5,
-      Observer5<S1, S2, S3, S4, S5> observer
-  ) {
+      Observer5<S1, S2, S3, S4, S5> observer) {
     return subscribeToAll(source1, source2, source3, source4, source5, observer, SubscribeOptions.create());
   }
 
@@ -232,8 +311,7 @@ public class Observable<T> {
       Observable<S4> source4,
       Observable<S5> source5,
       Observer5<S1, S2, S3, S4, S5> observer,
-      SubscribeOptions options
-  ) {
+      SubscribeOptions options) {
     NoParamObserver commonObserver = () -> observer.handle(
         source1.get(), source2.get(), source3.get(), source4.get(), source5.get());
     if (options.emitImmediately()) {
@@ -241,8 +319,7 @@ public class Observable<T> {
     }
     List<Subscription> subscriptions = Stream.of(source1, source2, source3, source4, source5)
         .map((observable) -> observable.subscribe(commonObserver,
-            options.toBuilder().emittingImmediately(false).build()
-        ))
+            options.toBuilder().emittingImmediately(false).build()))
         .toList();
     return () -> subscriptions.forEach(Subscription::unsubscribe);
   }
@@ -375,12 +452,12 @@ public class Observable<T> {
     protected Supplier<T> computeHandler;
 
     private Computed(Supplier<T> computeHandler) {
-      super(computeHandler.get());
-      this.computeHandler = computeHandler;
+      this(computeHandler, Objects::equals);
     }
 
-    private static <T> Computed<T> of(Supplier<T> computeHandler) {
-      return new Computed<>(computeHandler);
+    private Computed(Supplier<T> computeHandler, BiFunction<T, T, Boolean> equalityFunction) {
+      super(computeHandler.get(), equalityFunction);
+      this.computeHandler = computeHandler;
     }
 
     public void unsubscribeFromSource() {
