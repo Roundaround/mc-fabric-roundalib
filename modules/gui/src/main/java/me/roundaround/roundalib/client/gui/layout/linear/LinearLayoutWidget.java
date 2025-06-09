@@ -1,5 +1,12 @@
 package me.roundaround.roundalib.client.gui.layout.linear;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.ToIntFunction;
+
+import org.jetbrains.annotations.Nullable;
+
 import me.roundaround.roundalib.client.gui.layout.LayoutHookWithParent;
 import me.roundaround.roundalib.client.gui.layout.SizableLayoutWidget;
 import me.roundaround.roundalib.client.gui.util.Alignment;
@@ -10,11 +17,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.Widget;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.ToIntFunction;
-
 @Environment(EnvType.CLIENT)
 public class LinearLayoutWidget extends SizableLayoutWidget {
   private final List<CellWidget<?>> cells = new ArrayList<>();
@@ -23,6 +25,7 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
   private Alignment alignSelfX = Alignment.START;
   private Alignment alignSelfY = Alignment.START;
   private int spacing;
+  private Spacing padding = Spacing.zero();
   private Alignment contentAlignMain = Alignment.START;
   private Alignment defaultContentAlignOff = Alignment.CENTER;
   private Spacing defaultContentMargin = Spacing.zero();
@@ -118,6 +121,36 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
     return this;
   }
 
+  public LinearLayoutWidget padding(int padding) {
+    this.padding = Spacing.of(padding);
+    return this;
+  }
+
+  public LinearLayoutWidget padding(int paddingX, int paddingY) {
+    this.padding = Spacing.of(paddingX, paddingY);
+    return this;
+  }
+
+  public LinearLayoutWidget padding(int paddingTop, int paddingRight, int paddingBottom, int paddingLeft) {
+    this.padding = Spacing.of(paddingTop, paddingRight, paddingBottom, paddingLeft);
+    return this;
+  }
+
+  public LinearLayoutWidget paddingX(int paddingX) {
+    this.padding = this.padding.setHorizontal(paddingX);
+    return this;
+  }
+
+  public LinearLayoutWidget paddingY(int paddingY) {
+    this.padding = this.padding.setVertical(paddingY);
+    return this;
+  }
+
+  public LinearLayoutWidget padding(Spacing padding) {
+    this.padding = padding;
+    return this;
+  }
+
   public LinearLayoutWidget mainAxisContentAlign(Alignment align) {
     this.contentAlignMain = align;
     return this;
@@ -186,6 +219,18 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
     return this.cells.stream().map((cell) -> (Widget) cell.getWidget()).toList();
   }
 
+  public int getUnusedSpace(@Nullable Widget omitting) {
+    int unused = this.flowAxis == Axis.HORIZONTAL ? this.getInnerWidth() : this.getInnerHeight();
+    unused -= (this.getChildren().size() - 1) * this.spacing;
+    for (Widget child : this.getChildren()) {
+      if (child == omitting) {
+        continue;
+      }
+      unused -= this.flowAxis == Axis.HORIZONTAL ? child.getWidth() : child.getHeight();
+    }
+    return unused;
+  }
+
   @Override
   public void forEachElement(Consumer<Widget> consumer) {
     this.getChildren().forEach(consumer);
@@ -218,17 +263,21 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
 
     int posMain = switch (this.flowAxis) {
       case HORIZONTAL ->
-        this.getX() + (int) ((this.getWidth() - this.getContentWidth()) * this.contentAlignMain.floatValue());
+        this.getInnerX() + (int) ((this.getInnerWidth() - this.getContentWidth())
+            * this.contentAlignMain.floatValue());
       case VERTICAL ->
-        this.getY() + (int) ((this.getHeight() - this.getContentHeight()) * this.contentAlignMain.floatValue());
+        this.getInnerY() + (int) ((this.getInnerHeight() - this.getContentHeight())
+            * this.contentAlignMain.floatValue());
     };
 
     for (CellWidget<?> cell : this.cells) {
       int posOff = switch (this.flowAxis) {
         case HORIZONTAL ->
-          this.getY() + (int) ((this.getHeight() - cell.getHeight()) * this.getCellAlign(cell).floatValue());
+          this.getInnerY() + (int) ((this.getInnerHeight() - cell.getHeight())
+              * this.getCellAlign(cell).floatValue());
         case VERTICAL ->
-          this.getX() + (int) ((this.getWidth() - cell.getWidth()) * this.getCellAlign(cell).floatValue());
+          this.getInnerX() + (int) ((this.getInnerWidth() - cell.getWidth())
+              * this.getCellAlign(cell).floatValue());
       };
 
       int main = posMain + this.getMainLeadingCellMargin(cell);
@@ -257,12 +306,30 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
 
   @Override
   public int getWidth() {
-    return this.width != 0 ? this.width : this.contentWidth;
+    return this.width != 0 ? this.width : this.contentWidth + this.padding.getHorizontal();
   }
 
   @Override
   public int getHeight() {
-    return this.height != 0 ? this.height : this.contentHeight;
+    return this.height != 0 ? this.height : this.contentHeight + this.padding.getVertical();
+  }
+
+  public int getInnerX() {
+    return this.getX() + this.padding.left();
+  }
+
+  public int getInnerY() {
+    return this.getY() + this.padding.top();
+  }
+
+  public int getInnerWidth() {
+    return this.width != 0 ? this.width - this.padding.getHorizontal()
+        : this.contentWidth + this.padding.getHorizontal();
+  }
+
+  public int getInnerHeight() {
+    return this.height != 0 ? this.height - this.padding.getVertical()
+        : this.contentHeight + this.padding.getVertical();
   }
 
   public int getContentWidth() {
