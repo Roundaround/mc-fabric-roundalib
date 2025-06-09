@@ -1028,25 +1028,25 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   @Environment(EnvType.CLIENT)
-  protected final static class Textures {
-    static final Identifier SCROLLBAR_BG = Identifier.ofVanilla("widget/scroller_background");
-    static final Identifier SCROLLBAR = Identifier.ofVanilla("widget/scroller");
-    static final Identifier LIST_BG = Identifier.ofVanilla("textures/gui/menu_list_background.png");
-    static final Identifier BORDER_TOP = Screen.HEADER_SEPARATOR_TEXTURE;
-    static final Identifier BORDER_BOTTOM = Screen.FOOTER_SEPARATOR_TEXTURE;
-    static final Identifier IN_WORLD_LIST_BG = Identifier.ofVanilla("textures/gui/inworld_menu_list_background.png");
-    static final Identifier IN_WORLD_BORDER_TOP = Screen.INWORLD_HEADER_SEPARATOR_TEXTURE;
-    static final Identifier IN_WORLD_BORDER_BOTTOM = Screen.INWORLD_FOOTER_SEPARATOR_TEXTURE;
+  public final static class Textures {
+    public static final Identifier SCROLLBAR_BG = Identifier.ofVanilla("widget/scroller_background");
+    public static final Identifier SCROLLBAR = Identifier.ofVanilla("widget/scroller");
+    public static final Identifier LIST_BG = Identifier.ofVanilla("textures/gui/menu_list_background.png");
+    public static final Identifier BORDER_TOP = Screen.HEADER_SEPARATOR_TEXTURE;
+    public static final Identifier BORDER_BOTTOM = Screen.FOOTER_SEPARATOR_TEXTURE;
+    public static final Identifier IN_WORLD_LIST_BG = Identifier.ofVanilla("textures/gui/inworld_menu_list_background.png");
+    public static final Identifier IN_WORLD_BORDER_TOP = Screen.INWORLD_HEADER_SEPARATOR_TEXTURE;
+    public static final Identifier IN_WORLD_BORDER_BOTTOM = Screen.INWORLD_FOOTER_SEPARATOR_TEXTURE;
 
-    static Identifier borderTop(MinecraftClient client) {
+    public static Identifier borderTop(MinecraftClient client) {
       return client.world == null ? BORDER_TOP : IN_WORLD_BORDER_TOP;
     }
 
-    static Identifier borderBottom(MinecraftClient client) {
+    public static Identifier borderBottom(MinecraftClient client) {
       return client.world == null ? BORDER_BOTTOM : IN_WORLD_BORDER_BOTTOM;
     }
 
-    static Identifier listBg(MinecraftClient client) {
+    public static Identifier listBg(MinecraftClient client) {
       return client.world == null ? LIST_BG : IN_WORLD_LIST_BG;
     }
   }
