@@ -4,7 +4,6 @@ import me.roundaround.roundalib.client.gui.layout.LayoutHookWithParent;
 import me.roundaround.roundalib.client.gui.layout.SizableLayoutWidget;
 import me.roundaround.roundalib.client.gui.util.Alignment;
 import me.roundaround.roundalib.client.gui.util.Axis;
-import me.roundaround.roundalib.client.gui.util.IntRect;
 import me.roundaround.roundalib.client.gui.util.Spacing;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -163,8 +162,7 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
   }
 
   public <T extends Widget> T add(
-      T widget, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook
-  ) {
+      T widget, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook) {
     return this.add(widget, (configurator) -> configurator.layoutHook(layoutHook));
   }
 
@@ -220,17 +218,17 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
 
     int posMain = switch (this.flowAxis) {
       case HORIZONTAL ->
-          this.getX() + (int) ((this.getWidth() - this.getContentWidth()) * this.contentAlignMain.floatValue());
+        this.getX() + (int) ((this.getWidth() - this.getContentWidth()) * this.contentAlignMain.floatValue());
       case VERTICAL ->
-          this.getY() + (int) ((this.getHeight() - this.getContentHeight()) * this.contentAlignMain.floatValue());
+        this.getY() + (int) ((this.getHeight() - this.getContentHeight()) * this.contentAlignMain.floatValue());
     };
 
     for (CellWidget<?> cell : this.cells) {
       int posOff = switch (this.flowAxis) {
         case HORIZONTAL ->
-            this.getY() + (int) ((this.getHeight() - cell.getHeight()) * this.getCellAlign(cell).floatValue());
+          this.getY() + (int) ((this.getHeight() - cell.getHeight()) * this.getCellAlign(cell).floatValue());
         case VERTICAL ->
-            this.getX() + (int) ((this.getWidth() - cell.getWidth()) * this.getCellAlign(cell).floatValue());
+          this.getX() + (int) ((this.getWidth() - cell.getWidth()) * this.getCellAlign(cell).floatValue());
       };
 
       int main = posMain + this.getMainLeadingCellMargin(cell);
