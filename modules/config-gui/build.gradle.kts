@@ -7,7 +7,7 @@ roundalib {
 }
 
 dependencies {
-  implementation(project(":core"))
   implementation(project(":config"))
   implementation(project(":gui"))
+  implementation(project(":observables"))
 }

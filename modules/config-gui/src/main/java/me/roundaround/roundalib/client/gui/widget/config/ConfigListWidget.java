@@ -1,9 +1,13 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import me.roundaround.roundalib.client.gui.icon.BuiltinIcon;
-import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
 import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
+import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.ParentElementEntryListWidget;
 import me.roundaround.roundalib.client.gui.widget.TooltipWidget;
@@ -12,24 +16,20 @@ import me.roundaround.roundalib.config.manage.ModConfig;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.config.panic.IllegalStatePanic;
 import me.roundaround.roundalib.config.panic.Panic;
-import me.roundaround.roundalib.util.Observable;
+import me.roundaround.roundalib.observable.Observable;
+import me.roundaround.roundalib.observable.Subscription;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWidget.Entry> {
   protected final String modId;
-  protected final ArrayList<Observable.Subscription> subscriptions = new ArrayList<>();
+  protected final ArrayList<Subscription> subscriptions = new ArrayList<>();
 
   public ConfigListWidget(
-      MinecraftClient client, ThreeSectionLayoutWidget layout, String modId, List<ModConfig> configs
-  ) {
+      MinecraftClient client, ThreeSectionLayoutWidget layout, String modId, List<ModConfig> configs) {
     super(client, layout);
 
     this.modId = modId;
@@ -60,8 +60,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
 
   protected void addGroupEntry(String group) {
     this.addEntry((index, left, top, width) -> new GroupEntry(this.client.textRenderer,
-        Text.translatable(this.modId + "." + group + ".title"), index, left, top, width
-    ));
+        Text.translatable(this.modId + "." + group + ".title"), index, left, top, width));
   }
 
   protected void addOptionEntry(ConfigOption<?> option) {
@@ -81,8 +80,8 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     });
   }
 
-  public List<Observable.Subscription> collectSubscriptions() {
-    List<Observable.Subscription> copy = List.copyOf(this.subscriptions);
+  public List<Subscription> collectSubscriptions() {
+    List<Subscription> copy = List.copyOf(this.subscriptions);
     this.subscriptions.clear();
     return copy;
   }
@@ -106,8 +105,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     protected final LabelWidget label;
 
     protected ConfigEntry(
-        TextRenderer textRenderer, Text label, int index, int left, int top, int width
-    ) {
+        TextRenderer textRenderer, Text label, int index, int left, int top, int width) {
       super(index, left, top, width, HEIGHT);
 
       this.setMarginY(DEFAULT_MARGIN.getVertical() + GuiUtil.PADDING);
@@ -136,8 +134,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     @Override
     protected void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
       renderRowShade(context, this.getContentLeft(), this.getContentTop(), this.getContentRight(),
-          this.getContentBottom(), DEFAULT_SHADE_FADE_WIDTH * 3, DEFAULT_SHADE_STRENGTH_STRONG
-      );
+          this.getContentBottom(), DEFAULT_SHADE_FADE_WIDTH * 3, DEFAULT_SHADE_STRENGTH_STRONG);
     }
   }
 
@@ -147,8 +144,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     protected final LabelWidget label;
 
     protected GroupEntry(
-        TextRenderer textRenderer, Text label, int index, int left, int top, int width
-    ) {
+        TextRenderer textRenderer, Text label, int index, int left, int top, int width) {
       super(index, left, top, width, HEIGHT);
 
       this.setMarginY(DEFAULT_MARGIN.getVertical());
@@ -177,8 +173,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     @Override
     protected void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
       renderRowShade(context, this.getContentLeft(), this.getContentTop(), this.getContentRight(),
-          this.getContentBottom(), DEFAULT_SHADE_FADE_WIDTH, DEFAULT_SHADE_STRENGTH
-      );
+          this.getContentBottom(), DEFAULT_SHADE_FADE_WIDTH, DEFAULT_SHADE_STRENGTH);
     }
   }
 
@@ -205,7 +200,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
       this.tooltip = this.addDrawable(new TooltipWidget(tooltipLines));
 
       this.layout = LinearLayoutWidget.horizontal(
-              this.getContentLeft(), this.getContentTop(), this.getContentWidth(), this.getContentHeight())
+          this.getContentLeft(), this.getContentTop(), this.getContentWidth(), this.getContentHeight())
           .spacing(GuiUtil.PADDING)
           .defaultOffAxisContentAlignCenter();
 
@@ -245,14 +240,12 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
       return this.option;
     }
 
-    public List<Observable.Subscription> initSubscriptions() {
+    public List<Subscription> initSubscriptions() {
       return List.of(this.control.initSubscriptions(),
-          Observable.subscribeToAll(this.option.isPendingDefault, this.option.isDisabled,
+          Observable.subscribeAll(this.option.isPendingDefault, this.option.isDisabled,
               (isPendingDefault, isDisabled) -> {
                 this.resetButton.active = !isPendingDefault && !isDisabled;
-              }
-          )
-      );
+              }));
     }
 
     private int getLabelWidth(LinearLayoutWidget layout) {
@@ -267,8 +260,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     public void refreshPositions() {
       super.refreshPositions();
       this.tooltip.setDimensionsAndPosition(this.label.getWidth(), this.label.getHeight(), this.label.getX(),
-          this.label.getY()
-      );
+          this.label.getY());
     }
 
     @Override

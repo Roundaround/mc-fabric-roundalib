@@ -1,22 +1,24 @@
 package me.roundaround.roundalib.client.gui.screen;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import org.lwjgl.glfw.GLFW;
+
 import me.roundaround.roundalib.client.gui.icon.BuiltinIcon;
-import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.NonPositioningLayoutWidget;
 import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
+import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.drawable.LabelWidget;
 import me.roundaround.roundalib.config.option.ConfigOption;
-import me.roundaround.roundalib.util.Observable;
+import me.roundaround.roundalib.observable.Subject;
+import me.roundaround.roundalib.observable.Subscription;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
 import net.minecraft.text.Text;
-import org.lwjgl.glfw.GLFW;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extends Screen {
   protected final ConfigScreen parent;
@@ -25,9 +27,9 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   protected final Text helpShortText;
   protected final Text helpCloseText;
   protected final Text helpResetText;
-  protected Observable<Boolean> shiftState;
+  protected Subject<Boolean> shiftState;
   protected final NonPositioningLayoutWidget nonPositioningRoot = new NonPositioningLayoutWidget();
-  protected final List<Observable.Subscription> subscriptions = new ArrayList<>();
+  protected final List<Subscription> subscriptions = new ArrayList<>();
 
   protected LabelWidget titleLabel;
   protected LabelWidget helpLabel;
@@ -41,11 +43,10 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
 
     this.helpShortText = Text.translatable(this.modId + ".roundalib.help.short");
     this.helpCloseText = Text.translatable(this.modId + ".roundalib.help.close");
-    this.helpResetText = MinecraftClient.IS_SYSTEM_MAC ?
-        Text.translatable(this.modId + ".roundalib.help.reset.mac") :
-        Text.translatable(this.modId + ".roundalib.help.reset.win");
+    this.helpResetText = MinecraftClient.IS_SYSTEM_MAC ? Text.translatable(this.modId + ".roundalib.help.reset.mac")
+        : Text.translatable(this.modId + ".roundalib.help.reset.win");
 
-    this.shiftState = Observable.of(hasShiftDown());
+    this.shiftState = Subject.of(hasShiftDown());
   }
 
   @Override
@@ -74,7 +75,7 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
 
   @Override
   public void close() {
-    this.subscriptions.forEach(Observable.Subscription::unsubscribe);
+    this.subscriptions.forEach(Subscription::close);
     this.subscriptions.clear();
 
     Objects.requireNonNull(this.client).setScreen(this.parent.copy());
@@ -178,8 +179,7 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   protected void placeHelpLabel(LabelWidget helpLabel) {
     this.nonPositioningRoot.add(helpLabel, (parent, self) -> {
       self.setDimensionsAndPosition(parent.getWidth() - 2 * GuiUtil.PADDING, parent.getHeight() - 2 * GuiUtil.PADDING,
-          parent.getX() + GuiUtil.PADDING, parent.getY() + GuiUtil.PADDING
-      );
+          parent.getX() + GuiUtil.PADDING, parent.getY() + GuiUtil.PADDING);
     });
   }
 
@@ -215,8 +215,7 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   protected void placeActionRow(LinearLayoutWidget actionRow) {
     this.nonPositioningRoot.add(actionRow.alignSelfRight().alignSelfBottom(), (parent, self) -> {
       self.setPosition(parent.getX() + parent.getWidth() - GuiUtil.PADDING,
-          parent.getY() + parent.getHeight() - GuiUtil.PADDING
-      );
+          parent.getY() + parent.getHeight() - GuiUtil.PADDING);
     });
   }
 }

@@ -1,10 +1,11 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
-import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
 import me.roundaround.roundalib.client.gui.util.Axis;
+import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.config.option.ConfigOption;
-import me.roundaround.roundalib.util.Observable;
+import me.roundaround.roundalib.observable.Observable;
+import me.roundaround.roundalib.observable.Subscription;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -40,8 +41,11 @@ public abstract class Control<D, O extends ConfigOption<D>> extends LinearLayout
     this.valid = false;
   }
 
-  public Observable.Subscription initSubscriptions() {
-    return Observable.subscribeToAll(this.getOption().pendingValue, this.getOption().isDisabled, this::update);
+  public Subscription initSubscriptions() {
+    return Observable.subscribeAll(
+        this.getOption().pendingValue,
+        this.getOption().isDisabled,
+        this::update);
   }
 
   public void tick() {

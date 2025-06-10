@@ -1,17 +1,17 @@
 package me.roundaround.roundalib.client.gui.screen;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidget;
 import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
 import me.roundaround.roundalib.config.manage.ModConfig;
-import me.roundaround.roundalib.util.Observable;
+import me.roundaround.roundalib.observable.Subscription;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 public class ConfigScreen extends Screen {
   protected final ThreeSectionLayoutWidget layout = new ThreeSectionLayoutWidget(this);
@@ -20,7 +20,7 @@ public class ConfigScreen extends Screen {
   protected final String modId;
   protected final double prevScrollAmount;
   protected final ArrayList<ModConfig> configs = new ArrayList<>();
-  protected final ArrayList<Observable.Subscription> subscriptions = new ArrayList<>();
+  protected final ArrayList<Subscription> subscriptions = new ArrayList<>();
 
   protected ConfigListWidget configListWidget;
   protected CloseAction closeAction = CloseAction.NOOP;
@@ -103,7 +103,7 @@ public class ConfigScreen extends Screen {
 
   @Override
   public void removed() {
-    this.subscriptions.forEach(Observable.Subscription::unsubscribe);
+    this.subscriptions.forEach(Subscription::close);
     this.subscriptions.clear();
 
     this.configs.forEach((config) -> {

@@ -1,16 +1,22 @@
 package me.roundaround.roundalib.config.manage;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
 import me.roundaround.roundalib.config.ConfigPath;
 import me.roundaround.roundalib.config.ConnectedWorldContext;
 import me.roundaround.roundalib.config.option.ConfigOption;
-import me.roundaround.roundalib.util.Observable;
+import me.roundaround.roundalib.observable.Subscription;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.text.Text;
-
-import java.util.*;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 public abstract class ModConfigImpl implements ModConfig {
   protected final String modId;
@@ -22,7 +28,7 @@ public abstract class ModConfigImpl implements ModConfig {
   protected final HashSet<ConfigPath> noGuiControl = new HashSet<>();
   protected final HashSet<ConfigPath> singlePlayerOnly = new HashSet<>();
   protected final HashSet<ConfigPath> serverOrSinglePlayer = new HashSet<>();
-  protected final List<Observable.Subscription> subscriptions = new ArrayList<>();
+  protected final List<Subscription> subscriptions = new ArrayList<>();
 
   protected int storeSuppliedVersion;
   protected boolean isInitialized = false;
@@ -168,8 +174,7 @@ public abstract class ModConfigImpl implements ModConfig {
 
   protected <T extends ConfigOption<?>> T register(T option) {
     option.setModId(this.modId);
-    option.pendingValue.subscribe(this::refresh,
-        Observable.SubscribeOptions.notEmittingImmediately());
+    option.pendingValue.subscribe(this::refresh);
 
     this.byGroup.computeIfAbsent(option.getGroup(), (group) -> new ArrayList<>()).add(option);
     this.byPath.put(option.getPath(), option);

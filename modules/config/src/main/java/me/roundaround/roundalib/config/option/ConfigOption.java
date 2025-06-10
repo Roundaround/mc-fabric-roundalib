@@ -1,13 +1,5 @@
 package me.roundaround.roundalib.config.option;
 
-import me.roundaround.roundalib.config.ConfigPath;
-import me.roundaround.roundalib.config.manage.ModConfig;
-import me.roundaround.roundalib.config.manage.ModConfigImpl;
-import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
-import me.roundaround.roundalib.config.panic.Panic;
-import me.roundaround.roundalib.util.Observable;
-import net.minecraft.text.Text;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -15,10 +7,21 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import me.roundaround.roundalib.config.ConfigPath;
+import me.roundaround.roundalib.config.manage.ModConfig;
+import me.roundaround.roundalib.config.manage.ModConfigImpl;
+import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
+import me.roundaround.roundalib.config.panic.Panic;
+import me.roundaround.roundalib.observable.Computed;
+import me.roundaround.roundalib.observable.Observable;
+import me.roundaround.roundalib.observable.Subject;
+import net.minecraft.text.Text;
+
 /**
  * Base container class for a mod configuration option.
  *
- * @param <D> The data type represented by this config option. Must be immutable.
+ * @param <D> The data type represented by this config option. Must be
+ *            immutable.
  */
 public abstract class ConfigOption<D> {
   private final ConfigPath path;
@@ -32,19 +35,19 @@ public abstract class ConfigOption<D> {
   private final DisabledValueBehavior disabledValueBehavior;
   private final Function<ConfigOption<D>, D> disabledValueSupplier;
 
-  public final Observable<D> pendingValue;
-  public final Observable<D> savedValue;
-  public final Observable<Boolean> isDisabled;
-  public final Observable<Boolean> isDirty;
+  public final Subject<D> pendingValue;
+  public final Subject<D> savedValue;
+  public final Subject<Boolean> isDisabled;
+  public final Subject<Boolean> isDirty;
   public final Observable<Boolean> isPendingDefault;
   public final Observable<Boolean> isDefault;
 
   private String modId;
 
-  protected <C extends ConfigOption<D>, B extends AbstractBuilder<D, C, B>> ConfigOption(AbstractBuilder<D, C, B> builder) {
+  protected <C extends ConfigOption<D>, B extends AbstractBuilder<D, C, B>> ConfigOption(
+      AbstractBuilder<D, C, B> builder) {
     this(builder.path, builder.label, builder.defaultValue, builder.noGui, builder.toStringFunction, builder.comment,
-        builder.validators, builder.onUpdate, builder.disabledValueBehavior, builder.disabledValueSupplier
-    );
+        builder.validators, builder.onUpdate, builder.disabledValueBehavior, builder.disabledValueSupplier);
   }
 
   protected <C extends ConfigOption<D>> ConfigOption(
@@ -57,8 +60,7 @@ public abstract class ConfigOption<D> {
       List<Validator<D>> validators,
       Consumer<ConfigOption<D>> onUpdate,
       DisabledValueBehavior disabledValueBehavior,
-      Function<ConfigOption<D>, D> disabledValueSupplier
-  ) {
+      Function<ConfigOption<D>, D> disabledValueSupplier) {
     this.path = path;
     this.label = label;
     this.defaultValue = defaultValue;
@@ -70,16 +72,16 @@ public abstract class ConfigOption<D> {
     this.disabledValueBehavior = disabledValueBehavior;
     this.disabledValueSupplier = disabledValueSupplier;
 
-    this.pendingValue = Observable.of(this.defaultValue, this::areValuesEqual);
-    this.savedValue = Observable.of(this.defaultValue, this::areValuesEqual);
-    this.isDisabled = Observable.of(false);
-    this.isDirty = Observable.computed(this.pendingValue, this.savedValue, (pendingValue, savedValue) -> {
+    this.pendingValue = Subject.of(this.defaultValue).distinct(this::areValuesEqual).cold();
+    this.savedValue = Subject.of(this.defaultValue).distinct(this::areValuesEqual);
+    this.isDisabled = Subject.of(false);
+    this.isDirty = Computed.writable(this.pendingValue, this.savedValue, (pendingValue, savedValue) -> {
       return !this.areValuesEqual(pendingValue, savedValue);
     });
-    this.isPendingDefault = Observable.computed(this.pendingValue, (pendingValue) -> {
+    this.isPendingDefault = Computed.of(this.pendingValue, (pendingValue) -> {
       return this.areValuesEqual(pendingValue, this.defaultValue);
     });
-    this.isDefault = Observable.computed(this.savedValue, (savedValue) -> {
+    this.isDefault = Computed.of(this.savedValue, (savedValue) -> {
       return this.areValuesEqual(savedValue, this.defaultValue);
     });
   }
@@ -158,7 +160,8 @@ public abstract class ConfigOption<D> {
   }
 
   /**
-   * Manually mark this ConfigOption is dirty, which will force it to write its value to the store.
+   * Manually mark this ConfigOption is dirty, which will force it to write its
+   * value to the store.
    */
   public void markDirty() {
     this.isDirty.set(true);
@@ -186,8 +189,10 @@ public abstract class ConfigOption<D> {
   }
 
   /**
-   * By default, ConfigOptions will simply use {@link Objects#equals(Object, Object)} in change detection. In most
-   * cases, this should be sufficient. Override this method to implement your own custom equality check.
+   * By default, ConfigOptions will simply use
+   * {@link Objects#equals(Object, Object)} in change detection. In most
+   * cases, this should be sufficient. Override this method to implement your own
+   * custom equality check.
    */
   protected boolean areValuesEqual(D a, D b) {
     return Objects.equals(a, b);
@@ -205,8 +210,10 @@ public abstract class ConfigOption<D> {
   }
 
   /**
-   * Marks the value as saved and updates any subscribed listeners. By default, this is called after
-   * {@link ModConfig#writeToStore()} successfully writes any pending values to file. Usually you will
+   * Marks the value as saved and updates any subscribed listeners. By default,
+   * this is called after
+   * {@link ModConfig#writeToStore()} successfully writes any pending values to
+   * file. Usually you will
    * not need to call this yourself.
    */
   public void commit() {
@@ -214,8 +221,10 @@ public abstract class ConfigOption<D> {
   }
 
   /**
-   * Sets the ConfigOption to its default value using {@link #setValue}, meaning that the update won't take
-   * effect until it is committed to file with {@link ModConfigImpl#writeToStore()}.
+   * Sets the ConfigOption to its default value using {@link #setValue}, meaning
+   * that the update won't take
+   * effect until it is committed to file with
+   * {@link ModConfigImpl#writeToStore()}.
    */
   public void setDefault() {
     this.setValue(this.getDefaultValue());
