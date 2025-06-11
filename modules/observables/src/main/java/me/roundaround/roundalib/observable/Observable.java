@@ -28,12 +28,15 @@ public interface Observable<T> extends AutoCloseable {
 
   <S> Observable<S> map(Mapper.P1<T, S> mapper);
 
-  interface Writable<T> extends Observable<T> {
-    void set(T value);
-
-    void setAndEmit(T value);
-
-    void setNoEmit(T value);
+  default Observable<Tuple.P2<T, T>> pairwise() {
+    var previous = new Object() {
+      T value = Observable.this.get();
+    };
+    return this.map((current) -> {
+      Tuple.P2<T, T> result = new Tuple.P2<T, T>(previous.value, current);
+      previous.value = current;
+      return result;
+    });
   }
 
   public static <T> Observable<T> of(T initial) {
