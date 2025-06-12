@@ -365,6 +365,24 @@ public final class GuiUtil {
     context.drawBorder(rect.left(), rect.top(), rect.getWidth(), rect.getHeight(), color);
   }
 
+  public static void drawBorder(DrawContext context, FloatRect rect, int color) {
+    drawBorder(context, rect, color, false);
+  }
+
+  public static void drawBorder(DrawContext context, FloatRect rect, int color, boolean outside) {
+    if (outside) {
+      rect = rect.expand(1);
+    }
+    drawBorder(context, rect.left(), rect.top(), rect.getWidth(), rect.getHeight(), color);
+  }
+
+  public static void drawBorder(DrawContext context, float x, float y, float width, float height, int color) {
+    fill(context, x, y, x + width, y + 1, color);
+    fill(context, x, y + height - 1, x + width, y + height, color);
+    fill(context, x, y + 1, x + 1, y + height - 1, color);
+    fill(context, x + width - 1, y + 1, x + width, y + height - 1, color);
+  }
+
   public static Sprite getSprite(Identifier texture) {
     return getClient().getGuiAtlasManager().getSprite(texture);
   }
