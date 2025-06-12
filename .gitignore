@@ -33,3 +33,6 @@ bin/
 run/
 remappedSrc/
 migratedSrc/
+
+# Affinity Photo lock files
+*~lock~
