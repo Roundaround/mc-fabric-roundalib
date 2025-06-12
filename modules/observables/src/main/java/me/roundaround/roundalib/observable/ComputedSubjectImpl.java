@@ -48,12 +48,12 @@ public class ComputedSubjectImpl<Tin, Tout> extends ComputedImpl<Tin, Tout> impl
   }
 
   @Override
-  public void setAndEmit(Tout value) {
-    super.setAndEmit(value);
+  public void setWithForceEmit(Tout value) {
+    super.setWithForceEmit(value);
   }
 
   @Override
-  public void setNoEmit(Tout value) {
-    super.setNoEmit(value);
+  public void setWithNoEmit(Tout value) {
+    super.setWithNoEmit(value);
   }
 }

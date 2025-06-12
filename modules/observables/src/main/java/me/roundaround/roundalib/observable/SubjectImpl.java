@@ -38,13 +38,13 @@ public class SubjectImpl<T> extends ObservableImpl<T> implements Subject<T> {
   }
 
   @Override
-  public void setAndEmit(T value) {
-    super.setAndEmit(value);
+  public void setWithForceEmit(T value) {
+    super.setWithForceEmit(value);
   }
 
   @Override
-  public void setNoEmit(T value) {
-    super.setNoEmit(value);
+  public void setWithNoEmit(T value) {
+    super.setWithNoEmit(value);
   }
 
   public Observable<T> readOnly() {

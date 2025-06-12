@@ -91,12 +91,12 @@ public class ObservableImpl<T> implements Observable<T> {
     this.emit();
   }
 
-  void setAndEmit(T value) {
+  void setWithForceEmit(T value) {
     this.value = value;
     this.emit();
   }
 
-  void setNoEmit(T value) {
+  void setWithNoEmit(T value) {
     this.value = value;
   }
 
