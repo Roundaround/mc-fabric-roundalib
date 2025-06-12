@@ -25,6 +25,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
+import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Language;
 import net.minecraft.util.Util;
@@ -404,6 +405,33 @@ public final class GuiUtil {
       float u1,
       float u2,
       float v1,
+      float v2) {
+    drawTexturedQuad(
+        context,
+        renderLayers,
+        sprite,
+        x1,
+        x2,
+        y1,
+        y2,
+        u1,
+        u2,
+        v1,
+        v2,
+        Colors.WHITE);
+  }
+
+  public static void drawTexturedQuad(
+      DrawContext context,
+      Function<Identifier, RenderLayer> renderLayers,
+      Identifier sprite,
+      int x1,
+      int x2,
+      int y1,
+      int y2,
+      float u1,
+      float u2,
+      float v1,
       float v2,
       int color) {
     drawTexturedQuad(
@@ -419,6 +447,33 @@ public final class GuiUtil {
         v1,
         v2,
         color);
+  }
+
+  public static void drawTexturedQuad(
+      DrawContext context,
+      Function<Identifier, RenderLayer> renderLayers,
+      Identifier sprite,
+      float x1,
+      float x2,
+      float y1,
+      float y2,
+      float u1,
+      float u2,
+      float v1,
+      float v2) {
+    drawTexturedQuad(
+        context,
+        renderLayers,
+        sprite,
+        x1,
+        x2,
+        y1,
+        y2,
+        u1,
+        u2,
+        v1,
+        v2,
+        Colors.WHITE);
   }
 
   public static void drawTexturedQuad(
