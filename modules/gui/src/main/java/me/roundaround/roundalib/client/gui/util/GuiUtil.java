@@ -419,6 +419,385 @@ public final class GuiUtil {
         renderLayers, sprite, nineSlice, x, y, width, height, color);
   }
 
+  public static void drawSpriteNineSliced(
+      DrawContext context,
+      Function<Identifier, RenderLayer> renderLayers,
+      Identifier texture,
+      float x,
+      float y,
+      float width,
+      float height,
+      int texWidth,
+      int texHeight,
+      int color,
+      int border) {
+    drawSpriteNineSliced(
+        context, renderLayers, texture, x, y, width, height, texWidth, texHeight, color, Spacing.of(border));
+  }
+
+  public static void drawSpriteNineSliced(
+      DrawContext context,
+      Function<Identifier, RenderLayer> renderLayers,
+      Identifier texture,
+      float x,
+      float y,
+      float width,
+      float height,
+      int texWidth,
+      int texHeight,
+      int color,
+      Spacing border) {
+    drawSpriteNineSliced(
+        context, renderLayers, getSprite(texture), x, y, width, height, texWidth, texHeight, color, border);
+  }
+
+  public static void drawSpriteNineSliced(
+      DrawContext context,
+      Function<Identifier, RenderLayer> renderLayers,
+      Sprite sprite,
+      float x,
+      float y,
+      float width,
+      float height,
+      int texWidth,
+      int texHeight,
+      int color,
+      Spacing border) {
+    Scaling.NineSlice nineSlice = new Scaling.NineSlice(texWidth, texHeight,
+        new Scaling.NineSlice.Border(border.left(), border.top(), border.right(), border.bottom()), false);
+    drawSpriteNineSliced(
+        context, renderLayers, sprite, nineSlice, x, y, width, height, color);
+  }
+
+  public static void drawSpriteNineSliced(
+      DrawContext context,
+      Function<Identifier, RenderLayer> renderLayers,
+      Sprite sprite,
+      Scaling.NineSlice nineSlice,
+      float x,
+      float y,
+      float width,
+      float height,
+      int color) {
+    Scaling.NineSlice.Border border = nineSlice.border();
+    float left = Math.min(border.left(), width / 2);
+    float right = Math.min(border.right(), width / 2);
+    float top = Math.min(border.top(), height / 2);
+    float bottom = Math.min(border.bottom(), height / 2);
+
+    if (width == nineSlice.width() && height == nineSlice.height()) {
+      drawSpriteRegion(
+          context,
+          renderLayers,
+          sprite,
+          nineSlice.width(), nineSlice.height(),
+          0, 0,
+          x, y,
+          width, height,
+          color);
+    } else if (height == nineSlice.height()) {
+      drawSpriteSliced3x1(
+          context, renderLayers, sprite, nineSlice,
+          x, y, width, height, color, left, right);
+    } else if (width == nineSlice.width()) {
+      drawSpriteSliced1x3(
+          context, renderLayers, sprite, nineSlice,
+          x, y, width, height, color, top, bottom);
+    } else {
+      drawSpriteSliced3x3(
+          context, renderLayers, sprite, nineSlice,
+          x, y, width, height, color, left, right, top, bottom);
+    }
+  }
+
+  private static void drawSpriteSliced3x1(
+      DrawContext context,
+      Function<Identifier, RenderLayer> renderLayers,
+      Sprite sprite,
+      Scaling.NineSlice nineSlice,
+      float x,
+      float y,
+      float width,
+      float height,
+      int color,
+      float left,
+      float right) {
+    drawSpriteRegion(
+        context,
+        renderLayers,
+        sprite,
+        nineSlice.width(), nineSlice.height(),
+        0, 0,
+        x, y,
+        left, height,
+        color);
+    drawSpriteRegion(
+        context,
+        renderLayers,
+        nineSlice,
+        sprite,
+        x + left, y,
+        width - right - left, height,
+        left, 0,
+        nineSlice.width() - right - left, nineSlice.height(),
+        nineSlice.width(), nineSlice.height(),
+        color);
+    drawSpriteRegion(
+        context,
+        renderLayers,
+        sprite,
+        nineSlice.width(), nineSlice.height(),
+        nineSlice.width() - right, 0,
+        x + width - right, y,
+        right, height,
+        color);
+  }
+
+  private static void drawSpriteSliced1x3(
+      DrawContext context,
+      Function<Identifier, RenderLayer> renderLayers,
+      Sprite sprite,
+      Scaling.NineSlice nineSlice,
+      float x,
+      float y,
+      float width,
+      float height,
+      int color,
+      float top,
+      float bottom) {
+    drawSpriteRegion(
+        context,
+        renderLayers,
+        sprite,
+        nineSlice.width(), nineSlice.height(),
+        0, 0,
+        x, y,
+        width, top,
+        color);
+    drawSpriteRegion(
+        context,
+        renderLayers,
+        nineSlice,
+        sprite,
+        x, y + top,
+        width, height - bottom - top,
+        0, top,
+        nineSlice.width(), nineSlice.height() - bottom - top,
+        nineSlice.width(), nineSlice.height(),
+        color);
+    drawSpriteRegion(
+        context,
+        renderLayers,
+        sprite,
+        nineSlice.width(), nineSlice.height(),
+        0, nineSlice.height() - bottom,
+        x, y + height - bottom,
+        width, bottom,
+        color);
+  }
+
+  private static void drawSpriteSliced3x3(
+      DrawContext context,
+      Function<Identifier, RenderLayer> renderLayers,
+      Sprite sprite,
+      Scaling.NineSlice nineSlice,
+      float x,
+      float y,
+      float width,
+      float height,
+      int color,
+      float left,
+      float right,
+      float top,
+      float bottom) {
+    drawSpriteRegion(
+        context,
+        renderLayers,
+        sprite,
+        nineSlice.width(), nineSlice.height(),
+        0, 0,
+        x, y,
+        left, top,
+        color);
+    drawSpriteRegion(
+        context,
+        renderLayers,
+        nineSlice,
+        sprite,
+        x + left, y,
+        width - right - left, top,
+        left, 0,
+        nineSlice.width() - right - left, top,
+        nineSlice.width(), nineSlice.height(),
+        color);
+    drawSpriteRegion(
+        context,
+        renderLayers,
+        sprite,
+        nineSlice.width(), nineSlice.height(),
+        nineSlice.width() - right, 0,
+        x + width - right, y,
+        right, top,
+        color);
+    drawSpriteRegion(
+        context,
+        renderLayers,
+        sprite,
+        nineSlice.width(), nineSlice.height(),
+        0, nineSlice.height() - bottom,
+        x, y + height - bottom,
+        left, bottom,
+        color);
+    drawSpriteRegion(
+        context,
+        renderLayers,
+        nineSlice,
+        sprite,
+        x + left, y + height - bottom,
+        width - right - left, bottom,
+        left, nineSlice.height() - bottom,
+        nineSlice.width() - right - left, bottom,
+        nineSlice.width(), nineSlice.height(),
+        color);
+    drawSpriteRegion(
+        context,
+        renderLayers,
+        sprite,
+        nineSlice.width(), nineSlice.height(),
+        nineSlice.width() - right, nineSlice.height() - bottom,
+        x + width - right, y + height - bottom,
+        right, bottom,
+        color);
+    drawSpriteRegion(
+        context,
+        renderLayers,
+        nineSlice,
+        sprite,
+        x, y + top,
+        left, height - bottom - top,
+        0, top,
+        left, nineSlice.height() - bottom - top,
+        nineSlice.width(), nineSlice.height(),
+        color);
+    drawSpriteRegion(
+        context,
+        renderLayers,
+        nineSlice,
+        sprite,
+        x + left, y + top,
+        width - right - left, height - bottom - top,
+        left, top,
+        nineSlice.width() - right - left, nineSlice.height() - bottom - top,
+        nineSlice.width(), nineSlice.height(),
+        color);
+    drawSpriteRegion(
+        context,
+        renderLayers,
+        nineSlice,
+        sprite,
+        x + width - right, y + top,
+        right, height - bottom - top,
+        nineSlice.width() - right, top,
+        right, nineSlice.height() - bottom - top,
+        nineSlice.width(), nineSlice.height(),
+        color);
+  }
+
+  private static void drawSpriteRegion(
+      DrawContext context,
+      Function<Identifier, RenderLayer> renderLayers,
+      Scaling.NineSlice nineSlice,
+      Sprite sprite,
+      float x,
+      float y,
+      float width,
+      float height,
+      float u,
+      float v,
+      float tileWidth,
+      float tileHeight,
+      int textureWidth,
+      int textureHeight,
+      int color) {
+    if (width > 0 && height > 0) {
+      if (nineSlice.stretchInner()) {
+        drawTexturedQuad(
+            context,
+            renderLayers,
+            sprite.getAtlasId(),
+            x,
+            x + width,
+            y,
+            y + height,
+            sprite.getFrameU(u / textureWidth),
+            sprite.getFrameU((u + tileWidth) / textureWidth),
+            sprite.getFrameV(v / textureHeight),
+            sprite.getFrameV((v + tileHeight) / textureHeight),
+            color);
+      } else {
+        drawSpriteTiled(
+            context,
+            renderLayers,
+            sprite,
+            x,
+            y,
+            width,
+            height,
+            u,
+            v,
+            tileWidth,
+            tileHeight,
+            textureWidth,
+            textureHeight,
+            color);
+      }
+    }
+  }
+
+  private static void drawSpriteTiled(
+      DrawContext context,
+      Function<Identifier, RenderLayer> renderLayers,
+      Sprite sprite,
+      float x,
+      float y,
+      float width,
+      float height,
+      float u,
+      float v,
+      float tileWidth,
+      float tileHeight,
+      int textureWidth,
+      int textureHeight,
+      int color) {
+    if (width > 0 && height > 0) {
+      if (tileWidth > 0 && tileHeight > 0) {
+        for (float dx = 0; dx < width; dx += tileWidth) {
+          float x2 = Math.min(tileWidth, width - dx);
+
+          for (float dy = 0; dy < height; dy += tileHeight) {
+            float y2 = Math.min(tileHeight, height - dy);
+            drawSpriteRegion(
+                context,
+                renderLayers,
+                sprite,
+                textureWidth,
+                textureHeight,
+                u,
+                v,
+                x + dx,
+                y + dy,
+                x2,
+                y2,
+                color);
+          }
+        }
+      } else {
+        throw new IllegalArgumentException(
+            "Tiled sprite texture size must be positive, got " + tileWidth + "x" + tileHeight);
+      }
+    }
+  }
+
   public static void drawSpriteRegion(
       DrawContext context,
       Function<Identifier, RenderLayer> renderLayers,
@@ -434,6 +813,38 @@ public final class GuiUtil {
       int color) {
     ((DrawContextAccessor) context).invokeDrawSpriteRegion(
         renderLayers, sprite, textureWidth, textureHeight, u, v, x, y, width, height, color);
+  }
+
+  public static void drawSpriteRegion(
+      DrawContext context,
+      Function<Identifier, RenderLayer> renderLayers,
+      Sprite sprite,
+      int textureWidth,
+      int textureHeight,
+      float u,
+      float v,
+      float x,
+      float y,
+      float width,
+      float height,
+      int color) {
+    if (width == 0 || height == 0) {
+      return;
+    }
+
+    drawTexturedQuad(
+        context,
+        renderLayers,
+        sprite.getAtlasId(),
+        x,
+        x + width,
+        y,
+        y + height,
+        sprite.getFrameU(u / textureWidth),
+        sprite.getFrameU((u + width) / textureWidth),
+        sprite.getFrameV(v / textureHeight),
+        sprite.getFrameV((v + height) / textureHeight),
+        color);
   }
 
   public static void drawTexturedQuad(
