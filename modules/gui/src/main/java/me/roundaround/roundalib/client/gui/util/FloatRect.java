@@ -16,6 +16,10 @@ public record FloatRect(Float left, Float top, Float right, Float bottom) implem
     return new FloatRect(left, top, left + width, top + height);
   }
 
+  public static FloatRect fromIntRect(IntRect intRect) {
+    return intRect.toFloatRect();
+  }
+
   public float getWidth() {
     return this.right - this.left;
   }
@@ -26,14 +30,12 @@ public record FloatRect(Float left, Float top, Float right, Float bottom) implem
 
   public IntRect round() {
     return IntRect.byBounds(Math.round(this.left()), Math.round(this.top()), Math.round(this.right()),
-        Math.round(this.bottom())
-    );
+        Math.round(this.bottom()));
   }
 
   public IntRect roundOutward() {
     return IntRect.byBounds(MathHelper.floor(this.left()), MathHelper.floor(this.top()), MathHelper.ceil(this.right()),
-        MathHelper.ceil(this.bottom())
-    );
+        MathHelper.ceil(this.bottom()));
   }
 
   public IntRect truncate() {
@@ -46,8 +48,7 @@ public record FloatRect(Float left, Float top, Float right, Float bottom) implem
 
   public FloatRect expand(FourSided<Float> other) {
     return FloatRect.byBounds(this.left - other.left(), this.top - other.top(), this.right + other.right(),
-        this.bottom + other.bottom()
-    );
+        this.bottom + other.bottom());
   }
 
   public FloatRect reduce(float amount) {
@@ -56,7 +57,6 @@ public record FloatRect(Float left, Float top, Float right, Float bottom) implem
 
   public FloatRect reduce(FourSided<Float> other) {
     return FloatRect.byBounds(this.left + other.left(), this.top + other.top(), this.right - other.right(),
-        this.bottom - other.bottom()
-    );
+        this.bottom - other.bottom());
   }
 }

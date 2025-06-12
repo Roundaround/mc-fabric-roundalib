@@ -99,4 +99,8 @@ public record IntRect(Integer left, Integer top, Integer right, Integer bottom) 
   public ScreenRect toScreenRect() {
     return new ScreenRect(this.left, this.top, this.getWidth(), this.getHeight());
   }
+
+  public FloatRect toFloatRect() {
+    return FloatRect.byBounds(this.left, this.top, this.right, this.bottom);
+  }
 }
