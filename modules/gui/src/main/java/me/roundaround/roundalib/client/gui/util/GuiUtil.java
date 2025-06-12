@@ -401,24 +401,46 @@ public final class GuiUtil {
       int x1,
       int x2,
       int y1,
+      int y2) {
+    drawTexturedQuad(
+        context, renderLayers, sprite,
+        x1, x2, y1, y2,
+        0, 1, 0, 1);
+  }
+
+  public static void drawTexturedQuad(
+      DrawContext context,
+      Function<Identifier, RenderLayer> renderLayers,
+      Identifier sprite,
+      int x1,
+      int x2,
+      int y1,
       int y2,
       float u1,
       float u2,
       float v1,
       float v2) {
     drawTexturedQuad(
-        context,
-        renderLayers,
-        sprite,
-        x1,
-        x2,
-        y1,
-        y2,
-        u1,
-        u2,
-        v1,
-        v2,
+        context, renderLayers, sprite,
+        x1, x2, y1, y2,
+        u1, u2, v1, v2,
         Colors.WHITE);
+  }
+
+  public static void drawTexturedQuad(
+      DrawContext context,
+      Function<Identifier, RenderLayer> renderLayers,
+      Identifier sprite,
+      int x1,
+      int x2,
+      int y1,
+      int y2,
+      int color) {
+    drawTexturedQuad(
+        context, renderLayers, sprite,
+        x1, x2, y1, y2,
+        0, 1, 0, 1,
+        color);
   }
 
   public static void drawTexturedQuad(
@@ -435,18 +457,24 @@ public final class GuiUtil {
       float v2,
       int color) {
     drawTexturedQuad(
-        context,
-        renderLayers,
-        sprite,
-        (float) x1,
-        (float) x2,
-        (float) y1,
-        (float) y2,
-        u1,
-        u2,
-        v1,
-        v2,
+        context, renderLayers, sprite,
+        (float) x1, (float) x2, (float) y1, (float) y2,
+        u1, u2, v1, v2,
         color);
+  }
+
+  public static void drawTexturedQuad(
+      DrawContext context,
+      Function<Identifier, RenderLayer> renderLayers,
+      Identifier sprite,
+      float x1,
+      float x2,
+      float y1,
+      float y2) {
+    drawTexturedQuad(
+        context, renderLayers, sprite,
+        x1, x2, y1, y2,
+        0, 1, 0, 1);
   }
 
   public static void drawTexturedQuad(
@@ -462,18 +490,26 @@ public final class GuiUtil {
       float v1,
       float v2) {
     drawTexturedQuad(
-        context,
-        renderLayers,
-        sprite,
-        x1,
-        x2,
-        y1,
-        y2,
-        u1,
-        u2,
-        v1,
-        v2,
+        context, renderLayers, sprite,
+        x1, x2, y1, y2,
+        u1, u2, v1, v2,
         Colors.WHITE);
+  }
+
+  public static void drawTexturedQuad(
+      DrawContext context,
+      Function<Identifier, RenderLayer> renderLayers,
+      Identifier sprite,
+      float x1,
+      float x2,
+      float y1,
+      float y2,
+      int color) {
+    drawTexturedQuad(
+        context, renderLayers, sprite,
+        x1, x2, y1, y2,
+        0, 1, 0, 1,
+        color);
   }
 
   public static void drawTexturedQuad(
