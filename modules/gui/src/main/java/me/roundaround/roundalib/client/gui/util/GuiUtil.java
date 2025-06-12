@@ -271,6 +271,48 @@ public final class GuiUtil {
     context.fill(rect.left(), rect.top(), rect.right(), rect.bottom(), color);
   }
 
+  public static void fill(DrawContext context, FloatRect rect, int color) {
+    fill(context, rect.left(), rect.top(), rect.right(), rect.bottom(), color);
+  }
+
+  public static void fill(DrawContext context, float x1, float y1, float x2, float y2, int color) {
+    fill(context, x1, y1, x2, y2, 0, color);
+  }
+
+  public static void fill(
+      DrawContext context,
+      float x1, float y1, float x2, float y2, float z, int color) {
+    fill(context, RenderLayer.getGui(), x1, y1, x2, y2, z, color);
+  }
+
+  public static void fill(
+      DrawContext context, RenderLayer layer,
+      float x1, float y1, float x2, float y2, int color) {
+    fill(context, layer, x1, y1, x2, y2, 0, color);
+  }
+
+  public static void fill(
+      DrawContext context, RenderLayer layer,
+      float x1, float y1, float x2, float y2, float z, int color) {
+    if (x1 < x2) {
+      float temp = x1;
+      x1 = x2;
+      x2 = temp;
+    }
+    if (y1 < y2) {
+      float temp = y1;
+      y1 = y2;
+      y2 = temp;
+    }
+
+    Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
+    VertexConsumer vertexConsumer = ((DrawContextAccessor) context).getVertexConsumers().getBuffer(layer);
+    vertexConsumer.vertex(matrix4f, x1, y1, z).color(color);
+    vertexConsumer.vertex(matrix4f, x1, y2, z).color(color);
+    vertexConsumer.vertex(matrix4f, x2, y2, z).color(color);
+    vertexConsumer.vertex(matrix4f, x2, y1, z).color(color);
+  }
+
   public static void fillHorizontalGradient(
       DrawContext context, int startX, int startY, int endX, int endY, int colorStart, int colorEnd) {
     fillHorizontalGradient(context, startX, startY, endX, endY, 0, colorStart, colorEnd);
