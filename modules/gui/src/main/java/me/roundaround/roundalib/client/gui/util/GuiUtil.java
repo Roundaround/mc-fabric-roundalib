@@ -1,5 +1,10 @@
 package me.roundaround.roundalib.client.gui.util;
 
+import java.util.List;
+import java.util.function.Function;
+
+import org.joml.Matrix4f;
+
 import me.roundaround.roundalib.mixin.DrawContextAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -23,10 +28,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Language;
 import net.minecraft.util.Util;
-import org.joml.Matrix4f;
-
-import java.util.List;
-import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)
 public final class GuiUtil {
@@ -105,14 +106,12 @@ public final class GuiUtil {
   }
 
   public static void drawText(
-      DrawContext context, TextRenderer textRenderer, Text text, int x, int y, int color, boolean shadow
-  ) {
+      DrawContext context, TextRenderer textRenderer, Text text, int x, int y, int color, boolean shadow) {
     drawText(context, textRenderer, text.asOrderedText(), x, y, color, shadow);
   }
 
   public static void drawText(
-      DrawContext context, TextRenderer textRenderer, OrderedText text, int x, int y, int color, boolean shadow
-  ) {
+      DrawContext context, TextRenderer textRenderer, OrderedText text, int x, int y, int color, boolean shadow) {
     drawText(context, textRenderer, text, x, y, color, shadow, 0, Alignment.START);
   }
 
@@ -125,8 +124,7 @@ public final class GuiUtil {
       int color,
       boolean shadow,
       int viewWidth,
-      Alignment alignment
-  ) {
+      Alignment alignment) {
     drawText(context, textRenderer, text.asOrderedText(), x, y, color, shadow, viewWidth, alignment);
   }
 
@@ -139,15 +137,14 @@ public final class GuiUtil {
       int color,
       boolean shadow,
       int viewWidth,
-      Alignment alignment
-  ) {
+      Alignment alignment) {
     int textWidth = textRenderer.getWidth(text);
     context.drawText(textRenderer, text, alignment.getPosInContainer(x, viewWidth, textWidth), y, color, shadow);
   }
 
   public static void drawTruncatedText(
-      DrawContext context, TextRenderer textRenderer, Text text, int x, int y, int color, boolean shadow, int viewWidth
-  ) {
+      DrawContext context, TextRenderer textRenderer, Text text, int x, int y, int color, boolean shadow,
+      int viewWidth) {
     drawTruncatedText(context, textRenderer, text, x, y, color, shadow, viewWidth, Alignment.START);
   }
 
@@ -160,8 +157,7 @@ public final class GuiUtil {
       int color,
       boolean shadow,
       int viewWidth,
-      Alignment alignment
-  ) {
+      Alignment alignment) {
     if (textRenderer.getWidth(text) < viewWidth) {
       drawText(context, textRenderer, text, x, y, color, shadow, viewWidth, alignment);
       return;
@@ -175,8 +171,8 @@ public final class GuiUtil {
   }
 
   public static void drawWrappedText(
-      DrawContext context, TextRenderer textRenderer, Text text, int x, int y, int color, boolean shadow, int viewWidth
-  ) {
+      DrawContext context, TextRenderer textRenderer, Text text, int x, int y, int color, boolean shadow,
+      int viewWidth) {
     drawWrappedText(context, textRenderer, text, x, y, color, shadow, viewWidth, 0, 0);
   }
 
@@ -190,11 +186,9 @@ public final class GuiUtil {
       boolean shadow,
       int viewWidth,
       int lineSpacing,
-      int maxLines
-  ) {
+      int maxLines) {
     drawWrappedText(context, textRenderer, text, x, y, color, shadow, viewWidth, maxLines, lineSpacing,
-        Alignment.START
-    );
+        Alignment.START);
   }
 
   public static void drawWrappedText(
@@ -208,8 +202,7 @@ public final class GuiUtil {
       int viewWidth,
       int maxLines,
       int lineSpacing,
-      Alignment alignment
-  ) {
+      Alignment alignment) {
     if (textRenderer.getWidth(text) < viewWidth) {
       drawText(context, textRenderer, text, x, y, color, shadow, viewWidth, alignment);
       return;
@@ -226,8 +219,7 @@ public final class GuiUtil {
   }
 
   public static Dimensions measureWrappedText(
-      TextRenderer textRenderer, Text text, int maxWidth, int maxLines, int lineSpacing
-  ) {
+      TextRenderer textRenderer, Text text, int maxWidth, int maxLines, int lineSpacing) {
     if (maxWidth <= 0) {
       return Dimensions.of(textRenderer.getWidth(text), textRenderer.fontHeight);
     }
@@ -239,8 +231,7 @@ public final class GuiUtil {
 
     int lineCount = Math.min(lines.size(), maxLines);
     return Dimensions.of(lines.stream().mapToInt(textRenderer::getWidth).max().orElse(0),
-        lineCount * textRenderer.fontHeight + (lineCount - 1) * lineSpacing
-    );
+        lineCount * textRenderer.fontHeight + (lineCount - 1) * lineSpacing);
   }
 
   public static void drawScrollingText(
@@ -252,8 +243,7 @@ public final class GuiUtil {
       int color,
       boolean shadow,
       int viewWidth,
-      Alignment alignment
-  ) {
+      Alignment alignment) {
     int textWidth = textRenderer.getWidth(text);
     if (textWidth < viewWidth) {
       drawText(context, textRenderer, text, x, y, color, shadow, viewWidth, alignment);
@@ -281,14 +271,12 @@ public final class GuiUtil {
   }
 
   public static void fillHorizontalGradient(
-      DrawContext context, int startX, int startY, int endX, int endY, int colorStart, int colorEnd
-  ) {
+      DrawContext context, int startX, int startY, int endX, int endY, int colorStart, int colorEnd) {
     fillHorizontalGradient(context, startX, startY, endX, endY, 0, colorStart, colorEnd);
   }
 
   public static void fillHorizontalGradient(
-      DrawContext context, int startX, int startY, int endX, int endY, int z, int colorStart, int colorEnd
-  ) {
+      DrawContext context, int startX, int startY, int endX, int endY, int z, int colorStart, int colorEnd) {
     fillHorizontalGradient(context, RenderLayer.getGui(), startX, startY, endX, endY, colorStart, colorEnd, z);
   }
 
@@ -301,8 +289,7 @@ public final class GuiUtil {
       int endY,
       int colorStart,
       int colorEnd,
-      int z
-  ) {
+      int z) {
     VertexConsumer vertexConsumer = ((DrawContextAccessor) context).getVertexConsumers().getBuffer(layer);
     fillHorizontalGradient(context, vertexConsumer, startX, startY, endX, endY, z, colorStart, colorEnd);
   }
@@ -316,8 +303,7 @@ public final class GuiUtil {
       int endY,
       int z,
       int colorStart,
-      int colorEnd
-  ) {
+      int colorEnd) {
     Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
     vertexConsumer.vertex(matrix4f, startX, startY, z).color(colorStart);
     vertexConsumer.vertex(matrix4f, startX, endY, z).color(colorStart);
@@ -351,8 +337,7 @@ public final class GuiUtil {
       int texWidth,
       int texHeight,
       int color,
-      int border
-  ) {
+      int border) {
     drawSpriteNineSliced(
         context, renderLayers, texture, x, y, width, height, texWidth, texHeight, color, Spacing.of(border));
   }
@@ -368,8 +353,7 @@ public final class GuiUtil {
       int texWidth,
       int texHeight,
       int color,
-      Spacing border
-  ) {
+      Spacing border) {
     drawSpriteNineSliced(
         context, renderLayers, getSprite(texture), x, y, width, height, texWidth, texHeight, color, border);
   }
@@ -385,11 +369,9 @@ public final class GuiUtil {
       int texWidth,
       int texHeight,
       int color,
-      Spacing border
-  ) {
+      Spacing border) {
     Scaling.NineSlice nineSlice = new Scaling.NineSlice(texWidth, texHeight,
-        new Scaling.NineSlice.Border(border.left(), border.top(), border.right(), border.bottom()), false
-    );
+        new Scaling.NineSlice.Border(border.left(), border.top(), border.right(), border.bottom()), false);
     ((DrawContextAccessor) context).invokeDrawSpriteNineSliced(
         renderLayers, sprite, nineSlice, x, y, width, height, color);
   }
@@ -406,10 +388,59 @@ public final class GuiUtil {
       int y,
       int width,
       int height,
-      int color
-  ) {
+      int color) {
     ((DrawContextAccessor) context).invokeDrawSpriteRegion(
         renderLayers, sprite, textureWidth, textureHeight, u, v, x, y, width, height, color);
+  }
+
+  public static void drawTexturedQuad(
+      DrawContext context,
+      Function<Identifier, RenderLayer> renderLayers,
+      Identifier sprite,
+      int x1,
+      int x2,
+      int y1,
+      int y2,
+      float u1,
+      float u2,
+      float v1,
+      float v2,
+      int color) {
+    drawTexturedQuad(
+        context,
+        renderLayers,
+        sprite,
+        (float) x1,
+        (float) x2,
+        (float) y1,
+        (float) y2,
+        u1,
+        u2,
+        v1,
+        v2,
+        color);
+  }
+
+  public static void drawTexturedQuad(
+      DrawContext context,
+      Function<Identifier, RenderLayer> renderLayers,
+      Identifier sprite,
+      float x1,
+      float x2,
+      float y1,
+      float y2,
+      float u1,
+      float u2,
+      float v1,
+      float v2,
+      int color) {
+    RenderLayer renderLayer = (RenderLayer) renderLayers.apply(sprite);
+    Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
+    VertexConsumer vertexConsumer = ((DrawContextAccessor) context).getVertexConsumers().getBuffer(renderLayer);
+    vertexConsumer.vertex(matrix4f, x1, y1, 0.0F).texture(u1, v1).color(color);
+    vertexConsumer.vertex(matrix4f, x1, y2, 0.0F).texture(u1, v2).color(color);
+    vertexConsumer.vertex(matrix4f, x2, y2, 0.0F).texture(u2, v2).color(color);
+    vertexConsumer.vertex(matrix4f, x2, y1, 0.0F).texture(u2, v1).color(color);
   }
 
   public static void enableScissor(DrawContext context, IntRect rect) {
