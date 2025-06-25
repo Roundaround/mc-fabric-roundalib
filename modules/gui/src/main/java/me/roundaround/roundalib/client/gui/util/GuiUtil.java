@@ -1,23 +1,25 @@
 package me.roundaround.roundalib.client.gui.util;
 
 import java.util.List;
-import java.util.function.Function;
 
-import org.joml.Matrix4f;
+import org.joml.Matrix3x2f;
 
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+
+import me.roundaround.roundalib.client.gui.render.state.HorizontalColoredQuadGuiElementRenderState;
 import me.roundaround.roundalib.mixin.DrawContextAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.sound.SoundManager;
 import net.minecraft.client.texture.Scaling;
 import net.minecraft.client.texture.Sprite;
+import net.minecraft.client.texture.TextureSetup;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -271,87 +273,40 @@ public final class GuiUtil {
     context.fill(rect.left(), rect.top(), rect.right(), rect.bottom(), color);
   }
 
-  public static void fill(DrawContext context, FloatRect rect, int color) {
-    fill(context, rect.left(), rect.top(), rect.right(), rect.bottom(), color);
-  }
-
-  public static void fill(DrawContext context, float x1, float y1, float x2, float y2, int color) {
-    fill(context, x1, y1, x2, y2, 0, color);
-  }
-
-  public static void fill(
-      DrawContext context,
-      float x1, float y1, float x2, float y2, float z, int color) {
-    fill(context, RenderLayer.getGui(), x1, y1, x2, y2, z, color);
-  }
-
-  public static void fill(
-      DrawContext context, RenderLayer layer,
-      float x1, float y1, float x2, float y2, int color) {
-    fill(context, layer, x1, y1, x2, y2, 0, color);
-  }
-
-  public static void fill(
-      DrawContext context, RenderLayer layer,
-      float x1, float y1, float x2, float y2, float z, int color) {
-    if (x1 < x2) {
-      float temp = x1;
-      x1 = x2;
-      x2 = temp;
-    }
-    if (y1 < y2) {
-      float temp = y1;
-      y1 = y2;
-      y2 = temp;
-    }
-
-    Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
-    VertexConsumer vertexConsumer = ((DrawContextAccessor) context).getVertexConsumers().getBuffer(layer);
-    vertexConsumer.vertex(matrix4f, x1, y1, z).color(color);
-    vertexConsumer.vertex(matrix4f, x1, y2, z).color(color);
-    vertexConsumer.vertex(matrix4f, x2, y2, z).color(color);
-    vertexConsumer.vertex(matrix4f, x2, y1, z).color(color);
-  }
-
-  public static void fillHorizontalGradient(
-      DrawContext context, int startX, int startY, int endX, int endY, int colorStart, int colorEnd) {
-    fillHorizontalGradient(context, startX, startY, endX, endY, 0, colorStart, colorEnd);
-  }
-
-  public static void fillHorizontalGradient(
-      DrawContext context, int startX, int startY, int endX, int endY, int z, int colorStart, int colorEnd) {
-    fillHorizontalGradient(context, RenderLayer.getGui(), startX, startY, endX, endY, colorStart, colorEnd, z);
-  }
-
   public static void fillHorizontalGradient(
       DrawContext context,
-      RenderLayer layer,
-      int startX,
-      int startY,
-      int endX,
-      int endY,
-      int colorStart,
-      int colorEnd,
-      int z) {
-    VertexConsumer vertexConsumer = ((DrawContextAccessor) context).getVertexConsumers().getBuffer(layer);
-    fillHorizontalGradient(context, vertexConsumer, startX, startY, endX, endY, z, colorStart, colorEnd);
-  }
-
-  public static void fillHorizontalGradient(
-      DrawContext context,
-      VertexConsumer vertexConsumer,
-      int startX,
-      int startY,
-      int endX,
-      int endY,
-      int z,
+      IntRect rect,
       int colorStart,
       int colorEnd) {
-    Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
-    vertexConsumer.vertex(matrix4f, startX, startY, z).color(colorStart);
-    vertexConsumer.vertex(matrix4f, startX, endY, z).color(colorStart);
-    vertexConsumer.vertex(matrix4f, endX, endY, z).color(colorEnd);
-    vertexConsumer.vertex(matrix4f, endX, startY, z).color(colorEnd);
+    fillHorizontalGradient(
+        context,
+        rect.left(),
+        rect.top(),
+        rect.right(),
+        rect.bottom(),
+        colorStart,
+        colorEnd);
+  }
+
+  public static void fillHorizontalGradient(
+      DrawContext context,
+      int startX,
+      int startY,
+      int endX,
+      int endY,
+      int colorStart,
+      int colorEnd) {
+    context.state.addSimpleElement(new HorizontalColoredQuadGuiElementRenderState(
+        RenderPipelines.GUI,
+        TextureSetup.empty(),
+        new Matrix3x2f(context.getMatrices()),
+        startX,
+        startY,
+        endX,
+        endY,
+        colorStart,
+        colorEnd,
+        context.scissorStack.peekLast()));
   }
 
   public static void drawBorder(DrawContext context, IntRect rect, int color) {
@@ -365,31 +320,13 @@ public final class GuiUtil {
     context.drawBorder(rect.left(), rect.top(), rect.getWidth(), rect.getHeight(), color);
   }
 
-  public static void drawBorder(DrawContext context, FloatRect rect, int color) {
-    drawBorder(context, rect, color, false);
-  }
-
-  public static void drawBorder(DrawContext context, FloatRect rect, int color, boolean outside) {
-    if (outside) {
-      rect = rect.expand(1);
-    }
-    drawBorder(context, rect.left(), rect.top(), rect.getWidth(), rect.getHeight(), color);
-  }
-
-  public static void drawBorder(DrawContext context, float x, float y, float width, float height, int color) {
-    fill(context, x, y, x + width, y + 1, color);
-    fill(context, x, y + height - 1, x + width, y + height, color);
-    fill(context, x, y + 1, x + 1, y + height - 1, color);
-    fill(context, x + width - 1, y + 1, x + width, y + height - 1, color);
-  }
-
   public static Sprite getSprite(Identifier texture) {
     return getClient().getGuiAtlasManager().getSprite(texture);
   }
 
   public static void drawSpriteNineSliced(
       DrawContext context,
-      Function<Identifier, RenderLayer> renderLayers,
+      RenderPipeline pipeline,
       Identifier texture,
       int x,
       int y,
@@ -400,12 +337,12 @@ public final class GuiUtil {
       int color,
       int border) {
     drawSpriteNineSliced(
-        context, renderLayers, texture, x, y, width, height, texWidth, texHeight, color, Spacing.of(border));
+        context, pipeline, texture, x, y, width, height, texWidth, texHeight, color, Spacing.of(border));
   }
 
   public static void drawSpriteNineSliced(
       DrawContext context,
-      Function<Identifier, RenderLayer> renderLayers,
+      RenderPipeline pipeline,
       Identifier texture,
       int x,
       int y,
@@ -416,12 +353,12 @@ public final class GuiUtil {
       int color,
       Spacing border) {
     drawSpriteNineSliced(
-        context, renderLayers, getSprite(texture), x, y, width, height, texWidth, texHeight, color, border);
+        context, pipeline, getSprite(texture), x, y, width, height, texWidth, texHeight, color, border);
   }
 
   public static void drawSpriteNineSliced(
       DrawContext context,
-      Function<Identifier, RenderLayer> renderLayers,
+      RenderPipeline pipeline,
       Sprite sprite,
       int x,
       int y,
@@ -434,391 +371,12 @@ public final class GuiUtil {
     Scaling.NineSlice nineSlice = new Scaling.NineSlice(texWidth, texHeight,
         new Scaling.NineSlice.Border(border.left(), border.top(), border.right(), border.bottom()), false);
     ((DrawContextAccessor) context).invokeDrawSpriteNineSliced(
-        renderLayers, sprite, nineSlice, x, y, width, height, color);
-  }
-
-  public static void drawSpriteNineSliced(
-      DrawContext context,
-      Function<Identifier, RenderLayer> renderLayers,
-      Identifier texture,
-      float x,
-      float y,
-      float width,
-      float height,
-      int texWidth,
-      int texHeight,
-      int color,
-      int border) {
-    drawSpriteNineSliced(
-        context, renderLayers, texture, x, y, width, height, texWidth, texHeight, color, Spacing.of(border));
-  }
-
-  public static void drawSpriteNineSliced(
-      DrawContext context,
-      Function<Identifier, RenderLayer> renderLayers,
-      Identifier texture,
-      float x,
-      float y,
-      float width,
-      float height,
-      int texWidth,
-      int texHeight,
-      int color,
-      Spacing border) {
-    drawSpriteNineSliced(
-        context, renderLayers, getSprite(texture), x, y, width, height, texWidth, texHeight, color, border);
-  }
-
-  public static void drawSpriteNineSliced(
-      DrawContext context,
-      Function<Identifier, RenderLayer> renderLayers,
-      Sprite sprite,
-      float x,
-      float y,
-      float width,
-      float height,
-      int texWidth,
-      int texHeight,
-      int color,
-      Spacing border) {
-    Scaling.NineSlice nineSlice = new Scaling.NineSlice(texWidth, texHeight,
-        new Scaling.NineSlice.Border(border.left(), border.top(), border.right(), border.bottom()), false);
-    drawSpriteNineSliced(
-        context, renderLayers, sprite, nineSlice, x, y, width, height, color);
-  }
-
-  public static void drawSpriteNineSliced(
-      DrawContext context,
-      Function<Identifier, RenderLayer> renderLayers,
-      Sprite sprite,
-      Scaling.NineSlice nineSlice,
-      float x,
-      float y,
-      float width,
-      float height,
-      int color) {
-    Scaling.NineSlice.Border border = nineSlice.border();
-    float left = Math.min(border.left(), width / 2);
-    float right = Math.min(border.right(), width / 2);
-    float top = Math.min(border.top(), height / 2);
-    float bottom = Math.min(border.bottom(), height / 2);
-
-    if (width == nineSlice.width() && height == nineSlice.height()) {
-      drawSpriteRegion(
-          context,
-          renderLayers,
-          sprite,
-          nineSlice.width(), nineSlice.height(),
-          0, 0,
-          x, y,
-          width, height,
-          color);
-    } else if (height == nineSlice.height()) {
-      drawSpriteSliced3x1(
-          context, renderLayers, sprite, nineSlice,
-          x, y, width, height, color, left, right);
-    } else if (width == nineSlice.width()) {
-      drawSpriteSliced1x3(
-          context, renderLayers, sprite, nineSlice,
-          x, y, width, height, color, top, bottom);
-    } else {
-      drawSpriteSliced3x3(
-          context, renderLayers, sprite, nineSlice,
-          x, y, width, height, color, left, right, top, bottom);
-    }
-  }
-
-  private static void drawSpriteSliced3x1(
-      DrawContext context,
-      Function<Identifier, RenderLayer> renderLayers,
-      Sprite sprite,
-      Scaling.NineSlice nineSlice,
-      float x,
-      float y,
-      float width,
-      float height,
-      int color,
-      float left,
-      float right) {
-    drawSpriteRegion(
-        context,
-        renderLayers,
-        sprite,
-        nineSlice.width(), nineSlice.height(),
-        0, 0,
-        x, y,
-        left, height,
-        color);
-    drawSpriteRegion(
-        context,
-        renderLayers,
-        nineSlice,
-        sprite,
-        x + left, y,
-        width - right - left, height,
-        left, 0,
-        nineSlice.width() - right - left, nineSlice.height(),
-        nineSlice.width(), nineSlice.height(),
-        color);
-    drawSpriteRegion(
-        context,
-        renderLayers,
-        sprite,
-        nineSlice.width(), nineSlice.height(),
-        nineSlice.width() - right, 0,
-        x + width - right, y,
-        right, height,
-        color);
-  }
-
-  private static void drawSpriteSliced1x3(
-      DrawContext context,
-      Function<Identifier, RenderLayer> renderLayers,
-      Sprite sprite,
-      Scaling.NineSlice nineSlice,
-      float x,
-      float y,
-      float width,
-      float height,
-      int color,
-      float top,
-      float bottom) {
-    drawSpriteRegion(
-        context,
-        renderLayers,
-        sprite,
-        nineSlice.width(), nineSlice.height(),
-        0, 0,
-        x, y,
-        width, top,
-        color);
-    drawSpriteRegion(
-        context,
-        renderLayers,
-        nineSlice,
-        sprite,
-        x, y + top,
-        width, height - bottom - top,
-        0, top,
-        nineSlice.width(), nineSlice.height() - bottom - top,
-        nineSlice.width(), nineSlice.height(),
-        color);
-    drawSpriteRegion(
-        context,
-        renderLayers,
-        sprite,
-        nineSlice.width(), nineSlice.height(),
-        0, nineSlice.height() - bottom,
-        x, y + height - bottom,
-        width, bottom,
-        color);
-  }
-
-  private static void drawSpriteSliced3x3(
-      DrawContext context,
-      Function<Identifier, RenderLayer> renderLayers,
-      Sprite sprite,
-      Scaling.NineSlice nineSlice,
-      float x,
-      float y,
-      float width,
-      float height,
-      int color,
-      float left,
-      float right,
-      float top,
-      float bottom) {
-    drawSpriteRegion(
-        context,
-        renderLayers,
-        sprite,
-        nineSlice.width(), nineSlice.height(),
-        0, 0,
-        x, y,
-        left, top,
-        color);
-    drawSpriteRegion(
-        context,
-        renderLayers,
-        nineSlice,
-        sprite,
-        x + left, y,
-        width - right - left, top,
-        left, 0,
-        nineSlice.width() - right - left, top,
-        nineSlice.width(), nineSlice.height(),
-        color);
-    drawSpriteRegion(
-        context,
-        renderLayers,
-        sprite,
-        nineSlice.width(), nineSlice.height(),
-        nineSlice.width() - right, 0,
-        x + width - right, y,
-        right, top,
-        color);
-    drawSpriteRegion(
-        context,
-        renderLayers,
-        sprite,
-        nineSlice.width(), nineSlice.height(),
-        0, nineSlice.height() - bottom,
-        x, y + height - bottom,
-        left, bottom,
-        color);
-    drawSpriteRegion(
-        context,
-        renderLayers,
-        nineSlice,
-        sprite,
-        x + left, y + height - bottom,
-        width - right - left, bottom,
-        left, nineSlice.height() - bottom,
-        nineSlice.width() - right - left, bottom,
-        nineSlice.width(), nineSlice.height(),
-        color);
-    drawSpriteRegion(
-        context,
-        renderLayers,
-        sprite,
-        nineSlice.width(), nineSlice.height(),
-        nineSlice.width() - right, nineSlice.height() - bottom,
-        x + width - right, y + height - bottom,
-        right, bottom,
-        color);
-    drawSpriteRegion(
-        context,
-        renderLayers,
-        nineSlice,
-        sprite,
-        x, y + top,
-        left, height - bottom - top,
-        0, top,
-        left, nineSlice.height() - bottom - top,
-        nineSlice.width(), nineSlice.height(),
-        color);
-    drawSpriteRegion(
-        context,
-        renderLayers,
-        nineSlice,
-        sprite,
-        x + left, y + top,
-        width - right - left, height - bottom - top,
-        left, top,
-        nineSlice.width() - right - left, nineSlice.height() - bottom - top,
-        nineSlice.width(), nineSlice.height(),
-        color);
-    drawSpriteRegion(
-        context,
-        renderLayers,
-        nineSlice,
-        sprite,
-        x + width - right, y + top,
-        right, height - bottom - top,
-        nineSlice.width() - right, top,
-        right, nineSlice.height() - bottom - top,
-        nineSlice.width(), nineSlice.height(),
-        color);
-  }
-
-  private static void drawSpriteRegion(
-      DrawContext context,
-      Function<Identifier, RenderLayer> renderLayers,
-      Scaling.NineSlice nineSlice,
-      Sprite sprite,
-      float x,
-      float y,
-      float width,
-      float height,
-      float u,
-      float v,
-      float tileWidth,
-      float tileHeight,
-      int textureWidth,
-      int textureHeight,
-      int color) {
-    if (width > 0 && height > 0) {
-      if (nineSlice.stretchInner()) {
-        drawTexturedQuad(
-            context,
-            renderLayers,
-            sprite.getAtlasId(),
-            x,
-            x + width,
-            y,
-            y + height,
-            sprite.getFrameU(u / textureWidth),
-            sprite.getFrameU((u + tileWidth) / textureWidth),
-            sprite.getFrameV(v / textureHeight),
-            sprite.getFrameV((v + tileHeight) / textureHeight),
-            color);
-      } else {
-        drawSpriteTiled(
-            context,
-            renderLayers,
-            sprite,
-            x,
-            y,
-            width,
-            height,
-            u,
-            v,
-            tileWidth,
-            tileHeight,
-            textureWidth,
-            textureHeight,
-            color);
-      }
-    }
-  }
-
-  private static void drawSpriteTiled(
-      DrawContext context,
-      Function<Identifier, RenderLayer> renderLayers,
-      Sprite sprite,
-      float x,
-      float y,
-      float width,
-      float height,
-      float u,
-      float v,
-      float tileWidth,
-      float tileHeight,
-      int textureWidth,
-      int textureHeight,
-      int color) {
-    if (width > 0 && height > 0) {
-      if (tileWidth > 0 && tileHeight > 0) {
-        for (float dx = 0; dx < width; dx += tileWidth) {
-          float x2 = Math.min(tileWidth, width - dx);
-
-          for (float dy = 0; dy < height; dy += tileHeight) {
-            float y2 = Math.min(tileHeight, height - dy);
-            drawSpriteRegion(
-                context,
-                renderLayers,
-                sprite,
-                textureWidth,
-                textureHeight,
-                u,
-                v,
-                x + dx,
-                y + dy,
-                x2,
-                y2,
-                color);
-          }
-        }
-      } else {
-        throw new IllegalArgumentException(
-            "Tiled sprite texture size must be positive, got " + tileWidth + "x" + tileHeight);
-      }
-    }
+        pipeline, sprite, nineSlice, x, y, width, height, color);
   }
 
   public static void drawSpriteRegion(
       DrawContext context,
-      Function<Identifier, RenderLayer> renderLayers,
+      RenderPipeline pipeline,
       Sprite sprite,
       int textureWidth,
       int textureHeight,
@@ -830,58 +388,24 @@ public final class GuiUtil {
       int height,
       int color) {
     ((DrawContextAccessor) context).invokeDrawSpriteRegion(
-        renderLayers, sprite, textureWidth, textureHeight, u, v, x, y, width, height, color);
-  }
-
-  public static void drawSpriteRegion(
-      DrawContext context,
-      Function<Identifier, RenderLayer> renderLayers,
-      Sprite sprite,
-      int textureWidth,
-      int textureHeight,
-      float u,
-      float v,
-      float x,
-      float y,
-      float width,
-      float height,
-      int color) {
-    if (width == 0 || height == 0) {
-      return;
-    }
-
-    drawTexturedQuad(
-        context,
-        renderLayers,
-        sprite.getAtlasId(),
-        x,
-        x + width,
-        y,
-        y + height,
-        sprite.getFrameU(u / textureWidth),
-        sprite.getFrameU((u + width) / textureWidth),
-        sprite.getFrameV(v / textureHeight),
-        sprite.getFrameV((v + height) / textureHeight),
-        color);
+        pipeline, sprite, textureWidth, textureHeight, u, v, x, y, width, height, color);
   }
 
   public static void drawTexturedQuad(
       DrawContext context,
-      Function<Identifier, RenderLayer> renderLayers,
       Identifier sprite,
       int x1,
       int x2,
       int y1,
       int y2) {
     drawTexturedQuad(
-        context, renderLayers, sprite,
+        context, sprite,
         x1, x2, y1, y2,
         0, 1, 0, 1);
   }
 
   public static void drawTexturedQuad(
       DrawContext context,
-      Function<Identifier, RenderLayer> renderLayers,
       Identifier sprite,
       int x1,
       int x2,
@@ -892,7 +416,7 @@ public final class GuiUtil {
       float v1,
       float v2) {
     drawTexturedQuad(
-        context, renderLayers, sprite,
+        context, sprite,
         x1, x2, y1, y2,
         u1, u2, v1, v2,
         Colors.WHITE);
@@ -900,7 +424,6 @@ public final class GuiUtil {
 
   public static void drawTexturedQuad(
       DrawContext context,
-      Function<Identifier, RenderLayer> renderLayers,
       Identifier sprite,
       int x1,
       int x2,
@@ -908,7 +431,7 @@ public final class GuiUtil {
       int y2,
       int color) {
     drawTexturedQuad(
-        context, renderLayers, sprite,
+        context, sprite,
         x1, x2, y1, y2,
         0, 1, 0, 1,
         color);
@@ -916,7 +439,6 @@ public final class GuiUtil {
 
   public static void drawTexturedQuad(
       DrawContext context,
-      Function<Identifier, RenderLayer> renderLayers,
       Identifier sprite,
       int x1,
       int x2,
@@ -927,82 +449,12 @@ public final class GuiUtil {
       float v1,
       float v2,
       int color) {
-    drawTexturedQuad(
-        context, renderLayers, sprite,
-        (float) x1, (float) x2, (float) y1, (float) y2,
+    ((DrawContextAccessor) context).invokeDrawTexturedQuad(
+        RenderPipelines.GUI,
+        sprite,
+        x1, y1, x2, y2,
         u1, u2, v1, v2,
         color);
-  }
-
-  public static void drawTexturedQuad(
-      DrawContext context,
-      Function<Identifier, RenderLayer> renderLayers,
-      Identifier sprite,
-      float x1,
-      float x2,
-      float y1,
-      float y2) {
-    drawTexturedQuad(
-        context, renderLayers, sprite,
-        x1, x2, y1, y2,
-        0, 1, 0, 1);
-  }
-
-  public static void drawTexturedQuad(
-      DrawContext context,
-      Function<Identifier, RenderLayer> renderLayers,
-      Identifier sprite,
-      float x1,
-      float x2,
-      float y1,
-      float y2,
-      float u1,
-      float u2,
-      float v1,
-      float v2) {
-    drawTexturedQuad(
-        context, renderLayers, sprite,
-        x1, x2, y1, y2,
-        u1, u2, v1, v2,
-        Colors.WHITE);
-  }
-
-  public static void drawTexturedQuad(
-      DrawContext context,
-      Function<Identifier, RenderLayer> renderLayers,
-      Identifier sprite,
-      float x1,
-      float x2,
-      float y1,
-      float y2,
-      int color) {
-    drawTexturedQuad(
-        context, renderLayers, sprite,
-        x1, x2, y1, y2,
-        0, 1, 0, 1,
-        color);
-  }
-
-  public static void drawTexturedQuad(
-      DrawContext context,
-      Function<Identifier, RenderLayer> renderLayers,
-      Identifier sprite,
-      float x1,
-      float x2,
-      float y1,
-      float y2,
-      float u1,
-      float u2,
-      float v1,
-      float v2,
-      int color) {
-    RenderLayer renderLayer = (RenderLayer) renderLayers.apply(sprite);
-    Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
-    VertexConsumer vertexConsumer = ((DrawContextAccessor) context).getVertexConsumers().getBuffer(renderLayer);
-    vertexConsumer.vertex(matrix4f, x1, y1, 0.0F).texture(u1, v1).color(color);
-    vertexConsumer.vertex(matrix4f, x1, y2, 0.0F).texture(u1, v2).color(color);
-    vertexConsumer.vertex(matrix4f, x2, y2, 0.0F).texture(u2, v2).color(color);
-    vertexConsumer.vertex(matrix4f, x2, y1, 0.0F).texture(u2, v1).color(color);
   }
 
   public static void enableScissor(DrawContext context, IntRect rect) {

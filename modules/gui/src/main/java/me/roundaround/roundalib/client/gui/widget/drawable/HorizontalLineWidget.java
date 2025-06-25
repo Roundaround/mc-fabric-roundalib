@@ -1,9 +1,8 @@
 package me.roundaround.roundalib.client.gui.widget.drawable;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.Identifier;
 
 public class HorizontalLineWidget extends DrawableWidget {
@@ -70,9 +69,16 @@ public class HorizontalLineWidget extends DrawableWidget {
 
   @Override
   public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-    RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-    context.drawTexture(RenderLayer::getGuiTextured, this.texture, this.getX(), this.getY() + this.marginTop, 0, 0,
-        this.width, this.height, 32, HEIGHT
-    );
+    context.drawTexture(
+        RenderPipelines.GUI_TEXTURED,
+        this.texture,
+        this.getX(),
+        this.getY() + this.marginTop,
+        0,
+        0,
+        this.width,
+        this.height,
+        32,
+        HEIGHT);
   }
 }

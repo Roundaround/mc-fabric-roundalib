@@ -1,11 +1,14 @@
 package me.roundaround.roundalib.client.gui.widget;
 
+import java.time.Duration;
+import java.util.List;
+import java.util.function.Consumer;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.tooltip.WidgetTooltipPositioner;
 import net.minecraft.client.gui.widget.ClickableWidget;
@@ -13,10 +16,6 @@ import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
-
-import java.time.Duration;
-import java.util.List;
-import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
 public class TooltipWidget implements Drawable, Widget {
@@ -148,10 +147,13 @@ public class TooltipWidget implements Drawable, Widget {
 
     if (hovered && Util.getMeasuringTimeMs() - this.renderCheckTime > this.delay.toMillis()) {
       MinecraftClient client = MinecraftClient.getInstance();
-      Screen screen = client.currentScreen;
-      if (screen != null) {
-        screen.setTooltip(this.getLines(client), new WidgetTooltipPositioner(this.getNavigationFocus()), false);
-      }
+      context.drawTooltip(
+          client.textRenderer,
+          this.getLines(client),
+          new WidgetTooltipPositioner(this.getNavigationFocus()),
+          mouseX,
+          mouseY,
+          false);
     }
   }
 

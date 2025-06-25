@@ -30,7 +30,7 @@ public class ResourcePackProfileMixin {
     }
 
     int packFormat = metadata.packFormat();
-    int currentFormat = SharedConstants.getGameVersion().getResourceVersion(ResourceType.CLIENT_RESOURCES);
+    int currentFormat = SharedConstants.getGameVersion().packVersion(ResourceType.CLIENT_RESOURCES);
 
     return new Range<>(Math.min(packFormat, currentFormat), Math.max(packFormat, currentFormat));
   }

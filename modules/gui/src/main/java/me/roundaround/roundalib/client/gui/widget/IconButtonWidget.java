@@ -1,14 +1,14 @@
 package me.roundaround.roundalib.client.gui.widget;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.roundalib.client.gui.icon.Icon;
+import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -72,9 +72,14 @@ public class IconButtonWidget extends ButtonWidget {
     int x = this.getX() + (this.getWidth() - this.iconSize) / 2;
     int y = this.getY() + (this.getHeight() - this.iconSize) / 2;
 
-    RenderSystem.setShaderColor(brightness, brightness, brightness, 1f);
-    context.drawGuiTexture(RenderLayer::getGuiTextured, texture, x, y, this.iconSize, this.iconSize);
-    RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+    context.drawGuiTexture(
+        RenderPipelines.GUI_TEXTURED,
+        texture,
+        x,
+        y,
+        this.iconSize,
+        this.iconSize,
+        GuiUtil.genColorInt(brightness, brightness, brightness));
   }
 
   @Override

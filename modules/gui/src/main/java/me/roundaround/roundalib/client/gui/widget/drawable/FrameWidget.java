@@ -1,18 +1,18 @@
 package me.roundaround.roundalib.client.gui.widget.drawable;
 
+import java.util.function.Consumer;
+
 import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.client.gui.util.IntRect;
 import me.roundaround.roundalib.client.gui.util.Spacing;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.LayoutWidget;
 import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
-
-import java.util.function.Consumer;
 
 public class FrameWidget extends DrawableWidget implements LayoutWidget {
   public static final int DEFAULT_OVERFLOW = 2;
@@ -77,8 +77,10 @@ public class FrameWidget extends DrawableWidget implements LayoutWidget {
 
   @Override
   public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-    // Need to get around the fact the vanilla texture is only 23 pixels tall, so actually draw a 9-slice
-    // that is height - 1 tall, then draw just the top border of the texture again, but at the bottom.
+    // Need to get around the fact the vanilla texture is only 23 pixels tall, so
+    // actually draw a 9-slice
+    // that is height - 1 tall, then draw just the top border of the texture again,
+    // but at the bottom.
 
     int x = this.getX() - this.overflow;
     int y = this.getY() - this.overflow;
@@ -87,9 +89,9 @@ public class FrameWidget extends DrawableWidget implements LayoutWidget {
 
     Sprite sprite = GuiUtil.getSprite(TEXTURE);
     GuiUtil.drawSpriteNineSliced(
-        context, RenderLayer::getGuiTextured, sprite, x, y, width, height, 24, 23, Colors.WHITE, NINE_SLIDE_BORDER);
+        context, RenderPipelines.GUI_TEXTURED, sprite, x, y, width, height, 24, 23, Colors.WHITE, NINE_SLIDE_BORDER);
     GuiUtil.drawSpriteRegion(
-        context, RenderLayer::getGuiTextured, sprite, 24, 23, 0, 0, x, y + height, width, 1, Colors.WHITE);
+        context, RenderPipelines.GUI_TEXTURED, sprite, 24, 23, 0, 0, x, y + height, width, 1, Colors.WHITE);
   }
 
   @Override

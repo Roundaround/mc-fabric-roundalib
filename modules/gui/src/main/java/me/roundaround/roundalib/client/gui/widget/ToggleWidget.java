@@ -1,6 +1,8 @@
 package me.roundaround.roundalib.client.gui.widget;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
 import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.drawable.DrawableWidget;
@@ -8,6 +10,7 @@ import me.roundaround.roundalib.client.gui.widget.drawable.LabelWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
@@ -15,13 +18,9 @@ import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.LayoutWidget;
 import net.minecraft.client.gui.widget.PressableWidget;
 import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)
 public class ToggleWidget extends PressableWidget implements LayoutWidget {
@@ -63,8 +62,7 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
       ValueToTextMapper valueTextMapper,
       ValueToTextMapper tooltipTextMapper,
       boolean initialValue,
-      Consumer<LabelWidget.Builder> labelBuilderHook
-  ) {
+      Consumer<LabelWidget.Builder> labelBuilderHook) {
     super(x, y, width, height, labelTextMapper.apply(initialValue));
 
     this.pressAction = pressAction;
@@ -106,23 +104,20 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
 
         int offset = value ? this.getWidth() - barWidth : 0;
 
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         context.drawGuiTexture(
-            RenderLayer::getGuiTextured,
+            RenderPipelines.GUI_TEXTURED,
             TEXTURE,
             this.getX(),
             this.getY(),
             this.getWidth(),
-            this.getHeight()
-        );
+            this.getHeight());
         context.drawGuiTexture(
-            RenderLayer::getGuiTextured,
+            RenderPipelines.GUI_TEXTURED,
             ToggleWidget.this.getHandleTexture(),
             this.getX() + offset,
             this.getY(),
             barWidth,
-            this.getHeight()
-        );
+            this.getHeight());
       }
     });
 
@@ -286,8 +281,7 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
   protected int getValueWidth() {
     return Math.max(
         this.textRenderer.getWidth(this.valueTextMapper.apply(true)),
-        this.textRenderer.getWidth(this.valueTextMapper.apply(false))
-    ) + LabelWidget.PADDING.getHorizontal();
+        this.textRenderer.getWidth(this.valueTextMapper.apply(false))) + LabelWidget.PADDING.getHorizontal();
   }
 
   protected Identifier getHandleTexture() {
@@ -308,8 +302,7 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
   public static Builder enabledDisabledBuilder(
       TextRenderer textRenderer,
       ValueToTextMapper labelTextMapper,
-      String modId
-  ) {
+      String modId) {
     return new Builder(textRenderer, labelTextMapper).showValue(ValueToTextMapper.enabledDisabled(modId));
   }
 
@@ -324,9 +317,8 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
     }
 
     static ValueToTextMapper enabledDisabled(String modId) {
-      return (value) -> value ?
-          Text.translatable(modId + ".roundalib.toggle.enabled") :
-          Text.translatable(modId + ".roundalib.toggle.disabled");
+      return (value) -> value ? Text.translatable(modId + ".roundalib.toggle.enabled")
+          : Text.translatable(modId + ".roundalib.toggle.disabled");
     }
   }
 
@@ -513,8 +505,7 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
           this.valueTextMapper,
           this.tooltipTextMapper,
           this.initialValue,
-          this.consolidateLabelBuilderHook()
-      );
+          this.consolidateLabelBuilderHook());
     }
   }
 }
