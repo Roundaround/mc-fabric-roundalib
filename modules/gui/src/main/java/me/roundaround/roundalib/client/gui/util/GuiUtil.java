@@ -406,6 +406,22 @@ public final class GuiUtil {
 
   public static void drawTexturedQuad(
       DrawContext context,
+      RenderPipeline pipeline,
+      Identifier sprite,
+      int x1,
+      int x2,
+      int y1,
+      int y2) {
+    drawTexturedQuad(
+        context,
+        pipeline,
+        sprite,
+        x1, x2, y1, y2,
+        0, 1, 0, 1);
+  }
+
+  public static void drawTexturedQuad(
+      DrawContext context,
       Identifier sprite,
       int x1,
       int x2,
@@ -417,6 +433,27 @@ public final class GuiUtil {
       float v2) {
     drawTexturedQuad(
         context, sprite,
+        x1, x2, y1, y2,
+        u1, u2, v1, v2,
+        Colors.WHITE);
+  }
+
+  public static void drawTexturedQuad(
+      DrawContext context,
+      RenderPipeline pipeline,
+      Identifier sprite,
+      int x1,
+      int x2,
+      int y1,
+      int y2,
+      float u1,
+      float u2,
+      float v1,
+      float v2) {
+    drawTexturedQuad(
+        context,
+        pipeline,
+        sprite,
         x1, x2, y1, y2,
         u1, u2, v1, v2,
         Colors.WHITE);
@@ -439,6 +476,46 @@ public final class GuiUtil {
 
   public static void drawTexturedQuad(
       DrawContext context,
+      RenderPipeline pipeline,
+      Identifier sprite,
+      int x1,
+      int x2,
+      int y1,
+      int y2,
+      int color) {
+    drawTexturedQuad(
+        context,
+        pipeline,
+        sprite,
+        x1, x2, y1, y2,
+        0, 1, 0, 1,
+        color);
+  }
+
+  public static void drawTexturedQuad(
+      DrawContext context,
+      Identifier sprite,
+      int x1,
+      int x2,
+      int y1,
+      int y2,
+      float u1,
+      float u2,
+      float v1,
+      float v2,
+      int color) {
+    drawTexturedQuad(
+        context,
+        RenderPipelines.GUI_TEXTURED,
+        sprite,
+        x1, x2, y1, y2,
+        u1, u2, v1, v2,
+        color);
+  }
+
+  public static void drawTexturedQuad(
+      DrawContext context,
+      RenderPipeline pipeline,
       Identifier sprite,
       int x1,
       int x2,
@@ -450,9 +527,9 @@ public final class GuiUtil {
       float v2,
       int color) {
     ((DrawContextAccessor) context).invokeDrawTexturedQuad(
-        RenderPipelines.GUI,
+        pipeline,
         sprite,
-        x1, y1, x2, y2,
+        x1, x2, y1, y2,
         u1, u2, v1, v2,
         color);
   }
