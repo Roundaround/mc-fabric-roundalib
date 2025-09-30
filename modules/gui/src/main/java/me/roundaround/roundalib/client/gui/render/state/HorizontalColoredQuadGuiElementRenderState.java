@@ -47,11 +47,11 @@ public record HorizontalColoredQuadGuiElementRenderState(
         createBounds(x0, y0, x1, y1, pose, scissorArea));
   }
 
-  public void setupVertices(VertexConsumer vertices, float depth) {
-    vertices.vertex(this.pose(), (float) this.x0(), (float) this.y0(), depth).color(this.col1());
-    vertices.vertex(this.pose(), (float) this.x0(), (float) this.y1(), depth).color(this.col1());
-    vertices.vertex(this.pose(), (float) this.x1(), (float) this.y1(), depth).color(this.col2());
-    vertices.vertex(this.pose(), (float) this.x1(), (float) this.y0(), depth).color(this.col2());
+  public void setupVertices(VertexConsumer vertices) {
+    vertices.vertex(this.pose(), (float) this.x0(), (float) this.y0()).color(this.col1());
+    vertices.vertex(this.pose(), (float) this.x0(), (float) this.y1()).color(this.col1());
+    vertices.vertex(this.pose(), (float) this.x1(), (float) this.y1()).color(this.col2());
+    vertices.vertex(this.pose(), (float) this.x1(), (float) this.y0()).color(this.col2());
   }
 
   @Nullable

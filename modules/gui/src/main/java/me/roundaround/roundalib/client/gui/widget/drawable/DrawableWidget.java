@@ -6,6 +6,7 @@ import net.minecraft.client.gui.navigation.GuiNavigation;
 import net.minecraft.client.gui.navigation.GuiNavigationPath;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.input.MouseInput;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
@@ -41,12 +42,7 @@ public abstract class DrawableWidget extends ClickableWidget {
   }
 
   @Override
-  public boolean isNarratable() {
-    return false;
-  }
-
-  @Override
-  protected boolean isValidClickButton(int button) {
+  protected boolean isValidClickButton(MouseInput input) {
     return false;
   }
 

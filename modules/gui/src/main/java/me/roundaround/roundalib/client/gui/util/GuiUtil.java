@@ -2,6 +2,7 @@ package me.roundaround.roundalib.client.gui.util;
 
 import java.util.List;
 
+import net.minecraft.util.*;
 import org.joml.Matrix3x2f;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
@@ -27,10 +28,6 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
-import net.minecraft.util.Colors;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Language;
-import net.minecraft.util.Util;
 
 @Environment(EnvType.CLIENT)
 public final class GuiUtil {
@@ -309,19 +306,19 @@ public final class GuiUtil {
         context.scissorStack.peekLast()));
   }
 
-  public static void drawBorder(DrawContext context, IntRect rect, int color) {
-    drawBorder(context, rect, color, false);
+  public static void drawStrokedRectangle(DrawContext context, IntRect rect, int color) {
+    drawStrokedRectangle(context, rect, color, false);
   }
 
-  public static void drawBorder(DrawContext context, IntRect rect, int color, boolean outside) {
+  public static void drawStrokedRectangle(DrawContext context, IntRect rect, int color, boolean outside) {
     if (outside) {
       rect = rect.expand(1);
     }
-    context.drawBorder(rect.left(), rect.top(), rect.getWidth(), rect.getHeight(), color);
+    context.drawStrokedRectangle(rect.left(), rect.top(), rect.getWidth(), rect.getHeight(), color);
   }
 
   public static Sprite getSprite(Identifier texture) {
-    return getClient().getGuiAtlasManager().getSprite(texture);
+    return getClient().getAtlasManager().getAtlasTexture(Atlases.GUI).getSprite(texture);
   }
 
   public static void drawSpriteNineSliced(

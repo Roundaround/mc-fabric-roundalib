@@ -4,6 +4,7 @@ import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.config.option.FloatConfigOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.input.CharInput;
 
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -19,16 +20,16 @@ public class FloatTextControl extends Control<Float, FloatConfigOption> {
 
     this.textField = this.add(new TextFieldWidget(client.textRenderer, width - 2, height - 2, this.option.getLabel()) {
       @Override
-      public boolean charTyped(char chr, int keyCode) {
-        if (chr == '-' && this.getCursor() > 0) {
+      public boolean charTyped(CharInput input) {
+        if (input.codepoint() == '-' && this.getCursor() > 0) {
           return false;
         }
 
-        if (!isCharAllowed(chr)) {
+        if (!isCharAllowed((char)input.codepoint())) {
           return false;
         }
 
-        return super.charTyped(chr, keyCode);
+        return super.charTyped(input);
       }
     }, (parent, self) -> {
       self.setDimensions(parent.getWidth(), parent.getHeight());

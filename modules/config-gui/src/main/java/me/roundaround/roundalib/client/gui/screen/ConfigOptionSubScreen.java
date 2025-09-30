@@ -1,11 +1,5 @@
 package me.roundaround.roundalib.client.gui.screen;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-import org.lwjgl.glfw.GLFW;
-
 import me.roundaround.roundalib.client.gui.icon.BuiltinIcon;
 import me.roundaround.roundalib.client.gui.layout.NonPositioningLayoutWidget;
 import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
@@ -15,10 +9,16 @@ import me.roundaround.roundalib.client.gui.widget.drawable.LabelWidget;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.observable.Subject;
 import me.roundaround.roundalib.observable.Subscription;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
+import net.minecraft.client.input.KeyInput;
+import net.minecraft.client.input.SystemKeycodes;
 import net.minecraft.text.Text;
+import org.lwjgl.glfw.GLFW;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extends Screen {
   protected final ConfigScreen parent;
@@ -43,10 +43,11 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
 
     this.helpShortText = Text.translatable(this.modId + ".roundalib.help.short");
     this.helpCloseText = Text.translatable(this.modId + ".roundalib.help.close");
-    this.helpResetText = MinecraftClient.IS_SYSTEM_MAC ? Text.translatable(this.modId + ".roundalib.help.reset.mac")
-        : Text.translatable(this.modId + ".roundalib.help.reset.win");
+    this.helpResetText = SystemKeycodes.IS_MAC_OS ?
+        Text.translatable(this.modId + ".roundalib.help.reset.mac") :
+        Text.translatable(this.modId + ".roundalib.help.reset.win");
 
-    this.shiftState = Subject.of(hasShiftDown());
+    this.shiftState = Subject.of(false);
   }
 
   @Override
@@ -82,23 +83,23 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   }
 
   @Override
-  public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-    this.shiftState.set(hasShiftDown());
+  public boolean keyPressed(KeyInput input) {
+    this.shiftState.set(input.hasShift());
 
-    if (keyCode == GLFW.GLFW_KEY_R) {
-      if (Screen.hasControlDown()) {
+    if (input.getKeycode() == GLFW.GLFW_KEY_R) {
+      if (input.hasCtrl()) {
         this.resetToDefault();
         return true;
       }
     }
 
-    return super.keyPressed(keyCode, scanCode, modifiers);
+    return super.keyPressed(input);
   }
 
   @Override
-  public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
-    this.shiftState.set(hasShiftDown());
-    return super.keyReleased(keyCode, scanCode, modifiers);
+  public boolean keyReleased(KeyInput input) {
+    this.shiftState.set(input.hasShift());
+    return super.keyReleased(input);
   }
 
   protected List<Text> getCurrentHelp() {
@@ -156,10 +157,16 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   }
 
   protected void placeTitleLabel(LabelWidget titleLabel) {
-    this.nonPositioningRoot.add(titleLabel, (parent, self) -> {
-      self.setDimensionsAndPosition(
-          parent.getWidth(), ThreePartsLayoutWidget.DEFAULT_HEADER_FOOTER_HEIGHT, parent.getX(), parent.getY());
-    });
+    this.nonPositioningRoot.add(
+        titleLabel, (parent, self) -> {
+          self.setDimensionsAndPosition(
+              parent.getWidth(),
+              ThreePartsLayoutWidget.DEFAULT_HEADER_FOOTER_HEIGHT,
+              parent.getX(),
+              parent.getY()
+          );
+        }
+    );
   }
 
   protected LabelWidget createHelpLabel() {
@@ -177,10 +184,16 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   }
 
   protected void placeHelpLabel(LabelWidget helpLabel) {
-    this.nonPositioningRoot.add(helpLabel, (parent, self) -> {
-      self.setDimensionsAndPosition(parent.getWidth() - 2 * GuiUtil.PADDING, parent.getHeight() - 2 * GuiUtil.PADDING,
-          parent.getX() + GuiUtil.PADDING, parent.getY() + GuiUtil.PADDING);
-    });
+    this.nonPositioningRoot.add(
+        helpLabel, (parent, self) -> {
+          self.setDimensionsAndPosition(
+              parent.getWidth() - 2 * GuiUtil.PADDING,
+              parent.getHeight() - 2 * GuiUtil.PADDING,
+              parent.getX() + GuiUtil.PADDING,
+              parent.getY() + GuiUtil.PADDING
+          );
+        }
+    );
   }
 
   protected LinearLayoutWidget createActionRow() {
@@ -213,9 +226,13 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   }
 
   protected void placeActionRow(LinearLayoutWidget actionRow) {
-    this.nonPositioningRoot.add(actionRow.alignSelfRight().alignSelfBottom(), (parent, self) -> {
-      self.setPosition(parent.getX() + parent.getWidth() - GuiUtil.PADDING,
-          parent.getY() + parent.getHeight() - GuiUtil.PADDING);
-    });
+    this.nonPositioningRoot.add(
+        actionRow.alignSelfRight().alignSelfBottom(), (parent, self) -> {
+          self.setPosition(
+              parent.getX() + parent.getWidth() - GuiUtil.PADDING,
+              parent.getY() + parent.getHeight() - GuiUtil.PADDING
+          );
+        }
+    );
   }
 }

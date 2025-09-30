@@ -4,10 +4,7 @@ import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidge
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.ParentElement;
-import net.minecraft.client.gui.Selectable;
+import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.navigation.GuiNavigation;
 import net.minecraft.client.gui.navigation.GuiNavigationPath;
 import net.minecraft.client.gui.navigation.NavigationAxis;
@@ -176,8 +173,8 @@ public abstract class ParentElementEntryListWidget<E extends ParentElementEntryL
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-      return ParentElement.super.mouseClicked(mouseX, mouseY, button);
+    public boolean mouseClicked(Click click, boolean doubled) {
+      return ParentElement.super.mouseClicked(click, doubled);
     }
 
     @Override
@@ -200,11 +197,11 @@ public abstract class ParentElementEntryListWidget<E extends ParentElementEntryL
 
     @Override
     public GuiNavigationPath getNavigationPath(GuiNavigation navigation) {
-      if (!(navigation instanceof GuiNavigation.Arrow arrow)) {
+      if (!(navigation instanceof GuiNavigation.Arrow(NavigationDirection direction))) {
         return ParentElement.super.getNavigationPath(navigation);
       }
 
-      int delta = switch (arrow.direction()) {
+      int delta = switch (direction) {
         case LEFT -> -1;
         case RIGHT -> 1;
         default -> 0;
@@ -241,20 +238,21 @@ public abstract class ParentElementEntryListWidget<E extends ParentElementEntryL
       Screen.SelectedElementNarrationData data = Screen.findSelectedElementData(list, this.focusedSelectable);
 
       if (data != null) {
-        if (data.selectType.isFocused()) {
-          this.focusedSelectable = data.selectable;
+        if (data.selectType().isFocused()) {
+          this.focusedSelectable = data.selectable();
         }
 
         if (list.size() > 1) {
-          builder.put(NarrationPart.POSITION,
-              Text.translatable("narrator.position.object_list", data.index + 1, list.size())
+          builder.put(
+              NarrationPart.POSITION,
+              Text.translatable("narrator.position.object_list", data.index() + 1, list.size())
           );
-          if (data.selectType == Selectable.SelectionType.FOCUSED) {
+          if (data.selectType() == Selectable.SelectionType.FOCUSED) {
             builder.put(NarrationPart.USAGE, Text.translatable("narration.component_list.usage"));
           }
         }
 
-        data.selectable.appendNarrations(builder.nextMessage());
+        data.selectable().appendNarrations(builder.nextMessage());
       }
     }
   }

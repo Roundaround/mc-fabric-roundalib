@@ -1,12 +1,13 @@
 package me.roundaround.roundalib.client.gui.screen;
 
 import me.roundaround.roundalib.client.gui.icon.BuiltinIcon;
-import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
+import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.drawable.CrosshairWidget;
 import me.roundaround.roundalib.config.option.PositionConfigOption;
 import me.roundaround.roundalib.config.value.Position;
+import net.minecraft.client.input.KeyInput;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
@@ -21,10 +22,9 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
 
   protected LinearLayoutWidget bottomRight;
   protected LinearLayoutWidget mover;
+  protected boolean hasShiftDown = false;
 
-  protected PositionEditScreen(
-      Text title, ConfigScreen parent, PositionConfigOption configOption
-  ) {
+  protected PositionEditScreen(Text title, ConfigScreen parent, PositionConfigOption configOption) {
     super(title, parent, configOption);
 
     this.helpMoveSingleText = Text.translatable(this.modId + ".roundalib.help.position.single");
@@ -47,8 +47,10 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
   }
 
   @Override
-  public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-    Position.Direction direction = switch (keyCode) {
+  public boolean keyPressed(KeyInput input) {
+    this.hasShiftDown = input.hasShift();
+
+    Position.Direction direction = switch (input.getKeycode()) {
       case GLFW.GLFW_KEY_UP -> Position.Direction.UP;
       case GLFW.GLFW_KEY_DOWN -> Position.Direction.DOWN;
       case GLFW.GLFW_KEY_LEFT -> Position.Direction.LEFT;
@@ -57,7 +59,7 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
     };
 
     if (direction == null) {
-      return super.keyPressed(keyCode, scanCode, modifiers);
+      return super.keyPressed(input);
     }
 
     GuiUtil.playClickSound();
@@ -75,7 +77,7 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
   }
 
   protected int getMoveAmount(Position.Direction direction) {
-    return hasShiftDown() ? this.getLargeMoveAmount(direction) : this.getSmallMoveAmount(direction);
+    return this.hasShiftDown ? this.getLargeMoveAmount(direction) : this.getSmallMoveAmount(direction);
   }
 
   protected int getSmallMoveAmount(Position.Direction direction) {

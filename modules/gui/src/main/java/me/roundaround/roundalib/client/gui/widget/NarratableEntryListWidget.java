@@ -5,17 +5,19 @@ import me.roundaround.roundalib.client.gui.util.Spacing;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.navigation.GuiNavigation;
 import net.minecraft.client.gui.navigation.GuiNavigationPath;
+import net.minecraft.client.gui.navigation.NavigationDirection;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;
+import net.minecraft.client.input.KeyInput;
 import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
 
 @Environment(EnvType.CLIENT)
-public abstract class NarratableEntryListWidget<E extends NarratableEntryListWidget.Entry>
-    extends FlowListWidget<E> {
+public abstract class NarratableEntryListWidget<E extends NarratableEntryListWidget.Entry> extends FlowListWidget<E> {
   protected static final Text SELECTION_USAGE_TEXT = Text.translatable("narration.selection.usage");
 
   private boolean highlightSelection = true;
@@ -37,10 +39,9 @@ public abstract class NarratableEntryListWidget<E extends NarratableEntryListWid
   }
 
   @Override
-  public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+  public boolean keyPressed(KeyInput input) {
     Entry selected = this.getSelected();
-    return selected != null && selected.keyPressed(keyCode, scanCode, modifiers) ||
-        super.keyPressed(keyCode, scanCode, modifiers);
+    return selected != null && selected.keyPressed(input) || super.keyPressed(input);
   }
 
   @Override
@@ -49,8 +50,8 @@ public abstract class NarratableEntryListWidget<E extends NarratableEntryListWid
       return null;
     }
 
-    if (this.isFocused() && navigation instanceof GuiNavigation.Arrow arrow) {
-      E neighbor = this.getNeighboringEntry(arrow.direction());
+    if (this.isFocused() && navigation instanceof GuiNavigation.Arrow(NavigationDirection direction)) {
+      E neighbor = this.getNeighboringEntry(direction);
       if (neighbor != null) {
         return GuiNavigationPath.of(this, GuiNavigationPath.of(neighbor));
       }
@@ -96,8 +97,8 @@ public abstract class NarratableEntryListWidget<E extends NarratableEntryListWid
   protected void renderEntry(DrawContext context, int mouseX, int mouseY, float delta, E entry) {
     boolean noHovers = !this.highlightHover || this.getHoveredEntry() == null;
     boolean renderHover = this.highlightHover && entry == this.getHoveredEntry();
-    boolean renderSelection = this.highlightSelection && entry == this.getSelected() &&
-        (noHovers || this.highlightSelectionDuringHover);
+    boolean renderSelection =
+        this.highlightSelection && entry == this.getSelected() && (noHovers || this.highlightSelectionDuringHover);
 
     if (renderHover) {
       entry.renderHoverBackground(context);
@@ -156,7 +157,7 @@ public abstract class NarratableEntryListWidget<E extends NarratableEntryListWid
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(Click click, boolean doubled) {
       return true;
     }
 
@@ -165,11 +166,7 @@ public abstract class NarratableEntryListWidget<E extends NarratableEntryListWid
     }
 
     protected void renderHoverHighlight(DrawContext context) {
-      context.drawBorder(this.getX(),
-          this.getY(),
-          this.getWidth(),
-          this.getHeight(),
-          Colors.LIGHT_GRAY);
+      context.drawStrokedRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight(), Colors.LIGHT_GRAY);
     }
 
     protected void renderSelectionBackground(DrawContext context) {
@@ -177,11 +174,13 @@ public abstract class NarratableEntryListWidget<E extends NarratableEntryListWid
     }
 
     protected void renderSelectionHighlight(DrawContext context) {
-      context.drawBorder(this.getX(),
+      context.drawStrokedRectangle(
+          this.getX(),
           this.getY(),
           this.getWidth(),
           this.getHeight(),
-          this.isFocused() ? Colors.WHITE : Colors.GRAY);
+          this.isFocused() ? Colors.WHITE : Colors.GRAY
+      );
     }
   }
 }

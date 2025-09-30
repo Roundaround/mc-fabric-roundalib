@@ -7,6 +7,7 @@ import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.config.option.IntConfigOption;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.input.CharInput;
 import net.minecraft.text.Text;
 
 public class IntTextControl extends Control<Integer, IntConfigOption> {
@@ -19,11 +20,11 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
 
     this.textField = this.add(new TextFieldWidget(client.textRenderer, width - 2, height - 2, this.option.getLabel()) {
       @Override
-      public boolean charTyped(char chr, int keyCode) {
-        if (chr == '-' && this.getCursor() > 0) {
+      public boolean charTyped(CharInput input) {
+        if (input.codepoint() == '-' && this.getCursor() > 0) {
           return false;
         }
-        return super.charTyped(chr, keyCode);
+        return super.charTyped(input);
       }
     }, (parent, self) -> {
       int inputWidth = parent.getWidth();
