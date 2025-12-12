@@ -4,12 +4,11 @@ import me.roundaround.roundalib.client.gui.icon.Icon;
 import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.font.DrawnTextConsumer;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
@@ -39,12 +38,13 @@ public class IconButtonWidget extends ButtonWidget {
       Identifier highlightedTexture,
       int iconSize,
       boolean dimIconWhenDisabled,
-      Text message,
+      net.minecraft.text.Text message,
       boolean hideMessage,
       boolean hideBackground,
       PressAction onPress,
       Tooltip tooltip,
-      NarrationSupplier narrationSupplier) {
+      NarrationSupplier narrationSupplier
+  ) {
     super(x, y, width, height, message, onPress, narrationSupplier);
 
     this.texture = texture;
@@ -60,14 +60,12 @@ public class IconButtonWidget extends ButtonWidget {
   }
 
   @Override
-  public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+  public void drawIcon(DrawContext context, int mouseX, int mouseY, float delta) {
     if (!this.hideBackground) {
-      super.renderWidget(context, mouseX, mouseY, delta);
+      this.drawButton(context);
     }
 
-    Identifier texture = this.isSelected() && this.highlightedTexture != null
-        ? this.highlightedTexture
-        : this.texture;
+    Identifier texture = this.isSelected() && this.highlightedTexture != null ? this.highlightedTexture : this.texture;
     float brightness = this.active || !this.dimIconWhenDisabled ? 1f : 0.6f;
     int x = this.getX() + (this.getWidth() - this.iconSize) / 2;
     int y = this.getY() + (this.getHeight() - this.iconSize) / 2;
@@ -79,15 +77,16 @@ public class IconButtonWidget extends ButtonWidget {
         y,
         this.iconSize,
         this.iconSize,
-        GuiUtil.genColorInt(brightness, brightness, brightness));
+        GuiUtil.genColorInt(brightness, brightness, brightness)
+    );
   }
 
   @Override
-  public void drawMessage(DrawContext context, TextRenderer textRenderer, int color) {
+  protected void drawLabel(DrawnTextConsumer drawer) {
     if (this.hideMessage) {
       return;
     }
-    super.drawMessage(context, textRenderer, color);
+    super.drawLabel(drawer);
   }
 
   public void setTexture(Icon icon, String modId) {
@@ -123,7 +122,7 @@ public class IconButtonWidget extends ButtonWidget {
     private int height = SIZE_L;
     private Identifier highlightedTexture = null;
     private boolean dimIconWhenDisabled = true;
-    private Text message = Text.empty();
+    private net.minecraft.text.Text message = net.minecraft.text.Text.empty();
     private boolean hideMessage = true;
     private boolean hideBackground = false;
     private PressAction onPress = NOOP;
@@ -197,7 +196,7 @@ public class IconButtonWidget extends ButtonWidget {
       return this;
     }
 
-    public Builder message(Text message) {
+    public Builder message(net.minecraft.text.Text message) {
       this.message = message;
       return this;
     }
@@ -222,12 +221,12 @@ public class IconButtonWidget extends ButtonWidget {
       return this;
     }
 
-    public Builder tooltip(Text tooltip) {
+    public Builder tooltip(net.minecraft.text.Text tooltip) {
       this.tooltip = Tooltip.of(tooltip);
       return this;
     }
 
-    public Builder messageAndTooltip(Text text) {
+    public Builder messageAndTooltip(net.minecraft.text.Text text) {
       this.message = text;
       this.tooltip = Tooltip.of(text);
       return this;
@@ -239,7 +238,8 @@ public class IconButtonWidget extends ButtonWidget {
     }
 
     public IconButtonWidget build() {
-      return new IconButtonWidget(this.x,
+      return new IconButtonWidget(
+          this.x,
           this.y,
           this.width,
           this.height,
@@ -252,7 +252,8 @@ public class IconButtonWidget extends ButtonWidget {
           this.hideBackground,
           this.onPress,
           this.tooltip,
-          this.narrationSupplier);
+          this.narrationSupplier
+      );
     }
   }
 }

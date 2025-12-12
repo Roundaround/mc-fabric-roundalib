@@ -159,7 +159,7 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
   }
 
   @Override
-  protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+  protected void drawIcon(DrawContext context, int mouseX, int mouseY, float delta) {
     this.hovered = this.layout.getBounds().contains(mouseX, mouseY);
     this.layout.forEachElement((widget) -> {
       if (widget instanceof Drawable drawable) {
