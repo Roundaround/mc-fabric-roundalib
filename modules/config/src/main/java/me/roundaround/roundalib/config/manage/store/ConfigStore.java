@@ -1,6 +1,6 @@
 package me.roundaround.roundalib.config.manage.store;
 
-import com.electronwill.nightconfig.core.Config;
+import me.roundaround.roundalib.config.io.ConfigDoc;
 import me.roundaround.roundalib.config.option.ConfigOption;
 
 import java.util.Collection;
@@ -53,7 +53,7 @@ public interface ConfigStore {
     this.getAll().forEach(ConfigOption::update);
   }
 
-  default boolean performConfigUpdate(int versionSnapshot, Config inMemoryConfigSnapshot) {
+  default boolean performConfigUpdate(int versionSnapshot, ConfigDoc inMemoryConfigSnapshot) {
     return false;
   }
 }

@@ -24,7 +24,6 @@ public class FloatConfigOption extends ConfigOption<Float> {
 
   @Override
   public void deserialize(Object data) {
-    // Getting around a weird issue where the default deserializes into a Double
     this.setValue(((Double) data).floatValue());
   }
 

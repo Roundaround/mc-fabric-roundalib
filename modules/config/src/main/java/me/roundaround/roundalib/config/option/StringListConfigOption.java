@@ -12,7 +12,6 @@ public class StringListConfigOption extends ConfigOption<List<String>> {
   @SuppressWarnings("unchecked")
   @Override
   public void deserialize(Object data) {
-    // NightConfig only deserializes to List<Object>, not List<String>
     this.setValue(((List<Object>) data).stream().map(String::valueOf).toList());
   }
 
