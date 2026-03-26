@@ -5,7 +5,7 @@ import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.ActiveTextCollector;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -60,12 +60,13 @@ public class IconButtonWidget extends Button {
   }
 
   @Override
-  public void renderContents(GuiGraphics context, int mouseX, int mouseY, float delta) {
+  public void extractContents(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
     if (!this.hideBackground) {
-      this.renderDefaultSprite(context);
+      this.extractDefaultSprite(context);
     }
 
-    Identifier texture = this.isHoveredOrFocused() && this.highlightedTexture != null ? this.highlightedTexture : this.texture;
+    Identifier texture =
+        this.isHoveredOrFocused() && this.highlightedTexture != null ? this.highlightedTexture : this.texture;
     float brightness = this.active || !this.dimIconWhenDisabled ? 1f : 0.6f;
     int x = this.getX() + (this.getWidth() - this.iconSize) / 2;
     int y = this.getY() + (this.getHeight() - this.iconSize) / 2;
@@ -82,11 +83,11 @@ public class IconButtonWidget extends Button {
   }
 
   @Override
-  protected void renderDefaultLabel(ActiveTextCollector drawer) {
+  protected void extractDefaultLabel(ActiveTextCollector drawer) {
     if (this.hideMessage) {
       return;
     }
-    super.renderDefaultLabel(drawer);
+    super.extractDefaultLabel(drawer);
   }
 
   public void setTexture(Icon icon, String modId) {

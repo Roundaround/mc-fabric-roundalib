@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.client.gui.util.IntRect;
 import me.roundaround.roundalib.client.gui.util.Spacing;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.layouts.Layout;
 import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -76,7 +76,7 @@ public class FrameWidget extends DrawableWidget implements Layout {
   }
 
   @Override
-  public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+  public void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
     // Need to get around the fact the vanilla texture is only 23 pixels tall, so
     // actually draw a 9-slice
     // that is height - 1 tall, then draw just the top border of the texture again,

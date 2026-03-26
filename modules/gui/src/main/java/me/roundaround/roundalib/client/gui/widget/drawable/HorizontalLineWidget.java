@@ -1,6 +1,6 @@
 package me.roundaround.roundalib.client.gui.widget.drawable;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
@@ -68,7 +68,7 @@ public class HorizontalLineWidget extends DrawableWidget {
   }
 
   @Override
-  public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+  public void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
     context.blit(
         RenderPipelines.GUI_TEXTURED,
         this.texture,
@@ -79,6 +79,7 @@ public class HorizontalLineWidget extends DrawableWidget {
         this.width,
         this.height,
         32,
-        HEIGHT);
+        HEIGHT
+    );
   }
 }

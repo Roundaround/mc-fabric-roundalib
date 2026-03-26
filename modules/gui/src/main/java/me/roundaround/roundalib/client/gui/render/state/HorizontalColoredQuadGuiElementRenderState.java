@@ -1,26 +1,25 @@
 package me.roundaround.roundalib.client.gui.render.state;
 
-import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix3x2f;
-
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.render.TextureSetup;
-import net.minecraft.client.gui.render.state.GuiElementRenderState;
+import net.minecraft.client.renderer.state.gui.GuiElementRenderState;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix3x2f;
 
-public record HorizontalColoredQuadGuiElementRenderState(
-    RenderPipeline pipeline,
-    TextureSetup textureSetup,
-    Matrix3x2f pose,
-    int x0,
-    int y0,
-    int x1,
-    int y1,
-    int col1,
-    int col2,
-    @Nullable ScreenRectangle scissorArea,
-    @Nullable ScreenRectangle bounds) implements GuiElementRenderState {
+public record HorizontalColoredQuadGuiElementRenderState(RenderPipeline pipeline,
+                                                         TextureSetup textureSetup,
+                                                         Matrix3x2f pose,
+                                                         int x0,
+                                                         int y0,
+                                                         int x1,
+                                                         int y1,
+                                                         int col1,
+                                                         int col2,
+                                                         @Nullable ScreenRectangle scissorArea,
+                                                         @Nullable ScreenRectangle bounds) implements
+    GuiElementRenderState {
   public HorizontalColoredQuadGuiElementRenderState(
       RenderPipeline pipeline,
       TextureSetup textureSetup,
@@ -31,7 +30,8 @@ public record HorizontalColoredQuadGuiElementRenderState(
       int y1,
       int col1,
       int col2,
-      @Nullable ScreenRectangle scissorArea) {
+      @Nullable ScreenRectangle scissorArea
+  ) {
     this(
         pipeline,
         textureSetup,
@@ -43,7 +43,8 @@ public record HorizontalColoredQuadGuiElementRenderState(
         col1,
         col2,
         scissorArea,
-        createBounds(x0, y0, x1, y1, pose, scissorArea));
+        createBounds(x0, y0, x1, y1, pose, scissorArea)
+    );
   }
 
   public void buildVertices(VertexConsumer vertices) {
@@ -60,7 +61,8 @@ public record HorizontalColoredQuadGuiElementRenderState(
       int x1,
       int y1,
       Matrix3x2f pose,
-      @Nullable ScreenRectangle scissorArea) {
+      @Nullable ScreenRectangle scissorArea
+  ) {
     ScreenRectangle screenRect = (new ScreenRectangle(x0, y0, x1 - x0, y1 - y0)).transformMaxBounds(pose);
     return scissorArea != null ? scissorArea.intersection(screenRect) : screenRect;
   }

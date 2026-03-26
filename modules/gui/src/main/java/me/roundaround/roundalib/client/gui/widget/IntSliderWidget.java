@@ -2,7 +2,7 @@ package me.roundaround.roundalib.client.gui.widget;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -113,9 +113,9 @@ public class IntSliderWidget extends AbstractSliderButton {
   }
 
   @Override
-  public void renderWidget(GuiGraphics drawContext, int mouseX, int mouseY, float delta) {
+  public void extractWidgetRenderState(GuiGraphicsExtractor drawContext, int mouseX, int mouseY, float delta) {
     this.isHovered = this.isHovered && this.active;
-    super.renderWidget(drawContext, mouseX, mouseY, delta);
+    super.extractWidgetRenderState(drawContext, mouseX, mouseY, delta);
   }
 
   protected static double valueToSlider(int value, int min, int max) {

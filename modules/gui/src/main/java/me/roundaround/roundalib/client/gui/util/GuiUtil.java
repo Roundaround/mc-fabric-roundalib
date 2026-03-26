@@ -2,12 +2,12 @@ package me.roundaround.roundalib.client.gui.util;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import me.roundaround.roundalib.client.gui.render.state.HorizontalColoredQuadGuiElementRenderState;
-import me.roundaround.roundalib.mixin.DrawContextAccessor;
+import me.roundaround.roundalib.mixin.GuiGraphicsExtractorAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.render.TextureSetup;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -108,7 +108,7 @@ public final class GuiUtil {
   }
 
   public static void drawText(
-      GuiGraphics context,
+      GuiGraphicsExtractor context,
       Font textRenderer,
       Component text,
       int x,
@@ -120,7 +120,7 @@ public final class GuiUtil {
   }
 
   public static void drawText(
-      GuiGraphics context,
+      GuiGraphicsExtractor context,
       Font textRenderer,
       FormattedCharSequence text,
       int x,
@@ -132,7 +132,7 @@ public final class GuiUtil {
   }
 
   public static void drawText(
-      GuiGraphics context,
+      GuiGraphicsExtractor context,
       Font textRenderer,
       Component text,
       int x,
@@ -146,7 +146,7 @@ public final class GuiUtil {
   }
 
   public static void drawText(
-      GuiGraphics context,
+      GuiGraphicsExtractor context,
       Font textRenderer,
       FormattedCharSequence text,
       int x,
@@ -157,11 +157,11 @@ public final class GuiUtil {
       Alignment alignment
   ) {
     int textWidth = textRenderer.width(text);
-    context.drawString(textRenderer, text, alignment.getPosInContainer(x, viewWidth, textWidth), y, color, shadow);
+    context.text(textRenderer, text, alignment.getPosInContainer(x, viewWidth, textWidth), y, color, shadow);
   }
 
   public static void drawTruncatedText(
-      GuiGraphics context,
+      GuiGraphicsExtractor context,
       Font textRenderer,
       Component text,
       int x,
@@ -174,7 +174,7 @@ public final class GuiUtil {
   }
 
   public static void drawTruncatedText(
-      GuiGraphics context,
+      GuiGraphicsExtractor context,
       Font textRenderer,
       Component text,
       int x,
@@ -207,7 +207,7 @@ public final class GuiUtil {
   }
 
   public static void drawWrappedText(
-      GuiGraphics context,
+      GuiGraphicsExtractor context,
       Font textRenderer,
       Component text,
       int x,
@@ -220,7 +220,7 @@ public final class GuiUtil {
   }
 
   public static void drawWrappedText(
-      GuiGraphics context,
+      GuiGraphicsExtractor context,
       Font textRenderer,
       Component text,
       int x,
@@ -247,7 +247,7 @@ public final class GuiUtil {
   }
 
   public static void drawWrappedText(
-      GuiGraphics context,
+      GuiGraphicsExtractor context,
       Font textRenderer,
       Component text,
       int x,
@@ -298,7 +298,7 @@ public final class GuiUtil {
   }
 
   public static void drawScrollingText(
-      GuiGraphics context,
+      GuiGraphicsExtractor context,
       Font textRenderer,
       Component text,
       int x,
@@ -330,16 +330,16 @@ public final class GuiUtil {
     return index * (textRenderer.lineHeight + lineSpacing);
   }
 
-  public static void fill(GuiGraphics context, IntRect rect, int color) {
+  public static void fill(GuiGraphicsExtractor context, IntRect rect, int color) {
     context.fill(rect.left(), rect.top(), rect.right(), rect.bottom(), color);
   }
 
-  public static void fillHorizontalGradient(GuiGraphics context, IntRect rect, int colorStart, int colorEnd) {
+  public static void fillHorizontalGradient(GuiGraphicsExtractor context, IntRect rect, int colorStart, int colorEnd) {
     fillHorizontalGradient(context, rect.left(), rect.top(), rect.right(), rect.bottom(), colorStart, colorEnd);
   }
 
   public static void fillHorizontalGradient(
-      GuiGraphics context,
+      GuiGraphicsExtractor context,
       int startX,
       int startY,
       int endX,
@@ -347,7 +347,7 @@ public final class GuiUtil {
       int colorStart,
       int colorEnd
   ) {
-    context.guiRenderState.submitGuiElement(new HorizontalColoredQuadGuiElementRenderState(
+    ((GuiGraphicsExtractorAccessor) context).getGuiRenderState().addGuiElement(new HorizontalColoredQuadGuiElementRenderState(
         RenderPipelines.GUI,
         TextureSetup.noTexture(),
         new Matrix3x2f(context.pose()),
@@ -357,19 +357,19 @@ public final class GuiUtil {
         endY,
         colorStart,
         colorEnd,
-        context.scissorStack.peek()
+        ((GuiGraphicsExtractorAccessor) context).getScissorStack().peek()
     ));
   }
 
-  public static void drawStrokedRectangle(GuiGraphics context, IntRect rect, int color) {
+  public static void drawStrokedRectangle(GuiGraphicsExtractor context, IntRect rect, int color) {
     drawStrokedRectangle(context, rect, color, false);
   }
 
-  public static void drawStrokedRectangle(GuiGraphics context, IntRect rect, int color, boolean outside) {
+  public static void drawStrokedRectangle(GuiGraphicsExtractor context, IntRect rect, int color, boolean outside) {
     if (outside) {
       rect = rect.expand(1);
     }
-    context.renderOutline(rect.left(), rect.top(), rect.getWidth(), rect.getHeight(), color);
+    context.outline(rect.left(), rect.top(), rect.getWidth(), rect.getHeight(), color);
   }
 
   public static TextureAtlasSprite getSprite(Identifier texture) {
@@ -377,7 +377,7 @@ public final class GuiUtil {
   }
 
   public static void drawSpriteNineSliced(
-      GuiGraphics context,
+      GuiGraphicsExtractor context,
       RenderPipeline pipeline,
       Identifier texture,
       int x,
@@ -405,7 +405,7 @@ public final class GuiUtil {
   }
 
   public static void drawSpriteNineSliced(
-      GuiGraphics context,
+      GuiGraphicsExtractor context,
       RenderPipeline pipeline,
       Identifier texture,
       int x,
@@ -433,7 +433,7 @@ public final class GuiUtil {
   }
 
   public static void drawSpriteNineSliced(
-      GuiGraphics context,
+      GuiGraphicsExtractor context,
       RenderPipeline pipeline,
       TextureAtlasSprite sprite,
       int x,
@@ -451,11 +451,20 @@ public final class GuiUtil {
         new GuiSpriteScaling.NineSlice.Border(border.left(), border.top(), border.right(), border.bottom()),
         false
     );
-    ((DrawContextAccessor) context).invokeBlitNineSlicedSprite(pipeline, sprite, nineSlice, x, y, width, height, color);
+    ((GuiGraphicsExtractorAccessor) context).invokeBlitNineSlicedSprite(
+        pipeline,
+        sprite,
+        nineSlice,
+        x,
+        y,
+        width,
+        height,
+        color
+    );
   }
 
   public static void drawSpriteRegion(
-      GuiGraphics context,
+      GuiGraphicsExtractor context,
       RenderPipeline pipeline,
       TextureAtlasSprite sprite,
       int textureWidth,
@@ -468,7 +477,7 @@ public final class GuiUtil {
       int height,
       int color
   ) {
-    ((DrawContextAccessor) context).invokeBlitSprite(
+    ((GuiGraphicsExtractorAccessor) context).invokeBlitSprite(
         pipeline,
         sprite,
         textureWidth,
@@ -483,12 +492,12 @@ public final class GuiUtil {
     );
   }
 
-  public static void drawTexturedQuad(GuiGraphics context, Identifier sprite, int x1, int x2, int y1, int y2) {
+  public static void drawTexturedQuad(GuiGraphicsExtractor context, Identifier sprite, int x1, int x2, int y1, int y2) {
     drawTexturedQuad(context, sprite, x1, x2, y1, y2, 0, 1, 0, 1);
   }
 
   public static void drawTexturedQuad(
-      GuiGraphics context,
+      GuiGraphicsExtractor context,
       RenderPipeline pipeline,
       Identifier sprite,
       int x1,
@@ -500,7 +509,7 @@ public final class GuiUtil {
   }
 
   public static void drawTexturedQuad(
-      GuiGraphics context,
+      GuiGraphicsExtractor context,
       Identifier sprite,
       int x1,
       int x2,
@@ -515,7 +524,7 @@ public final class GuiUtil {
   }
 
   public static void drawTexturedQuad(
-      GuiGraphics context,
+      GuiGraphicsExtractor context,
       RenderPipeline pipeline,
       Identifier sprite,
       int x1,
@@ -531,7 +540,7 @@ public final class GuiUtil {
   }
 
   public static void drawTexturedQuad(
-      GuiGraphics context,
+      GuiGraphicsExtractor context,
       Identifier sprite,
       int x1,
       int x2,
@@ -543,7 +552,7 @@ public final class GuiUtil {
   }
 
   public static void drawTexturedQuad(
-      GuiGraphics context,
+      GuiGraphicsExtractor context,
       RenderPipeline pipeline,
       Identifier sprite,
       int x1,
@@ -556,7 +565,7 @@ public final class GuiUtil {
   }
 
   public static void drawTexturedQuad(
-      GuiGraphics context,
+      GuiGraphicsExtractor context,
       Identifier sprite,
       int x1,
       int x2,
@@ -572,7 +581,7 @@ public final class GuiUtil {
   }
 
   public static void drawTexturedQuad(
-      GuiGraphics context,
+      GuiGraphicsExtractor context,
       RenderPipeline pipeline,
       Identifier sprite,
       int x1,
@@ -585,14 +594,26 @@ public final class GuiUtil {
       float v2,
       int color
   ) {
-    ((DrawContextAccessor) context).invokeInnerBlit(pipeline, sprite, x1, x2, y1, y2, u1, u2, v1, v2, color);
+    ((GuiGraphicsExtractorAccessor) context).invokeInnerBlit(
+        pipeline,
+        sprite,
+        x1,
+        x2,
+        y1,
+        y2,
+        u1,
+        u2,
+        v1,
+        v2,
+        color
+    );
   }
 
-  public static void enableScissor(GuiGraphics context, IntRect rect) {
+  public static void enableScissor(GuiGraphicsExtractor context, IntRect rect) {
     context.enableScissor(rect.left(), rect.top(), rect.right(), rect.bottom());
   }
 
-  public static void disableScissor(GuiGraphics context) {
+  public static void disableScissor(GuiGraphicsExtractor context) {
     context.disableScissor();
   }
 

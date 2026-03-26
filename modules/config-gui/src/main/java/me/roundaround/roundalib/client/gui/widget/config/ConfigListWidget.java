@@ -21,7 +21,7 @@ import me.roundaround.roundalib.observable.Subscription;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
 public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWidget.Entry> {
@@ -132,7 +132,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     }
 
     @Override
-    protected void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    protected void renderBackground(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
       renderRowShade(context, this.getContentLeft(), this.getContentTop(), this.getContentRight(),
           this.getContentBottom(), DEFAULT_SHADE_FADE_WIDTH * 3, DEFAULT_SHADE_STRENGTH_STRONG);
     }
@@ -171,7 +171,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     }
 
     @Override
-    protected void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    protected void renderBackground(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
       renderRowShade(context, this.getContentLeft(), this.getContentTop(), this.getContentRight(),
           this.getContentBottom(), DEFAULT_SHADE_FADE_WIDTH, DEFAULT_SHADE_STRENGTH);
     }

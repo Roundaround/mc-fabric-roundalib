@@ -10,7 +10,7 @@ public enum Difficulty implements EnumValue<Difficulty> {
   private final net.minecraft.world.Difficulty vanillaDifficulty;
 
   Difficulty(net.minecraft.world.Difficulty vanillaDifficulty) {
-    id = vanillaDifficulty.getKey();
+    id = vanillaDifficulty.getSerializedName();
     this.vanillaDifficulty = vanillaDifficulty;
   }
 

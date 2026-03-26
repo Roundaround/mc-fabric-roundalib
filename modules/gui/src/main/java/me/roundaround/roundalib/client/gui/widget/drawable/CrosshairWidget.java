@@ -1,9 +1,9 @@
 package me.roundaround.roundalib.client.gui.widget.drawable;
 
-import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.client.gui.util.Coords;
+import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.client.gui.util.IntRect;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.Mth;
 
 public class CrosshairWidget extends DrawableWidget {
@@ -52,7 +52,7 @@ public class CrosshairWidget extends DrawableWidget {
   }
 
   @Override
-  public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+  public void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
     int left = this.getX() + this.length + this.gap;
     int top = this.getY() + this.length + this.gap;
     int right = this.getRight() - this.length - this.gap;

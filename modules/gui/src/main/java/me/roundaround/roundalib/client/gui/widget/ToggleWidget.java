@@ -7,7 +7,7 @@ import me.roundaround.roundalib.client.gui.widget.drawable.LabelWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;
@@ -19,6 +19,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -30,7 +31,8 @@ public class ToggleWidget extends AbstractButton implements Layout {
 
   private static final Identifier TEXTURE = Identifier.withDefaultNamespace("widget/slider");
   private static final Identifier HANDLE_TEXTURE = Identifier.withDefaultNamespace("widget/slider_handle");
-  private static final Identifier HANDLE_HIGHLIGHTED_TEXTURE = Identifier.withDefaultNamespace("widget/slider_handle_highlighted");
+  private static final Identifier HANDLE_HIGHLIGHTED_TEXTURE = Identifier.withDefaultNamespace(
+      "widget/slider_handle_highlighted");
 
   private final Consumer<ToggleWidget> pressAction;
   private final Font textRenderer;
@@ -99,7 +101,7 @@ public class ToggleWidget extends AbstractButton implements Layout {
       }
 
       @Override
-      protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+      protected void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         boolean value = ToggleWidget.this.value;
         int barWidth = ToggleWidget.this.barWidth;
 
@@ -158,11 +160,11 @@ public class ToggleWidget extends AbstractButton implements Layout {
   }
 
   @Override
-  protected void renderContents(GuiGraphics context, int mouseX, int mouseY, float delta) {
+  protected void extractContents(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
     this.isHovered = this.layout.getBounds().contains(mouseX, mouseY);
     this.layout.visitChildren((widget) -> {
       if (widget instanceof Renderable drawable) {
-        drawable.render(context, mouseX, mouseY, delta);
+        drawable.extractRenderState(context, mouseX, mouseY, delta);
       }
     });
   }
@@ -303,11 +305,7 @@ public class ToggleWidget extends AbstractButton implements Layout {
     return new Builder(textRenderer, labelTextMapper).showValue(ValueToTextMapper.yesNo());
   }
 
-  public static Builder enabledDisabledBuilder(
-      Font textRenderer,
-      ValueToTextMapper labelTextMapper,
-      String modId
-  ) {
+  public static Builder enabledDisabledBuilder(Font textRenderer, ValueToTextMapper labelTextMapper, String modId) {
     return new Builder(textRenderer, labelTextMapper).showValue(ValueToTextMapper.enabledDisabled(modId));
   }
 

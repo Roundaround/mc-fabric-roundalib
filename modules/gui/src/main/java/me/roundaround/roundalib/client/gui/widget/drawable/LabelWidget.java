@@ -4,7 +4,7 @@ import me.roundaround.roundalib.client.gui.util.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.resources.language.I18n;
@@ -139,7 +139,7 @@ public class LabelWidget extends DrawableWidget {
   }
 
   @Override
-  public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+  public void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
     if (this.lines.isEmpty()) {
       return;
     }
@@ -172,7 +172,7 @@ public class LabelWidget extends DrawableWidget {
   protected void renderLine(
       int index,
       OverflowBehavior overflowBehavior,
-      GuiGraphics context,
+      GuiGraphicsExtractor context,
       int mouseX,
       int mouseY,
       float delta

@@ -7,8 +7,9 @@ import me.roundaround.roundalib.client.gui.util.Spacing;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractContainerWidget;
+import net.minecraft.client.gui.components.AbstractScrollArea;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -25,6 +26,7 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -63,14 +65,21 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Abs
   protected int scrollbarX;
 
   protected FlowListWidget(Minecraft client, ThreeSectionLayoutWidget layout) {
-    super(0, layout.getHeaderHeight(), layout.getWidth(), layout.getBodyHeight(), CommonComponents.EMPTY);
+    super(
+        0,
+        layout.getHeaderHeight(),
+        layout.getWidth(),
+        layout.getBodyHeight(),
+        CommonComponents.EMPTY,
+        AbstractScrollArea.defaultSettings(1)
+    );
 
     this.client = client;
     this.parentLayout = layout;
   }
 
   protected FlowListWidget(Minecraft client, int x, int y, int width, int height) {
-    super(x, y, width, height, CommonComponents.EMPTY);
+    super(x, y, width, height, CommonComponents.EMPTY, AbstractScrollArea.defaultSettings(1));
 
     this.client = client;
     this.parentLayout = null;
@@ -203,7 +212,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Abs
   }
 
   @Override
-  public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+  public void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
     this.hoveredEntry = this.getEntryAtPosition(mouseX, mouseY);
 
     this.renderListBackground(context);
@@ -211,7 +220,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Abs
     this.renderListBorders(context);
   }
 
-  protected void renderListBackground(GuiGraphics context) {
+  protected void renderListBackground(GuiGraphicsExtractor context) {
     context.blit(
         RenderPipelines.GUI_TEXTURED,
         Textures.listBg(this.client),
@@ -226,14 +235,14 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Abs
     );
   }
 
-  protected void renderList(GuiGraphics context, int mouseX, int mouseY, float delta) {
+  protected void renderList(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
     context.enableScissor(this.getX(), this.getY(), this.getRight(), this.getBottom());
     this.renderEntries(context, mouseX, mouseY, delta);
     this.renderScrollBar(context);
     context.disableScissor();
   }
 
-  protected void renderEntries(GuiGraphics context, int mouseX, int mouseY, float delta) {
+  protected void renderEntries(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
     this.entries.forEach((entry) -> {
       if (!this.isEntryVisible(entry)) {
         return;
@@ -242,11 +251,11 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Abs
     });
   }
 
-  protected void renderEntry(GuiGraphics context, int mouseX, int mouseY, float delta, E entry) {
-    entry.render(context, mouseX, mouseY, delta);
+  protected void renderEntry(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta, E entry) {
+    entry.extractRenderState(context, mouseX, mouseY, delta);
   }
 
-  protected void renderScrollBar(GuiGraphics context) {
+  protected void renderScrollBar(GuiGraphicsExtractor context) {
     if (!this.isScrollbarVisible()) {
       return;
     }
@@ -274,7 +283,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Abs
     );
   }
 
-  protected void renderListBorders(GuiGraphics context) {
+  protected void renderListBorders(GuiGraphicsExtractor context) {
     context.blit(
         RenderPipelines.GUI_TEXTURED,
         Textures.borderTop(this.client),
@@ -773,19 +782,19 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Abs
     }
 
     @Override
-    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
       this.renderBackground(context, mouseX, mouseY, delta);
       this.renderContent(context, mouseX, mouseY, delta);
       this.renderDecorations(context, mouseX, mouseY, delta);
     }
 
-    protected void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    protected void renderBackground(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
       if (this.hasRowShading()) {
         this.renderRowShade(context);
       }
     }
 
-    protected void renderRowShade(GuiGraphics context) {
+    protected void renderRowShade(GuiGraphicsExtractor context) {
       renderRowShade(
           context,
           this.getX(),
@@ -798,7 +807,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Abs
     }
 
     protected static void renderRowShade(
-        GuiGraphics context,
+        GuiGraphicsExtractor context,
         int left,
         int top,
         int right,
@@ -812,11 +821,11 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Abs
       GuiUtil.fillHorizontalGradient(context, right - fadeWidth, top, right, bottom, shadeColor, 0);
     }
 
-    protected void renderContent(GuiGraphics context, int mouseX, int mouseY, float delta) {
-      this.drawables.forEach((drawable) -> drawable.render(context, mouseX, mouseY, delta));
+    protected void renderContent(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+      this.drawables.forEach((drawable) -> drawable.extractRenderState(context, mouseX, mouseY, delta));
     }
 
-    protected void renderDecorations(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    protected void renderDecorations(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
     }
 
     protected void setScrollAmount(double scrollAmount) {

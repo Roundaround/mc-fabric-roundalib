@@ -6,11 +6,12 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenDirection;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
@@ -50,7 +51,9 @@ public abstract class NarratableEntryListWidget<E extends NarratableEntryListWid
       return null;
     }
 
-    if (this.isFocused() && navigation instanceof FocusNavigationEvent.ArrowNavigation(ScreenDirection direction)) {
+    if (this.isFocused() && navigation instanceof FocusNavigationEvent.ArrowNavigation(
+        ScreenDirection direction, ScreenRectangle previousFocus
+    )) {
       E neighbor = this.getNeighboringEntry(direction);
       if (neighbor != null) {
         return ComponentPath.path(this, ComponentPath.leaf(neighbor));
@@ -94,7 +97,7 @@ public abstract class NarratableEntryListWidget<E extends NarratableEntryListWid
   }
 
   @Override
-  protected void renderEntry(GuiGraphics context, int mouseX, int mouseY, float delta, E entry) {
+  protected void renderEntry(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta, E entry) {
     boolean noHovers = !this.highlightHover || this.getHoveredEntry() == null;
     boolean renderHover = this.highlightHover && entry == this.getHoveredEntry();
     boolean renderSelection =
@@ -161,20 +164,20 @@ public abstract class NarratableEntryListWidget<E extends NarratableEntryListWid
       return true;
     }
 
-    protected void renderHoverBackground(GuiGraphics context) {
+    protected void renderHoverBackground(GuiGraphicsExtractor context) {
       context.fill(this.getX(), this.getY(), this.getRight(), this.getBottom(), CommonColors.BLACK);
     }
 
-    protected void renderHoverHighlight(GuiGraphics context) {
-      context.renderOutline(this.getX(), this.getY(), this.getWidth(), this.getHeight(), CommonColors.LIGHT_GRAY);
+    protected void renderHoverHighlight(GuiGraphicsExtractor context) {
+      context.outline(this.getX(), this.getY(), this.getWidth(), this.getHeight(), CommonColors.LIGHT_GRAY);
     }
 
-    protected void renderSelectionBackground(GuiGraphics context) {
+    protected void renderSelectionBackground(GuiGraphicsExtractor context) {
       context.fill(this.getX(), this.getY(), this.getRight(), this.getBottom(), CommonColors.BLACK);
     }
 
-    protected void renderSelectionHighlight(GuiGraphics context) {
-      context.renderOutline(
+    protected void renderSelectionHighlight(GuiGraphicsExtractor context) {
+      context.outline(
           this.getX(),
           this.getY(),
           this.getWidth(),

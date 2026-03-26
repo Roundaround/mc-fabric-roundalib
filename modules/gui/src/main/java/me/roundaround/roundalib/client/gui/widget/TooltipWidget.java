@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;
@@ -134,7 +134,7 @@ public class TooltipWidget implements Renderable, LayoutElement {
   }
 
   @Override
-  public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+  public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
     boolean hovered = context.containsPointInScissor(mouseX, mouseY) && mouseX >= this.getX() && mouseY >= this.getY() &&
         mouseX < this.getX() + this.getWidth() && mouseY < this.getY() + this.getHeight();
 

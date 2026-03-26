@@ -1,11 +1,12 @@
 package me.roundaround.roundalib.client.gui.widget;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class FloatSliderWidget extends AbstractSliderButton {
   protected final float min;
@@ -100,9 +101,7 @@ public class FloatSliderWidget extends AbstractSliderButton {
   }
 
   @Override
-  public boolean mouseScrolled(
-      double mouseX, double mouseY, double horizontalAmount, double verticalAmount
-  ) {
+  public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
     if (this.isMouseOver(mouseX, mouseY)) {
       this.setFloatValue(this.stepHandler.apply((int) Math.signum(verticalAmount)));
       this.applyValue();
@@ -113,9 +112,9 @@ public class FloatSliderWidget extends AbstractSliderButton {
   }
 
   @Override
-  public void renderWidget(GuiGraphics drawContext, int mouseX, int mouseY, float delta) {
+  public void extractWidgetRenderState(GuiGraphicsExtractor drawContext, int mouseX, int mouseY, float delta) {
     this.isHovered = this.isHovered && this.active;
-    super.renderWidget(drawContext, mouseX, mouseY, delta);
+    super.extractWidgetRenderState(drawContext, mouseX, mouseY, delta);
   }
 
   protected static double valueToSlider(float value, float min, float max) {

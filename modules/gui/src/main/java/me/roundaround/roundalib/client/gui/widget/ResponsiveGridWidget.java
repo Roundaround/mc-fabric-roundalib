@@ -1,11 +1,12 @@
 package me.roundaround.roundalib.client.gui.widget;
 
-import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.client.gui.util.Coords;
+import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractContainerWidget;
+import net.minecraft.client.gui.components.AbstractScrollArea;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.layouts.Layout;
@@ -16,6 +17,7 @@ import net.minecraft.client.gui.narration.NarrationSupplier;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -42,14 +44,12 @@ public class ResponsiveGridWidget extends AbstractContainerWidget implements Lay
     this(x, y, width, height, columnWidth, rowHeight, Axis.HORIZONTAL);
   }
 
-  public ResponsiveGridWidget(
-      int width, int height, int columnWidth, int rowHeight, Axis flowAxis) {
+  public ResponsiveGridWidget(int width, int height, int columnWidth, int rowHeight, Axis flowAxis) {
     this(0, 0, width, height, columnWidth, rowHeight, flowAxis);
   }
 
-  public ResponsiveGridWidget(
-      int x, int y, int width, int height, int columnWidth, int rowHeight, Axis flowAxis) {
-    super(x, y, width, height, CommonComponents.EMPTY);
+  public ResponsiveGridWidget(int x, int y, int width, int height, int columnWidth, int rowHeight, Axis flowAxis) {
+    super(x, y, width, height, CommonComponents.EMPTY, AbstractScrollArea.defaultSettings(rowHeight / 2));
 
     this.columnWidth = columnWidth;
     this.rowHeight = rowHeight;
@@ -84,10 +84,12 @@ public class ResponsiveGridWidget extends AbstractContainerWidget implements Lay
 
       numRows = Math.max(numRows, row);
 
-      cell.setPosition(this.calcPosX(column) + offset.x(),
+      cell.setPosition(
+          this.calcPosX(column) + offset.x(),
           this.calcPosY(row) + offset.y(),
           this.columnWidth,
-          this.rowHeight);
+          this.rowHeight
+      );
 
       main++;
       if (main > maxCount - 1) {
@@ -113,8 +115,7 @@ public class ResponsiveGridWidget extends AbstractContainerWidget implements Lay
 
   private int getMaxCountForMainAxis() {
     return switch (this.flowAxis) {
-      case HORIZONTAL ->
-          (this.width + this.columnSpacing) / (this.columnWidth + this.columnSpacing);
+      case HORIZONTAL -> (this.width + this.columnSpacing) / (this.columnWidth + this.columnSpacing);
       case VERTICAL -> (this.height + this.rowSpacing) / (this.rowHeight + this.rowSpacing);
     };
   }
@@ -158,10 +159,10 @@ public class ResponsiveGridWidget extends AbstractContainerWidget implements Lay
   }
 
   @Override
-  protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+  protected void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
     this.widgets.forEach((widget) -> {
       if (widget instanceof Renderable drawable) {
-        drawable.render(context, mouseX, mouseY, delta);
+        drawable.extractRenderState(context, mouseX, mouseY, delta);
       }
     });
   }
@@ -242,8 +243,7 @@ public class ResponsiveGridWidget extends AbstractContainerWidget implements Lay
 
   @Environment(EnvType.CLIENT)
   public enum Axis {
-    HORIZONTAL,
-    VERTICAL;
+    HORIZONTAL, VERTICAL;
   }
 
   @Environment(EnvType.CLIENT)

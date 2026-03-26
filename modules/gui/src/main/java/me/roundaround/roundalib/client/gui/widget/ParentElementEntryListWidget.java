@@ -4,7 +4,7 @@ import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidge
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -14,10 +14,12 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenAxis;
 import net.minecraft.client.gui.navigation.ScreenDirection;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -200,7 +202,9 @@ public abstract class ParentElementEntryListWidget<E extends ParentElementEntryL
 
     @Override
     public ComponentPath nextFocusPath(FocusNavigationEvent navigation) {
-      if (!(navigation instanceof FocusNavigationEvent.ArrowNavigation(ScreenDirection direction))) {
+      if (!(navigation instanceof FocusNavigationEvent.ArrowNavigation(
+          ScreenDirection direction, ScreenRectangle previousFocus
+      ))) {
         return ContainerEventHandler.super.nextFocusPath(navigation);
       }
 
