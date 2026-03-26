@@ -8,10 +8,10 @@ import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidge
 import me.roundaround.roundalib.client.gui.widget.config.ConfigListWidget;
 import me.roundaround.roundalib.config.manage.ModConfig;
 import me.roundaround.roundalib.observable.Subscription;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.screen.ScreenTexts;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 
 public class ConfigScreen extends Screen {
   protected final ThreeSectionLayoutWidget layout = new ThreeSectionLayoutWidget(this);
@@ -26,22 +26,22 @@ public class ConfigScreen extends Screen {
   protected CloseAction closeAction = CloseAction.NOOP;
 
   public ConfigScreen(Screen parent, String modId, ModConfig... configs) {
-    this(Text.translatable(modId + ".config.title"), parent, modId, configs);
+    this(Component.translatable(modId + ".config.title"), parent, modId, configs);
   }
 
   public ConfigScreen(Screen parent, String modId, Iterable<ModConfig> configs) {
-    this(Text.translatable(modId + ".config.title"), parent, modId, configs);
+    this(Component.translatable(modId + ".config.title"), parent, modId, configs);
   }
 
-  public ConfigScreen(Text title, Screen parent, String modId, ModConfig... configs) {
+  public ConfigScreen(Component title, Screen parent, String modId, ModConfig... configs) {
     this(title, parent, modId, List.of(configs));
   }
 
-  public ConfigScreen(Text title, Screen parent, String modId, Iterable<ModConfig> configs) {
+  public ConfigScreen(Component title, Screen parent, String modId, Iterable<ModConfig> configs) {
     this(title, parent, modId, configs, 0);
   }
 
-  protected ConfigScreen(Text title, Screen parent, String modId, Iterable<ModConfig> configs, double scrollAmount) {
+  protected ConfigScreen(Component title, Screen parent, String modId, Iterable<ModConfig> configs, double scrollAmount) {
     super(title);
     this.parent = parent;
     this.modId = modId;
@@ -69,36 +69,36 @@ public class ConfigScreen extends Screen {
     this.initBody();
     this.initFooter();
 
-    this.layout.forEachChild(this::addDrawableChild);
-    this.refreshWidgetPositions();
+    this.layout.visitWidgets(this::addRenderableWidget);
+    this.repositionElements();
   }
 
   protected void initHeader() {
-    this.layout.addHeader(this.textRenderer, this.title);
+    this.layout.addHeader(this.font, this.title);
   }
 
   protected void initBody() {
     this.configListWidget = this.layout.addBody(
-        new ConfigListWidget(this.client, this.layout, this.modId, this.configs), (parent, self) -> {
-          self.setDimensionsAndPosition(parent.getWidth(), parent.getHeight(), parent.getX(), parent.getY());
+        new ConfigListWidget(this.minecraft, this.layout, this.modId, this.configs), (parent, self) -> {
+          self.setRectangle(parent.getWidth(), parent.getHeight(), parent.getX(), parent.getY());
         });
     this.configListWidget.setScrollAmount(this.prevScrollAmount);
     this.subscriptions.addAll(this.configListWidget.collectSubscriptions());
   }
 
   protected void initFooter() {
-    this.layout.addFooter(ButtonWidget.builder(ScreenTexts.CANCEL, (button) -> this.cancel()).build());
-    this.layout.addFooter(ButtonWidget.builder(ScreenTexts.DONE, (button) -> this.done()).build());
+    this.layout.addFooter(Button.builder(CommonComponents.GUI_CANCEL, (button) -> this.cancel()).build());
+    this.layout.addFooter(Button.builder(CommonComponents.GUI_DONE, (button) -> this.done()).build());
   }
 
   @Override
-  protected void refreshWidgetPositions() {
-    this.layout.refreshPositions();
+  protected void repositionElements() {
+    this.layout.arrangeElements();
   }
 
   @Override
-  public void close() {
-    Objects.requireNonNull(this.client).setScreen(this.parent);
+  public void onClose() {
+    Objects.requireNonNull(this.minecraft).setScreen(this.parent);
   }
 
   @Override
@@ -118,12 +118,12 @@ public class ConfigScreen extends Screen {
 
   protected void cancel() {
     this.closeAction = ModConfig::readFromStore;
-    this.close();
+    this.onClose();
   }
 
   protected void done() {
     this.closeAction = ModConfig::writeToStore;
-    this.close();
+    this.onClose();
   }
 
   @FunctionalInterface

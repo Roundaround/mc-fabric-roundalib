@@ -1,7 +1,7 @@
 package me.roundaround.roundalib.client.gui.widget;
 
 import me.roundaround.roundalib.client.gui.widget.drawable.DrawableWidget;
-import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.GuiGraphics;
 
 public class EmptyWidget extends DrawableWidget {
   public EmptyWidget() {
@@ -9,6 +9,6 @@ public class EmptyWidget extends DrawableWidget {
   }
 
   @Override
-  protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+  protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
   }
 }

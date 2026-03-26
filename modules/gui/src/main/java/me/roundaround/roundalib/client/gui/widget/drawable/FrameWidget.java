@@ -5,23 +5,23 @@ import java.util.function.Consumer;
 import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.client.gui.util.IntRect;
 import me.roundaround.roundalib.client.gui.util.Spacing;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.LayoutWidget;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.client.texture.Sprite;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.util.Colors;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.layouts.Layout;
+import net.minecraft.client.gui.layouts.LayoutElement;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.CommonColors;
+import net.minecraft.world.inventory.Slot;
 
-public class FrameWidget extends DrawableWidget implements LayoutWidget {
+public class FrameWidget extends DrawableWidget implements Layout {
   public static final int DEFAULT_OVERFLOW = 2;
 
-  private static final Identifier TEXTURE = Identifier.ofVanilla("hud/hotbar_selection");
+  private static final Identifier TEXTURE = Identifier.withDefaultNamespace("hud/hotbar_selection");
   private static final Spacing NINE_SLIDE_BORDER = Spacing.of(4, 4, 3, 4);
 
   private Slot refSlot = null;
-  private Widget refWidget = null;
+  private LayoutElement refWidget = null;
   private int overflow;
 
   public FrameWidget() {
@@ -49,11 +49,11 @@ public class FrameWidget extends DrawableWidget implements LayoutWidget {
     this.refSlot = slot;
   }
 
-  public FrameWidget(Widget widget) {
+  public FrameWidget(LayoutElement widget) {
     this(widget, DEFAULT_OVERFLOW);
   }
 
-  public FrameWidget(Widget widget, int overflow) {
+  public FrameWidget(LayoutElement widget, int overflow) {
     this(IntRect.fromWidget(widget), overflow);
     this.refWidget = widget;
   }
@@ -76,7 +76,7 @@ public class FrameWidget extends DrawableWidget implements LayoutWidget {
   }
 
   @Override
-  public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+  public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
     // Need to get around the fact the vanilla texture is only 23 pixels tall, so
     // actually draw a 9-slice
     // that is height - 1 tall, then draw just the top border of the texture again,
@@ -87,19 +87,19 @@ public class FrameWidget extends DrawableWidget implements LayoutWidget {
     int width = this.getWidth() + 2 * this.overflow;
     int height = this.getHeight() + 2 * this.overflow - 1;
 
-    Sprite sprite = GuiUtil.getSprite(TEXTURE);
+    TextureAtlasSprite sprite = GuiUtil.getSprite(TEXTURE);
     GuiUtil.drawSpriteNineSliced(
-        context, RenderPipelines.GUI_TEXTURED, sprite, x, y, width, height, 24, 23, Colors.WHITE, NINE_SLIDE_BORDER);
+        context, RenderPipelines.GUI_TEXTURED, sprite, x, y, width, height, 24, 23, CommonColors.WHITE, NINE_SLIDE_BORDER);
     GuiUtil.drawSpriteRegion(
-        context, RenderPipelines.GUI_TEXTURED, sprite, 24, 23, 0, 0, x, y + height, width, 1, Colors.WHITE);
+        context, RenderPipelines.GUI_TEXTURED, sprite, 24, 23, 0, 0, x, y + height, width, 1, CommonColors.WHITE);
   }
 
   @Override
-  public void forEachElement(Consumer<Widget> consumer) {
+  public void visitChildren(Consumer<LayoutElement> consumer) {
   }
 
   @Override
-  public void refreshPositions() {
+  public void arrangeElements() {
     if (this.refSlot != null) {
       this.setBounds(IntRect.fromSlot(this.refSlot));
     } else if (this.refWidget != null) {
@@ -117,7 +117,7 @@ public class FrameWidget extends DrawableWidget implements LayoutWidget {
     this.setBounds(IntRect.fromSlot(slot));
   }
 
-  public void frame(Widget widget) {
+  public void frame(LayoutElement widget) {
     this.refWidget = widget;
     this.refSlot = null;
     this.setBounds(IntRect.fromWidget(this.refWidget));
@@ -131,6 +131,6 @@ public class FrameWidget extends DrawableWidget implements LayoutWidget {
 
   private void setBounds(IntRect targetBounds) {
     this.setPosition(targetBounds.left(), targetBounds.top());
-    this.setDimensions(targetBounds.getWidth(), targetBounds.getHeight());
+    this.setSize(targetBounds.getWidth(), targetBounds.getHeight());
   }
 }

@@ -4,21 +4,21 @@ import me.roundaround.roundalib.client.gui.icon.Icon;
 import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.font.DrawnTextConsumer;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.ActiveTextCollector;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
 
 @Environment(EnvType.CLIENT)
-public class IconButtonWidget extends ButtonWidget {
+public class IconButtonWidget extends Button {
   public static final int SIZE_V = 20;
   public static final int SIZE_L = 18;
   public static final int SIZE_M = 13;
   public static final int SIZE_S = 9;
 
-  protected static final PressAction NOOP = (button) -> {
+  protected static final OnPress NOOP = (button) -> {
   };
 
   protected final int iconSize;
@@ -38,12 +38,12 @@ public class IconButtonWidget extends ButtonWidget {
       Identifier highlightedTexture,
       int iconSize,
       boolean dimIconWhenDisabled,
-      net.minecraft.text.Text message,
+      net.minecraft.network.chat.Component message,
       boolean hideMessage,
       boolean hideBackground,
-      PressAction onPress,
+      OnPress onPress,
       Tooltip tooltip,
-      NarrationSupplier narrationSupplier
+      CreateNarration narrationSupplier
   ) {
     super(x, y, width, height, message, onPress, narrationSupplier);
 
@@ -60,17 +60,17 @@ public class IconButtonWidget extends ButtonWidget {
   }
 
   @Override
-  public void drawIcon(DrawContext context, int mouseX, int mouseY, float delta) {
+  public void renderContents(GuiGraphics context, int mouseX, int mouseY, float delta) {
     if (!this.hideBackground) {
-      this.drawButton(context);
+      this.renderDefaultSprite(context);
     }
 
-    Identifier texture = this.isSelected() && this.highlightedTexture != null ? this.highlightedTexture : this.texture;
+    Identifier texture = this.isHoveredOrFocused() && this.highlightedTexture != null ? this.highlightedTexture : this.texture;
     float brightness = this.active || !this.dimIconWhenDisabled ? 1f : 0.6f;
     int x = this.getX() + (this.getWidth() - this.iconSize) / 2;
     int y = this.getY() + (this.getHeight() - this.iconSize) / 2;
 
-    context.drawGuiTexture(
+    context.blitSprite(
         RenderPipelines.GUI_TEXTURED,
         texture,
         x,
@@ -82,11 +82,11 @@ public class IconButtonWidget extends ButtonWidget {
   }
 
   @Override
-  protected void drawLabel(DrawnTextConsumer drawer) {
+  protected void renderDefaultLabel(ActiveTextCollector drawer) {
     if (this.hideMessage) {
       return;
     }
-    super.drawLabel(drawer);
+    super.renderDefaultLabel(drawer);
   }
 
   public void setTexture(Icon icon, String modId) {
@@ -122,12 +122,12 @@ public class IconButtonWidget extends ButtonWidget {
     private int height = SIZE_L;
     private Identifier highlightedTexture = null;
     private boolean dimIconWhenDisabled = true;
-    private net.minecraft.text.Text message = net.minecraft.text.Text.empty();
+    private net.minecraft.network.chat.Component message = net.minecraft.network.chat.Component.empty();
     private boolean hideMessage = true;
     private boolean hideBackground = false;
-    private PressAction onPress = NOOP;
+    private OnPress onPress = NOOP;
     private Tooltip tooltip = null;
-    private NarrationSupplier narrationSupplier = DEFAULT_NARRATION_SUPPLIER;
+    private CreateNarration narrationSupplier = DEFAULT_NARRATION;
 
     private Builder(Icon icon, String modId) {
       this.texture = icon.getTexture(modId);
@@ -196,7 +196,7 @@ public class IconButtonWidget extends ButtonWidget {
       return this;
     }
 
-    public Builder message(net.minecraft.text.Text message) {
+    public Builder message(net.minecraft.network.chat.Component message) {
       this.message = message;
       return this;
     }
@@ -211,7 +211,7 @@ public class IconButtonWidget extends ButtonWidget {
       return this;
     }
 
-    public Builder onPress(PressAction onPress) {
+    public Builder onPress(OnPress onPress) {
       this.onPress = onPress;
       return this;
     }
@@ -221,18 +221,18 @@ public class IconButtonWidget extends ButtonWidget {
       return this;
     }
 
-    public Builder tooltip(net.minecraft.text.Text tooltip) {
-      this.tooltip = Tooltip.of(tooltip);
+    public Builder tooltip(net.minecraft.network.chat.Component tooltip) {
+      this.tooltip = Tooltip.create(tooltip);
       return this;
     }
 
-    public Builder messageAndTooltip(net.minecraft.text.Text text) {
+    public Builder messageAndTooltip(net.minecraft.network.chat.Component text) {
       this.message = text;
-      this.tooltip = Tooltip.of(text);
+      this.tooltip = Tooltip.create(text);
       return this;
     }
 
-    public Builder narration(NarrationSupplier narrationSupplier) {
+    public Builder narration(CreateNarration narrationSupplier) {
       this.narrationSupplier = narrationSupplier;
       return this;
     }

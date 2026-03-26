@@ -2,8 +2,8 @@ package me.roundaround.roundalib.event;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.resource.ResourcePackManager;
-import net.minecraft.world.level.storage.LevelStorage;
+import net.minecraft.server.packs.repository.PackRepository;
+import net.minecraft.world.level.storage.LevelStorageSource;
 
 public final class ResourceManagerEvents {
   public static Event<Creating> CREATING = EventFactory.createArrayBacked(
@@ -24,12 +24,12 @@ public final class ResourceManagerEvents {
 
   @FunctionalInterface
   public interface Creating {
-    void beforeResourceManagerCreated(LevelStorage.Session session);
+    void beforeResourceManagerCreated(LevelStorageSource.LevelStorageAccess session);
   }
 
   @FunctionalInterface
   public interface Created {
-    void afterResourceManagerCreated(LevelStorage.Session session, ResourcePackManager manager);
+    void afterResourceManagerCreated(LevelStorageSource.LevelStorageAccess session, PackRepository manager);
   }
 
   private ResourceManagerEvents() {

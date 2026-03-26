@@ -4,7 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 @Environment(EnvType.CLIENT)
 public final class MinecraftClientEvents {
@@ -34,17 +34,17 @@ public final class MinecraftClientEvents {
 
   @FunctionalInterface
   public interface Init {
-    void onInit(MinecraftClient client);
+    void onInit(Minecraft client);
   }
 
   @FunctionalInterface
   public interface Close {
-    void onClose(MinecraftClient client);
+    void onClose(Minecraft client);
   }
 
   @FunctionalInterface
   public interface HandleInput {
-    void onHandleInput(MinecraftClient client);
+    void onHandleInput(Minecraft client);
   }
 
   private MinecraftClientEvents() {

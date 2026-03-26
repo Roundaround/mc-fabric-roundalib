@@ -5,23 +5,23 @@ import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.client.gui.layout.linear.LinearLayoutWidget;
 import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.config.option.IntConfigOption;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.input.CharInput;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.network.chat.Component;
 
 public class IntTextControl extends Control<Integer, IntConfigOption> {
-  private final TextFieldWidget textField;
+  private final EditBox textField;
   private final IconButtonWidget plusButton;
   private final IconButtonWidget minusButton;
 
-  public IntTextControl(MinecraftClient client, IntConfigOption option, int width, int height) {
+  public IntTextControl(Minecraft client, IntConfigOption option, int width, int height) {
     super(client, option, width, height);
 
-    this.textField = this.add(new TextFieldWidget(client.textRenderer, width - 2, height - 2, this.option.getLabel()) {
+    this.textField = this.add(new EditBox(client.font, width - 2, height - 2, this.option.getLabel()) {
       @Override
-      public boolean charTyped(CharInput input) {
-        if (input.codepoint() == '-' && this.getCursor() > 0) {
+      public boolean charTyped(CharacterEvent input) {
+        if (input.codepoint() == '-' && this.getCursorPosition() > 0) {
           return false;
         }
         return super.charTyped(input);
@@ -32,12 +32,12 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
         inputWidth -= IconButtonWidget.SIZE_S + parent.getSpacing();
       }
 
-      self.setDimensions(inputWidth, parent.getHeight());
+      self.setSize(inputWidth, parent.getHeight());
     });
 
-    this.textField.setText(this.option.getPendingValueAsString());
+    this.textField.setValue(this.option.getPendingValueAsString());
     this.textField.setMaxLength(12);
-    this.textField.setChangedListener(this::onTextChanged);
+    this.textField.setResponder(this::onTextChanged);
 
     if (this.option.showStepButtons()) {
       String modId = this.getOption().getModId();
@@ -46,12 +46,12 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
 
       this.plusButton = stepColumn.add(IconButtonWidget.builder(BuiltinIcon.PLUS_9, modId)
           .small()
-          .messageAndTooltip(Text.translatable(modId + ".roundalib.step_up.tooltip", step))
+          .messageAndTooltip(Component.translatable(modId + ".roundalib.step_up.tooltip", step))
           .onPress((button) -> this.getOption().increment())
           .build());
       this.minusButton = stepColumn.add(IconButtonWidget.builder(BuiltinIcon.MINUS_9, modId)
           .small()
-          .messageAndTooltip(Text.translatable(modId + ".roundalib.step_down.tooltip", step))
+          .messageAndTooltip(Component.translatable(modId + ".roundalib.step_down.tooltip", step))
           .onPress((button) -> this.getOption().decrement())
           .build());
 
@@ -66,13 +66,13 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
 
   @Override
   public void markInvalid() {
-    this.textField.setEditableColor(GuiUtil.ERROR_COLOR);
+    this.textField.setTextColor(GuiUtil.ERROR_COLOR);
     super.markInvalid();
   }
 
   @Override
   public void markValid() {
-    this.textField.setEditableColor(GuiUtil.LABEL_COLOR);
+    this.textField.setTextColor(GuiUtil.LABEL_COLOR);
     super.markValid();
   }
 
@@ -84,8 +84,8 @@ public class IntTextControl extends Control<Integer, IntConfigOption> {
     this.textField.setEditable(!isDisabled);
 
     String strValue = option.getValueAsString(value);
-    if (!strValue.equals(this.textField.getText())) {
-      this.textField.setText(strValue);
+    if (!strValue.equals(this.textField.getValue())) {
+      this.textField.setValue(strValue);
     }
 
     if (option.showStepButtons()) {

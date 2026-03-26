@@ -4,16 +4,15 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.metadata.gui.GuiSpriteScaling;
+import net.minecraft.resources.Identifier;
 
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.texture.Scaling;
-import net.minecraft.client.texture.Sprite;
-import net.minecraft.util.Identifier;
-
-@Mixin(DrawContext.class)
+@Mixin(GuiGraphics.class)
 public interface DrawContextAccessor {
   @Invoker
-  void invokeDrawTexturedQuad(
+  void invokeInnerBlit(
       RenderPipeline pipeline,
       Identifier sprite,
       int x1,
@@ -27,9 +26,9 @@ public interface DrawContextAccessor {
       int color);
 
   @Invoker
-  void invokeDrawSpriteRegion(
+  void invokeBlitSprite(
       RenderPipeline pipeline,
-      Sprite sprite,
+      TextureAtlasSprite sprite,
       int textureWidth,
       int textureHeight,
       int u,
@@ -41,10 +40,10 @@ public interface DrawContextAccessor {
       int color);
 
   @Invoker
-  void invokeDrawSpriteNineSliced(
+  void invokeBlitNineSlicedSprite(
       RenderPipeline pipeline,
-      Sprite sprite,
-      Scaling.NineSlice nineSlice,
+      TextureAtlasSprite sprite,
+      GuiSpriteScaling.NineSlice nineSlice,
       int x,
       int y,
       int width,

@@ -1,8 +1,7 @@
 package me.roundaround.roundalib.client.gui.screen;
 
 import java.util.function.Supplier;
-
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screens.Screen;
 
 public class ScreenParent {
   private final boolean isDirect;

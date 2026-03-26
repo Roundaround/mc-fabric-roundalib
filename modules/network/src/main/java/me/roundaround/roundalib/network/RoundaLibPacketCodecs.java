@@ -1,41 +1,41 @@
 package me.roundaround.roundalib.network;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.network.codec.PacketDecoder;
-import net.minecraft.network.codec.ValueFirstEncoder;
-import net.minecraft.network.packet.CustomPayload;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Supplier;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.codec.StreamDecoder;
+import net.minecraft.network.codec.StreamMemberEncoder;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 public final class RoundaLibPacketCodecs {
-  public static final PacketCodec<ByteBuf, Date> DATE = PacketCodec.tuple(
-      PacketCodecs.VAR_LONG,
+  public static final StreamCodec<ByteBuf, Date> DATE = StreamCodec.composite(
+      ByteBufCodecs.VAR_LONG,
       Date::getTime,
       Date::new
   );
 
-  public static <T extends CustomPayload> PacketCodec<RegistryByteBuf, T> empty(Supplier<T> supplier) {
-    return PacketCodec.of(
+  public static <T extends CustomPacketPayload> StreamCodec<RegistryFriendlyByteBuf, T> empty(Supplier<T> supplier) {
+    return StreamCodec.ofMember(
         (val, buf) -> {
         }, (buf) -> supplier.get()
     );
   }
 
-  public static <B extends PacketByteBuf, V> PacketCodec<B, List<V>> forList(PacketCodec<? super B, V> entryCodec) {
+  public static <B extends FriendlyByteBuf, V> StreamCodec<B, List<V>> forList(StreamCodec<? super B, V> entryCodec) {
     return forList((value, buf) -> entryCodec.encode(buf, value), entryCodec);
   }
 
-  public static <B extends PacketByteBuf, V> PacketCodec<B, List<V>> forList(
-      ValueFirstEncoder<? super B, V> encoder,
-      PacketDecoder<? super B, V> decoder
+  public static <B extends FriendlyByteBuf, V> StreamCodec<B, List<V>> forList(
+      StreamMemberEncoder<? super B, V> encoder,
+      StreamDecoder<? super B, V> decoder
   ) {
-    return new PacketCodec<>() {
+    return new StreamCodec<>() {
       @Override
       public List<V> decode(B buf) {
         int size = buf.readInt();
@@ -56,25 +56,25 @@ public final class RoundaLibPacketCodecs {
     };
   }
 
-  public static <B extends PacketByteBuf, K, V> PacketCodec<B, Map<K, V>> forMap(
-      PacketCodec<? super B, K> keyCodec,
-      ValueFirstEncoder<? super B, V> valueEncoder,
-      PacketDecoder<? super B, V> valueDecoder
+  public static <B extends FriendlyByteBuf, K, V> StreamCodec<B, Map<K, V>> forMap(
+      StreamCodec<? super B, K> keyCodec,
+      StreamMemberEncoder<? super B, V> valueEncoder,
+      StreamDecoder<? super B, V> valueDecoder
   ) {
     return forMap((value, buf) -> keyCodec.encode(buf, value), keyCodec, valueEncoder, valueDecoder);
   }
 
-  public static <B extends PacketByteBuf, K, V> PacketCodec<B, Map<K, V>> forMap(
-      ValueFirstEncoder<? super B, K> keyEncoder,
-      PacketDecoder<? super B, K> keyDecoder,
-      PacketCodec<? super B, V> valueCodec
+  public static <B extends FriendlyByteBuf, K, V> StreamCodec<B, Map<K, V>> forMap(
+      StreamMemberEncoder<? super B, K> keyEncoder,
+      StreamDecoder<? super B, K> keyDecoder,
+      StreamCodec<? super B, V> valueCodec
   ) {
     return forMap(keyEncoder, keyDecoder, (value, buf) -> valueCodec.encode(buf, value), valueCodec);
   }
 
-  public static <B extends PacketByteBuf, K, V> PacketCodec<B, Map<K, V>> forMap(
-      PacketCodec<? super B, K> keyCodec,
-      PacketCodec<? super B, V> valueCodec
+  public static <B extends FriendlyByteBuf, K, V> StreamCodec<B, Map<K, V>> forMap(
+      StreamCodec<? super B, K> keyCodec,
+      StreamCodec<? super B, V> valueCodec
   ) {
     return forMap(
         (value, buf) -> keyCodec.encode(buf, value),
@@ -84,13 +84,13 @@ public final class RoundaLibPacketCodecs {
     );
   }
 
-  public static <B extends PacketByteBuf, K, V> PacketCodec<B, Map<K, V>> forMap(
-      ValueFirstEncoder<? super B, K> keyEncoder,
-      PacketDecoder<? super B, K> keyDecoder,
-      ValueFirstEncoder<? super B, V> valueEncoder,
-      PacketDecoder<? super B, V> valueDecoder
+  public static <B extends FriendlyByteBuf, K, V> StreamCodec<B, Map<K, V>> forMap(
+      StreamMemberEncoder<? super B, K> keyEncoder,
+      StreamDecoder<? super B, K> keyDecoder,
+      StreamMemberEncoder<? super B, V> valueEncoder,
+      StreamDecoder<? super B, V> valueDecoder
   ) {
-    return new PacketCodec<>() {
+    return new StreamCodec<>() {
       @Override
       public Map<K, V> decode(B buf) {
         int size = buf.readInt();
@@ -112,8 +112,8 @@ public final class RoundaLibPacketCodecs {
     };
   }
 
-  public static <B extends ByteBuf, V> PacketCodec<B, V> nullable(PacketCodec<B, V> codec) {
-    return new PacketCodec<>() {
+  public static <B extends ByteBuf, V> StreamCodec<B, V> nullable(StreamCodec<B, V> codec) {
+    return new StreamCodec<>() {
       public @Nullable V decode(B byteBuf) {
         return byteBuf.readBoolean() ? codec.decode(byteBuf) : null;
       }

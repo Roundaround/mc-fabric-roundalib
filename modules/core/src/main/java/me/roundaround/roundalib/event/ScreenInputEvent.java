@@ -4,8 +4,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.input.KeyInput;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
 
 @Environment(EnvType.CLIENT)
 @FunctionalInterface
@@ -21,5 +21,5 @@ public interface ScreenInputEvent {
       }
   );
 
-  boolean handle(Screen screen, KeyInput input);
+  boolean handle(Screen screen, KeyEvent input);
 }

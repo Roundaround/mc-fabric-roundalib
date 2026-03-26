@@ -4,14 +4,14 @@ import me.roundaround.roundalib.client.gui.widget.FloatSliderWidget;
 import me.roundaround.roundalib.config.option.FloatConfigOption;
 import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
 import me.roundaround.roundalib.config.panic.Panic;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 
 public class FloatSliderControl extends Control<Float, FloatConfigOption> {
   private final FloatSliderWidget slider;
 
   public FloatSliderControl(
-      MinecraftClient client, FloatConfigOption option, int width, int height
+      Minecraft client, FloatConfigOption option, int width, int height
   ) {
     super(client, option, width, height);
 
@@ -25,7 +25,7 @@ public class FloatSliderControl extends Control<Float, FloatConfigOption> {
     this.slider = this.add(new FloatSliderWidget(width, height, this.option.getMinValue(), this.option.getMaxValue(),
         this.option.getPendingValue(), this::step, this::onSliderChanged, this::getValueAsText
     ), (parent, self) -> {
-      self.setDimensions(parent.getWidth(), parent.getHeight());
+      self.setSize(parent.getWidth(), parent.getHeight());
     });
   }
 
@@ -44,7 +44,7 @@ public class FloatSliderControl extends Control<Float, FloatConfigOption> {
     this.option.setValue(value);
   }
 
-  private Text getValueAsText(float value) {
-    return Text.literal(this.option.getValueAsString(value));
+  private Component getValueAsText(float value) {
+    return Component.literal(this.option.getValueAsString(value));
   }
 }

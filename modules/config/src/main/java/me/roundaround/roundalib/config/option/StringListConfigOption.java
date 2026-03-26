@@ -61,7 +61,7 @@ public class StringListConfigOption extends ConfigOption<List<String>> {
     return new Builder(path);
   }
 
-  public static class Builder extends ConfigOption.AbstractBuilder<List<String>, StringListConfigOption, Builder> {
+  public static class Builder extends AbstractBuilder<List<String>, StringListConfigOption, Builder> {
     private Builder(ConfigPath path) {
       super(path);
 

@@ -3,8 +3,7 @@ package me.roundaround.roundalib.config.option;
 import me.roundaround.roundalib.config.ConfigPath;
 import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
 import me.roundaround.roundalib.config.panic.Panic;
-import net.minecraft.util.math.MathHelper;
-
+import net.minecraft.util.Mth;
 import java.util.Optional;
 
 public class IntConfigOption extends ConfigOption<Integer> {
@@ -84,7 +83,7 @@ public class IntConfigOption extends ConfigOption<Integer> {
     int value = this.getPendingValue();
     int minValue = Optional.ofNullable(this.getMinValue()).orElse(Integer.MIN_VALUE);
     int maxValue = Optional.ofNullable(this.getMaxValue()).orElse(Integer.MAX_VALUE);
-    int newValue = MathHelper.clamp(value + this.step * multi, minValue, maxValue);
+    int newValue = Mth.clamp(value + this.step * multi, minValue, maxValue);
 
     if (newValue == value) {
       return false;
@@ -103,7 +102,7 @@ public class IntConfigOption extends ConfigOption<Integer> {
   }
 
   // TODO: Set up a separate slider builder
-  public static class Builder extends ConfigOption.AbstractBuilder<Integer, IntConfigOption, Builder> {
+  public static class Builder extends AbstractBuilder<Integer, IntConfigOption, Builder> {
     private Integer minValue = null;
     private Integer maxValue = null;
     private Integer step = 1;

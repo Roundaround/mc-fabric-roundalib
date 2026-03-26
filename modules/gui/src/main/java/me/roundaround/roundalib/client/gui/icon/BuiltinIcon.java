@@ -1,10 +1,9 @@
 package me.roundaround.roundalib.client.gui.icon;
 
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-
 import java.util.Arrays;
 import java.util.List;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 
 public enum BuiltinIcon implements Icon {
   BACK_13("back", 13),
@@ -70,7 +69,7 @@ public enum BuiltinIcon implements Icon {
 
   @Override
   public Identifier getTexture(String modId) {
-    return Identifier.of(modId, String.format("icon/roundalib/%s-%s", this.name, this.size));
+    return Identifier.fromNamespaceAndPath(modId, String.format("icon/roundalib/%s-%s", this.name, this.size));
   }
 
   @Override
@@ -82,8 +81,8 @@ public enum BuiltinIcon implements Icon {
     return String.format("%s.roundalib.icon.%s", modId, this.name);
   }
 
-  public Text getDisplayText(String modId) {
-    return Text.translatable(this.getI18nKey(modId));
+  public Component getDisplayText(String modId) {
+    return Component.translatable(this.getI18nKey(modId));
   }
 
   public static List<BuiltinIcon> valuesOfSize(int size) {

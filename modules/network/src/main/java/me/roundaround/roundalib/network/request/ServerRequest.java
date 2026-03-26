@@ -1,10 +1,9 @@
 package me.roundaround.roundalib.network.request;
 
-import net.minecraft.network.packet.CustomPayload;
-
 import java.util.concurrent.CompletableFuture;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-public class ServerRequest<T extends CustomPayload> {
+public class ServerRequest<T extends CustomPacketPayload> {
   public static final Runnable NOOP = () -> {
   };
 
@@ -34,7 +33,7 @@ public class ServerRequest<T extends CustomPayload> {
     return this.future;
   }
 
-  public boolean matches(int reqId, CustomPayload payload) {
+  public boolean matches(int reqId, CustomPacketPayload payload) {
     return this.reqId != null && this.type != null && this.reqId == reqId &&
            payload.getClass().isAssignableFrom(this.type);
   }
@@ -44,7 +43,7 @@ public class ServerRequest<T extends CustomPayload> {
   }
 
   @SuppressWarnings("unchecked")
-  public boolean resolve(int reqId, CustomPayload payload) {
+  public boolean resolve(int reqId, CustomPacketPayload payload) {
     if (!this.matches(reqId, payload)) {
       return false;
     }
@@ -52,7 +51,7 @@ public class ServerRequest<T extends CustomPayload> {
     return true;
   }
 
-  public static <T extends CustomPayload> ServerRequest<T> failedRequest(Throwable throwable) {
+  public static <T extends CustomPacketPayload> ServerRequest<T> failedRequest(Throwable throwable) {
     return new ServerRequest<>(null, null, CompletableFuture.failedFuture(throwable));
   }
 

@@ -7,8 +7,8 @@ import me.roundaround.roundalib.client.gui.widget.IconButtonWidget;
 import me.roundaround.roundalib.client.gui.widget.drawable.CrosshairWidget;
 import me.roundaround.roundalib.config.option.PositionConfigOption;
 import me.roundaround.roundalib.config.value.Position;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.text.Text;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
@@ -17,18 +17,18 @@ import java.util.List;
 public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position, PositionConfigOption> {
   protected static final int CROSSHAIR_SIZE = 9;
 
-  protected final Text helpMoveSingleText;
-  protected final Text helpMoveMultiText;
+  protected final Component helpMoveSingleText;
+  protected final Component helpMoveMultiText;
 
   protected LinearLayoutWidget bottomRight;
   protected LinearLayoutWidget mover;
   protected boolean hasShiftDown = false;
 
-  protected PositionEditScreen(Text title, ConfigScreen parent, PositionConfigOption configOption) {
+  protected PositionEditScreen(Component title, ConfigScreen parent, PositionConfigOption configOption) {
     super(title, parent, configOption);
 
-    this.helpMoveSingleText = Text.translatable(this.modId + ".roundalib.help.position.single");
-    this.helpMoveMultiText = Text.translatable(this.modId + ".roundalib.help.position.multi");
+    this.helpMoveSingleText = Component.translatable(this.modId + ".roundalib.help.position.single");
+    this.helpMoveMultiText = Component.translatable(this.modId + ".roundalib.help.position.multi");
   }
 
   @Override
@@ -47,10 +47,10 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
   }
 
   @Override
-  public boolean keyPressed(KeyInput input) {
-    this.hasShiftDown = input.hasShift();
+  public boolean keyPressed(KeyEvent input) {
+    this.hasShiftDown = input.hasShiftDown();
 
-    Position.Direction direction = switch (input.getKeycode()) {
+    Position.Direction direction = switch (input.input()) {
       case GLFW.GLFW_KEY_UP -> Position.Direction.UP;
       case GLFW.GLFW_KEY_DOWN -> Position.Direction.DOWN;
       case GLFW.GLFW_KEY_LEFT -> Position.Direction.LEFT;
@@ -68,8 +68,8 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
   }
 
   @Override
-  protected List<Text> getHelpLong() {
-    ArrayList<Text> full = new ArrayList<>();
+  protected List<Component> getHelpLong() {
+    ArrayList<Component> full = new ArrayList<>();
     full.add(this.helpMoveSingleText);
     full.add(this.helpMoveMultiText);
     full.addAll(super.getHelpLong());
@@ -115,7 +115,7 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
 
     mover.add(IconButtonWidget.builder(BuiltinIcon.UP_13, this.modId)
         .dimensions(IconButtonWidget.SIZE_M)
-        .messageAndTooltip(Text.translatable(this.modId + ".roundalib.up.tooltip"))
+        .messageAndTooltip(Component.translatable(this.modId + ".roundalib.up.tooltip"))
         .onPress((button) -> this.moveUp())
         .build());
 
@@ -124,20 +124,20 @@ public abstract class PositionEditScreen extends ConfigOptionSubScreen<Position,
         .defaultOffAxisContentAlignCenter();
     centerRow.add(IconButtonWidget.builder(BuiltinIcon.LEFT_13, this.modId)
         .dimensions(IconButtonWidget.SIZE_M)
-        .messageAndTooltip(Text.translatable(this.modId + ".roundalib.left.tooltip"))
+        .messageAndTooltip(Component.translatable(this.modId + ".roundalib.left.tooltip"))
         .onPress((button) -> this.moveLeft())
         .build());
     centerRow.add(new CrosshairWidget(1, 1, 3, GuiUtil.CROSSHAIR_COLOR));
     centerRow.add(IconButtonWidget.builder(BuiltinIcon.RIGHT_13, this.modId)
         .dimensions(IconButtonWidget.SIZE_M)
-        .messageAndTooltip(Text.translatable(this.modId + ".roundalib.right.tooltip"))
+        .messageAndTooltip(Component.translatable(this.modId + ".roundalib.right.tooltip"))
         .onPress((button) -> this.moveRight())
         .build());
     mover.add(centerRow);
 
     mover.add(IconButtonWidget.builder(BuiltinIcon.DOWN_13, this.modId)
         .dimensions(IconButtonWidget.SIZE_M)
-        .messageAndTooltip(Text.translatable(this.modId + ".roundalib.down.tooltip"))
+        .messageAndTooltip(Component.translatable(this.modId + ".roundalib.down.tooltip"))
         .onPress((button) -> this.moveDown())
         .build());
 

@@ -8,15 +8,15 @@ import me.roundaround.roundalib.observable.Observable;
 import me.roundaround.roundalib.observable.Subscription;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 public abstract class Control<D, O extends ConfigOption<D>> extends LinearLayoutWidget {
-  protected final MinecraftClient client;
+  protected final Minecraft client;
   protected final O option;
 
   protected boolean valid;
 
-  protected Control(MinecraftClient client, O option, int width, int height) {
+  protected Control(Minecraft client, O option, int width, int height) {
     super(Axis.HORIZONTAL, width, height);
 
     this.client = client;
@@ -57,6 +57,6 @@ public abstract class Control<D, O extends ConfigOption<D>> extends LinearLayout
   @Environment(EnvType.CLIENT)
   @FunctionalInterface
   public interface ControlFactory<D, O extends ConfigOption<D>> {
-    Control<D, O> create(MinecraftClient client, O option, int width, int height);
+    Control<D, O> create(Minecraft client, O option, int width, int height);
   }
 }

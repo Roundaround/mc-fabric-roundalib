@@ -5,45 +5,44 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import me.roundaround.roundalib.util.BuiltinResourcePack;
 import net.minecraft.SharedConstants;
-import net.minecraft.resource.PackVersion;
-import net.minecraft.resource.ResourcePackInfo;
-import net.minecraft.resource.ResourcePackProfile;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.resource.metadata.PackResourceMetadata;
-import net.minecraft.util.dynamic.Range;
+import net.minecraft.server.packs.PackLocationInfo;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.metadata.pack.PackFormat;
+import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.util.InclusiveRange;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 
-@Mixin(ResourcePackProfile.class)
+@Mixin(Pack.class)
 public class ResourcePackProfileMixin {
   @WrapOperation(
-      method = "loadMetadata", at = @At(
+      method = "readPackMetadata", at = @At(
       value = "INVOKE",
-      target = "Lnet/minecraft/resource/metadata/PackResourceMetadata;supportedFormats()" +
-               "Lnet/minecraft/util/dynamic/Range;"
+      target = "Lnet/minecraft/server/packs/metadata/pack/PackMetadataSection;supportedFormats()Lnet/minecraft/util/InclusiveRange;"
   )
   )
-  private static Range<PackVersion> adjustSupportedFormatsRange(
-      PackResourceMetadata metadata,
-      Operation<Range<PackVersion>> original,
-      @Local(argsOnly = true) ResourcePackInfo info
+  private static InclusiveRange<PackFormat> adjustSupportedFormatsRange(
+      PackMetadataSection metadata,
+      Operation<InclusiveRange<PackFormat>> original,
+      @Local(argsOnly = true) PackLocationInfo info
   ) {
     if (!BuiltinResourcePack.shouldForceVersionCompat(info.id())) {
       return original.call(metadata);
     }
 
-    Range<PackVersion> versionRange = metadata.supportedFormats();
-    PackVersion currentVersion = SharedConstants.getGameVersion().packVersion(ResourceType.CLIENT_RESOURCES);
+    InclusiveRange<PackFormat> versionRange = metadata.supportedFormats();
+    PackFormat currentVersion = SharedConstants.getCurrentVersion().packVersion(PackType.CLIENT_RESOURCES);
 
-    ArrayList<PackVersion> versions = new ArrayList<>();
+    ArrayList<PackFormat> versions = new ArrayList<>();
     versions.add(versionRange.minInclusive());
     versions.add(versionRange.maxInclusive());
     versions.add(currentVersion);
     versions.sort(Comparator.naturalOrder());
 
-    return new Range<>(versions.getFirst(), versions.getLast());
+    return new InclusiveRange<>(versions.getFirst(), versions.getLast());
   }
 }

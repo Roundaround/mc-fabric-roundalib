@@ -1,18 +1,18 @@
 package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.config.option.BooleanConfigOption;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.Button;
 
 public class ToggleControl extends Control<Boolean, BooleanConfigOption> {
-  private final ButtonWidget button;
+  private final Button button;
 
-  public ToggleControl(MinecraftClient client, BooleanConfigOption option, int width, int height) {
+  public ToggleControl(Minecraft client, BooleanConfigOption option, int width, int height) {
     super(client, option, width, height);
 
-    this.button = this.add(ButtonWidget.builder(this.option.getValueLabel(), (button) -> this.option.toggle()).build(),
+    this.button = this.add(Button.builder(this.option.getValueLabel(), (button) -> this.option.toggle()).build(),
         (parent, self) -> {
-          self.setDimensions(parent.getWidth(), parent.getHeight());
+          self.setSize(parent.getWidth(), parent.getHeight());
         }
     );
   }

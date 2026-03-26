@@ -6,21 +6,25 @@ import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.client.gui.util.Spacing;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.RenderPipelines;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
-import net.minecraft.client.gui.navigation.NavigationDirection;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.screen.narration.NarrationPart;
-import net.minecraft.client.gui.widget.ContainerWidget;
-import net.minecraft.client.gui.widget.LayoutWidget;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.screen.ScreenTexts;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
-
+import net.minecraft.client.gui.components.AbstractContainerWidget;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.events.ContainerEventHandler;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.layouts.Layout;
+import net.minecraft.client.gui.layouts.LayoutElement;
+import net.minecraft.client.gui.narration.NarratedElementType;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.navigation.ScreenDirection;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,7 +33,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 @Environment(EnvType.CLIENT)
-public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends ContainerWidget implements LayoutWidget {
+public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends AbstractContainerWidget implements Layout {
   protected static final int VANILLA_LIST_WIDTH_S = 220;
   protected static final int VANILLA_LIST_WIDTH_M = 280;
   protected static final int VANILLA_LIST_WIDTH_L = 340;
@@ -37,7 +41,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   protected static final int DEFAULT_SHADE_STRENGTH_STRONG = 150;
   protected static final int DEFAULT_SHADE_FADE_WIDTH = 10;
 
-  protected final MinecraftClient client;
+  protected final Minecraft client;
   protected final ThreeSectionLayoutWidget parentLayout;
 
   protected E hoveredEntry;
@@ -58,15 +62,15 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   protected boolean scrolling = false;
   protected int scrollbarX;
 
-  protected FlowListWidget(MinecraftClient client, ThreeSectionLayoutWidget layout) {
-    super(0, layout.getHeaderHeight(), layout.getWidth(), layout.getBodyHeight(), ScreenTexts.EMPTY);
+  protected FlowListWidget(Minecraft client, ThreeSectionLayoutWidget layout) {
+    super(0, layout.getHeaderHeight(), layout.getWidth(), layout.getBodyHeight(), CommonComponents.EMPTY);
 
     this.client = client;
     this.parentLayout = layout;
   }
 
-  protected FlowListWidget(MinecraftClient client, int x, int y, int width, int height) {
-    super(x, y, width, height, ScreenTexts.EMPTY);
+  protected FlowListWidget(Minecraft client, int x, int y, int width, int height) {
+    super(x, y, width, height, CommonComponents.EMPTY);
 
     this.client = client;
     this.parentLayout = null;
@@ -95,7 +99,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
     this.calculateContentHeight();
     if (this.isScrollbarVisible() && !wasScrollbarVisible) {
-      this.refreshPositions();
+      this.arrangeElements();
     }
 
     E selected = this.getSelected();
@@ -116,7 +120,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     E entry = this.entries.removeLast();
     this.calculateContentHeight();
     if (!this.isScrollbarVisible() && wasScrollbarVisible) {
-      this.refreshPositions();
+      this.arrangeElements();
     }
 
     E selected = this.getSelected();
@@ -158,14 +162,14 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   @Override
-  public void forEachElement(Consumer<Widget> consumer) {
+  public void visitChildren(Consumer<LayoutElement> consumer) {
     this.entries.forEach(consumer);
   }
 
   @Override
-  public void refreshPositions() {
+  public void arrangeElements() {
     if (this.parentLayout != null) {
-      this.setDimensionsAndPosition(
+      this.setRectangle(
           this.parentLayout.getWidth(),
           this.parentLayout.getBodyHeight(),
           0,
@@ -186,7 +190,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
     this.setScrollAmount(this.getScrollAmount());
 
-    LayoutWidget.super.refreshPositions();
+    Layout.super.arrangeElements();
   }
 
   protected void calculateContentHeight() {
@@ -199,7 +203,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   @Override
-  public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+  public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
     this.hoveredEntry = this.getEntryAtPosition(mouseX, mouseY);
 
     this.renderListBackground(context);
@@ -207,8 +211,8 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     this.renderListBorders(context);
   }
 
-  protected void renderListBackground(DrawContext context) {
-    context.drawTexture(
+  protected void renderListBackground(GuiGraphics context) {
+    context.blit(
         RenderPipelines.GUI_TEXTURED,
         Textures.listBg(this.client),
         this.getX(),
@@ -222,14 +226,14 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     );
   }
 
-  protected void renderList(DrawContext context, int mouseX, int mouseY, float delta) {
+  protected void renderList(GuiGraphics context, int mouseX, int mouseY, float delta) {
     context.enableScissor(this.getX(), this.getY(), this.getRight(), this.getBottom());
     this.renderEntries(context, mouseX, mouseY, delta);
     this.renderScrollBar(context);
     context.disableScissor();
   }
 
-  protected void renderEntries(DrawContext context, int mouseX, int mouseY, float delta) {
+  protected void renderEntries(GuiGraphics context, int mouseX, int mouseY, float delta) {
     this.entries.forEach((entry) -> {
       if (!this.isEntryVisible(entry)) {
         return;
@@ -238,11 +242,11 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     });
   }
 
-  protected void renderEntry(DrawContext context, int mouseX, int mouseY, float delta, E entry) {
+  protected void renderEntry(GuiGraphics context, int mouseX, int mouseY, float delta, E entry) {
     entry.render(context, mouseX, mouseY, delta);
   }
 
-  protected void renderScrollBar(DrawContext context) {
+  protected void renderScrollBar(GuiGraphics context) {
     if (!this.isScrollbarVisible()) {
       return;
     }
@@ -252,7 +256,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     int movableSpace = this.getHeight() - handleHeight;
     int handleY = this.getY() + (int) Math.round(yPercent * movableSpace);
 
-    context.drawGuiTexture(
+    context.blitSprite(
         RenderPipelines.GUI_TEXTURED,
         Textures.SCROLLBAR_BG,
         this.scrollbarX,
@@ -260,7 +264,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
         GuiUtil.SCROLLBAR_WIDTH,
         this.getHeight()
     );
-    context.drawGuiTexture(
+    context.blitSprite(
         RenderPipelines.GUI_TEXTURED,
         Textures.SCROLLBAR,
         this.scrollbarX,
@@ -270,8 +274,8 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     );
   }
 
-  protected void renderListBorders(DrawContext context) {
-    context.drawTexture(
+  protected void renderListBorders(GuiGraphics context) {
+    context.blit(
         RenderPipelines.GUI_TEXTURED,
         Textures.borderTop(this.client),
         this.getX(),
@@ -283,7 +287,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
         32,
         2
     );
-    context.drawTexture(
+    context.blit(
         RenderPipelines.GUI_TEXTURED,
         Textures.borderBottom(this.client),
         this.getX(),
@@ -305,11 +309,11 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
   @Override
   @SuppressWarnings("unchecked")
-  public void setFocused(Element focused) {
+  public void setFocused(GuiEventListener focused) {
     super.setFocused(focused);
     if (focused instanceof Entry entry) {
       this.setSelected((E) entry);
-      if (this.client.getNavigationType().isKeyboard()) {
+      if (this.client.getLastInputType().isKeyboard()) {
         this.ensureVisible((E) entry);
       }
     }
@@ -333,15 +337,15 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     }
   }
 
-  protected E getNeighboringEntry(NavigationDirection direction) {
+  protected E getNeighboringEntry(ScreenDirection direction) {
     return this.getNeighboringEntry(direction, (entry) -> true);
   }
 
-  protected E getNeighboringEntry(NavigationDirection direction, Predicate<E> predicate) {
+  protected E getNeighboringEntry(ScreenDirection direction, Predicate<E> predicate) {
     return this.getNeighboringEntry(direction, predicate, this.getSelected());
   }
 
-  protected E getNeighboringEntry(NavigationDirection direction, Predicate<E> predicate, E selected) {
+  protected E getNeighboringEntry(ScreenDirection direction, Predicate<E> predicate, E selected) {
     if (this.entries.isEmpty()) {
       return null;
     }
@@ -374,11 +378,11 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   @Override
-  public SelectionType getType() {
+  public NarrationPriority narrationPriority() {
     if (this.isFocused()) {
-      return SelectionType.FOCUSED;
+      return NarrationPriority.FOCUSED;
     } else {
-      return this.getHoveredEntry() != null ? SelectionType.HOVERED : SelectionType.NONE;
+      return this.getHoveredEntry() != null ? NarrationPriority.HOVERED : NarrationPriority.NONE;
     }
   }
 
@@ -386,11 +390,11 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     return this.hoveredEntry;
   }
 
-  protected void appendNarrations(NarrationMessageBuilder builder, E entry) {
+  protected void appendNarrations(NarrationElementOutput builder, E entry) {
     int count = this.getEntryCount();
     if (count > 1) {
       int num = entry.getIndex() + 1;
-      builder.put(NarrationPart.POSITION, Text.translatable("narrator.position.list", num, count));
+      builder.add(NarratedElementType.POSITION, Component.translatable("narrator.position.list", num, count));
     }
   }
 
@@ -404,7 +408,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   @Override
-  public boolean mouseClicked(Click click, boolean doubled) {
+  public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
     if (!this.isSelectButton(click.button())) {
       return false;
     }
@@ -419,7 +423,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     if (entry != null) {
       if (entry.mouseClicked(click, doubled)) {
         E focused = this.getFocused();
-        if (focused != entry && focused instanceof ParentElement parent) {
+        if (focused != entry && focused instanceof ContainerEventHandler parent) {
           parent.setFocused(null);
         }
 
@@ -433,7 +437,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   @Override
-  public boolean mouseReleased(Click click) {
+  public boolean mouseReleased(MouseButtonEvent click) {
     if (this.getFocused() != null) {
       this.getFocused().mouseReleased(click);
     }
@@ -442,7 +446,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   @Override
-  public boolean mouseDragged(Click click, double deltaX, double deltaY) {
+  public boolean mouseDragged(MouseButtonEvent click, double deltaX, double deltaY) {
     if (super.mouseDragged(click, deltaX, deltaY)) {
       return true;
     }
@@ -520,7 +524,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   @Override
-  protected int getContentsHeightWithPadding() {
+  protected int contentHeight() {
     return this.getContentHeight();
   }
 
@@ -623,7 +627,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
 
   protected int getScrollbarHandleHeight() {
     int height = this.getHeight();
-    return MathHelper.clamp(height * height / this.getContentHeight(), 32, height - 8);
+    return Mth.clamp(height * height / this.getContentHeight(), 32, height - 8);
   }
 
   protected void scroll(int amount) {
@@ -635,25 +639,25 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   public void setScrollAmount(double amount) {
-    this.scrollAmount = MathHelper.clamp(amount, 0, this.getMaxScroll());
+    this.scrollAmount = Mth.clamp(amount, 0, this.getMaxScroll());
     this.entries.forEach((entry) -> entry.setScrollAmount(this.getScrollAmount()));
   }
 
   public void refreshScrollAmount() {
-    this.scrollAmount = MathHelper.clamp(this.getScrollAmount(), 0, this.getMaxScroll());
+    this.scrollAmount = Mth.clamp(this.getScrollAmount(), 0, this.getMaxScroll());
   }
 
   public int getMaxScroll() {
     return Math.max(0, this.getContentHeight() - this.getHeight());
   }
 
-  protected void updateScrollingState(Click click) {
+  protected void updateScrollingState(MouseButtonEvent click) {
     this.scrolling = click.button() == 0 && click.x() >= (double) this.scrollbarX &&
                      click.x() < (this.scrollbarX + GuiUtil.SCROLLBAR_WIDTH);
   }
 
   @Override
-  protected double getDeltaYPerScroll() {
+  protected double scrollRate() {
     return this.getScrollUnit();
   }
 
@@ -698,11 +702,11 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   @Environment(EnvType.CLIENT)
-  public abstract static class Entry implements Drawable, LayoutWidget, Element {
+  public abstract static class Entry implements Renderable, Layout, GuiEventListener {
     protected static final Spacing DEFAULT_MARGIN = Spacing.of(GuiUtil.PADDING / 2);
 
     protected final ArrayList<LayoutRef<?>> layouts = new ArrayList<>();
-    protected final ArrayList<Drawable> drawables = new ArrayList<>();
+    protected final ArrayList<Renderable> drawables = new ArrayList<>();
     protected final int index;
     protected final int contentHeight;
 
@@ -731,16 +735,16 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
       this.contentHeight = contentHeight;
     }
 
-    protected <T extends LayoutWidget> T addLayout(T layout) {
+    protected <T extends Layout> T addLayout(T layout) {
       return this.addLayout(layout, LayoutHook.noop());
     }
 
-    protected <T extends LayoutWidget> T addLayout(T layout, LayoutHook<T> layoutHook) {
+    protected <T extends Layout> T addLayout(T layout, LayoutHook<T> layoutHook) {
       this.layouts.add(new LayoutRef<>(layout, layoutHook));
       return layout;
     }
 
-    protected <T extends Drawable> T addDrawable(T drawable) {
+    protected <T extends Renderable> T addDrawable(T drawable) {
       this.drawables.add(drawable);
       return drawable;
     }
@@ -750,38 +754,38 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
       this.drawables.clear();
     }
 
-    public List<Drawable> drawables() {
+    public List<Renderable> drawables() {
       return this.drawables;
     }
 
-    public List<? extends LayoutWidget> layoutWidgets() {
+    public List<? extends Layout> layoutWidgets() {
       return this.layouts.stream().map(LayoutRef::getLayout).toList();
     }
 
     @Override
-    public void forEachElement(Consumer<Widget> consumer) {
+    public void visitChildren(Consumer<LayoutElement> consumer) {
       this.layouts.forEach((ref) -> consumer.accept(ref.getLayout()));
     }
 
     @Override
-    public void refreshPositions() {
+    public void arrangeElements() {
       this.layouts.forEach(LayoutRef::refreshPositions);
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
       this.renderBackground(context, mouseX, mouseY, delta);
       this.renderContent(context, mouseX, mouseY, delta);
       this.renderDecorations(context, mouseX, mouseY, delta);
     }
 
-    protected void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
+    protected void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {
       if (this.hasRowShading()) {
         this.renderRowShade(context);
       }
     }
 
-    protected void renderRowShade(DrawContext context) {
+    protected void renderRowShade(GuiGraphics context) {
       renderRowShade(
           context,
           this.getX(),
@@ -794,7 +798,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     }
 
     protected static void renderRowShade(
-        DrawContext context,
+        GuiGraphics context,
         int left,
         int top,
         int right,
@@ -808,16 +812,16 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
       GuiUtil.fillHorizontalGradient(context, right - fadeWidth, top, right, bottom, shadeColor, 0);
     }
 
-    protected void renderContent(DrawContext context, int mouseX, int mouseY, float delta) {
+    protected void renderContent(GuiGraphics context, int mouseX, int mouseY, float delta) {
       this.drawables.forEach((drawable) -> drawable.render(context, mouseX, mouseY, delta));
     }
 
-    protected void renderDecorations(DrawContext context, int mouseX, int mouseY, float delta) {
+    protected void renderDecorations(GuiGraphics context, int mouseX, int mouseY, float delta) {
     }
 
     protected void setScrollAmount(double scrollAmount) {
       this.scrollAmount = scrollAmount;
-      this.refreshPositions();
+      this.arrangeElements();
     }
 
     @Override
@@ -826,8 +830,8 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
     }
 
     @Override
-    public ScreenRect getNavigationFocus() {
-      return new ScreenRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+    public ScreenRectangle getRectangle() {
+      return new ScreenRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
     }
 
     public int getIndex() {
@@ -1006,7 +1010,7 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
   }
 
   @Environment(EnvType.CLIENT)
-  public final static class LayoutRef<T extends LayoutWidget> {
+  public final static class LayoutRef<T extends Layout> {
     private final T layout;
     private final LayoutHook<T> hook;
 
@@ -1023,32 +1027,32 @@ public abstract class FlowListWidget<E extends FlowListWidget.Entry> extends Con
       if (this.hook != null) {
         this.hook.run(this.layout);
       }
-      this.layout.refreshPositions();
+      this.layout.arrangeElements();
     }
   }
 
   @Environment(EnvType.CLIENT)
   public final static class Textures {
-    public static final Identifier SCROLLBAR_BG = Identifier.ofVanilla("widget/scroller_background");
-    public static final Identifier SCROLLBAR = Identifier.ofVanilla("widget/scroller");
-    public static final Identifier LIST_BG = Identifier.ofVanilla("textures/gui/menu_list_background.png");
-    public static final Identifier BORDER_TOP = Screen.HEADER_SEPARATOR_TEXTURE;
-    public static final Identifier BORDER_BOTTOM = Screen.FOOTER_SEPARATOR_TEXTURE;
-    public static final Identifier IN_WORLD_LIST_BG = Identifier.ofVanilla(
+    public static final Identifier SCROLLBAR_BG = Identifier.withDefaultNamespace("widget/scroller_background");
+    public static final Identifier SCROLLBAR = Identifier.withDefaultNamespace("widget/scroller");
+    public static final Identifier LIST_BG = Identifier.withDefaultNamespace("textures/gui/menu_list_background.png");
+    public static final Identifier BORDER_TOP = Screen.HEADER_SEPARATOR;
+    public static final Identifier BORDER_BOTTOM = Screen.FOOTER_SEPARATOR;
+    public static final Identifier IN_WORLD_LIST_BG = Identifier.withDefaultNamespace(
         "textures/gui/inworld_menu_list_background.png");
-    public static final Identifier IN_WORLD_BORDER_TOP = Screen.INWORLD_HEADER_SEPARATOR_TEXTURE;
-    public static final Identifier IN_WORLD_BORDER_BOTTOM = Screen.INWORLD_FOOTER_SEPARATOR_TEXTURE;
+    public static final Identifier IN_WORLD_BORDER_TOP = Screen.INWORLD_HEADER_SEPARATOR;
+    public static final Identifier IN_WORLD_BORDER_BOTTOM = Screen.INWORLD_FOOTER_SEPARATOR;
 
-    public static Identifier borderTop(MinecraftClient client) {
-      return client.world == null ? BORDER_TOP : IN_WORLD_BORDER_TOP;
+    public static Identifier borderTop(Minecraft client) {
+      return client.level == null ? BORDER_TOP : IN_WORLD_BORDER_TOP;
     }
 
-    public static Identifier borderBottom(MinecraftClient client) {
-      return client.world == null ? BORDER_BOTTOM : IN_WORLD_BORDER_BOTTOM;
+    public static Identifier borderBottom(Minecraft client) {
+      return client.level == null ? BORDER_BOTTOM : IN_WORLD_BORDER_BOTTOM;
     }
 
-    public static Identifier listBg(MinecraftClient client) {
-      return client.world == null ? LIST_BG : IN_WORLD_LIST_BG;
+    public static Identifier listBg(Minecraft client) {
+      return client.level == null ? LIST_BG : IN_WORLD_LIST_BG;
     }
   }
 }

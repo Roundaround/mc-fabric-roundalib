@@ -14,8 +14,8 @@ import me.roundaround.roundalib.client.gui.util.Axis;
 import me.roundaround.roundalib.client.gui.util.Spacing;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.layouts.LayoutElement;
 
 @Environment(EnvType.CLIENT)
 public class LinearLayoutWidget extends SizableLayoutWidget {
@@ -190,16 +190,16 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
     return this;
   }
 
-  public <T extends Widget> T add(T widget) {
+  public <T extends LayoutElement> T add(T widget) {
     return this.add(widget, (Consumer<LinearLayoutCellConfigurator<T>>) null);
   }
 
-  public <T extends Widget> T add(
+  public <T extends LayoutElement> T add(
       T widget, LayoutHookWithParent<LinearLayoutWidget, T> layoutHook) {
     return this.add(widget, (configurator) -> configurator.layoutHook(layoutHook));
   }
 
-  public <T extends Widget> T add(T widget, Consumer<LinearLayoutCellConfigurator<T>> configure) {
+  public <T extends LayoutElement> T add(T widget, Consumer<LinearLayoutCellConfigurator<T>> configure) {
     CellWidget<T> cell = new CellWidget<>(widget);
     this.cells.add(cell);
 
@@ -207,7 +207,7 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
       configure.accept(cell);
     }
 
-    this.refreshPositions();
+    this.arrangeElements();
     return widget;
   }
 
@@ -215,14 +215,14 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
     this.cells.clear();
   }
 
-  public List<Widget> getChildren() {
-    return this.cells.stream().map((cell) -> (Widget) cell.getWidget()).toList();
+  public List<LayoutElement> getChildren() {
+    return this.cells.stream().map((cell) -> (LayoutElement) cell.getWidget()).toList();
   }
 
-  public int getUnusedSpace(@Nullable Widget omitting) {
+  public int getUnusedSpace(@Nullable LayoutElement omitting) {
     int unused = this.flowAxis == Axis.HORIZONTAL ? this.getInnerWidth() : this.getInnerHeight();
     unused -= (this.getChildren().size() - 1) * this.spacing;
-    for (Widget child : this.getChildren()) {
+    for (LayoutElement child : this.getChildren()) {
       if (child == omitting) {
         continue;
       }
@@ -232,7 +232,7 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
   }
 
   @Override
-  public void forEachElement(Consumer<Widget> consumer) {
+  public void visitChildren(Consumer<LayoutElement> consumer) {
     this.getChildren().forEach(consumer);
   }
 
@@ -257,7 +257,7 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
   }
 
   @Override
-  public void refreshPositions() {
+  public void arrangeElements() {
     this.cells.forEach((cell) -> cell.onLayout(this));
     this.calculateContentDimensions();
 
@@ -291,7 +291,7 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
       posMain += this.getMainCellDimension(cell) + this.spacing;
     }
 
-    super.refreshPositions();
+    super.arrangeElements();
   }
 
   @Override
@@ -384,7 +384,7 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
   }
 
   @Environment(EnvType.CLIENT)
-  private static class CellWidget<T extends Widget> implements LinearLayoutCellConfigurator<T>, Widget {
+  private static class CellWidget<T extends LayoutElement> implements LinearLayoutCellConfigurator<T>, LayoutElement {
     private final T widget;
 
     private LayoutHookWithParent<LinearLayoutWidget, T> layoutHook = null;
@@ -452,8 +452,8 @@ public class LinearLayoutWidget extends SizableLayoutWidget {
     }
 
     @Override
-    public void forEachChild(Consumer<ClickableWidget> consumer) {
-      if (this.widget instanceof ClickableWidget clickableWidget) {
+    public void visitWidgets(Consumer<AbstractWidget> consumer) {
+      if (this.widget instanceof AbstractWidget clickableWidget) {
         consumer.accept(clickableWidget);
       }
     }

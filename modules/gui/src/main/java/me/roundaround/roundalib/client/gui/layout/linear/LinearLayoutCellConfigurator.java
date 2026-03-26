@@ -5,10 +5,10 @@ import me.roundaround.roundalib.client.gui.util.Alignment;
 import me.roundaround.roundalib.client.gui.util.Spacing;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.gui.layouts.LayoutElement;
 
 @Environment(EnvType.CLIENT)
-public interface LinearLayoutCellConfigurator<T extends Widget> {
+public interface LinearLayoutCellConfigurator<T extends LayoutElement> {
   T getWidget();
 
   void layoutHook(LayoutHookWithParent<LinearLayoutWidget, T> layoutHook);

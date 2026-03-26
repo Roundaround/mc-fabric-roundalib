@@ -2,9 +2,8 @@ package me.roundaround.roundalib.client.gui.layout;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.Widget;
-
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.layouts.LayoutElement;
 import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
@@ -30,10 +29,10 @@ public class FillerWidget extends SizableLayoutWidget {
   }
 
   @Override
-  public void forEachElement(Consumer<Widget> consumer) {
+  public void visitChildren(Consumer<LayoutElement> consumer) {
   }
 
   @Override
-  public void forEachChild(Consumer<ClickableWidget> consumer) {
+  public void visitWidgets(Consumer<AbstractWidget> consumer) {
   }
 }

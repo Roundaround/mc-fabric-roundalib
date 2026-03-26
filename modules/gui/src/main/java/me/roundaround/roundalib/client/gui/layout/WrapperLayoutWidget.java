@@ -1,10 +1,9 @@
 package me.roundaround.roundalib.client.gui.layout;
 
-import net.minecraft.client.gui.widget.Widget;
-
 import java.util.function.Consumer;
+import net.minecraft.client.gui.layouts.LayoutElement;
 
-public class WrapperLayoutWidget<T extends Widget> extends SizableLayoutWidget {
+public class WrapperLayoutWidget<T extends LayoutElement> extends SizableLayoutWidget {
   protected final T widget;
 
   private final LayoutHookWithParent<WrapperLayoutWidget<T>, T> layoutHook;
@@ -31,23 +30,23 @@ public class WrapperLayoutWidget<T extends Widget> extends SizableLayoutWidget {
   }
 
   @Override
-  public void refreshPositions() {
+  public void arrangeElements() {
     if (this.layoutHook != null) {
       this.layoutHook.run(this, this.widget);
     }
-    super.refreshPositions();
+    super.arrangeElements();
   }
 
   @Override
-  public void forEachElement(Consumer<Widget> consumer) {
+  public void visitChildren(Consumer<LayoutElement> consumer) {
     consumer.accept(this.widget);
   }
 
-  public static <T extends Widget> Builder<T> builder(T widget) {
+  public static <T extends LayoutElement> Builder<T> builder(T widget) {
     return new Builder<>(widget);
   }
 
-  public static class Builder<T extends Widget> {
+  public static class Builder<T extends LayoutElement> {
     private final T widget;
 
     private LayoutHookWithParent<WrapperLayoutWidget<T>, T> layoutHook;

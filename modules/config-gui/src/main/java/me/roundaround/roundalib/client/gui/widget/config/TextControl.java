@@ -2,33 +2,33 @@ package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.config.option.StringConfigOption;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.EditBox;
 
 public class TextControl extends Control<String, StringConfigOption> {
-  private final TextFieldWidget textField;
+  private final EditBox textField;
 
-  public TextControl(MinecraftClient client, StringConfigOption option, int width, int height) {
+  public TextControl(Minecraft client, StringConfigOption option, int width, int height) {
     super(client, option, width, height);
 
     this.textField = this.add(
-        new TextFieldWidget(client.textRenderer, width, height, this.option.getLabel()), (parent, self) -> {
-          self.setDimensions(parent.getWidth(), parent.getHeight());
+        new EditBox(client.font, width, height, this.option.getLabel()), (parent, self) -> {
+          self.setSize(parent.getWidth(), parent.getHeight());
         });
 
-    this.textField.setText(this.option.getPendingValue());
-    this.textField.setChangedListener(this::onTextChanged);
+    this.textField.setValue(this.option.getPendingValue());
+    this.textField.setResponder(this::onTextChanged);
   }
 
   @Override
   public void markInvalid() {
-    this.textField.setEditableColor(GuiUtil.ERROR_COLOR);
+    this.textField.setTextColor(GuiUtil.ERROR_COLOR);
     super.markInvalid();
   }
 
   @Override
   public void markValid() {
-    this.textField.setEditableColor(GuiUtil.LABEL_COLOR);
+    this.textField.setTextColor(GuiUtil.LABEL_COLOR);
     super.markValid();
   }
 
@@ -37,8 +37,8 @@ public class TextControl extends Control<String, StringConfigOption> {
     this.textField.active = !isDisabled;
     this.textField.setEditable(!isDisabled);
 
-    if (!value.equals(this.textField.getText())) {
-      this.textField.setText(value);
+    if (!value.equals(this.textField.getValue())) {
+      this.textField.setValue(value);
     }
   }
 

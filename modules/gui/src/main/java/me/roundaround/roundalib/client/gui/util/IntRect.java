@@ -1,8 +1,8 @@
 package me.roundaround.roundalib.client.gui.util;
 
-import net.minecraft.client.gui.ScreenRect;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.screen.slot.Slot;
+import net.minecraft.client.gui.layouts.LayoutElement;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.world.inventory.Slot;
 
 @SuppressWarnings("unused")
 public record IntRect(Integer left, Integer top, Integer right, Integer bottom) implements FourSided<Integer> {
@@ -24,12 +24,12 @@ public record IntRect(Integer left, Integer top, Integer right, Integer bottom) 
     return IntRect.byBounds(slot.x, slot.y, SLOT_SIZE, SLOT_SIZE);
   }
 
-  public static IntRect fromWidget(Widget widget) {
+  public static IntRect fromWidget(LayoutElement widget) {
     return IntRect.byDimensions(widget.getX(), widget.getY(), widget.getWidth(), widget.getHeight());
   }
 
-  public static IntRect fromScreenRect(ScreenRect screenRect) {
-    return IntRect.byDimensions(screenRect.getLeft(), screenRect.getTop(), screenRect.width(), screenRect.height());
+  public static IntRect fromScreenRect(ScreenRectangle screenRect) {
+    return IntRect.byDimensions(screenRect.left(), screenRect.top(), screenRect.width(), screenRect.height());
   }
 
   public int getWidth() {
@@ -96,8 +96,8 @@ public record IntRect(Integer left, Integer top, Integer right, Integer bottom) 
     return this.shift(0, amount);
   }
 
-  public ScreenRect toScreenRect() {
-    return new ScreenRect(this.left, this.top, this.getWidth(), this.getHeight());
+  public ScreenRectangle toScreenRect() {
+    return new ScreenRectangle(this.left, this.top, this.getWidth(), this.getHeight());
   }
 
   public FloatRect toFloatRect() {

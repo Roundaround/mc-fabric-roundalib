@@ -1,6 +1,6 @@
 package me.roundaround.roundalib.client.gui.icon;
 
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 
 public class CustomIcon implements Icon {
   private final String name;
@@ -13,7 +13,7 @@ public class CustomIcon implements Icon {
 
   @Override
   public Identifier getTexture(String modId) {
-    return Identifier.of(modId, "icon/" + this.name);
+    return Identifier.fromNamespaceAndPath(modId, "icon/" + this.name);
   }
 
   @Override

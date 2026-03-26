@@ -39,7 +39,7 @@ public class EnumConfigOption<T extends EnumValue<T>> extends ConfigOption<T> {
     return new Builder<>(path, values);
   }
 
-  public static class Builder<T extends EnumValue<T>> extends ConfigOption.AbstractBuilder<T, EnumConfigOption<T>, Builder<T>> {
+  public static class Builder<T extends EnumValue<T>> extends AbstractBuilder<T, EnumConfigOption<T>, Builder<T>> {
     private final List<T> values;
 
     private Builder(ConfigPath path, List<T> values) {

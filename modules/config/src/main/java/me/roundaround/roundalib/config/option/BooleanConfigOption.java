@@ -1,12 +1,12 @@
 package me.roundaround.roundalib.config.option;
 
 import me.roundaround.roundalib.config.ConfigPath;
-import net.minecraft.screen.ScreenTexts;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 
 public class BooleanConfigOption extends ConfigOption<Boolean> {
-  private final Text enabledLabel;
-  private final Text disabledLabel;
+  private final Component enabledLabel;
+  private final Component disabledLabel;
 
   protected BooleanConfigOption(Builder builder) {
     super(builder);
@@ -14,25 +14,25 @@ public class BooleanConfigOption extends ConfigOption<Boolean> {
     this.disabledLabel = builder.disabledLabel;
   }
 
-  public Text getEnabledLabel() {
+  public Component getEnabledLabel() {
     if (this.enabledLabel == null) {
-      return Text.translatable(this.getModId() + ".roundalib.toggle.enabled");
+      return Component.translatable(this.getModId() + ".roundalib.toggle.enabled");
     }
     return this.enabledLabel;
   }
 
-  public Text getDisabledLabel() {
+  public Component getDisabledLabel() {
     if (this.disabledLabel == null) {
-      return Text.translatable(this.getModId() + ".roundalib.toggle.disabled");
+      return Component.translatable(this.getModId() + ".roundalib.toggle.disabled");
     }
     return this.disabledLabel;
   }
 
-  public Text getValueLabel(boolean value) {
+  public Component getValueLabel(boolean value) {
     return value ? this.getEnabledLabel() : this.getDisabledLabel();
   }
 
-  public Text getValueLabel() {
+  public Component getValueLabel() {
     return this.getPendingValue() ? this.getEnabledLabel() : this.getDisabledLabel();
   }
 
@@ -45,37 +45,37 @@ public class BooleanConfigOption extends ConfigOption<Boolean> {
   }
 
   public static Builder onOffBuilder(ConfigPath path) {
-    return new Builder(path).setEnabledLabel(ScreenTexts.ON).setDisabledLabel(ScreenTexts.OFF);
+    return new Builder(path).setEnabledLabel(CommonComponents.OPTION_ON).setDisabledLabel(CommonComponents.OPTION_OFF);
   }
 
   public static Builder yesNoBuilder(ConfigPath path) {
-    return new Builder(path).setEnabledLabel(ScreenTexts.YES).setDisabledLabel(ScreenTexts.NO);
+    return new Builder(path).setEnabledLabel(CommonComponents.GUI_YES).setDisabledLabel(CommonComponents.GUI_NO);
   }
 
-  public static class Builder extends ConfigOption.AbstractBuilder<Boolean, BooleanConfigOption, Builder> {
-    private Text enabledLabel = null;
-    private Text disabledLabel = null;
+  public static class Builder extends AbstractBuilder<Boolean, BooleanConfigOption, Builder> {
+    private Component enabledLabel = null;
+    private Component disabledLabel = null;
 
     private Builder(ConfigPath path) {
       super(path);
     }
 
     public Builder setEnabledLabel(String i18nKey) {
-      this.enabledLabel = Text.translatable(i18nKey);
+      this.enabledLabel = Component.translatable(i18nKey);
       return this;
     }
 
-    public Builder setEnabledLabel(Text label) {
+    public Builder setEnabledLabel(Component label) {
       this.enabledLabel = label;
       return this;
     }
 
     public Builder setDisabledLabel(String i18nKey) {
-      this.disabledLabel = Text.translatable(i18nKey);
+      this.disabledLabel = Component.translatable(i18nKey);
       return this;
     }
 
-    public Builder setDisabledLabel(Text label) {
+    public Builder setDisabledLabel(Component label) {
       this.disabledLabel = label;
       return this;
     }

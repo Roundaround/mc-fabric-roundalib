@@ -18,18 +18,18 @@ import me.roundaround.roundalib.config.panic.IllegalStatePanic;
 import me.roundaround.roundalib.config.panic.Panic;
 import me.roundaround.roundalib.observable.Observable;
 import me.roundaround.roundalib.observable.Subscription;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 
 public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWidget.Entry> {
   protected final String modId;
   protected final ArrayList<Subscription> subscriptions = new ArrayList<>();
 
   public ConfigListWidget(
-      MinecraftClient client, ThreeSectionLayoutWidget layout, String modId, List<ModConfig> configs) {
+      Minecraft client, ThreeSectionLayoutWidget layout, String modId, List<ModConfig> configs) {
     super(client, layout);
 
     this.modId = modId;
@@ -53,14 +53,14 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     });
   }
 
-  protected void addConfigEntry(Text label) {
+  protected void addConfigEntry(Component label) {
     this.addEntry(
-        (index, left, top, width) -> new ConfigEntry(this.client.textRenderer, label, index, left, top, width));
+        (index, left, top, width) -> new ConfigEntry(this.client.font, label, index, left, top, width));
   }
 
   protected void addGroupEntry(String group) {
-    this.addEntry((index, left, top, width) -> new GroupEntry(this.client.textRenderer,
-        Text.translatable(this.modId + "." + group + ".title"), index, left, top, width));
+    this.addEntry((index, left, top, width) -> new GroupEntry(this.client.font,
+        Component.translatable(this.modId + "." + group + ".title"), index, left, top, width));
   }
 
   protected void addOptionEntry(ConfigOption<?> option) {
@@ -105,7 +105,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     protected final LabelWidget label;
 
     protected ConfigEntry(
-        TextRenderer textRenderer, Text label, int index, int left, int top, int width) {
+        Font textRenderer, Component label, int index, int left, int top, int width) {
       super(index, left, top, width, HEIGHT);
 
       this.setMarginY(DEFAULT_MARGIN.getVertical() + GuiUtil.PADDING);
@@ -122,17 +122,17 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     }
 
     @Override
-    public void refreshPositions() {
+    public void arrangeElements() {
       this.label.batchUpdates(() -> {
         this.label.setPosition(this.getContentLeft(), this.getContentTop());
-        this.label.setDimensions(this.getContentWidth(), this.getContentHeight());
+        this.label.setSize(this.getContentWidth(), this.getContentHeight());
       });
 
-      super.refreshPositions();
+      super.arrangeElements();
     }
 
     @Override
-    protected void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
+    protected void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {
       renderRowShade(context, this.getContentLeft(), this.getContentTop(), this.getContentRight(),
           this.getContentBottom(), DEFAULT_SHADE_FADE_WIDTH * 3, DEFAULT_SHADE_STRENGTH_STRONG);
     }
@@ -144,7 +144,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     protected final LabelWidget label;
 
     protected GroupEntry(
-        TextRenderer textRenderer, Text label, int index, int left, int top, int width) {
+        Font textRenderer, Component label, int index, int left, int top, int width) {
       super(index, left, top, width, HEIGHT);
 
       this.setMarginY(DEFAULT_MARGIN.getVertical());
@@ -161,17 +161,17 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     }
 
     @Override
-    public void refreshPositions() {
+    public void arrangeElements() {
       this.label.batchUpdates(() -> {
         this.label.setPosition(this.getContentLeft(), this.getContentTop());
-        this.label.setDimensions(this.getContentWidth(), this.getContentHeight());
+        this.label.setSize(this.getContentWidth(), this.getContentHeight());
       });
 
-      super.refreshPositions();
+      super.arrangeElements();
     }
 
     @Override
-    protected void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
+    protected void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {
       renderRowShade(context, this.getContentLeft(), this.getContentTop(), this.getContentRight(),
           this.getContentBottom(), DEFAULT_SHADE_FADE_WIDTH, DEFAULT_SHADE_STRENGTH);
     }
@@ -188,15 +188,15 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     protected final Control<D, O> control;
     protected final IconButtonWidget resetButton;
 
-    protected OptionEntry(MinecraftClient client, O option, int index, int left, int top, int width)
+    protected OptionEntry(Minecraft client, O option, int index, int left, int top, int width)
         throws ControlRegistry.NotRegisteredException {
       super(index, left, top, width, HEIGHT);
 
       this.option = option;
 
-      ArrayList<Text> tooltipLines = new ArrayList<>();
+      ArrayList<Component> tooltipLines = new ArrayList<>();
       tooltipLines.add(option.getLabel());
-      tooltipLines.add(Text.literal(option.getPath().toString()).formatted(Formatting.GRAY));
+      tooltipLines.add(Component.literal(option.getPath().toString()).withStyle(ChatFormatting.GRAY));
       this.tooltip = this.addDrawable(new TooltipWidget(tooltipLines));
 
       this.layout = LinearLayoutWidget.horizontal(
@@ -204,7 +204,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
           .spacing(GuiUtil.PADDING)
           .defaultOffAxisContentAlignCenter();
 
-      this.label = LabelWidget.builder(client.textRenderer, option.getLabel())
+      this.label = LabelWidget.builder(client.font, option.getLabel())
           .alignTextLeft()
           .alignTextCenterY()
           .overflowBehavior(LabelWidget.OverflowBehavior.WRAP)
@@ -213,7 +213,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
           .hideBackground()
           .build();
       this.layout.add(this.label, (parent, self) -> {
-        self.setDimensions(this.getLabelWidth(parent), this.getContentHeight());
+        self.setSize(this.getLabelWidth(parent), this.getContentHeight());
       });
 
       this.control = ControlRegistry.getControlFactory(option)
@@ -224,7 +224,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
 
       this.resetButton = IconButtonWidget.builder(BuiltinIcon.UNDO_18, this.getOption().getModId())
           .vanillaSize()
-          .messageAndTooltip(Text.translatable(this.getOption().getModId() + ".roundalib.reset.tooltip"))
+          .messageAndTooltip(Component.translatable(this.getOption().getModId() + ".roundalib.reset.tooltip"))
           .onPress((button) -> this.getOption().setDefault())
           .build();
       this.layout.add(this.resetButton);
@@ -233,7 +233,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
         self.setPositionAndDimensions(
             this.getContentLeft(), this.getContentTop(), this.getContentWidth(), this.getContentHeight());
       });
-      this.layout.forEachChild(this::addDrawableChild);
+      this.layout.visitWidgets(this::addDrawableChild);
     }
 
     public O getOption() {
@@ -257,8 +257,8 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     }
 
     @Override
-    public void refreshPositions() {
-      super.refreshPositions();
+    public void arrangeElements() {
+      super.arrangeElements();
       this.tooltip.setDimensionsAndPosition(this.label.getWidth(), this.label.getHeight(), this.label.getX(),
           this.label.getY());
     }
@@ -269,7 +269,7 @@ public class ConfigListWidget extends ParentElementEntryListWidget<ConfigListWid
     }
   }
 
-  private record UnwrappedModConfig(Text label, Map<String, List<ConfigOption<?>>> optionsByGroup) {
+  private record UnwrappedModConfig(Component label, Map<String, List<ConfigOption<?>>> optionsByGroup) {
     static UnwrappedModConfig unwrap(ModConfig config) {
       return new UnwrappedModConfig(config.getLabel(), config.getByGroupWithGuiControl());
     }

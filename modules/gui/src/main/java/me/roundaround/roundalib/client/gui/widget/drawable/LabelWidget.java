@@ -3,15 +3,14 @@ package me.roundaround.roundalib.client.gui.widget.drawable;
 import me.roundaround.roundalib.client.gui.util.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.ScreenRect;
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.resource.language.I18n;
-import net.minecraft.screen.ScreenTexts;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -22,9 +21,9 @@ import java.util.function.Consumer;
 public class LabelWidget extends DrawableWidget {
   public static final Spacing PADDING = Spacing.of(2, 2, 1, 3);
 
-  private final TextRenderer textRenderer;
+  private final Font textRenderer;
 
-  private List<Text> lines;
+  private List<Component> lines;
   private int color;
   private Alignment alignSelfX;
   private Alignment alignSelfY;
@@ -41,8 +40,8 @@ public class LabelWidget extends DrawableWidget {
   private boolean inBatchUpdate = false;
 
   private LabelWidget(
-      TextRenderer textRenderer,
-      List<Text> lines,
+      Font textRenderer,
+      List<Component> lines,
       int color,
       int x,
       int y,
@@ -61,7 +60,7 @@ public class LabelWidget extends DrawableWidget {
       Tooltip tooltip,
       Duration tooltipDelay
   ) {
-    super(x, y, width, height, ScreenTexts.EMPTY);
+    super(x, y, width, height, CommonComponents.EMPTY);
 
     this.textRenderer = textRenderer;
     this.lines = new ArrayList<>(lines);
@@ -124,8 +123,8 @@ public class LabelWidget extends DrawableWidget {
   }
 
   private Dimensions getFullTextDimensions() {
-    return Dimensions.of(this.lines.stream().mapToInt(this.textRenderer::getWidth).max().orElse(0),
-        this.lines.size() * this.textRenderer.fontHeight +
+    return Dimensions.of(this.lines.stream().mapToInt(this.textRenderer::width).max().orElse(0),
+        this.lines.size() * this.textRenderer.lineHeight +
             (this.lines.size() - 1) * this.lineSpacing
     );
   }
@@ -140,13 +139,13 @@ public class LabelWidget extends DrawableWidget {
   }
 
   @Override
-  public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+  public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
     if (this.lines.isEmpty()) {
       return;
     }
 
-    this.hovered =
-        context.scissorContains(mouseX, mouseY) && this.getBounds().contains(mouseX, mouseY);
+    this.isHovered =
+        context.containsPointInScissor(mouseX, mouseY) && this.getBounds().contains(mouseX, mouseY);
 
     if (this.showBackground) {
       GuiUtil.fill(context, this.bgBounds, this.bgColor);
@@ -173,12 +172,12 @@ public class LabelWidget extends DrawableWidget {
   protected void renderLine(
       int index,
       OverflowBehavior overflowBehavior,
-      DrawContext context,
+      GuiGraphics context,
       int mouseX,
       int mouseY,
       float delta
   ) {
-    Text line = this.lines.get(index);
+    Component line = this.lines.get(index);
     int x = this.textBounds.left();
     int y =
         this.textBounds.top() + GuiUtil.getLineYOffset(this.textRenderer, index, this.lineSpacing);
@@ -230,22 +229,22 @@ public class LabelWidget extends DrawableWidget {
     }
   }
 
-  public Text getText() {
+  public Component getText() {
     if (this.lines.isEmpty()) {
-      return Text.empty();
+      return Component.empty();
     }
 
-    Iterator<Text> iter = this.lines.iterator();
-    MutableText builder = iter.next().copy();
+    Iterator<Component> iter = this.lines.iterator();
+    MutableComponent builder = iter.next().copy();
     while (iter.hasNext()) {
-      builder.append(ScreenTexts.LINE_BREAK);
+      builder.append(CommonComponents.NEW_LINE);
       builder.append(iter.next());
     }
 
     return builder;
   }
 
-  public List<Text> getLines() {
+  public List<Component> getLines() {
     return this.lines;
   }
 
@@ -255,7 +254,7 @@ public class LabelWidget extends DrawableWidget {
 
   public int getDefaultHeight() {
     int lines = Math.max(1, this.getLineCount());
-    return lines * this.textRenderer.fontHeight + (lines - 1) * this.lineSpacing +
+    return lines * this.textRenderer.lineHeight + (lines - 1) * this.lineSpacing +
         PADDING.getVertical();
   }
 
@@ -274,17 +273,17 @@ public class LabelWidget extends DrawableWidget {
     }
   }
 
-  public void setText(Text text) {
+  public void setText(Component text) {
     this.lines = List.of(text);
     this.calculateBounds();
   }
 
-  public void setText(List<Text> lines) {
+  public void setText(List<Component> lines) {
     this.lines = new ArrayList<>(lines);
     this.calculateBounds();
   }
 
-  public void appendLine(Text text) {
+  public void appendLine(Component text) {
     this.lines.add(text);
     this.calculateBounds();
   }
@@ -373,16 +372,16 @@ public class LabelWidget extends DrawableWidget {
   }
 
   @Override
-  public void setDimensions(int width, int height) {
+  public void setSize(int width, int height) {
     this.batchUpdates(() -> {
-      super.setDimensions(width, height);
+      super.setSize(width, height);
     });
   }
 
   @Override
-  public void setDimensionsAndPosition(int width, int height, int x, int y) {
+  public void setRectangle(int width, int height, int x, int y) {
     this.batchUpdates(() -> {
-      super.setDimensionsAndPosition(width, height, x, y);
+      super.setRectangle(width, height, x, y);
     });
   }
 
@@ -407,7 +406,7 @@ public class LabelWidget extends DrawableWidget {
   }
 
   @Override
-  public ScreenRect getNavigationFocus() {
+  public ScreenRectangle getRectangle() {
     return this.getBounds().toScreenRect();
   }
 
@@ -441,32 +440,32 @@ public class LabelWidget extends DrawableWidget {
     return Math.max(0, this.showBackground ? this.height - PADDING.getVertical() : this.height);
   }
 
-  public static Builder builder(TextRenderer textRenderer, Text text) {
+  public static Builder builder(Font textRenderer, Component text) {
     return new Builder(textRenderer, text);
   }
 
-  public static Builder builder(TextRenderer textRenderer, List<Text> lines) {
+  public static Builder builder(Font textRenderer, List<Component> lines) {
     return new Builder(textRenderer, lines);
   }
 
-  public static int getDefaultHeight(TextRenderer textRenderer) {
+  public static int getDefaultHeight(Font textRenderer) {
     return getDefaultHeight(textRenderer, 1);
   }
 
-  public static int getDefaultHeight(TextRenderer textRenderer, int lines) {
+  public static int getDefaultHeight(Font textRenderer, int lines) {
     return getDefaultHeight(textRenderer, lines, 0);
   }
 
   public static int getDefaultHeight(
-      TextRenderer textRenderer, int lines, int spacing
+      Font textRenderer, int lines, int spacing
   ) {
-    return lines * textRenderer.fontHeight + (lines - 1) * spacing + PADDING.getVertical();
+    return lines * textRenderer.lineHeight + (lines - 1) * spacing + PADDING.getVertical();
   }
 
   @Environment(EnvType.CLIENT)
   public static class Builder {
-    private final TextRenderer textRenderer;
-    private final List<Text> lines;
+    private final Font textRenderer;
+    private final List<Component> lines;
 
     private int x;
     private int y;
@@ -486,15 +485,15 @@ public class LabelWidget extends DrawableWidget {
     private Tooltip tooltip = null;
     private Duration tooltipDelay = null;
 
-    public Builder(TextRenderer textRenderer) {
+    public Builder(Font textRenderer) {
       this(textRenderer, List.of());
     }
 
-    public Builder(TextRenderer textRenderer, Text text) {
+    public Builder(Font textRenderer, Component text) {
       this(textRenderer, List.of(text));
     }
 
-    public Builder(TextRenderer textRenderer, List<Text> lines) {
+    public Builder(Font textRenderer, List<Component> lines) {
       this.textRenderer = textRenderer;
       this.lines = new ArrayList<>(lines);
     }
@@ -661,8 +660,8 @@ public class LabelWidget extends DrawableWidget {
       return this;
     }
 
-    public Builder tooltip(Text tooltip) {
-      return this.tooltip(Tooltip.of(tooltip));
+    public Builder tooltip(Component tooltip) {
+      return this.tooltip(Tooltip.create(tooltip));
     }
 
     public Builder tooltip(Tooltip tooltip) {
@@ -719,12 +718,12 @@ public class LabelWidget extends DrawableWidget {
       return String.format("%s.roundalib.overflow_behavior.%s", modId, this.id);
     }
 
-    public Text getDisplayText(String modId) {
-      return Text.translatable(this.getI18nKey(modId));
+    public Component getDisplayText(String modId) {
+      return Component.translatable(this.getI18nKey(modId));
     }
 
     public String getDisplayString(String modId) {
-      return I18n.translate(this.getI18nKey(modId));
+      return I18n.get(this.getI18nKey(modId));
     }
 
     public boolean supportsMultiline() {

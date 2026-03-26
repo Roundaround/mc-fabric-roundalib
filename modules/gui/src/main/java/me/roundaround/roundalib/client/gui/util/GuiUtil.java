@@ -1,33 +1,35 @@
 package me.roundaround.roundalib.client.gui.util;
 
-import java.util.List;
-
-import net.minecraft.util.*;
-import org.joml.Matrix3x2f;
-
 import com.mojang.blaze3d.pipeline.RenderPipeline;
-
 import me.roundaround.roundalib.client.gui.render.state.HorizontalColoredQuadGuiElementRenderState;
 import me.roundaround.roundalib.mixin.DrawContextAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.client.sound.SoundManager;
-import net.minecraft.client.texture.Scaling;
-import net.minecraft.client.texture.Sprite;
-import net.minecraft.client.texture.TextureSetup;
-import net.minecraft.screen.ScreenTexts;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.OrderedText;
-import net.minecraft.text.StringVisitable;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.render.TextureSetup;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.metadata.gui.GuiSpriteScaling;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.data.AtlasIds;
+import net.minecraft.locale.Language;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.CommonColors;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Util;
+import org.joml.Matrix3x2f;
+
+import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public final class GuiUtil {
@@ -44,11 +46,11 @@ public final class GuiUtil {
   public static final int DEFAULT_HEADER_FOOTER_HEIGHT = 33;
   public static final int COMPACT_HEADER_HEIGHT = 17;
 
-  private static MinecraftClient client = null;
+  private static Minecraft client = null;
 
-  public static MinecraftClient getClient() {
+  public static Minecraft getClient() {
     if (client == null) {
-      client = MinecraftClient.getInstance();
+      client = Minecraft.getInstance();
     }
     return client;
   }
@@ -57,48 +59,48 @@ public final class GuiUtil {
     return getScaledWindowWidth(getClient());
   }
 
-  public static int getScaledWindowWidth(MinecraftClient client) {
-    return client.getWindow().getScaledWidth();
+  public static int getScaledWindowWidth(Minecraft client) {
+    return client.getWindow().getGuiScaledWidth();
   }
 
   public static int getScaledWindowHeight() {
     return getScaledWindowHeight(getClient());
   }
 
-  public static int getScaledWindowHeight(MinecraftClient client) {
-    return client.getWindow().getScaledHeight();
+  public static int getScaledWindowHeight(Minecraft client) {
+    return client.getWindow().getGuiScaledHeight();
   }
 
   public static int getDisplayWidth() {
     return getDisplayWidth(getClient());
   }
 
-  public static int getDisplayWidth(MinecraftClient client) {
-    return client.getWindow().getWidth();
+  public static int getDisplayWidth(Minecraft client) {
+    return client.getWindow().getScreenWidth();
   }
 
   public static int getDisplayHeight() {
     return getDisplayHeight(getClient());
   }
 
-  public static int getDisplayHeight(MinecraftClient client) {
-    return client.getWindow().getHeight();
+  public static int getDisplayHeight(Minecraft client) {
+    return client.getWindow().getScreenHeight();
   }
 
   public static double getScaleFactor() {
     return getScaleFactor(getClient());
   }
 
-  public static double getScaleFactor(MinecraftClient client) {
-    return client.getWindow().getScaleFactor();
+  public static double getScaleFactor(Minecraft client) {
+    return client.getWindow().getGuiScale();
   }
 
   public static Screen getCurrentScreen() {
     return getCurrentScreen(getClient());
   }
 
-  public static Screen getCurrentScreen(MinecraftClient client) {
-    return client.currentScreen;
+  public static Screen getCurrentScreen(Minecraft client) {
+    return client.screen;
   }
 
   public static void setScreen(Screen screen) {
@@ -106,95 +108,148 @@ public final class GuiUtil {
   }
 
   public static void drawText(
-      DrawContext context, TextRenderer textRenderer, Text text, int x, int y, int color, boolean shadow) {
-    drawText(context, textRenderer, text.asOrderedText(), x, y, color, shadow);
+      GuiGraphics context,
+      Font textRenderer,
+      Component text,
+      int x,
+      int y,
+      int color,
+      boolean shadow
+  ) {
+    drawText(context, textRenderer, text.getVisualOrderText(), x, y, color, shadow);
   }
 
   public static void drawText(
-      DrawContext context, TextRenderer textRenderer, OrderedText text, int x, int y, int color, boolean shadow) {
+      GuiGraphics context,
+      Font textRenderer,
+      FormattedCharSequence text,
+      int x,
+      int y,
+      int color,
+      boolean shadow
+  ) {
     drawText(context, textRenderer, text, x, y, color, shadow, 0, Alignment.START);
   }
 
   public static void drawText(
-      DrawContext context,
-      TextRenderer textRenderer,
-      Text text,
+      GuiGraphics context,
+      Font textRenderer,
+      Component text,
       int x,
       int y,
       int color,
       boolean shadow,
       int viewWidth,
-      Alignment alignment) {
-    drawText(context, textRenderer, text.asOrderedText(), x, y, color, shadow, viewWidth, alignment);
+      Alignment alignment
+  ) {
+    drawText(context, textRenderer, text.getVisualOrderText(), x, y, color, shadow, viewWidth, alignment);
   }
 
   public static void drawText(
-      DrawContext context,
-      TextRenderer textRenderer,
-      OrderedText text,
+      GuiGraphics context,
+      Font textRenderer,
+      FormattedCharSequence text,
       int x,
       int y,
       int color,
       boolean shadow,
       int viewWidth,
-      Alignment alignment) {
-    int textWidth = textRenderer.getWidth(text);
-    context.drawText(textRenderer, text, alignment.getPosInContainer(x, viewWidth, textWidth), y, color, shadow);
+      Alignment alignment
+  ) {
+    int textWidth = textRenderer.width(text);
+    context.drawString(textRenderer, text, alignment.getPosInContainer(x, viewWidth, textWidth), y, color, shadow);
   }
 
   public static void drawTruncatedText(
-      DrawContext context, TextRenderer textRenderer, Text text, int x, int y, int color, boolean shadow,
-      int viewWidth) {
+      GuiGraphics context,
+      Font textRenderer,
+      Component text,
+      int x,
+      int y,
+      int color,
+      boolean shadow,
+      int viewWidth
+  ) {
     drawTruncatedText(context, textRenderer, text, x, y, color, shadow, viewWidth, Alignment.START);
   }
 
   public static void drawTruncatedText(
-      DrawContext context,
-      TextRenderer textRenderer,
-      Text text,
+      GuiGraphics context,
+      Font textRenderer,
+      Component text,
       int x,
       int y,
       int color,
       boolean shadow,
       int viewWidth,
-      Alignment alignment) {
-    if (textRenderer.getWidth(text) < viewWidth) {
+      Alignment alignment
+  ) {
+    if (textRenderer.width(text) < viewWidth) {
       drawText(context, textRenderer, text, x, y, color, shadow, viewWidth, alignment);
       return;
     }
 
-    MutableText ellipsis = ScreenTexts.ELLIPSIS.copy().setStyle(text.getStyle());
-    StringVisitable trimmed = textRenderer.trimToWidth(text, viewWidth - textRenderer.getWidth(ellipsis));
-    trimmed = StringVisitable.concat(trimmed, ellipsis);
+    MutableComponent ellipsis = CommonComponents.ELLIPSIS.copy().setStyle(text.getStyle());
+    FormattedText trimmed = textRenderer.substrByWidth(text, viewWidth - textRenderer.width(ellipsis));
+    trimmed = FormattedText.composite(trimmed, ellipsis);
 
-    drawText(context, textRenderer, Language.getInstance().reorder(trimmed), x, y, color, shadow, viewWidth, alignment);
+    drawText(
+        context,
+        textRenderer,
+        Language.getInstance().getVisualOrder(trimmed),
+        x,
+        y,
+        color,
+        shadow,
+        viewWidth,
+        alignment
+    );
   }
 
   public static void drawWrappedText(
-      DrawContext context, TextRenderer textRenderer, Text text, int x, int y, int color, boolean shadow,
-      int viewWidth) {
+      GuiGraphics context,
+      Font textRenderer,
+      Component text,
+      int x,
+      int y,
+      int color,
+      boolean shadow,
+      int viewWidth
+  ) {
     drawWrappedText(context, textRenderer, text, x, y, color, shadow, viewWidth, 0, 0);
   }
 
   public static void drawWrappedText(
-      DrawContext context,
-      TextRenderer textRenderer,
-      Text text,
+      GuiGraphics context,
+      Font textRenderer,
+      Component text,
       int x,
       int y,
       int color,
       boolean shadow,
       int viewWidth,
       int lineSpacing,
-      int maxLines) {
-    drawWrappedText(context, textRenderer, text, x, y, color, shadow, viewWidth, maxLines, lineSpacing,
-        Alignment.START);
+      int maxLines
+  ) {
+    drawWrappedText(
+        context,
+        textRenderer,
+        text,
+        x,
+        y,
+        color,
+        shadow,
+        viewWidth,
+        maxLines,
+        lineSpacing,
+        Alignment.START
+    );
   }
 
   public static void drawWrappedText(
-      DrawContext context,
-      TextRenderer textRenderer,
-      Text text,
+      GuiGraphics context,
+      Font textRenderer,
+      Component text,
       int x,
       int y,
       int color,
@@ -202,49 +257,58 @@ public final class GuiUtil {
       int viewWidth,
       int maxLines,
       int lineSpacing,
-      Alignment alignment) {
-    if (textRenderer.getWidth(text) < viewWidth) {
+      Alignment alignment
+  ) {
+    if (textRenderer.width(text) < viewWidth) {
       drawText(context, textRenderer, text, x, y, color, shadow, viewWidth, alignment);
       return;
     }
 
-    List<OrderedText> lines = textRenderer.wrapLines(text, viewWidth);
+    List<FormattedCharSequence> lines = textRenderer.split(text, viewWidth);
     int cursorY = y;
-    for (OrderedText line : lines.subList(0, Math.min(lines.size(), maxLines))) {
-      int lineWidth = textRenderer.getWidth(line);
+    for (FormattedCharSequence line : lines.subList(0, Math.min(lines.size(), maxLines))) {
+      int lineWidth = textRenderer.width(line);
       int lineX = alignment.getPosInContainer(x, viewWidth, lineWidth);
       drawText(context, textRenderer, line, lineX, cursorY, color, shadow, viewWidth, alignment);
-      cursorY += textRenderer.fontHeight + lineSpacing;
+      cursorY += textRenderer.lineHeight + lineSpacing;
     }
   }
 
   public static Dimensions measureWrappedText(
-      TextRenderer textRenderer, Text text, int maxWidth, int maxLines, int lineSpacing) {
+      Font textRenderer,
+      Component text,
+      int maxWidth,
+      int maxLines,
+      int lineSpacing
+  ) {
     if (maxWidth <= 0) {
-      return Dimensions.of(textRenderer.getWidth(text), textRenderer.fontHeight);
+      return Dimensions.of(textRenderer.width(text), textRenderer.lineHeight);
     }
 
-    List<OrderedText> lines = textRenderer.wrapLines(text, maxWidth);
+    List<FormattedCharSequence> lines = textRenderer.split(text, maxWidth);
     if (lines.size() <= 1) {
-      return Dimensions.of(textRenderer.getWidth(text), textRenderer.fontHeight);
+      return Dimensions.of(textRenderer.width(text), textRenderer.lineHeight);
     }
 
     int lineCount = Math.min(lines.size(), maxLines);
-    return Dimensions.of(lines.stream().mapToInt(textRenderer::getWidth).max().orElse(0),
-        lineCount * textRenderer.fontHeight + (lineCount - 1) * lineSpacing);
+    return Dimensions.of(
+        lines.stream().mapToInt(textRenderer::width).max().orElse(0),
+        lineCount * textRenderer.lineHeight + (lineCount - 1) * lineSpacing
+    );
   }
 
   public static void drawScrollingText(
-      DrawContext context,
-      TextRenderer textRenderer,
-      Text text,
+      GuiGraphics context,
+      Font textRenderer,
+      Component text,
       int x,
       int y,
       int color,
       boolean shadow,
       int viewWidth,
-      Alignment alignment) {
-    int textWidth = textRenderer.getWidth(text);
+      Alignment alignment
+  ) {
+    int textWidth = textRenderer.width(text);
     if (textWidth < viewWidth) {
       drawText(context, textRenderer, text, x, y, color, shadow, viewWidth, alignment);
       return;
@@ -252,77 +316,68 @@ public final class GuiUtil {
 
     // Based largely on the scrolling text from ClickableWidget.
     double X = (double) textWidth - viewWidth;
-    double t = Util.getMeasuringTimeMs() / 1000.0;
+    double t = Util.getMillis() / 1000.0;
     double T = Math.max(X / 2, 3);
     double c = Math.sin((Math.PI / 2) * Math.cos(2 * Math.PI * (t + alignment.floatValue()) / T)) / 2 + 0.5;
     double dx = c * X;
 
-    context.enableScissor(x, y - textRenderer.fontHeight, x + viewWidth, y + 2 * textRenderer.fontHeight);
+    context.enableScissor(x, y - textRenderer.lineHeight, x + viewWidth, y + 2 * textRenderer.lineHeight);
     drawText(context, textRenderer, text, x - (int) dx, y, color, shadow);
     context.disableScissor();
   }
 
-  public static int getLineYOffset(TextRenderer textRenderer, int index, int lineSpacing) {
-    return index * (textRenderer.fontHeight + lineSpacing);
+  public static int getLineYOffset(Font textRenderer, int index, int lineSpacing) {
+    return index * (textRenderer.lineHeight + lineSpacing);
   }
 
-  public static void fill(DrawContext context, IntRect rect, int color) {
+  public static void fill(GuiGraphics context, IntRect rect, int color) {
     context.fill(rect.left(), rect.top(), rect.right(), rect.bottom(), color);
   }
 
-  public static void fillHorizontalGradient(
-      DrawContext context,
-      IntRect rect,
-      int colorStart,
-      int colorEnd) {
-    fillHorizontalGradient(
-        context,
-        rect.left(),
-        rect.top(),
-        rect.right(),
-        rect.bottom(),
-        colorStart,
-        colorEnd);
+  public static void fillHorizontalGradient(GuiGraphics context, IntRect rect, int colorStart, int colorEnd) {
+    fillHorizontalGradient(context, rect.left(), rect.top(), rect.right(), rect.bottom(), colorStart, colorEnd);
   }
 
   public static void fillHorizontalGradient(
-      DrawContext context,
+      GuiGraphics context,
       int startX,
       int startY,
       int endX,
       int endY,
       int colorStart,
-      int colorEnd) {
-    context.state.addSimpleElement(new HorizontalColoredQuadGuiElementRenderState(
+      int colorEnd
+  ) {
+    context.guiRenderState.submitGuiElement(new HorizontalColoredQuadGuiElementRenderState(
         RenderPipelines.GUI,
-        TextureSetup.empty(),
-        new Matrix3x2f(context.getMatrices()),
+        TextureSetup.noTexture(),
+        new Matrix3x2f(context.pose()),
         startX,
         startY,
         endX,
         endY,
         colorStart,
         colorEnd,
-        context.scissorStack.peekLast()));
+        context.scissorStack.peek()
+    ));
   }
 
-  public static void drawStrokedRectangle(DrawContext context, IntRect rect, int color) {
+  public static void drawStrokedRectangle(GuiGraphics context, IntRect rect, int color) {
     drawStrokedRectangle(context, rect, color, false);
   }
 
-  public static void drawStrokedRectangle(DrawContext context, IntRect rect, int color, boolean outside) {
+  public static void drawStrokedRectangle(GuiGraphics context, IntRect rect, int color, boolean outside) {
     if (outside) {
       rect = rect.expand(1);
     }
-    context.drawStrokedRectangle(rect.left(), rect.top(), rect.getWidth(), rect.getHeight(), color);
+    context.renderOutline(rect.left(), rect.top(), rect.getWidth(), rect.getHeight(), color);
   }
 
-  public static Sprite getSprite(Identifier texture) {
-    return getClient().getAtlasManager().getAtlasTexture(Atlases.GUI).getSprite(texture);
+  public static TextureAtlasSprite getSprite(Identifier texture) {
+    return getClient().getAtlasManager().getAtlasOrThrow(AtlasIds.GUI).getSprite(texture);
   }
 
   public static void drawSpriteNineSliced(
-      DrawContext context,
+      GuiGraphics context,
       RenderPipeline pipeline,
       Identifier texture,
       int x,
@@ -332,13 +387,25 @@ public final class GuiUtil {
       int texWidth,
       int texHeight,
       int color,
-      int border) {
+      int border
+  ) {
     drawSpriteNineSliced(
-        context, pipeline, texture, x, y, width, height, texWidth, texHeight, color, Spacing.of(border));
+        context,
+        pipeline,
+        texture,
+        x,
+        y,
+        width,
+        height,
+        texWidth,
+        texHeight,
+        color,
+        Spacing.of(border)
+    );
   }
 
   public static void drawSpriteNineSliced(
-      DrawContext context,
+      GuiGraphics context,
       RenderPipeline pipeline,
       Identifier texture,
       int x,
@@ -348,15 +415,27 @@ public final class GuiUtil {
       int texWidth,
       int texHeight,
       int color,
-      Spacing border) {
+      Spacing border
+  ) {
     drawSpriteNineSliced(
-        context, pipeline, getSprite(texture), x, y, width, height, texWidth, texHeight, color, border);
+        context,
+        pipeline,
+        getSprite(texture),
+        x,
+        y,
+        width,
+        height,
+        texWidth,
+        texHeight,
+        color,
+        border
+    );
   }
 
   public static void drawSpriteNineSliced(
-      DrawContext context,
+      GuiGraphics context,
       RenderPipeline pipeline,
-      Sprite sprite,
+      TextureAtlasSprite sprite,
       int x,
       int y,
       int width,
@@ -364,17 +443,21 @@ public final class GuiUtil {
       int texWidth,
       int texHeight,
       int color,
-      Spacing border) {
-    Scaling.NineSlice nineSlice = new Scaling.NineSlice(texWidth, texHeight,
-        new Scaling.NineSlice.Border(border.left(), border.top(), border.right(), border.bottom()), false);
-    ((DrawContextAccessor) context).invokeDrawSpriteNineSliced(
-        pipeline, sprite, nineSlice, x, y, width, height, color);
+      Spacing border
+  ) {
+    GuiSpriteScaling.NineSlice nineSlice = new GuiSpriteScaling.NineSlice(
+        texWidth,
+        texHeight,
+        new GuiSpriteScaling.NineSlice.Border(border.left(), border.top(), border.right(), border.bottom()),
+        false
+    );
+    ((DrawContextAccessor) context).invokeBlitNineSlicedSprite(pipeline, sprite, nineSlice, x, y, width, height, color);
   }
 
   public static void drawSpriteRegion(
-      DrawContext context,
+      GuiGraphics context,
       RenderPipeline pipeline,
-      Sprite sprite,
+      TextureAtlasSprite sprite,
       int textureWidth,
       int textureHeight,
       int u,
@@ -383,42 +466,41 @@ public final class GuiUtil {
       int y,
       int width,
       int height,
-      int color) {
-    ((DrawContextAccessor) context).invokeDrawSpriteRegion(
-        pipeline, sprite, textureWidth, textureHeight, u, v, x, y, width, height, color);
+      int color
+  ) {
+    ((DrawContextAccessor) context).invokeBlitSprite(
+        pipeline,
+        sprite,
+        textureWidth,
+        textureHeight,
+        u,
+        v,
+        x,
+        y,
+        width,
+        height,
+        color
+    );
+  }
+
+  public static void drawTexturedQuad(GuiGraphics context, Identifier sprite, int x1, int x2, int y1, int y2) {
+    drawTexturedQuad(context, sprite, x1, x2, y1, y2, 0, 1, 0, 1);
   }
 
   public static void drawTexturedQuad(
-      DrawContext context,
-      Identifier sprite,
-      int x1,
-      int x2,
-      int y1,
-      int y2) {
-    drawTexturedQuad(
-        context, sprite,
-        x1, x2, y1, y2,
-        0, 1, 0, 1);
-  }
-
-  public static void drawTexturedQuad(
-      DrawContext context,
+      GuiGraphics context,
       RenderPipeline pipeline,
       Identifier sprite,
       int x1,
       int x2,
       int y1,
-      int y2) {
-    drawTexturedQuad(
-        context,
-        pipeline,
-        sprite,
-        x1, x2, y1, y2,
-        0, 1, 0, 1);
+      int y2
+  ) {
+    drawTexturedQuad(context, pipeline, sprite, x1, x2, y1, y2, 0, 1, 0, 1);
   }
 
   public static void drawTexturedQuad(
-      DrawContext context,
+      GuiGraphics context,
       Identifier sprite,
       int x1,
       int x2,
@@ -427,16 +509,13 @@ public final class GuiUtil {
       float u1,
       float u2,
       float v1,
-      float v2) {
-    drawTexturedQuad(
-        context, sprite,
-        x1, x2, y1, y2,
-        u1, u2, v1, v2,
-        Colors.WHITE);
+      float v2
+  ) {
+    drawTexturedQuad(context, sprite, x1, x2, y1, y2, u1, u2, v1, v2, CommonColors.WHITE);
   }
 
   public static void drawTexturedQuad(
-      DrawContext context,
+      GuiGraphics context,
       RenderPipeline pipeline,
       Identifier sprite,
       int x1,
@@ -446,51 +525,38 @@ public final class GuiUtil {
       float u1,
       float u2,
       float v1,
-      float v2) {
-    drawTexturedQuad(
-        context,
-        pipeline,
-        sprite,
-        x1, x2, y1, y2,
-        u1, u2, v1, v2,
-        Colors.WHITE);
+      float v2
+  ) {
+    drawTexturedQuad(context, pipeline, sprite, x1, x2, y1, y2, u1, u2, v1, v2, CommonColors.WHITE);
   }
 
   public static void drawTexturedQuad(
-      DrawContext context,
+      GuiGraphics context,
       Identifier sprite,
       int x1,
       int x2,
       int y1,
       int y2,
-      int color) {
-    drawTexturedQuad(
-        context, sprite,
-        x1, x2, y1, y2,
-        0, 1, 0, 1,
-        color);
+      int color
+  ) {
+    drawTexturedQuad(context, sprite, x1, x2, y1, y2, 0, 1, 0, 1, color);
   }
 
   public static void drawTexturedQuad(
-      DrawContext context,
+      GuiGraphics context,
       RenderPipeline pipeline,
       Identifier sprite,
       int x1,
       int x2,
       int y1,
       int y2,
-      int color) {
-    drawTexturedQuad(
-        context,
-        pipeline,
-        sprite,
-        x1, x2, y1, y2,
-        0, 1, 0, 1,
-        color);
+      int color
+  ) {
+    drawTexturedQuad(context, pipeline, sprite, x1, x2, y1, y2, 0, 1, 0, 1, color);
   }
 
   public static void drawTexturedQuad(
-      DrawContext context,
+      GuiGraphics context,
       Identifier sprite,
       int x1,
       int x2,
@@ -500,18 +566,13 @@ public final class GuiUtil {
       float u2,
       float v1,
       float v2,
-      int color) {
-    drawTexturedQuad(
-        context,
-        RenderPipelines.GUI_TEXTURED,
-        sprite,
-        x1, x2, y1, y2,
-        u1, u2, v1, v2,
-        color);
+      int color
+  ) {
+    drawTexturedQuad(context, RenderPipelines.GUI_TEXTURED, sprite, x1, x2, y1, y2, u1, u2, v1, v2, color);
   }
 
   public static void drawTexturedQuad(
-      DrawContext context,
+      GuiGraphics context,
       RenderPipeline pipeline,
       Identifier sprite,
       int x1,
@@ -522,20 +583,16 @@ public final class GuiUtil {
       float u2,
       float v1,
       float v2,
-      int color) {
-    ((DrawContextAccessor) context).invokeDrawTexturedQuad(
-        pipeline,
-        sprite,
-        x1, x2, y1, y2,
-        u1, u2, v1, v2,
-        color);
+      int color
+  ) {
+    ((DrawContextAccessor) context).invokeInnerBlit(pipeline, sprite, x1, x2, y1, y2, u1, u2, v1, v2, color);
   }
 
-  public static void enableScissor(DrawContext context, IntRect rect) {
+  public static void enableScissor(GuiGraphics context, IntRect rect) {
     context.enableScissor(rect.left(), rect.top(), rect.right(), rect.bottom());
   }
 
-  public static void disableScissor(DrawContext context) {
+  public static void disableScissor(GuiGraphics context) {
     context.disableScissor();
   }
 
@@ -556,7 +613,7 @@ public final class GuiUtil {
   }
 
   public static void playSound(SoundManager soundManager, SoundEvent soundEvent, float volume) {
-    soundManager.play(PositionedSoundInstance.master(soundEvent, volume));
+    soundManager.play(SimpleSoundInstance.forUI(soundEvent, volume));
   }
 
   public static void playSound(SoundEvent soundEvent, float volume) {

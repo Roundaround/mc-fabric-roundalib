@@ -2,53 +2,53 @@ package me.roundaround.roundalib.client.gui.widget.drawable;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.navigation.GuiNavigation;
-import net.minecraft.client.gui.navigation.GuiNavigationPath;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.input.MouseInput;
-import net.minecraft.screen.ScreenTexts;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.ComponentPath;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.navigation.FocusNavigationEvent;
+import net.minecraft.client.input.MouseButtonInfo;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
-public abstract class DrawableWidget extends ClickableWidget {
+public abstract class DrawableWidget extends AbstractWidget {
   public DrawableWidget() {
-    this(ScreenTexts.EMPTY);
+    this(CommonComponents.EMPTY);
   }
 
-  public DrawableWidget(Text message) {
+  public DrawableWidget(Component message) {
     this(0, 0, message);
   }
 
   public DrawableWidget(int width, int height) {
-    this(width, height, ScreenTexts.EMPTY);
+    this(width, height, CommonComponents.EMPTY);
   }
 
-  public DrawableWidget(int width, int height, Text message) {
+  public DrawableWidget(int width, int height, Component message) {
     this(0, 0, width, height, message);
   }
 
   public DrawableWidget(int x, int y, int width, int height) {
-    this(x, y, width, height, ScreenTexts.EMPTY);
+    this(x, y, width, height, CommonComponents.EMPTY);
   }
 
-  public DrawableWidget(int x, int y, int width, int height, Text message) {
+  public DrawableWidget(int x, int y, int width, int height, Component message) {
     super(x, y, width, height, message);
   }
 
   @Override
-  protected void appendClickableNarrations(NarrationMessageBuilder builder) {
+  protected void updateWidgetNarration(NarrationElementOutput builder) {
   }
 
   @Override
-  protected boolean isValidClickButton(MouseInput input) {
+  protected boolean isValidClickButton(MouseButtonInfo input) {
     return false;
   }
 
   @Override
   @Nullable
-  public GuiNavigationPath getNavigationPath(GuiNavigation navigation) {
+  public ComponentPath nextFocusPath(FocusNavigationEvent navigation) {
     return null;
   }
 

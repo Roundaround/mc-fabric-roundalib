@@ -1,9 +1,9 @@
 package me.roundaround.roundalib.client.gui.widget.drawable;
 
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
 
 public class HorizontalLineWidget extends DrawableWidget {
   private static final int HEIGHT = 2;
@@ -27,7 +27,7 @@ public class HorizontalLineWidget extends DrawableWidget {
 
   public HorizontalLineWidget(int x, int y, int width, boolean bottom) {
     super(x, y, width, HEIGHT);
-    this.texture = bottom ? Screen.FOOTER_SEPARATOR_TEXTURE : Screen.HEADER_SEPARATOR_TEXTURE;
+    this.texture = bottom ? Screen.FOOTER_SEPARATOR : Screen.HEADER_SEPARATOR;
   }
 
   public static HorizontalLineWidget ofWidth(int width) {
@@ -68,8 +68,8 @@ public class HorizontalLineWidget extends DrawableWidget {
   }
 
   @Override
-  public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-    context.drawTexture(
+  public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    context.blit(
         RenderPipelines.GUI_TEXTURED,
         this.texture,
         this.getX(),

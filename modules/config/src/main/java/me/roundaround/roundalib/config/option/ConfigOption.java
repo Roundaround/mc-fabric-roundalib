@@ -15,7 +15,7 @@ import me.roundaround.roundalib.config.panic.Panic;
 import me.roundaround.roundalib.observable.Computed;
 import me.roundaround.roundalib.observable.Observable;
 import me.roundaround.roundalib.observable.Subject;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 /**
  * Base container class for a mod configuration option.
@@ -25,7 +25,7 @@ import net.minecraft.text.Text;
  */
 public abstract class ConfigOption<D> {
   private final ConfigPath path;
-  private final Text label;
+  private final Component label;
   private final D defaultValue;
   private final boolean noGui;
   private final Function<D, String> toStringFunction;
@@ -52,7 +52,7 @@ public abstract class ConfigOption<D> {
 
   protected <C extends ConfigOption<D>> ConfigOption(
       ConfigPath path,
-      Text label,
+      Component label,
       D defaultValue,
       boolean noGui,
       Function<D, String> toStringFunction,
@@ -106,7 +106,7 @@ public abstract class ConfigOption<D> {
     return this.path;
   }
 
-  public Text getLabel() {
+  public Component getLabel() {
     if (this.label == null) {
       return this.getDefaultLabel();
     }
@@ -198,8 +198,8 @@ public abstract class ConfigOption<D> {
     return Objects.equals(a, b);
   }
 
-  protected Text getDefaultLabel() {
-    return Text.translatable(this.modId + "." + this.path.toString(".") + ".label");
+  protected Component getDefaultLabel() {
+    return Component.translatable(this.modId + "." + this.path.toString(".") + ".label");
   }
 
   public void setValue(D pendingValue) {
@@ -266,7 +266,7 @@ public abstract class ConfigOption<D> {
 
   public static abstract class AbstractBuilder<D, C extends ConfigOption<D>, B extends AbstractBuilder<D, C, B>> {
     protected final ConfigPath path;
-    protected Text label = null;
+    protected Component label = null;
     protected D defaultValue;
     protected boolean noGui = false;
     protected Function<D, String> toStringFunction = Object::toString;
@@ -283,11 +283,11 @@ public abstract class ConfigOption<D> {
     }
 
     public B setLabel(String i18nKey) {
-      this.label = Text.translatable(i18nKey);
+      this.label = Component.translatable(i18nKey);
       return this.self();
     }
 
-    public B setLabel(Text label) {
+    public B setLabel(Component label) {
       this.label = label;
       return this.self();
     }

@@ -1,6 +1,6 @@
 package me.roundaround.roundalib.client.gui.util;
 
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 
 @SuppressWarnings("unused")
 public record FloatRect(Float left, Float top, Float right, Float bottom) implements FourSided<Float> {
@@ -34,8 +34,8 @@ public record FloatRect(Float left, Float top, Float right, Float bottom) implem
   }
 
   public IntRect roundOutward() {
-    return IntRect.byBounds(MathHelper.floor(this.left()), MathHelper.floor(this.top()), MathHelper.ceil(this.right()),
-        MathHelper.ceil(this.bottom()));
+    return IntRect.byBounds(Mth.floor(this.left()), Mth.floor(this.top()), Mth.ceil(this.right()),
+        Mth.ceil(this.bottom()));
   }
 
   public IntRect truncate() {

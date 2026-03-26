@@ -2,10 +2,9 @@ package me.roundaround.roundalib.client.gui.widget.config;
 
 import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.config.option.FloatConfigOption;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.input.CharInput;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.input.CharacterEvent;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.List;
@@ -13,15 +12,15 @@ import java.util.List;
 public class FloatTextControl extends Control<Float, FloatConfigOption> {
   private static final List<Character> ALLOWED_SPECIAL_CHARS = List.of('.', ',');
 
-  private final TextFieldWidget textField;
+  private final EditBox textField;
 
-  public FloatTextControl(MinecraftClient client, FloatConfigOption option, int width, int height) {
+  public FloatTextControl(Minecraft client, FloatConfigOption option, int width, int height) {
     super(client, option, width, height);
 
-    this.textField = this.add(new TextFieldWidget(client.textRenderer, width - 2, height - 2, this.option.getLabel()) {
+    this.textField = this.add(new EditBox(client.font, width - 2, height - 2, this.option.getLabel()) {
       @Override
-      public boolean charTyped(CharInput input) {
-        if (input.codepoint() == '-' && this.getCursor() > 0) {
+      public boolean charTyped(CharacterEvent input) {
+        if (input.codepoint() == '-' && this.getCursorPosition() > 0) {
           return false;
         }
 
@@ -32,23 +31,23 @@ public class FloatTextControl extends Control<Float, FloatConfigOption> {
         return super.charTyped(input);
       }
     }, (parent, self) -> {
-      self.setDimensions(parent.getWidth(), parent.getHeight());
+      self.setSize(parent.getWidth(), parent.getHeight());
     });
 
-    this.textField.setText(this.option.getPendingValueAsString());
+    this.textField.setValue(this.option.getPendingValueAsString());
     this.textField.setMaxLength(12);
-    this.textField.setChangedListener(this::onTextChanged);
+    this.textField.setResponder(this::onTextChanged);
   }
 
   @Override
   public void markInvalid() {
-    this.textField.setEditableColor(GuiUtil.ERROR_COLOR);
+    this.textField.setTextColor(GuiUtil.ERROR_COLOR);
     super.markInvalid();
   }
 
   @Override
   public void markValid() {
-    this.textField.setEditableColor(GuiUtil.LABEL_COLOR);
+    this.textField.setTextColor(GuiUtil.LABEL_COLOR);
     super.markValid();
   }
 
@@ -58,12 +57,12 @@ public class FloatTextControl extends Control<Float, FloatConfigOption> {
     this.textField.setEditable(!isDisabled);
 
     try {
-      float parsed = this.parseFloat(this.textField.getText());
+      float parsed = this.parseFloat(this.textField.getValue());
       if (!this.getOption().areValuesEqual(value, parsed)) {
-        this.textField.setText(this.getOption().toString());
+        this.textField.setValue(this.getOption().toString());
       }
     } catch (Exception e) {
-      this.textField.setText(this.getOption().toString());
+      this.textField.setValue(this.getOption().toString());
     }
   }
 

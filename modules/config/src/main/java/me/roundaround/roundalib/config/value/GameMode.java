@@ -3,16 +3,16 @@ package me.roundaround.roundalib.config.value;
 import java.util.Arrays;
 
 public enum GameMode implements EnumValue<GameMode> {
-  SURVIVAL(net.minecraft.world.GameMode.SURVIVAL),
-  CREATIVE(net.minecraft.world.GameMode.CREATIVE),
-  ADVENTURE(net.minecraft.world.GameMode.ADVENTURE),
-  SPECTATOR(net.minecraft.world.GameMode.SPECTATOR);
+  SURVIVAL(net.minecraft.world.level.GameType.SURVIVAL),
+  CREATIVE(net.minecraft.world.level.GameType.CREATIVE),
+  ADVENTURE(net.minecraft.world.level.GameType.ADVENTURE),
+  SPECTATOR(net.minecraft.world.level.GameType.SPECTATOR);
 
   private final String id;
-  private final net.minecraft.world.GameMode vanillaGameMode;
+  private final net.minecraft.world.level.GameType vanillaGameMode;
 
-  GameMode(net.minecraft.world.GameMode vanillaGameMode) {
-    this.id = vanillaGameMode.getId();
+  GameMode(net.minecraft.world.level.GameType vanillaGameMode) {
+    this.id = vanillaGameMode.getName();
     this.vanillaGameMode = vanillaGameMode;
   }
 
@@ -41,7 +41,7 @@ public enum GameMode implements EnumValue<GameMode> {
     return values()[(this.ordinal() + values().length - 1) % values().length];
   }
 
-  public net.minecraft.world.GameMode getVanillaGameMode() {
+  public net.minecraft.world.level.GameType getVanillaGameMode() {
     return this.vanillaGameMode;
   }
 

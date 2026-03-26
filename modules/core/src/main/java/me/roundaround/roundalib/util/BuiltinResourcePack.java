@@ -1,10 +1,10 @@
 package me.roundaround.roundalib.util;
 
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
+import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
+import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 
 import java.util.HashSet;
 
@@ -14,18 +14,17 @@ public class BuiltinResourcePack {
   private BuiltinResourcePack() {
   }
 
-  public static boolean register(String modId, String packId, Text packName) {
+  public static boolean register(String modId, String packId, Component packName) {
     return register(modId, packId, packName, true);
   }
 
-  public static boolean register(String modId, String packId, Text packName, boolean forceVersionCompat) {
-    Identifier id = Identifier.of(modId, packId);
+  public static boolean register(String modId, String packId, Component packName, boolean forceVersionCompat) {
+    Identifier id = Identifier.fromNamespaceAndPath(modId, packId);
 
-    boolean success = FabricLoader.getInstance().getModContainer(modId).map((container) -> {
-      return ResourceManagerHelper.registerBuiltinResourcePack(id, container, packName,
-          ResourcePackActivationType.NORMAL
-      );
-    }).orElse(false);
+    boolean success = FabricLoader.getInstance()
+        .getModContainer(modId)
+        .map((container) -> ResourceLoader.registerBuiltinPack(id, container, packName, PackActivationType.NORMAL))
+        .orElse(false);
 
     if (forceVersionCompat) {
       FORCED_IDS.add(id.toString());

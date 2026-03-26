@@ -3,9 +3,8 @@ package me.roundaround.roundalib.client.gui.layout;
 import me.roundaround.roundalib.client.gui.util.Alignment;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.Widget;
-
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.layouts.LayoutElement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -69,11 +68,11 @@ public class NonPositioningLayoutWidget extends SizableLayoutWidget {
     return this;
   }
 
-  public <T extends Widget> T add(T widget) {
+  public <T extends LayoutElement> T add(T widget) {
     return this.add(widget, null);
   }
 
-  public <T extends Widget> T add(
+  public <T extends LayoutElement> T add(
       T widget, LayoutHookWithParent<NonPositioningLayoutWidget, T> layoutHook
   ) {
     CellWidget<T> cell = new CellWidget<>(widget);
@@ -83,7 +82,7 @@ public class NonPositioningLayoutWidget extends SizableLayoutWidget {
       cell.layoutHook(layoutHook);
     }
 
-    this.refreshPositions();
+    this.arrangeElements();
     return widget;
   }
 
@@ -91,19 +90,19 @@ public class NonPositioningLayoutWidget extends SizableLayoutWidget {
     this.cells.clear();
   }
 
-  public List<Widget> getChildren() {
-    return this.cells.stream().map((cell) -> (Widget) cell.getWidget()).toList();
+  public List<LayoutElement> getChildren() {
+    return this.cells.stream().map((cell) -> (LayoutElement) cell.getWidget()).toList();
   }
 
   @Override
-  public void forEachElement(Consumer<Widget> consumer) {
+  public void visitChildren(Consumer<LayoutElement> consumer) {
     this.getChildren().forEach(consumer);
   }
 
   @Override
-  public void refreshPositions() {
+  public void arrangeElements() {
     this.cells.forEach((cell) -> cell.onLayout(this));
-    super.refreshPositions();
+    super.arrangeElements();
   }
 
   @Override
@@ -117,7 +116,7 @@ public class NonPositioningLayoutWidget extends SizableLayoutWidget {
   }
 
   @Environment(EnvType.CLIENT)
-  private static class CellWidget<T extends Widget> implements Widget {
+  private static class CellWidget<T extends LayoutElement> implements LayoutElement {
     private final T widget;
 
     private LayoutHookWithParent<NonPositioningLayoutWidget, T> layoutHook = null;
@@ -171,8 +170,8 @@ public class NonPositioningLayoutWidget extends SizableLayoutWidget {
     }
 
     @Override
-    public void forEachChild(Consumer<ClickableWidget> consumer) {
-      if (this.widget instanceof ClickableWidget clickableWidget) {
+    public void visitWidgets(Consumer<AbstractWidget> consumer) {
+      if (this.widget instanceof AbstractWidget clickableWidget) {
         consumer.accept(clickableWidget);
       }
     }

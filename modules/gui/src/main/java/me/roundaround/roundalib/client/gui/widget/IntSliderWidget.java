@@ -1,19 +1,18 @@
 package me.roundaround.roundalib.client.gui.widget;
 
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.SliderWidget;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.MathHelper;
-
 import java.util.function.Consumer;
 import java.util.function.Function;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractSliderButton;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 
-public class IntSliderWidget extends SliderWidget {
+public class IntSliderWidget extends AbstractSliderButton {
   protected final int min;
   protected final int max;
   protected final Function<Integer, Integer> stepHandler;
   protected final Consumer<Integer> valueChanged;
-  protected final Function<Integer, Text> formatter;
+  protected final Function<Integer, Component> formatter;
 
   private int intValue;
 
@@ -37,7 +36,7 @@ public class IntSliderWidget extends SliderWidget {
       int value,
       Function<Integer, Integer> stepHandler,
       Consumer<Integer> valueChanged,
-      Function<Integer, Text> formatter
+      Function<Integer, Component> formatter
   ) {
     this(0, 0, width, height, min, max, value, stepHandler, valueChanged, formatter);
   }
@@ -53,7 +52,7 @@ public class IntSliderWidget extends SliderWidget {
       Function<Integer, Integer> stepHandler,
       Consumer<Integer> valueChanged
   ) {
-    this(x, y, width, height, min, max, value, stepHandler, valueChanged, (v) -> Text.of(v.toString()));
+    this(x, y, width, height, min, max, value, stepHandler, valueChanged, (v) -> Component.nullToEmpty(v.toString()));
   }
 
   public IntSliderWidget(
@@ -66,7 +65,7 @@ public class IntSliderWidget extends SliderWidget {
       int value,
       Function<Integer, Integer> stepHandler,
       Consumer<Integer> valueChanged,
-      Function<Integer, Text> formatter
+      Function<Integer, Component> formatter
   ) {
     super(x, y, width, height, formatter.apply(value), valueToSlider(value, min, max));
 
@@ -114,8 +113,8 @@ public class IntSliderWidget extends SliderWidget {
   }
 
   @Override
-  public void renderWidget(DrawContext drawContext, int mouseX, int mouseY, float delta) {
-    this.hovered = this.hovered && this.active;
+  public void renderWidget(GuiGraphics drawContext, int mouseX, int mouseY, float delta) {
+    this.isHovered = this.isHovered && this.active;
     super.renderWidget(drawContext, mouseX, mouseY, delta);
   }
 
@@ -123,10 +122,10 @@ public class IntSliderWidget extends SliderWidget {
     if (min == max) {
       return 0;
     }
-    return MathHelper.clamp((value - min) / (double) (max - min), 0, 1);
+    return Mth.clamp((value - min) / (double) (max - min), 0, 1);
   }
 
   protected static int sliderToValue(double slider, int min, int max) {
-    return MathHelper.clamp((int) Math.round(slider * (max - min) + min), min, max);
+    return Mth.clamp((int) Math.round(slider * (max - min) + min), min, max);
   }
 }

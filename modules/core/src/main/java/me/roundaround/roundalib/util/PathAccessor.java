@@ -4,8 +4,7 @@ import me.roundaround.roundalib.event.ResourceManagerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.level.storage.LevelStorage;
-
+import net.minecraft.world.level.storage.LevelStorageSource;
 import java.nio.file.Path;
 
 public class PathAccessor {
@@ -124,8 +123,8 @@ public class PathAccessor {
     return configDir.resolve(modId + format.getFileExtension());
   }
 
-  private void beforeResourceManagerCreated(LevelStorage.Session session) {
-    this.worldDirectory = session.getDirectory().path();
+  private void beforeResourceManagerCreated(LevelStorageSource.LevelStorageAccess session) {
+    this.worldDirectory = session.getLevelDirectory().path();
   }
 
   private void serverStopped(MinecraftServer server) {

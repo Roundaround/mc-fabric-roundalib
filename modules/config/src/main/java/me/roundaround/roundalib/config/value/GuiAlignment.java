@@ -1,8 +1,7 @@
 package me.roundaround.roundalib.config.value;
 
-import net.minecraft.client.MinecraftClient;
-
 import java.util.Arrays;
+import net.minecraft.client.Minecraft;
 
 public enum GuiAlignment implements EnumValue<GuiAlignment> {
   TOP_LEFT(AlignmentY.TOP, AlignmentX.LEFT),
@@ -97,11 +96,11 @@ public enum GuiAlignment implements EnumValue<GuiAlignment> {
   }
 
   private static int getScaledWindowWidth() {
-    return MinecraftClient.getInstance().getWindow().getScaledWidth();
+    return Minecraft.getInstance().getWindow().getGuiScaledWidth();
   }
 
   private static int getScaledWindowHeight() {
-    return MinecraftClient.getInstance().getWindow().getScaledHeight();
+    return Minecraft.getInstance().getWindow().getGuiScaledHeight();
   }
 
   public enum AlignmentX {

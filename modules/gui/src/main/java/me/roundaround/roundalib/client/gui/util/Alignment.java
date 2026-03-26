@@ -2,8 +2,8 @@ package me.roundaround.roundalib.client.gui.util;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.resource.language.I18n;
-import net.minecraft.text.Text;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.Component;
 
 @Environment(EnvType.CLIENT)
 public enum Alignment {
@@ -35,23 +35,23 @@ public enum Alignment {
     return String.format("%s.roundalib.alignment.%s", modId, this.getId());
   }
 
-  public Text getDisplayText(String modId) {
-    return Text.translatable(this.getI18nKey(modId));
+  public Component getDisplayText(String modId) {
+    return Component.translatable(this.getI18nKey(modId));
   }
 
   public String getDisplayString(String modId) {
-    return I18n.translate(this.getI18nKey(modId));
+    return I18n.get(this.getI18nKey(modId));
   }
 
   public String getI18nKey(String modId, Axis axis) {
     return String.format("%s.roundalib.alignment.%s.%s", modId, this.getId(), axis.getId());
   }
 
-  public Text getDisplayText(String modId, Axis axis) {
-    return Text.translatable(this.getI18nKey(modId, axis));
+  public Component getDisplayText(String modId, Axis axis) {
+    return Component.translatable(this.getI18nKey(modId, axis));
   }
 
   public String getDisplayString(String modId, Axis axis) {
-    return I18n.translate(this.getI18nKey(modId, axis));
+    return I18n.get(this.getI18nKey(modId, axis));
   }
 }

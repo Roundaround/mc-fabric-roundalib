@@ -6,35 +6,34 @@ import me.roundaround.roundalib.client.gui.widget.drawable.DrawableWidget;
 import me.roundaround.roundalib.client.gui.widget.drawable.LabelWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.widget.LayoutWidget;
-import net.minecraft.client.gui.widget.PressableWidget;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.client.input.AbstractInput;
-import net.minecraft.screen.ScreenTexts;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.layouts.Layout;
+import net.minecraft.client.gui.layouts.LayoutElement;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.InputWithModifiers;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)
-public class ToggleWidget extends PressableWidget implements LayoutWidget {
+public class ToggleWidget extends AbstractButton implements Layout {
   public static final int DEFAULT_CONTROL_WIDTH = 16;
   public static final int DEFAULT_CONTROL_HEIGHT = 12;
   public static final int DEFAULT_BAR_WIDTH = 10;
 
-  private static final Identifier TEXTURE = Identifier.ofVanilla("widget/slider");
-  private static final Identifier HANDLE_TEXTURE = Identifier.ofVanilla("widget/slider_handle");
-  private static final Identifier HANDLE_HIGHLIGHTED_TEXTURE = Identifier.ofVanilla("widget/slider_handle_highlighted");
+  private static final Identifier TEXTURE = Identifier.withDefaultNamespace("widget/slider");
+  private static final Identifier HANDLE_TEXTURE = Identifier.withDefaultNamespace("widget/slider_handle");
+  private static final Identifier HANDLE_HIGHLIGHTED_TEXTURE = Identifier.withDefaultNamespace("widget/slider_handle_highlighted");
 
   private final Consumer<ToggleWidget> pressAction;
-  private final TextRenderer textRenderer;
+  private final Font textRenderer;
   private final Consumer<Boolean> valueChanged;
   private final ValueToTextMapper labelTextMapper;
   private final ValueToTextMapper valueTextMapper;
@@ -54,7 +53,7 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
       int width,
       int height,
       Consumer<ToggleWidget> pressAction,
-      TextRenderer textRenderer,
+      Font textRenderer,
       ValueToTextMapper labelTextMapper,
       int controlWidth,
       int controlHeight,
@@ -100,13 +99,13 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
       }
 
       @Override
-      protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+      protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
         boolean value = ToggleWidget.this.value;
         int barWidth = ToggleWidget.this.barWidth;
 
         int offset = value ? this.getWidth() - barWidth : 0;
 
-        context.drawGuiTexture(
+        context.blitSprite(
             RenderPipelines.GUI_TEXTURED,
             TEXTURE,
             this.getX(),
@@ -114,7 +113,7 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
             this.getWidth(),
             this.getHeight()
         );
-        context.drawGuiTexture(
+        context.blitSprite(
             RenderPipelines.GUI_TEXTURED,
             ToggleWidget.this.getHandleTexture(),
             this.getX() + offset,
@@ -139,7 +138,7 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
   }
 
   @Override
-  public void onPress(AbstractInput input) {
+  public void onPress(InputWithModifiers input) {
     if (this.pressAction != null) {
       this.pressAction.accept(this);
       return;
@@ -155,14 +154,14 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
   }
 
   @Override
-  protected void appendClickableNarrations(NarrationMessageBuilder builder) {
+  protected void updateWidgetNarration(NarrationElementOutput builder) {
   }
 
   @Override
-  protected void drawIcon(DrawContext context, int mouseX, int mouseY, float delta) {
-    this.hovered = this.layout.getBounds().contains(mouseX, mouseY);
-    this.layout.forEachElement((widget) -> {
-      if (widget instanceof Drawable drawable) {
+  protected void renderContents(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    this.isHovered = this.layout.getBounds().contains(mouseX, mouseY);
+    this.layout.visitChildren((widget) -> {
+      if (widget instanceof Renderable drawable) {
         drawable.render(context, mouseX, mouseY, delta);
       }
     });
@@ -174,11 +173,11 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
   }
 
   @Override
-  public void forEachElement(Consumer<Widget> consumer) {
+  public void visitChildren(Consumer<LayoutElement> consumer) {
   }
 
   @Override
-  public void refreshPositions() {
+  public void arrangeElements() {
     if (this.valueTextMapper != null && this.valueLabel != null) {
       this.valueLabel.setWidth(this.getValueWidth());
     }
@@ -192,7 +191,7 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
     }
 
     this.layout.setPositionAndDimensions(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-    this.layout.refreshPositions();
+    this.layout.arrangeElements();
   }
 
   @Override
@@ -229,7 +228,7 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
   }
 
   public void setPositionAndDimensions(int x, int y, int width, int height) {
-    this.setDimensionsAndPosition(width, height, x, y);
+    this.setRectangle(width, height, x, y);
   }
 
   public void setControlWidth(int controlWidth) {
@@ -262,7 +261,7 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
   }
 
   protected void updateLabelText() {
-    Text text = this.labelTextMapper.apply(this.value);
+    Component text = this.labelTextMapper.apply(this.value);
     this.setMessage(text);
     this.displayLabel.setText(text);
   }
@@ -276,7 +275,7 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
 
   protected void updateTooltipText() {
     if (this.tooltipTextMapper != null) {
-      this.setTooltip(Tooltip.of(this.tooltipTextMapper.apply(this.value)));
+      this.setTooltip(Tooltip.create(this.tooltipTextMapper.apply(this.value)));
     } else {
       this.setTooltip((Tooltip) null);
     }
@@ -284,28 +283,28 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
 
   protected int getValueWidth() {
     return Math.max(
-        this.textRenderer.getWidth(this.valueTextMapper.apply(true)),
-        this.textRenderer.getWidth(this.valueTextMapper.apply(false))
+        this.textRenderer.width(this.valueTextMapper.apply(true)),
+        this.textRenderer.width(this.valueTextMapper.apply(false))
     ) + LabelWidget.PADDING.getHorizontal();
   }
 
   protected Identifier getHandleTexture() {
-    if (this.isFocused() || this.hovered) {
+    if (this.isFocused() || this.isHovered) {
       return HANDLE_HIGHLIGHTED_TEXTURE;
     }
     return HANDLE_TEXTURE;
   }
 
-  public static Builder onOffBuilder(TextRenderer textRenderer, ValueToTextMapper labelTextMapper) {
+  public static Builder onOffBuilder(Font textRenderer, ValueToTextMapper labelTextMapper) {
     return new Builder(textRenderer, labelTextMapper).showValue(ValueToTextMapper.onOff());
   }
 
-  public static Builder yesNoBuilder(TextRenderer textRenderer, ValueToTextMapper labelTextMapper) {
+  public static Builder yesNoBuilder(Font textRenderer, ValueToTextMapper labelTextMapper) {
     return new Builder(textRenderer, labelTextMapper).showValue(ValueToTextMapper.yesNo());
   }
 
   public static Builder enabledDisabledBuilder(
-      TextRenderer textRenderer,
+      Font textRenderer,
       ValueToTextMapper labelTextMapper,
       String modId
   ) {
@@ -313,25 +312,25 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
   }
 
   @Environment(EnvType.CLIENT)
-  public interface ValueToTextMapper extends Function<Boolean, Text> {
+  public interface ValueToTextMapper extends Function<Boolean, Component> {
     static ValueToTextMapper onOff() {
-      return (value) -> value ? ScreenTexts.ON : ScreenTexts.OFF;
+      return (value) -> value ? CommonComponents.OPTION_ON : CommonComponents.OPTION_OFF;
     }
 
     static ValueToTextMapper yesNo() {
-      return (value) -> value ? ScreenTexts.YES : ScreenTexts.NO;
+      return (value) -> value ? CommonComponents.GUI_YES : CommonComponents.GUI_NO;
     }
 
     static ValueToTextMapper enabledDisabled(String modId) {
       return (value) -> value ?
-          Text.translatable(modId + ".roundalib.toggle.enabled") :
-          Text.translatable(modId + ".roundalib.toggle.disabled");
+          Component.translatable(modId + ".roundalib.toggle.enabled") :
+          Component.translatable(modId + ".roundalib.toggle.disabled");
     }
   }
 
   @Environment(EnvType.CLIENT)
   public static class Builder {
-    private final TextRenderer textRenderer;
+    private final Font textRenderer;
     private final ValueToTextMapper labelTextMapper;
 
     private int x = 0;
@@ -351,7 +350,7 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
     private Consumer<LabelWidget.Builder> labelColor = null;
     private Consumer<LabelWidget.Builder> labelBgColor = null;
 
-    private Builder(TextRenderer textRenderer, ValueToTextMapper labelTextMapper) {
+    private Builder(Font textRenderer, ValueToTextMapper labelTextMapper) {
       this.textRenderer = textRenderer;
       this.labelTextMapper = labelTextMapper;
     }
@@ -444,7 +443,7 @@ public class ToggleWidget extends PressableWidget implements LayoutWidget {
       return this;
     }
 
-    public Builder setTooltip(Text tooltip) {
+    public Builder setTooltip(Component tooltip) {
       this.tooltipTextMapper = (value) -> tooltip;
       return this;
     }

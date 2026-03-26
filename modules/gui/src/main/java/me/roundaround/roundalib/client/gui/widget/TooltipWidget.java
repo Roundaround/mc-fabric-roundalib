@@ -6,50 +6,50 @@ import java.util.function.Consumer;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.tooltip.WidgetTooltipPositioner;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.text.OrderedText;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.layouts.LayoutElement;
+import net.minecraft.client.gui.screens.inventory.tooltip.MenuTooltipPositioner;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Util;
 
 @Environment(EnvType.CLIENT)
-public class TooltipWidget implements Drawable, Widget {
+public class TooltipWidget implements Renderable, LayoutElement {
   private int x;
   private int y;
   private int width;
   private int height;
-  private List<Text> content;
-  private List<OrderedText> lines;
+  private List<Component> content;
+  private List<FormattedCharSequence> lines;
   private Duration delay = Duration.ZERO;
   private long renderCheckTime;
   private boolean prevShouldRender;
 
-  public TooltipWidget(Text content) {
+  public TooltipWidget(Component content) {
     this(0, 0, List.of(content));
   }
 
-  public TooltipWidget(List<Text> content) {
+  public TooltipWidget(List<Component> content) {
     this(0, 0, content);
   }
 
-  public TooltipWidget(int width, int height, Text content) {
+  public TooltipWidget(int width, int height, Component content) {
     this(width, height, List.of(content));
   }
 
-  public TooltipWidget(int width, int height, List<Text> content) {
+  public TooltipWidget(int width, int height, List<Component> content) {
     this(0, 0, width, height, content);
   }
 
-  public TooltipWidget(int x, int y, int width, int height, Text content) {
+  public TooltipWidget(int x, int y, int width, int height, Component content) {
     this(x, y, width, height, List.of(content));
   }
 
-  public TooltipWidget(int x, int y, int width, int height, List<Text> content) {
+  public TooltipWidget(int x, int y, int width, int height, List<Component> content) {
     this.x = x;
     this.y = y;
     this.width = width;
@@ -113,11 +113,11 @@ public class TooltipWidget implements Drawable, Widget {
     this.setPosition(x, y);
   }
 
-  public void setContent(Text content) {
+  public void setContent(Component content) {
     this.setContent(List.of(content));
   }
 
-  public void setContent(List<Text> content) {
+  public void setContent(List<Component> content) {
     this.content = content;
     this.lines = null;
   }
@@ -126,31 +126,31 @@ public class TooltipWidget implements Drawable, Widget {
     this.delay = delay;
   }
 
-  public List<OrderedText> getLines(MinecraftClient client) {
+  public List<FormattedCharSequence> getLines(Minecraft client) {
     if (this.lines == null) {
-      this.lines = this.content.stream().flatMap((line) -> Tooltip.wrapLines(client, line).stream()).toList();
+      this.lines = this.content.stream().flatMap((line) -> Tooltip.splitTooltip(client, line).stream()).toList();
     }
     return this.lines;
   }
 
   @Override
-  public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-    boolean hovered = context.scissorContains(mouseX, mouseY) && mouseX >= this.getX() && mouseY >= this.getY() &&
+  public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    boolean hovered = context.containsPointInScissor(mouseX, mouseY) && mouseX >= this.getX() && mouseY >= this.getY() &&
         mouseX < this.getX() + this.getWidth() && mouseY < this.getY() + this.getHeight();
 
     if (hovered != this.prevShouldRender) {
       if (hovered) {
-        this.renderCheckTime = Util.getMeasuringTimeMs();
+        this.renderCheckTime = Util.getMillis();
       }
       this.prevShouldRender = hovered;
     }
 
-    if (hovered && Util.getMeasuringTimeMs() - this.renderCheckTime > this.delay.toMillis()) {
-      MinecraftClient client = MinecraftClient.getInstance();
-      context.drawTooltip(
-          client.textRenderer,
+    if (hovered && Util.getMillis() - this.renderCheckTime > this.delay.toMillis()) {
+      Minecraft client = Minecraft.getInstance();
+      context.setTooltipForNextFrame(
+          client.font,
           this.getLines(client),
-          new WidgetTooltipPositioner(this.getNavigationFocus()),
+          new MenuTooltipPositioner(this.getRectangle()),
           mouseX,
           mouseY,
           false);
@@ -158,6 +158,6 @@ public class TooltipWidget implements Drawable, Widget {
   }
 
   @Override
-  public void forEachChild(Consumer<ClickableWidget> consumer) {
+  public void visitWidgets(Consumer<AbstractWidget> consumer) {
   }
 }

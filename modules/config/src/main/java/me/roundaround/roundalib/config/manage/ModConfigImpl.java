@@ -16,7 +16,7 @@ import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.observable.Subscription;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public abstract class ModConfigImpl implements ModConfig {
   protected final String modId;
@@ -74,8 +74,8 @@ public abstract class ModConfigImpl implements ModConfig {
   }
 
   @Override
-  public Text getLabel() {
-    return Text.translatable(this.getModId() + "." + this.getConfigId() + ".title");
+  public Component getLabel() {
+    return Component.translatable(this.getModId() + "." + this.getConfigId() + ".title");
   }
 
   @Override

@@ -7,15 +7,15 @@ import me.roundaround.roundalib.client.gui.widget.IntSliderWidget;
 import me.roundaround.roundalib.config.option.IntConfigOption;
 import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
 import me.roundaround.roundalib.config.panic.Panic;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 
 public class IntSliderControl extends Control<Integer, IntConfigOption> {
   private final IntSliderWidget slider;
   private final IconButtonWidget plusButton;
   private final IconButtonWidget minusButton;
 
-  public IntSliderControl(MinecraftClient client, IntConfigOption option, int width, int height) {
+  public IntSliderControl(Minecraft client, IntConfigOption option, int width, int height) {
     super(client, option, width, height);
 
     if (!this.option.useSlider() || this.option.getMinValue() == null || this.option.getMaxValue() == null) {
@@ -33,7 +33,7 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
         sliderWidth -= IconButtonWidget.SIZE_S + parent.getSpacing();
       }
 
-      self.setDimensions(sliderWidth, parent.getHeight());
+      self.setSize(sliderWidth, parent.getHeight());
     });
 
     if (this.option.showStepButtons()) {
@@ -43,12 +43,12 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
 
       this.plusButton = stepColumn.add(IconButtonWidget.builder(BuiltinIcon.PLUS_9, modId)
           .small()
-          .messageAndTooltip(Text.translatable(modId + ".roundalib.step_up.tooltip", step))
+          .messageAndTooltip(Component.translatable(modId + ".roundalib.step_up.tooltip", step))
           .onPress((button) -> this.getOption().increment())
           .build());
       this.minusButton = stepColumn.add(IconButtonWidget.builder(BuiltinIcon.MINUS_9, modId)
           .small()
-          .messageAndTooltip(Text.translatable(modId + ".roundalib.step_down.tooltip", step))
+          .messageAndTooltip(Component.translatable(modId + ".roundalib.step_down.tooltip", step))
           .onPress((button) -> this.getOption().decrement())
           .build());
 
@@ -83,7 +83,7 @@ public class IntSliderControl extends Control<Integer, IntConfigOption> {
     this.option.setValue(value);
   }
 
-  private Text getValueAsText(int value) {
-    return Text.literal(this.option.getValueAsString(value));
+  private Component getValueAsText(int value) {
+    return Component.literal(this.option.getValueAsString(value));
   }
 }

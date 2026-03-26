@@ -1,5 +1,5 @@
 plugins {
-  id("roundalib-gradle") version "1.0.0"
+  id("roundalib-gradle") version "1.1.0"
 }
 
 roundalib {

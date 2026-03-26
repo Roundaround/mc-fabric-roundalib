@@ -5,10 +5,10 @@ import me.roundaround.roundalib.client.gui.util.Dimensions;
 import me.roundaround.roundalib.client.gui.util.IntRect;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.widget.LayoutWidget;
+import net.minecraft.client.gui.layouts.Layout;
 
 @Environment(EnvType.CLIENT)
-public abstract class SizableLayoutWidget implements LayoutWidget {
+public abstract class SizableLayoutWidget implements Layout {
   protected int x;
   protected int y;
   protected int width;

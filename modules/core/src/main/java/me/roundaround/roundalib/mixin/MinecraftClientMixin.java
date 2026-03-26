@@ -1,23 +1,23 @@
 package me.roundaround.roundalib.mixin;
 
 import me.roundaround.roundalib.event.MinecraftClientEvents;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.RunArgs;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.main.GameConfig;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(MinecraftClient.class)
+@Mixin(Minecraft.class)
 public abstract class MinecraftClientMixin {
   @Unique
-  private MinecraftClient self() {
-    return (MinecraftClient) (Object) this;
+  private Minecraft self() {
+    return (Minecraft) (Object) this;
   }
 
   @Inject(method = "<init>", at = @At("TAIL"))
-  private void afterInit(RunArgs args, CallbackInfo ci) {
+  private void afterInit(GameConfig args, CallbackInfo ci) {
     MinecraftClientEvents.INIT.invoker().onInit(this.self());
   }
 
@@ -26,7 +26,7 @@ public abstract class MinecraftClientMixin {
     MinecraftClientEvents.CLOSE.invoker().onClose(this.self());
   }
 
-  @Inject(method = "handleInputEvents", at = @At(value = "HEAD"))
+  @Inject(method = "handleKeybinds", at = @At(value = "HEAD"))
   public void handleInputEvents(CallbackInfo info) {
     MinecraftClientEvents.HANDLE_INPUT.invoker().onHandleInput(this.self());
   }

@@ -1,18 +1,17 @@
 package me.roundaround.roundalib.network.request;
 
-import net.minecraft.network.packet.CustomPayload;
-
 import java.util.HashMap;
 import java.util.List;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 public class RequestTracker {
   private final HashMap<Integer, ServerRequest<?>> pendingRequests = new HashMap<>();
 
-  public <T extends CustomPayload> ServerRequest<T> create(Class<T> type) throws IllegalStateException {
+  public <T extends CustomPacketPayload> ServerRequest<T> create(Class<T> type) throws IllegalStateException {
     return this.create(type, ServerRequest.NOOP);
   }
 
-  public <T extends CustomPayload> ServerRequest<T> create(Class<T> type, Runnable onCancel) {
+  public <T extends CustomPacketPayload> ServerRequest<T> create(Class<T> type, Runnable onCancel) {
     int reqId = this.getUniqueReqId();
     ServerRequest<T> request = new ServerRequest<>(
         reqId,
@@ -23,11 +22,11 @@ public class RequestTracker {
     return request;
   }
 
-  public boolean resolve(ServerRequest<?> request, CustomPayload payload) {
+  public boolean resolve(ServerRequest<?> request, CustomPacketPayload payload) {
     return this.resolve(request.getReqId(), payload);
   }
 
-  public boolean resolve(int reqId, CustomPayload payload) {
+  public boolean resolve(int reqId, CustomPacketPayload payload) {
     ServerRequest<?> request = this.pendingRequests.remove(reqId);
     if (request == null || request.getFuture().isDone()) {
       return false;

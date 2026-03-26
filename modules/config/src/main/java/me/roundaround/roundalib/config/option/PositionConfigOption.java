@@ -30,7 +30,7 @@ public class PositionConfigOption extends ConfigOption<Position> {
     return new Builder(path);
   }
 
-  public static class Builder extends ConfigOption.AbstractBuilder<Position, PositionConfigOption, Builder> {
+  public static class Builder extends AbstractBuilder<Position, PositionConfigOption, Builder> {
     private Builder(ConfigPath path) {
       super(path);
 

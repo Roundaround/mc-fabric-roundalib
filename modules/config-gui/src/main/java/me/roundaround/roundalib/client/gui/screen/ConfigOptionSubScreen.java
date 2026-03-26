@@ -9,11 +9,11 @@ import me.roundaround.roundalib.client.gui.widget.drawable.LabelWidget;
 import me.roundaround.roundalib.config.option.ConfigOption;
 import me.roundaround.roundalib.observable.Subject;
 import me.roundaround.roundalib.observable.Subscription;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ThreePartsLayoutWidget;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.client.input.SystemKeycodes;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.InputQuirks;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
@@ -24,9 +24,9 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   protected final ConfigScreen parent;
   protected final O option;
   protected final String modId;
-  protected final Text helpShortText;
-  protected final Text helpCloseText;
-  protected final Text helpResetText;
+  protected final Component helpShortText;
+  protected final Component helpCloseText;
+  protected final Component helpResetText;
   protected Subject<Boolean> shiftState;
   protected final NonPositioningLayoutWidget nonPositioningRoot = new NonPositioningLayoutWidget();
   protected final List<Subscription> subscriptions = new ArrayList<>();
@@ -35,17 +35,17 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   protected LabelWidget helpLabel;
   protected LinearLayoutWidget actionRow;
 
-  protected ConfigOptionSubScreen(Text title, ConfigScreen parent, O option) {
+  protected ConfigOptionSubScreen(Component title, ConfigScreen parent, O option) {
     super(title);
     this.parent = parent;
     this.option = option;
     this.modId = option.getModId();
 
-    this.helpShortText = Text.translatable(this.modId + ".roundalib.help.short");
-    this.helpCloseText = Text.translatable(this.modId + ".roundalib.help.close");
-    this.helpResetText = SystemKeycodes.IS_MAC_OS ?
-        Text.translatable(this.modId + ".roundalib.help.reset.mac") :
-        Text.translatable(this.modId + ".roundalib.help.reset.win");
+    this.helpShortText = Component.translatable(this.modId + ".roundalib.help.short");
+    this.helpCloseText = Component.translatable(this.modId + ".roundalib.help.close");
+    this.helpResetText = InputQuirks.REPLACE_CTRL_KEY_WITH_CMD_KEY ?
+        Component.translatable(this.modId + ".roundalib.help.reset.mac") :
+        Component.translatable(this.modId + ".roundalib.help.reset.win");
 
     this.shiftState = Subject.of(false);
   }
@@ -53,8 +53,8 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   @Override
   protected void init() {
     this.initElements();
-    this.nonPositioningRoot.forEachChild(this::addDrawableChild);
-    this.refreshWidgetPositions();
+    this.nonPositioningRoot.visitWidgets(this::addRenderableWidget);
+    this.repositionElements();
   }
 
   protected void initElements() {
@@ -69,25 +69,25 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   }
 
   @Override
-  protected void refreshWidgetPositions() {
+  protected void repositionElements() {
     this.nonPositioningRoot.setPositionAndDimensions(0, 0, this.width, this.height);
-    this.nonPositioningRoot.refreshPositions();
+    this.nonPositioningRoot.arrangeElements();
   }
 
   @Override
-  public void close() {
+  public void onClose() {
     this.subscriptions.forEach(Subscription::close);
     this.subscriptions.clear();
 
-    Objects.requireNonNull(this.client).setScreen(this.parent.copy());
+    Objects.requireNonNull(this.minecraft).setScreen(this.parent.copy());
   }
 
   @Override
-  public boolean keyPressed(KeyInput input) {
-    this.shiftState.set(input.hasShift());
+  public boolean keyPressed(KeyEvent input) {
+    this.shiftState.set(input.hasShiftDown());
 
-    if (input.getKeycode() == GLFW.GLFW_KEY_R) {
-      if (input.hasCtrl()) {
+    if (input.input() == GLFW.GLFW_KEY_R) {
+      if (input.hasControlDown()) {
         this.resetToDefault();
         return true;
       }
@@ -97,24 +97,24 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   }
 
   @Override
-  public boolean keyReleased(KeyInput input) {
-    this.shiftState.set(input.hasShift());
+  public boolean keyReleased(KeyEvent input) {
+    this.shiftState.set(input.hasShiftDown());
     return super.keyReleased(input);
   }
 
-  protected List<Text> getCurrentHelp() {
+  protected List<Component> getCurrentHelp() {
     return this.getCurrentHelp(this.shiftState.get());
   }
 
-  protected List<Text> getCurrentHelp(boolean shiftDown) {
+  protected List<Component> getCurrentHelp(boolean shiftDown) {
     return this.shiftState.get() ? this.getHelpLong() : this.getHelpShort();
   }
 
-  protected List<Text> getHelpShort() {
+  protected List<Component> getHelpShort() {
     return List.of(this.helpShortText);
   }
 
-  protected List<Text> getHelpLong() {
+  protected List<Component> getHelpLong() {
     return List.of(this.helpCloseText, this.helpResetText);
   }
 
@@ -146,8 +146,8 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
     return this.createTitleLabel(this.getTitle());
   }
 
-  protected LabelWidget createTitleLabel(Text text) {
-    return LabelWidget.builder(this.textRenderer, text)
+  protected LabelWidget createTitleLabel(Component text) {
+    return LabelWidget.builder(this.font, text)
         .alignTextCenterX()
         .alignTextCenterY()
         .overflowBehavior(LabelWidget.OverflowBehavior.SCROLL)
@@ -159,9 +159,9 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   protected void placeTitleLabel(LabelWidget titleLabel) {
     this.nonPositioningRoot.add(
         titleLabel, (parent, self) -> {
-          self.setDimensionsAndPosition(
+          self.setRectangle(
               parent.getWidth(),
-              ThreePartsLayoutWidget.DEFAULT_HEADER_FOOTER_HEIGHT,
+              HeaderAndFooterLayout.DEFAULT_HEADER_AND_FOOTER_HEIGHT,
               parent.getX(),
               parent.getY()
           );
@@ -170,7 +170,7 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   }
 
   protected LabelWidget createHelpLabel() {
-    LabelWidget helpLabel = LabelWidget.builder(this.textRenderer, this.getCurrentHelp())
+    LabelWidget helpLabel = LabelWidget.builder(this.font, this.getCurrentHelp())
         .alignTextLeft()
         .alignTextBottom()
         .lineSpacing(2)
@@ -186,7 +186,7 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
   protected void placeHelpLabel(LabelWidget helpLabel) {
     this.nonPositioningRoot.add(
         helpLabel, (parent, self) -> {
-          self.setDimensionsAndPosition(
+          self.setRectangle(
               parent.getWidth() - 2 * GuiUtil.PADDING,
               parent.getHeight() - 2 * GuiUtil.PADDING,
               parent.getX() + GuiUtil.PADDING,
@@ -209,15 +209,15 @@ public abstract class ConfigOptionSubScreen<D, O extends ConfigOption<D>> extend
 
   protected IconButtonWidget createBackButton() {
     return IconButtonWidget.builder(BuiltinIcon.BACK_18, this.modId)
-        .onPress((button) -> this.close())
-        .messageAndTooltip(Text.translatable(this.modId + ".roundalib.back.tooltip"))
+        .onPress((button) -> this.onClose())
+        .messageAndTooltip(Component.translatable(this.modId + ".roundalib.back.tooltip"))
         .build();
   }
 
   protected IconButtonWidget createResetButton() {
     IconButtonWidget resetButton = IconButtonWidget.builder(BuiltinIcon.UNDO_18, this.modId)
         .onPress((button) -> this.resetToDefault())
-        .messageAndTooltip(Text.translatable(this.modId + ".roundalib.reset.tooltip"))
+        .messageAndTooltip(Component.translatable(this.modId + ".roundalib.reset.tooltip"))
         .build();
     this.subscriptions.add(this.getOption().isPendingDefault.subscribe((isPendingDefault) -> {
       resetButton.active = !isPendingDefault;

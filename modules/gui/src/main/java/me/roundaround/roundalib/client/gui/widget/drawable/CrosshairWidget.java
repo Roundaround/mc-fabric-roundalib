@@ -3,8 +3,8 @@ package me.roundaround.roundalib.client.gui.widget.drawable;
 import me.roundaround.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.roundalib.client.gui.util.Coords;
 import me.roundaround.roundalib.client.gui.util.IntRect;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.util.Mth;
 
 public class CrosshairWidget extends DrawableWidget {
   private static final int DEFAULT_THICKNESS = 2;
@@ -48,11 +48,11 @@ public class CrosshairWidget extends DrawableWidget {
     this.color = color;
 
     int size = getSize(this.thickness, this.gap, this.length);
-    this.setDimensions(size, size);
+    this.setSize(size, size);
   }
 
   @Override
-  public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+  public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
     int left = this.getX() + this.length + this.gap;
     int top = this.getY() + this.length + this.gap;
     int right = this.getRight() - this.length - this.gap;
@@ -78,19 +78,19 @@ public class CrosshairWidget extends DrawableWidget {
   public void setThickness(int thickness) {
     this.thickness = Math.max(1, thickness);
     int size = getSize(this.thickness, this.gap, this.length);
-    this.setDimensions(size, size);
+    this.setSize(size, size);
   }
 
   public void setGap(int gap) {
     this.gap = Math.max(0, gap);
     int size = getSize(this.thickness, this.gap, this.length);
-    this.setDimensions(size, size);
+    this.setSize(size, size);
   }
 
   public void setLength(int length) {
     this.length = Math.max(0, length);
     int size = getSize(this.thickness, this.gap, this.length);
-    this.setDimensions(size, size);
+    this.setSize(size, size);
   }
 
   public void setColor(int color) {
@@ -99,8 +99,8 @@ public class CrosshairWidget extends DrawableWidget {
 
   public static Coords getCenterCoords(IntRect bounds, int thickness, int gap, int length) {
     int size = getSize(thickness, gap, length);
-    int x = bounds.left() + MathHelper.floor((bounds.getWidth() - size - 0.5f) * 0.5f);
-    int y = bounds.top() + MathHelper.floor((bounds.getHeight() - size - 0.5f) * 0.5f);
+    int x = bounds.left() + Mth.floor((bounds.getWidth() - size - 0.5f) * 0.5f);
+    int y = bounds.top() + Mth.floor((bounds.getHeight() - size - 0.5f) * 0.5f);
     return Coords.of(x, y);
   }
 

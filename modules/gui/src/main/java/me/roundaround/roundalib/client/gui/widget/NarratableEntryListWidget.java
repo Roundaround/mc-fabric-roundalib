@@ -4,34 +4,34 @@ import me.roundaround.roundalib.client.gui.layout.screen.ThreeSectionLayoutWidge
 import me.roundaround.roundalib.client.gui.util.Spacing;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.navigation.GuiNavigation;
-import net.minecraft.client.gui.navigation.GuiNavigationPath;
-import net.minecraft.client.gui.navigation.NavigationDirection;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.screen.narration.NarrationPart;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.text.Text;
-import net.minecraft.util.Colors;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ComponentPath;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.narration.NarratedElementType;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.navigation.FocusNavigationEvent;
+import net.minecraft.client.gui.navigation.ScreenDirection;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.CommonColors;
 
 @Environment(EnvType.CLIENT)
 public abstract class NarratableEntryListWidget<E extends NarratableEntryListWidget.Entry> extends FlowListWidget<E> {
-  protected static final Text SELECTION_USAGE_TEXT = Text.translatable("narration.selection.usage");
+  protected static final Component SELECTION_USAGE_TEXT = Component.translatable("narration.selection.usage");
 
   private boolean highlightSelection = true;
   private boolean highlightHover = true;
   private boolean highlightSelectionDuringHover = false;
 
-  protected NarratableEntryListWidget(MinecraftClient client, ThreeSectionLayoutWidget layout) {
+  protected NarratableEntryListWidget(Minecraft client, ThreeSectionLayoutWidget layout) {
     super(client, layout);
 
     this.contentPadding = Spacing.of(2);
     this.rowSpacing = 3;
   }
 
-  protected NarratableEntryListWidget(MinecraftClient client, int x, int y, int width, int height) {
+  protected NarratableEntryListWidget(Minecraft client, int x, int y, int width, int height) {
     super(client, x, y, width, height);
 
     this.contentPadding = Spacing.of(2);
@@ -39,21 +39,21 @@ public abstract class NarratableEntryListWidget<E extends NarratableEntryListWid
   }
 
   @Override
-  public boolean keyPressed(KeyInput input) {
+  public boolean keyPressed(KeyEvent input) {
     Entry selected = this.getSelected();
     return selected != null && selected.keyPressed(input) || super.keyPressed(input);
   }
 
   @Override
-  public GuiNavigationPath getNavigationPath(GuiNavigation navigation) {
+  public ComponentPath nextFocusPath(FocusNavigationEvent navigation) {
     if (this.getEntryCount() == 0) {
       return null;
     }
 
-    if (this.isFocused() && navigation instanceof GuiNavigation.Arrow(NavigationDirection direction)) {
+    if (this.isFocused() && navigation instanceof FocusNavigationEvent.ArrowNavigation(ScreenDirection direction)) {
       E neighbor = this.getNeighboringEntry(direction);
       if (neighbor != null) {
-        return GuiNavigationPath.of(this, GuiNavigationPath.of(neighbor));
+        return ComponentPath.path(this, ComponentPath.leaf(neighbor));
       }
 
       return null;
@@ -62,39 +62,39 @@ public abstract class NarratableEntryListWidget<E extends NarratableEntryListWid
     if (!this.isFocused()) {
       E reference = this.getSelected();
       if (reference == null) {
-        reference = this.getNeighboringEntry(navigation.getDirection());
+        reference = this.getNeighboringEntry(navigation.getVerticalDirectionForInitialFocus());
       }
       if (reference == null) {
         return null;
       }
-      return GuiNavigationPath.of(this, GuiNavigationPath.of(reference));
+      return ComponentPath.path(this, ComponentPath.leaf(reference));
     }
 
     return null;
   }
 
   @Override
-  public void appendClickableNarrations(NarrationMessageBuilder builder) {
+  public void updateWidgetNarration(NarrationElementOutput builder) {
     E hovered = this.getHoveredEntry();
 
     if (hovered != null) {
       this.appendNarrations(builder, hovered);
-      hovered.appendNarrations(builder.nextMessage());
+      hovered.appendNarrations(builder.nest());
     } else {
       E selected = this.getSelected();
       if (selected != null) {
-        this.appendNarrations(builder.nextMessage(), selected);
+        this.appendNarrations(builder.nest(), selected);
         selected.appendNarrations(builder);
       }
     }
 
     if (this.isFocused()) {
-      builder.put(NarrationPart.USAGE, SELECTION_USAGE_TEXT);
+      builder.add(NarratedElementType.USAGE, SELECTION_USAGE_TEXT);
     }
   }
 
   @Override
-  protected void renderEntry(DrawContext context, int mouseX, int mouseY, float delta, E entry) {
+  protected void renderEntry(GuiGraphics context, int mouseX, int mouseY, float delta, E entry) {
     boolean noHovers = !this.highlightHover || this.getHoveredEntry() == null;
     boolean renderHover = this.highlightHover && entry == this.getHoveredEntry();
     boolean renderSelection =
@@ -140,10 +140,10 @@ public abstract class NarratableEntryListWidget<E extends NarratableEntryListWid
       this.margin = DEFAULT_MARGIN;
     }
 
-    public abstract Text getNarration();
+    public abstract Component getNarration();
 
-    public void appendNarrations(NarrationMessageBuilder builder) {
-      builder.put(NarrationPart.TITLE, this.getNarration());
+    public void appendNarrations(NarrationElementOutput builder) {
+      builder.add(NarratedElementType.TITLE, this.getNarration());
     }
 
     @Override
@@ -157,29 +157,29 @@ public abstract class NarratableEntryListWidget<E extends NarratableEntryListWid
     }
 
     @Override
-    public boolean mouseClicked(Click click, boolean doubled) {
+    public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
       return true;
     }
 
-    protected void renderHoverBackground(DrawContext context) {
-      context.fill(this.getX(), this.getY(), this.getRight(), this.getBottom(), Colors.BLACK);
+    protected void renderHoverBackground(GuiGraphics context) {
+      context.fill(this.getX(), this.getY(), this.getRight(), this.getBottom(), CommonColors.BLACK);
     }
 
-    protected void renderHoverHighlight(DrawContext context) {
-      context.drawStrokedRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight(), Colors.LIGHT_GRAY);
+    protected void renderHoverHighlight(GuiGraphics context) {
+      context.renderOutline(this.getX(), this.getY(), this.getWidth(), this.getHeight(), CommonColors.LIGHT_GRAY);
     }
 
-    protected void renderSelectionBackground(DrawContext context) {
-      context.fill(this.getX(), this.getY(), this.getRight(), this.getBottom(), Colors.BLACK);
+    protected void renderSelectionBackground(GuiGraphics context) {
+      context.fill(this.getX(), this.getY(), this.getRight(), this.getBottom(), CommonColors.BLACK);
     }
 
-    protected void renderSelectionHighlight(DrawContext context) {
-      context.drawStrokedRectangle(
+    protected void renderSelectionHighlight(GuiGraphics context) {
+      context.renderOutline(
           this.getX(),
           this.getY(),
           this.getWidth(),
           this.getHeight(),
-          this.isFocused() ? Colors.WHITE : Colors.GRAY
+          this.isFocused() ? CommonColors.WHITE : CommonColors.GRAY
       );
     }
   }

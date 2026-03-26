@@ -13,7 +13,7 @@ public class StringConfigOption extends ConfigOption<String> {
     return new Builder(path);
   }
 
-  public static class Builder extends ConfigOption.AbstractBuilder<String, StringConfigOption, Builder> {
+  public static class Builder extends AbstractBuilder<String, StringConfigOption, Builder> {
     private Integer minLength = null;
     private Integer maxLength = null;
     private Pattern regex = null;

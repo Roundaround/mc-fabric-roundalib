@@ -2,8 +2,8 @@ package me.roundaround.roundalib.config;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.world.ClientWorld;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 
 public enum ConnectedWorldContext {
   ANY, INTEGRATED_SERVER, DEDICATED_SERVER, NONE;
@@ -35,17 +35,17 @@ public enum ConnectedWorldContext {
       return NONE;
     }
 
-    MinecraftClient client = MinecraftClient.getInstance();
-    ClientWorld world = client.world;
+    Minecraft client = Minecraft.getInstance();
+    ClientLevel world = client.level;
     if (world == null) {
       return ConnectedWorldContext.NONE;
     }
 
-    if (client.isInSingleplayer()) {
+    if (client.isLocalServer()) {
       return ConnectedWorldContext.INTEGRATED_SERVER;
     }
 
-    if (client.getCurrentServerEntry() != null) {
+    if (client.getCurrentServer() != null) {
       return ConnectedWorldContext.DEDICATED_SERVER;
     }
 

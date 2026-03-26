@@ -1,35 +1,34 @@
 package me.roundaround.roundalib.client.gui.screen;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.text.Text;
 
 public class BaseScreen extends Screen {
   protected final @NotNull ScreenParent parent;
-  protected final @NotNull MinecraftClient client;
+  protected final @NotNull Minecraft minecraft;
 
   public BaseScreen(
-      @NotNull Text title,
+      @NotNull Component title,
       @NotNull ScreenParent parent,
-      @NotNull MinecraftClient client) {
+      @NotNull Minecraft minecraft) {
     super(title);
     this.parent = parent;
-    this.client = client;
+    this.minecraft = minecraft;
   }
 
   @Override
-  public void close() {
-    this.client.setScreen(this.parent.get());
+  public void onClose() {
+    this.minecraft.setScreen(this.parent.get());
   }
 
   protected void navigateTo(Screen screen) {
-    this.client.setScreen(screen);
+    this.minecraft.setScreen(screen);
   }
 
-  protected void done(ButtonWidget button) {
-    this.close();
+  protected void done(Button button) {
+    this.onClose();
   }
 }

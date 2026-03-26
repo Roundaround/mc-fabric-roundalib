@@ -1,34 +1,32 @@
 package me.roundaround.roundalib.mixin;
 
 import me.roundaround.roundalib.event.ResourceManagerEvents;
-import net.minecraft.resource.ResourcePackManager;
-import net.minecraft.resource.VanillaDataPackProvider;
-import net.minecraft.world.level.storage.LevelStorage;
+import net.minecraft.server.packs.repository.PackRepository;
+import net.minecraft.server.packs.repository.ServerPacksSource;
+import net.minecraft.world.level.storage.LevelStorageSource;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(VanillaDataPackProvider.class)
+@Mixin(ServerPacksSource.class)
 public class VanillaDataPackProviderMixin {
   @Inject(
-      method = "createManager(Lnet/minecraft/world/level/storage/LevelStorage$Session;)" +
-               "Lnet/minecraft/resource/ResourcePackManager;", at = @At("HEAD")
+      method = "createPackRepository(Lnet/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess;)Lnet/minecraft/server/packs/repository/PackRepository;", at = @At("HEAD")
   )
   private static void beforeResourceManagerCreated(
-      LevelStorage.Session session,
-      CallbackInfoReturnable<ResourcePackManager> cir
+      LevelStorageSource.LevelStorageAccess session,
+      CallbackInfoReturnable<PackRepository> cir
   ) {
     ResourceManagerEvents.CREATING.invoker().beforeResourceManagerCreated(session);
   }
 
   @Inject(
-      method = "createManager(Lnet/minecraft/world/level/storage/LevelStorage$Session;)" +
-               "Lnet/minecraft/resource/ResourcePackManager;", at = @At("RETURN")
+      method = "createPackRepository(Lnet/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess;)Lnet/minecraft/server/packs/repository/PackRepository;", at = @At("RETURN")
   )
   private static void afterResourceManagerCreated(
-      LevelStorage.Session session,
-      CallbackInfoReturnable<ResourcePackManager> cir
+      LevelStorageSource.LevelStorageAccess session,
+      CallbackInfoReturnable<PackRepository> cir
   ) {
     ResourceManagerEvents.CREATED.invoker().afterResourceManagerCreated(session, cir.getReturnValue());
   }

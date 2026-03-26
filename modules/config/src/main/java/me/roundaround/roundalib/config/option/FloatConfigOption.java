@@ -3,8 +3,7 @@ package me.roundaround.roundalib.config.option;
 import me.roundaround.roundalib.config.ConfigPath;
 import me.roundaround.roundalib.config.panic.IllegalArgumentPanic;
 import me.roundaround.roundalib.config.panic.Panic;
-import net.minecraft.util.math.MathHelper;
-
+import net.minecraft.util.Mth;
 import java.util.Optional;
 
 public class FloatConfigOption extends ConfigOption<Float> {
@@ -61,7 +60,7 @@ public class FloatConfigOption extends ConfigOption<Float> {
     float value = this.getPendingValue();
     float minValue = Optional.ofNullable(this.getMinValue()).orElse(Float.MIN_VALUE);
     float maxValue = Optional.ofNullable(this.getMaxValue()).orElse(Float.MAX_VALUE);
-    float newValue = MathHelper.clamp(value + this.getStep() * multi, minValue, maxValue);
+    float newValue = Mth.clamp(value + this.getStep() * multi, minValue, maxValue);
 
     if (newValue == value) {
       return false;
@@ -80,7 +79,7 @@ public class FloatConfigOption extends ConfigOption<Float> {
   }
 
   // TODO: Set up a separate slider builder
-  public static class Builder extends ConfigOption.AbstractBuilder<Float, FloatConfigOption, Builder> {
+  public static class Builder extends AbstractBuilder<Float, FloatConfigOption, Builder> {
     private Float minValue = null;
     private Float maxValue = null;
     private boolean slider = false;

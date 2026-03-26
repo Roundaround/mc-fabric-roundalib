@@ -4,8 +4,7 @@ import me.roundaround.roundalib.config.option.*;
 import me.roundaround.roundalib.config.panic.IllegalStatePanic;
 import me.roundaround.roundalib.config.panic.Panic;
 import me.roundaround.roundalib.config.value.*;
-import net.minecraft.client.MinecraftClient;
-
+import net.minecraft.client.Minecraft;
 import java.io.Serial;
 import java.util.HashMap;
 
@@ -102,7 +101,7 @@ public class ControlRegistry {
   }
 
   private static Control<Integer, IntConfigOption> intControlFactory(
-      MinecraftClient client, IntConfigOption option, int width, int height
+      Minecraft client, IntConfigOption option, int width, int height
   ) {
     Control.ControlFactory<Integer, IntConfigOption> constructor = option.useSlider() ?
         IntSliderControl::new :
@@ -111,7 +110,7 @@ public class ControlRegistry {
   }
 
   private static Control<Float, FloatConfigOption> floatControlFactory(
-      MinecraftClient client, FloatConfigOption option, int width, int height
+      Minecraft client, FloatConfigOption option, int width, int height
   ) {
     Control.ControlFactory<Float, FloatConfigOption> constructor = option.useSlider() ?
         FloatSliderControl::new :
