@@ -2,11 +2,11 @@
   "required": true,
   "package": "me.roundaround.roundalib.mixin",
   "mixins": [
-    "ResourcePackProfileMixin",
-    "VanillaDataPackProviderMixin"
+    "PackMixin",
+    "ServerPacksSourceMixin"
   ],
   "client": [
-    "MinecraftClientMixin",
+    "MinecraftMixin",
     "ScreenMixin"
   ],
   "server": [],

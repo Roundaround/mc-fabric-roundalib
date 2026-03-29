@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 @Mixin(Pack.class)
-public class ResourcePackProfileMixin {
+public class PackMixin {
   @WrapOperation(
       method = "readPackMetadata", at = @At(
       value = "INVOKE",
