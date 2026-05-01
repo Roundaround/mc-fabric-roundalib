@@ -4,10 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.*;
 
 /**
  * {@link ConfigSerializer} implementation for JSON-with-comments (JSONC) format.
@@ -54,15 +53,21 @@ public final class JsoncSerializer implements ConfigSerializer {
         continue;
       }
 
-      if (!trimmed.startsWith("\"")) continue;
+      if (!trimmed.startsWith("\"")) {
+        continue;
+      }
 
       // Parse: "key": value or "key": {
       int keyEnd = trimmed.indexOf('"', 1);
-      if (keyEnd < 0) continue;
+      if (keyEnd < 0) {
+        continue;
+      }
       String key = trimmed.substring(1, keyEnd);
 
       String rest = trimmed.substring(keyEnd + 1).trim();
-      if (!rest.startsWith(":")) continue;
+      if (!rest.startsWith(":")) {
+        continue;
+      }
       rest = rest.substring(1).trim();
 
       // Strip trailing comma
@@ -77,7 +82,7 @@ public final class JsoncSerializer implements ConfigSerializer {
       }
 
       String path = currentSection != null ? currentSection + "." + key : key;
-      doc.set(path, parseValue(rest));
+      doc.set(path, this.parseValue(rest));
 
       if (!pendingComment.isEmpty()) {
         doc.setComment(path, pendingComment.toString());
@@ -120,8 +125,8 @@ public final class JsoncSerializer implements ConfigSerializer {
     for (String path : rootScalarKeys) {
       topIdx++;
       boolean last = (topIdx == totalTop);
-      writeComment(writer, doc.getComment(path), "  ");
-      writer.write("  \"" + path + "\": " + formatValue(doc.get(path)));
+      this.writeComment(writer, doc.getComment(path), "  ");
+      writer.write("  \"" + path + "\": " + this.formatValue(doc.get(path)));
       writer.write(last ? "\n" : ",\n");
     }
 
@@ -137,8 +142,8 @@ public final class JsoncSerializer implements ConfigSerializer {
         String path = keys.get(i);
         boolean lastEntry = (i == keys.size() - 1);
         String key = path.substring(group.length() + 1);
-        writeComment(writer, doc.getComment(path), "    ");
-        writer.write("    \"" + key + "\": " + formatValue(doc.get(path)));
+        this.writeComment(writer, doc.getComment(path), "    ");
+        writer.write("    \"" + key + "\": " + this.formatValue(doc.get(path)));
         writer.write(lastEntry ? "\n" : ",\n");
       }
       writer.write("  }");
@@ -152,12 +157,12 @@ public final class JsoncSerializer implements ConfigSerializer {
       Map<?, ?> map = (Map<?, ?>) doc.get(path);
       List<?> mapKeys = new ArrayList<>(map.keySet());
 
-      writeComment(writer, doc.getComment(path), "  ");
+      this.writeComment(writer, doc.getComment(path), "  ");
       writer.write("  \"" + path + "\": {\n");
       for (int i = 0; i < mapKeys.size(); i++) {
         Object k = mapKeys.get(i);
         boolean lastEntry = (i == mapKeys.size() - 1);
-        writer.write("    \"" + k + "\": " + formatValue(map.get(k)));
+        writer.write("    \"" + k + "\": " + this.formatValue(map.get(k)));
         writer.write(lastEntry ? "\n" : ",\n");
       }
       writer.write("  }");
@@ -172,11 +177,21 @@ public final class JsoncSerializer implements ConfigSerializer {
   // -------------------------------------------------------------------------
 
   private Object parseValue(String s) {
-    if (s.equals("true")) return Boolean.TRUE;
-    if (s.equals("false")) return Boolean.FALSE;
-    if (s.equals("null")) return null;
-    if (s.startsWith("\"")) return parseJsonString(s);
-    if (s.startsWith("[")) return parseJsonArray(s);
+    if (s.equals("true")) {
+      return Boolean.TRUE;
+    }
+    if (s.equals("false")) {
+      return Boolean.FALSE;
+    }
+    if (s.equals("null")) {
+      return null;
+    }
+    if (s.startsWith("\"")) {
+      return this.parseJsonString(s);
+    }
+    if (s.startsWith("[")) {
+      return this.parseJsonArray(s);
+    }
 
     try {
       return Integer.parseInt(s);
@@ -193,16 +208,32 @@ public final class JsoncSerializer implements ConfigSerializer {
     } catch (NumberFormatException ignored) {
     }
 
+    try {
+      // Try ROOT locale first
+      return NumberFormat.getInstance(Locale.ROOT).parse(s).doubleValue();
+    } catch (ParseException ignored) {
+    }
+
+    try {
+      // Fall back to user's locale
+      return NumberFormat.getInstance().parse(s).doubleValue();
+    } catch (ParseException ignored) {
+    }
+
     return s;
   }
 
   private String parseJsonString(String s) {
-    if (s.length() < 2) return s;
+    if (s.length() < 2) {
+      return s;
+    }
     StringBuilder sb = new StringBuilder();
     int i = 1;
     while (i < s.length()) {
       char c = s.charAt(i);
-      if (c == '"') break;
+      if (c == '"') {
+        break;
+      }
       if (c == '\\' && i + 1 < s.length()) {
         i++;
         switch (s.charAt(i)) {
@@ -228,9 +259,11 @@ public final class JsoncSerializer implements ConfigSerializer {
   private List<Object> parseJsonArray(String s) {
     List<Object> result = new ArrayList<>();
     String inner = s.substring(1, s.length() - 1).trim();
-    if (inner.isEmpty()) return result;
-    for (String elem : splitArrayElements(inner)) {
-      result.add(parseValue(elem.trim()));
+    if (inner.isEmpty()) {
+      return result;
+    }
+    for (String elem : this.splitArrayElements(inner)) {
+      result.add(this.parseValue(elem.trim()));
     }
     return result;
   }
@@ -245,7 +278,9 @@ public final class JsoncSerializer implements ConfigSerializer {
       char c = s.charAt(i);
       if (c == '\\' && inStr) {
         cur.append(c);
-        if (i + 1 < s.length()) cur.append(s.charAt(++i));
+        if (i + 1 < s.length()) {
+          cur.append(s.charAt(++i));
+        }
         continue;
       }
       if (c == '"') {
@@ -254,9 +289,11 @@ public final class JsoncSerializer implements ConfigSerializer {
         continue;
       }
       if (!inStr) {
-        if (c == '[' || c == '{') depth++;
-        else if (c == ']' || c == '}') depth--;
-        else if (c == ',' && depth == 0) {
+        if (c == '[' || c == '{') {
+          depth++;
+        } else if (c == ']' || c == '}') {
+          depth--;
+        } else if (c == ',' && depth == 0) {
           result.add(cur.toString());
           cur.setLength(0);
           continue;
@@ -264,7 +301,9 @@ public final class JsoncSerializer implements ConfigSerializer {
       }
       cur.append(c);
     }
-    if (!cur.isEmpty()) result.add(cur.toString());
+    if (!cur.isEmpty()) {
+      result.add(cur.toString());
+    }
     return result;
   }
 
@@ -273,46 +312,60 @@ public final class JsoncSerializer implements ConfigSerializer {
   // -------------------------------------------------------------------------
 
   private void writeComment(Writer writer, String comment, String indent) throws IOException {
-    if (comment == null) return;
+    if (comment == null) {
+      return;
+    }
     for (String line : comment.split("\n", -1)) {
       writer.write(indent + "//" + line + "\n");
     }
   }
 
   private String formatValue(Object value) {
-    if (value == null) return "null";
-    if (value instanceof Boolean b) return b.toString();
-    if (value instanceof Integer i) return i.toString();
-    if (value instanceof Long l) return l.toString();
-    if (value instanceof Double d) return formatDouble(d);
-    if (value instanceof Float f) return formatDouble(f.doubleValue());
-    if (value instanceof String s) return "\"" + escapeString(s) + "\"";
+    if (value == null) {
+      return "null";
+    }
+    if (value instanceof Boolean b) {
+      return b.toString();
+    }
+    if (value instanceof Integer i) {
+      return i.toString();
+    }
+    if (value instanceof Long l) {
+      return l.toString();
+    }
+    if (value instanceof Double d) {
+      return this.formatDouble(d);
+    }
+    if (value instanceof Float f) {
+      return this.formatDouble(f.doubleValue());
+    }
+    if (value instanceof String s) {
+      return "\"" + this.escapeString(s) + "\"";
+    }
     if (value instanceof List<?> list) {
       StringBuilder sb = new StringBuilder("[");
       boolean first = true;
       for (Object item : list) {
-        if (!first) sb.append(", ");
+        if (!first) {
+          sb.append(", ");
+        }
         first = false;
-        sb.append(formatValue(item));
+        sb.append(this.formatValue(item));
       }
       sb.append("]");
       return sb.toString();
     }
-    return "\"" + escapeString(String.valueOf(value)) + "\"";
+    return "\"" + this.escapeString(String.valueOf(value)) + "\"";
   }
 
   private String formatDouble(double d) {
     if (d == Math.floor(d) && !Double.isInfinite(d) && Math.abs(d) < 1e15) {
-      return String.format("%.1f", d);
+      return String.format(Locale.ROOT, "%.1f", d);
     }
     return Double.toString(d);
   }
 
   private String escapeString(String s) {
-    return s.replace("\\", "\\\\")
-        .replace("\"", "\\\"")
-        .replace("\n", "\\n")
-        .replace("\r", "\\r")
-        .replace("\t", "\\t");
+    return s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t");
   }
 }

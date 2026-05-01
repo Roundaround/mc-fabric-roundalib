@@ -4,8 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -47,13 +50,15 @@ public final class PropertiesSerializer implements ConfigSerializer {
       }
 
       // Find separator: first '=' or ':' not preceded by '\'
-      int sepIdx = findSeparator(trimmed);
-      if (sepIdx < 0) continue;
+      int sepIdx = this.findSeparator(trimmed);
+      if (sepIdx < 0) {
+        continue;
+      }
 
       String key = trimmed.substring(0, sepIdx).trim();
       String rawValue = trimmed.substring(sepIdx + 1).trim();
 
-      doc.set(key, parseValue(rawValue));
+      doc.set(key, this.parseValue(rawValue));
 
       if (!pendingComment.isEmpty()) {
         doc.setComment(key, pendingComment.toString());
@@ -69,13 +74,13 @@ public final class PropertiesSerializer implements ConfigSerializer {
     for (String path : doc.keySet()) {
       Object value = doc.get(path);
       if (value instanceof Map<?, ?> map) {
-        writeComment(writer, doc.getComment(path));
+        this.writeComment(writer, doc.getComment(path));
         for (Map.Entry<?, ?> entry : map.entrySet()) {
-          writer.write(path + "." + entry.getKey() + " = " + formatValue(entry.getValue()) + "\n");
+          writer.write(path + "." + entry.getKey() + " = " + this.formatValue(entry.getValue()) + "\n");
         }
       } else {
-        writeComment(writer, doc.getComment(path));
-        writer.write(path + " = " + formatValue(value) + "\n");
+        this.writeComment(writer, doc.getComment(path));
+        writer.write(path + " = " + this.formatValue(value) + "\n");
       }
     }
   }
@@ -87,25 +92,33 @@ public final class PropertiesSerializer implements ConfigSerializer {
   private int findSeparator(String s) {
     for (int i = 0; i < s.length(); i++) {
       char c = s.charAt(i);
-      if (c == '=' || c == ':') return i;
+      if (c == '=' || c == ':') {
+        return i;
+      }
     }
     return -1;
   }
 
   private Object parseValue(String s) {
-    if (s.isEmpty()) return s;
+    if (s.isEmpty()) {
+      return s;
+    }
 
-    if (s.equals("true")) return Boolean.TRUE;
-    if (s.equals("false")) return Boolean.FALSE;
+    if (s.equals("true")) {
+      return Boolean.TRUE;
+    }
+    if (s.equals("false")) {
+      return Boolean.FALSE;
+    }
 
     // Quoted string: "value"
     if (s.startsWith("\"") && s.endsWith("\"") && s.length() >= 2) {
-      return parseQuotedString(s);
+      return this.parseQuotedString(s);
     }
 
     // Inline array: [...]
     if (s.startsWith("[") && s.endsWith("]")) {
-      return parseArray(s);
+      return this.parseArray(s);
     }
 
     try {
@@ -123,6 +136,18 @@ public final class PropertiesSerializer implements ConfigSerializer {
     } catch (NumberFormatException ignored) {
     }
 
+    try {
+      // Try ROOT locale first
+      return NumberFormat.getInstance(Locale.ROOT).parse(s).doubleValue();
+    } catch (ParseException ignored) {
+    }
+
+    try {
+      // Fall back to user's locale
+      return NumberFormat.getInstance().parse(s).doubleValue();
+    } catch (ParseException ignored) {
+    }
+
     return s;
   }
 
@@ -131,7 +156,9 @@ public final class PropertiesSerializer implements ConfigSerializer {
     int i = 1;
     while (i < s.length()) {
       char c = s.charAt(i);
-      if (c == '"') break;
+      if (c == '"') {
+        break;
+      }
       if (c == '\\' && i + 1 < s.length()) {
         i++;
         switch (s.charAt(i)) {
@@ -156,9 +183,11 @@ public final class PropertiesSerializer implements ConfigSerializer {
   private List<Object> parseArray(String s) {
     List<Object> result = new ArrayList<>();
     String inner = s.substring(1, s.length() - 1).trim();
-    if (inner.isEmpty()) return result;
-    for (String elem : splitArrayElements(inner)) {
-      result.add(parseValue(elem.trim()));
+    if (inner.isEmpty()) {
+      return result;
+    }
+    for (String elem : this.splitArrayElements(inner)) {
+      result.add(this.parseValue(elem.trim()));
     }
     return result;
   }
@@ -173,7 +202,9 @@ public final class PropertiesSerializer implements ConfigSerializer {
       char c = s.charAt(i);
       if (c == '\\' && inStr) {
         cur.append(c);
-        if (i + 1 < s.length()) cur.append(s.charAt(++i));
+        if (i + 1 < s.length()) {
+          cur.append(s.charAt(++i));
+        }
         continue;
       }
       if (c == '"') {
@@ -182,9 +213,11 @@ public final class PropertiesSerializer implements ConfigSerializer {
         continue;
       }
       if (!inStr) {
-        if (c == '[' || c == '(') depth++;
-        else if (c == ']' || c == ')') depth--;
-        else if (c == ',' && depth == 0) {
+        if (c == '[' || c == '(') {
+          depth++;
+        } else if (c == ']' || c == ')') {
+          depth--;
+        } else if (c == ',' && depth == 0) {
           result.add(cur.toString());
           cur.setLength(0);
           continue;
@@ -192,7 +225,9 @@ public final class PropertiesSerializer implements ConfigSerializer {
       }
       cur.append(c);
     }
-    if (!cur.isEmpty()) result.add(cur.toString());
+    if (!cur.isEmpty()) {
+      result.add(cur.toString());
+    }
     return result;
   }
 
@@ -201,45 +236,57 @@ public final class PropertiesSerializer implements ConfigSerializer {
   // -------------------------------------------------------------------------
 
   private void writeComment(Writer writer, String comment) throws IOException {
-    if (comment == null) return;
+    if (comment == null) {
+      return;
+    }
     for (String line : comment.split("\n", -1)) {
       writer.write("#" + line + "\n");
     }
   }
 
   private String formatValue(Object value) {
-    if (value instanceof Boolean b) return b.toString();
-    if (value instanceof Integer i) return i.toString();
-    if (value instanceof Long l) return l.toString();
-    if (value instanceof Double d) return formatDouble(d);
-    if (value instanceof Float f) return formatDouble(f.doubleValue());
-    if (value instanceof String s) return "\"" + escapeString(s) + "\"";
+    if (value instanceof Boolean b) {
+      return b.toString();
+    }
+    if (value instanceof Integer i) {
+      return i.toString();
+    }
+    if (value instanceof Long l) {
+      return l.toString();
+    }
+    if (value instanceof Double d) {
+      return this.formatDouble(d);
+    }
+    if (value instanceof Float f) {
+      return this.formatDouble(f.doubleValue());
+    }
+    if (value instanceof String s) {
+      return "\"" + this.escapeString(s) + "\"";
+    }
     if (value instanceof List<?> list) {
       StringBuilder sb = new StringBuilder("[");
       boolean first = true;
       for (Object item : list) {
-        if (!first) sb.append(", ");
+        if (!first) {
+          sb.append(", ");
+        }
         first = false;
-        sb.append(formatValue(item));
+        sb.append(this.formatValue(item));
       }
       sb.append("]");
       return sb.toString();
     }
-    return "\"" + escapeString(String.valueOf(value)) + "\"";
+    return "\"" + this.escapeString(String.valueOf(value)) + "\"";
   }
 
   private String formatDouble(double d) {
     if (d == Math.floor(d) && !Double.isInfinite(d) && Math.abs(d) < 1e15) {
-      return String.format("%.1f", d);
+      return String.format(Locale.ROOT, "%.1f", d);
     }
     return Double.toString(d);
   }
 
   private String escapeString(String s) {
-    return s.replace("\\", "\\\\")
-        .replace("\"", "\\\"")
-        .replace("\n", "\\n")
-        .replace("\r", "\\r")
-        .replace("\t", "\\t");
+    return s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t");
   }
 }
