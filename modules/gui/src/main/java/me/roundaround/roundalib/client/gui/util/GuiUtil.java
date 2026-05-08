@@ -556,7 +556,7 @@ public final class GuiUtil {
   }
 
   public static void playSound(SoundManager soundManager, SoundEvent soundEvent, float volume) {
-    soundManager.play(PositionedSoundInstance.master(soundEvent, volume));
+    soundManager.play(PositionedSoundInstance.ui(soundEvent, volume));
   }
 
   public static void playSound(SoundEvent soundEvent, float volume) {
